@@ -47,11 +47,11 @@ Floats (`figure`, `table`), `longtable`, cross-column footnotes and raw `verbati
 
 Use Polyglossia/fontspec normally in `languages.tex`; see [languages.md](languages.md). Language switches restore the appropriate line-breaking rules; the package does not leave Chinese rules active for Latin or Arabic text or disable all hyphenation. A modest emergency stretch permits ordinary narrow-column line breaking without reducing the font size. Defaults reproduce the compact paired design: 9 pt body, 10.8 pt leading, A4, equal 18 mm side margins, a 6 mm column gap, and a physical center divider. These are nominal geometry, not a guarantee about a printer's ink-safe area.
 
-Document-level changes belong in configuration, for example `\geometry{letterpaper,inner=18mm,outer=18mm}` or `\renewcommand\ParallelBodySize{10}` and the matching leading. Keep equal side margins for a fixed page-center divider. Do not place per-paragraph font/spacing tweaks in the manuscript to hide layout failures. `\ParallelRunningTitle` is optional and should be short. PDF author defaults to empty; choose public metadata deliberately.
+Document-level changes belong in configuration, for example `\geometry{letterpaper,inner=18mm,outer=18mm}` or `\renewcommand\ParallelBodySize{10}` and the matching leading. Keep equal side margins for a fixed page-center divider. An asymmetric mirrored binding profile is not implemented by this package; it requires adapting the divider and physical-slot checks as well as geometry. Choose it explicitly and validate both parities rather than assuming the defaults suit every binding. Do not place per-paragraph font/spacing tweaks in the manuscript to hide layout failures. `\ParallelRunningTitle` is optional and should be short. PDF author defaults to empty; choose public metadata deliberately.
 
 ## Optional booklets
 
-Call `\ParallelFrontCover{left title}{right title}` before the body and `\ParallelBackCover{left title}{right title}` after it. The first inner face and final inside-back face remain blank; physical page numbering does not reset. Covers are full-width and are the intentional exception to paired body text. Omit them for short articles.
+Call `\ParallelFrontCover{left title}{right title}` before the body and `\ParallelBackCover{left title}{right title}` after it. The first inner face and final inside-back face remain blank; physical page numbering does not reset. The back cover is the final even physical page; inspect actual rendered blank faces and page parity before duplex printing. Covers are full-width and are the intentional exception to paired body text. Omit them for short articles.
 
 ## Build and trust boundary
 

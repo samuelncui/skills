@@ -36,6 +36,8 @@ Choose a useful ordering and document it. If the lookup claims A–Z ordering, g
 
 Use the complete `assets/learning-starter/` project for ordinary `.tex` authoring, shared `paralleltext.sty`, and native `xr-hyper`/`hyperref` links. Build `notes.tex` before `quick-reference.tex`; the resulting `notes.pdf` and `quick-reference.pdf` stay together in one folder. Both documents may be bilingual, or export one selected side. The structured collection route is also available and uses the same paired template, not another layout engine.
 
+For a worked source-to-deliverable pattern, read the [bundled three-concept example](examples/README.md): source map, full teaching notes and independently findable lookup routes, with both PDFs and all editable files together.
+
 Read [rendering](references/rendering.md) for the actual commands, structured contract and executable examples; read [layout](references/layout.md) only when adapting the design. Resolve paths relative to this installed skill. The skill is self-contained and does not require the sibling bilingual skill.
 
 ## Check the result, not only the build

@@ -1,8 +1,8 @@
 {
-  "stage": "locally-validated-clean-layout",
+  "stage": "locally-validated-installed-examples",
   "date": "2026-10-03",
-  "scope": "Original generic examples, installed-skill projects and explicit layout regressions; not universal language or professional-domain certification.",
-  "unit_tests": 59,
+  "scope": "One original article in four language pairs, two self-contained installed skills, and explicit layout/security regressions. Not universal language or professional-domain certification.",
+  "unit_tests": 64,
   "render_suites": [
     {
       "suite": "structured",
@@ -17,10 +17,17 @@
           "documents": [
             {
               "part": "document",
-              "pages": 2,
-              "sha256": "2fed256388f11338363a762051f34e28398628e506175a3843b1fc9169a8b584",
-              "paired_blocks_checked": 21,
+              "pages": 3,
+              "sha256": "a6016c93dcd5fdd686183b466f06dd59d4deeb9dbf1152e3c90ca8f2d353969e",
+              "paired_blocks_checked": 24,
               "embedded_fonts_checked": 4,
+              "article_features": {
+                "ok": true,
+                "both_paragraphs_cross_pages": true,
+                "following_pair_resynchronizes": true,
+                "paired_captions_with_photo": true,
+                "one_full_width_photo": true
+              },
               "quote_start_insets_pt": [
                 24.9064,
                 24.9018
@@ -36,8 +43,8 @@
           "documents": [
             {
               "part": "document",
-              "pages": 2,
-              "sha256": "ccfcf29de29da43b863ecd27aed908e52434b139b494dceca871c613f35f3cf9",
+              "pages": 3,
+              "sha256": "4d4916a63383fccc909f5ab07c9a1dedf5d9f3c5b8896d8177a2b60969849d1e",
               "paired_blocks_checked": 0,
               "embedded_fonts_checked": 4
             }
@@ -51,8 +58,8 @@
           "documents": [
             {
               "part": "document",
-              "pages": 2,
-              "sha256": "38bae0c139da23557bfa00331df5c075c21e4e9fbf80d71edb729da0d8a922fb",
+              "pages": 3,
+              "sha256": "890550d36d9fbf8d53bd11c1fa7bf1d208cedd1846b491eb10adf562e6908037",
               "paired_blocks_checked": 0,
               "embedded_fonts_checked": 4
             }
@@ -67,9 +74,16 @@
             {
               "part": "document",
               "pages": 3,
-              "sha256": "d23b16f714cf4eac0010ba96576d1aff8dadad93b9c48844d3f5e18543f8e017",
+              "sha256": "f095f3997ebaba164073168b9b9b76cab2b9a15423460557e4ac40143d2dcf29",
               "paired_blocks_checked": 24,
               "embedded_fonts_checked": 7,
+              "article_features": {
+                "ok": true,
+                "both_paragraphs_cross_pages": true,
+                "following_pair_resynchronizes": true,
+                "paired_captions_with_photo": true,
+                "one_full_width_photo": true
+              },
               "quote_start_insets_pt": [
                 24.9064,
                 24.9018
@@ -86,7 +100,7 @@
             {
               "part": "document",
               "pages": 3,
-              "sha256": "6b9f66c60e34a2f701e7e5c1f5d92ee3e36d2ed0fb36bf3663db2f6b618b7363",
+              "sha256": "4d4916a63383fccc909f5ab07c9a1dedf5d9f3c5b8896d8177a2b60969849d1e",
               "paired_blocks_checked": 0,
               "embedded_fonts_checked": 4
             }
@@ -101,7 +115,7 @@
             {
               "part": "document",
               "pages": 2,
-              "sha256": "45422fd19045cf7c909959c178b1d8e43a9abdf01303d4ec3477dfcee8536dcc",
+              "sha256": "a3af494cf894b70bf6b7f1c4794692ae6acc6da6a826b2bcf141dc5f7e323177",
               "paired_blocks_checked": 0,
               "embedded_fonts_checked": 7
             }
@@ -115,10 +129,17 @@
           "documents": [
             {
               "part": "document",
-              "pages": 2,
-              "sha256": "0c66d2bc4b6750d0fb0b8a1ca7ed368a0ae7ec503ea3f2f1df55d3fe9d80ffe9",
-              "paired_blocks_checked": 21,
+              "pages": 3,
+              "sha256": "e54cbe4d94146353139dfd009e6e300b18c658aaeddc8c5f66afa08350e9097c",
+              "paired_blocks_checked": 24,
               "embedded_fonts_checked": 6,
+              "article_features": {
+                "ok": true,
+                "both_paragraphs_cross_pages": true,
+                "following_pair_resynchronizes": true,
+                "paired_captions_with_photo": true,
+                "one_full_width_photo": true
+              },
               "quote_start_insets_pt": [
                 24.9064,
                 24.9116
@@ -134,8 +155,8 @@
           "documents": [
             {
               "part": "document",
-              "pages": 2,
-              "sha256": "610324623b83dfe314ac24927c9f2e9b8d9b9a1f1e934f7ac31a40ad2c12d9d6",
+              "pages": 3,
+              "sha256": "96bf27ec038796455821faddb12f9a71f18930365db5b23316f159bbb23a592d",
               "paired_blocks_checked": 0,
               "embedded_fonts_checked": 4
             }
@@ -150,7 +171,7 @@
             {
               "part": "document",
               "pages": 2,
-              "sha256": "5520a89faf78e264f4c3f31fdf57aff154fe1b0cd9e2ed39d195b60a00a25edc",
+              "sha256": "ae007ad16a231b5e547fc2b06f7f0af907c14985dc559ae0bd38b2cf3ffe81c5",
               "paired_blocks_checked": 0,
               "embedded_fonts_checked": 6
             }
@@ -164,10 +185,17 @@
           "documents": [
             {
               "part": "document",
-              "pages": 2,
-              "sha256": "2c7f40ea6dd6c68d3602aca871424f1ca5296c49003ac9584914db271628e183",
-              "paired_blocks_checked": 21,
+              "pages": 3,
+              "sha256": "f4569e416cd746573c2c736acfb5be87143935ab653a28e0ca134f1bf0d2077f",
+              "paired_blocks_checked": 24,
               "embedded_fonts_checked": 10,
+              "article_features": {
+                "ok": true,
+                "both_paragraphs_cross_pages": true,
+                "following_pair_resynchronizes": true,
+                "paired_captions_with_photo": true,
+                "one_full_width_photo": true
+              },
               "quote_start_insets_pt": [
                 24.9064,
                 24.9018
@@ -184,7 +212,7 @@
             {
               "part": "document",
               "pages": 2,
-              "sha256": "d55e414394fc77774110807b0f75c37b0b70b909a4b2895c13a2e0bf51f6df6d",
+              "sha256": "a3af494cf894b70bf6b7f1c4794692ae6acc6da6a826b2bcf141dc5f7e323177",
               "paired_blocks_checked": 0,
               "embedded_fonts_checked": 7
             }
@@ -198,8 +226,8 @@
           "documents": [
             {
               "part": "document",
-              "pages": 2,
-              "sha256": "d10c90d2d30be3f22cf8c6d7eb60c768d03a8d5cfd83d9ec6bb9f6cb68a254a9",
+              "pages": 3,
+              "sha256": "42d92a570770d36f621a36514ae36fa20908d09c3356d3a3cd06568c0767fd3e",
               "paired_blocks_checked": 0,
               "embedded_fonts_checked": 7
             }
@@ -258,9 +286,9 @@
           "documents": [
             {
               "part": "document",
-              "pages": 2,
-              "sha256": "dc1b822fb3970f9b529f32e78da1bcac1986888e2a272851d2e1eb135e9da6ae",
-              "paired_blocks_checked": 21,
+              "pages": 3,
+              "sha256": "9c26387b5b8a97dfe8fd430d6ee8fed5b3a878b15f52e3d65235137b777ae0ea",
+              "paired_blocks_checked": 24,
               "embedded_fonts_checked": 6
             }
           ]
@@ -605,11 +633,18 @@
           "documents": [
             {
               "part": "document",
-              "pages": 2,
-              "sha256": "bc2a7dc57701b4616ee486d550fee2f6c22fb291b6efdbe3bb37ae3555916fcd",
-              "paired_blocks_checked": 21,
+              "pages": 3,
+              "sha256": "d853b6658814990b24f440a00cdb669f927228096f58f3a0929a2718e7896e38",
+              "paired_blocks_checked": 24,
               "embedded_fonts_checked": 4,
               "native_and_structured_pixels_identical": true,
+              "article_features": {
+                "ok": true,
+                "both_paragraphs_cross_pages": true,
+                "following_pair_resynchronizes": true,
+                "paired_captions_with_photo": true,
+                "one_full_width_photo": true
+              },
               "quote_start_insets_pt": [
                 24.9064,
                 24.9018
@@ -626,10 +661,17 @@
             {
               "part": "document",
               "pages": 3,
-              "sha256": "7e62a616002b63b0d71f10de3766e608e910b643a71d5e9ffa7e0ee843631a7b",
+              "sha256": "b73cdfb815892b44859e74b073bc9d8cba6c1392f82afb3b22e5df3d9316dfc9",
               "paired_blocks_checked": 24,
               "embedded_fonts_checked": 7,
               "native_and_structured_pixels_identical": true,
+              "article_features": {
+                "ok": true,
+                "both_paragraphs_cross_pages": true,
+                "following_pair_resynchronizes": true,
+                "paired_captions_with_photo": true,
+                "one_full_width_photo": true
+              },
               "quote_start_insets_pt": [
                 24.9064,
                 24.9018
@@ -645,11 +687,18 @@
           "documents": [
             {
               "part": "document",
-              "pages": 2,
-              "sha256": "be5ba0bdc1a266a96164570221ae8504981e896b3032fb1e6ba9b8ccffb85569",
-              "paired_blocks_checked": 21,
+              "pages": 3,
+              "sha256": "e31228f9090fdcf5668593cc6dcac6465ce12cdc9bb0d490e463f027b6c82a41",
+              "paired_blocks_checked": 24,
               "embedded_fonts_checked": 6,
               "native_and_structured_pixels_identical": true,
+              "article_features": {
+                "ok": true,
+                "both_paragraphs_cross_pages": true,
+                "following_pair_resynchronizes": true,
+                "paired_captions_with_photo": true,
+                "one_full_width_photo": true
+              },
               "quote_start_insets_pt": [
                 24.9064,
                 24.9116
@@ -665,11 +714,18 @@
           "documents": [
             {
               "part": "document",
-              "pages": 2,
-              "sha256": "92f94cfc3eb9ca50380842390d0eb68e68aa866086c45ba76f6bd67e6f9b98a4",
-              "paired_blocks_checked": 21,
+              "pages": 3,
+              "sha256": "d5c223dcfb77bb03026ccba7ae43184c14e0e2ffde4c0544806fe975172cb4cb",
+              "paired_blocks_checked": 24,
               "embedded_fonts_checked": 10,
               "native_and_structured_pixels_identical": true,
+              "article_features": {
+                "ok": true,
+                "both_paragraphs_cross_pages": true,
+                "following_pair_resynchronizes": true,
+                "paired_captions_with_photo": true,
+                "one_full_width_photo": true
+              },
               "quote_start_insets_pt": [
                 24.9064,
                 24.9018
@@ -942,16 +998,21 @@
     }
   ],
   "positive_pdfs": 59,
-  "positive_pages": 124,
+  "positive_pages": 135,
   "source_sha256": {
     "skills/bilingual-pdf/assets/paralleltext.sty": "aa7629313a2ade1d0e66c8798f3978f04195557e5d737d6c05addaa24c29f75e",
     "skills/bilingual-pdf/scripts/bilingual_pdf.py": "35ab6e67046246f6f306745739060696178ef7399a7c5f3aee33ec8dd1f4b491",
     "skills/course-guide-quick-reference/scripts/course_documents.py": "2873592a5e87204c11120415c1f076dd66dc286a769d54f33183a7a64107ee04",
-    "tests/render_matrix.py": "4100f000688d7c4d98f08c1a3646ef1f6961b1e454926f40c40c06b208d4d3ad",
-    "tests/native_matrix.py": "e444ca4c2f1f1a1dcf60057b7e28bd17f6b3d984aace4125675bad23879fb449",
-    "tests/layout_checks.py": "12e7b23ad7f8b3bd5332be84372d28c2ec72a1d8631970f5450229c74cb11cca"
+    "tests/render_matrix.py": "119b64f7f153b8ee7524fe801446f98d0ae5f782148a044ad6c072a64eeda9c5",
+    "tests/native_matrix.py": "c87e2b0bf974ef7f50efca602689c7eab3355c920ee4ac5ed76a38dd19a68e7a",
+    "tests/layout_checks.py": "81f63e3bd5a1c1eb6c9fa5182ff85b708c6b0eeb86274ff1ecbedeaadcc2fdba",
+    "tests/test_examples.py": "e4ef79b31cdb6b2b37ba8c97a6a7cd4daa4d6cac17c98dd8b7ab11ba0e8139d7",
+    "tools/collect_example_outputs.py": "2403e99e1572b3f820b4f3ab21609cd2c7fca128ffeb894ed8ceed8bfff47c7e"
   },
-  "curated_outputs": "../examples/MANIFEST.json",
+  "curated_outputs": [
+    "../skills/bilingual-pdf/examples/MANIFEST.json",
+    "../skills/course-guide-quick-reference/examples/MANIFEST.json"
+  ],
   "local_environment": {
     "python": "3.12.14",
     "engine": "XeTeX 0.999996, TeX Live 2025/dev/Debian",
@@ -959,51 +1020,88 @@
     "pymupdf": "1.26.6",
     "source_date_epoch": 1767225600
   },
-  "independent_review": {
-    "curated_article_pages": 9,
-    "learning_pages_previously_reviewed_and_pixel_equal": 5,
+  "page_and_language_review": {
+    "method": "Sequential author review; not an independent specialist audit.",
+    "curated_article_pages": 12,
+    "learning_pages": 5,
     "checks": [
-      "Four-language physical quote slots and glyph insets",
-      "One shared photograph with paired captions and masked divider",
-      "True cross-page prose, unequal continuations and next-unit resynchronization",
-      "Native counters increment once and references resolve",
-      "CC0 photo source, metadata and generic public-content audit"
+      "Read all five language versions in context and reconcile corresponding content",
+      "Repeated English and Chinese text is identical across editions",
+      "One shared photograph, same-page paired captions, and no divider over the image",
+      "Both long paragraphs cross pages in each complete article, with following-unit resynchronization",
+      "All curated pages inspected at readable resolution; unchanged final pages compared pixel-for-pixel to reviewed pages",
+      "All 63 learning-set links resolve, with visible generated Quick and Notes page routes",
+      "Generic public-content, portable path, image-license and metadata audit"
     ],
-    "limits": "Author-level language reconciliation; not professional linguistic certification. Stress fixtures repeat text for layout testing."
+    "limits": "Author-level language reconciliation, not professional linguistic certification. Unequal continuations intentionally leave whitespace below the shorter translation."
   },
-  "realistic_usage": [
+  "standalone_installation": [
     {
-      "workflow": "Original teaching source to independently authored notes and keyword/concept Quick",
-      "passed": true,
-      "notes_pages": 3,
-      "quick_pages": 2,
-      "source_map_records": 32,
-      "lookup_corrections_reviewed": true,
-      "source_only_relocation": true
+      "skill": "bilingual-pdf",
+      "only_one_installed_skill": true,
+      "checkout_inputs": [],
+      "pdfs": [
+        {
+          "name": "document.pdf",
+          "pages": 3,
+          "ok": true
+        }
+      ]
     },
     {
-      "workflow": "Independent native starter authoring and separate structured authoring of a supplied article with a shared photo and continuous long paragraph",
-      "passed": true,
-      "pages_per_route": 2,
-      "source_paragraphs_preserved": true,
-      "paired_blocks": 4,
-      "embedded_fonts": 7,
-      "source_only_rebuilds": true,
-      "pixels_equal_at_dpi": 108,
-      "pdf_bytes_equal_between_routes": false,
-      "reviewed_pages": 4,
-      "minor_hurdle": "Removed the documented optional native running title to match the structured presentation."
+      "skill": "course-guide-quick-reference",
+      "only_one_installed_skill": true,
+      "checkout_inputs": [],
+      "pdfs": [
+        {
+          "name": "quick-reference.pdf",
+          "pages": 2,
+          "ok": true
+        },
+        {
+          "name": "notes.pdf",
+          "pages": 3,
+          "ok": true
+        }
+      ]
     }
   ],
-  "legacy_cjk_compatibility": {
-    "cause": "Polyglossia before 2.3 lacks the Chinese/Japanese automatic line-breaking hooks.",
-    "simulated_legacy_cases_passed": 5,
-    "negative_control_reproduced_prior_ci_failures": true,
-    "nested_language_assertions_passed": 18,
-    "modern_guard_noop_passed": true,
-    "actual_old_distribution_validation": "Use the exact-commit Ubuntu 24.04 Actions result; local simulation is not old-distribution certification."
+  "prior_release_checks_not_repeated": {
+    "realistic_usage": [
+      {
+        "workflow": "Original teaching source to independently authored notes and keyword/concept Quick",
+        "passed": true,
+        "notes_pages": 3,
+        "quick_pages": 2,
+        "source_map_records": 32,
+        "lookup_corrections_reviewed": true,
+        "source_only_relocation": true
+      },
+      {
+        "workflow": "Independent native starter authoring and separate structured authoring of a supplied article with a shared photo and continuous long paragraph",
+        "passed": true,
+        "pages_per_route": 2,
+        "source_paragraphs_preserved": true,
+        "paired_blocks": 4,
+        "embedded_fonts": 7,
+        "source_only_rebuilds": true,
+        "pixels_equal_at_dpi": 108,
+        "pdf_bytes_equal_between_routes": false,
+        "reviewed_pages": 4,
+        "minor_hurdle": "Removed the documented optional native running title to match the structured presentation."
+      }
+    ],
+    "legacy_cjk_compatibility": {
+      "cause": "Polyglossia before 2.3 lacks the Chinese/Japanese automatic line-breaking hooks.",
+      "simulated_legacy_cases_passed": 5,
+      "negative_control_reproduced_prior_ci_failures": true,
+      "nested_language_assertions_passed": 18,
+      "modern_guard_noop_passed": true,
+      "actual_old_distribution_validation": "Use the exact-commit Ubuntu 24.04 Actions result; local simulation is not old-distribution certification."
+    }
   },
   "unverified": [
+    "Asymmetric mirrored binding profiles; the canonical package uses symmetric side margins and a physical page-center divider",
     "Other language combinations and traditional Chinese",
     "Vertical writing and unrestricted font fallback",
     "Native Windows font discovery",
@@ -1014,6 +1112,7 @@
     "Expected failure cases are not counted as usable PDFs.",
     "No overflow or missing glyph is accepted in positive cases.",
     "Native and structured pixel comparisons use the same environment; cross-platform byte identity is not claimed.",
-    "Native TeX is executable; disabled shell escape is not a filesystem sandbox."
+    "Native TeX is executable; disabled shell escape is not a filesystem sandbox.",
+    "Root maintainer tools are not installed-skill runtime dependencies."
   ]
 }

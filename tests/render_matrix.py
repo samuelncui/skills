@@ -7,23 +7,22 @@ p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);a
 work=args.output.resolve()
 if work.exists():raise SystemExit('Choose a new test directory')
 work.mkdir(parents=True)
-shutil.copytree(ROOT/'examples',work/'inputs')
 for skill in ['bilingual-pdf','course-guide-quick-reference']:
  shutil.copytree(ROOT/'skills'/skill,work/skill,ignore=shutil.ignore_patterns('__pycache__'))
 shutil.copytree(ROOT/'tests/fixtures',work/'fixtures')
 base=json.loads((work/'fixtures/garden-en-fr.json').read_text());base['layout']={'covers':True};cases=[];case_sources={}
 for name in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja']:
  for mode in ['bilingual','left','right']:
-  source=work/'inputs/bilingual-pdf'/name
+  source=work/'bilingual-pdf/examples'/name
   cases.append((name+'-'+mode,json.loads((source/'source.json').read_text()),mode,0));case_sources[name+'-'+mode]=source
 rtlrefs=json.loads((work/'fixtures/garden-en-ar.json').read_text());rtlrefs['blocks'] += [{'id':'intro-ref','kind':'reference','target':'check','text':['See the introduction','انظر المقدمة']},{'id':'average-ref','kind':'reference','target':'average','text':['See the average','انظر المتوسط']}]
 for mode in ['bilingual','left','right']:cases.append(('rtl-references-'+mode,rtlrefs,mode,0))
-rev=json.loads((work/'inputs/bilingual-pdf/en-ar/source.json').read_text());rev['languages'].reverse();rev['title'].reverse()
+rev=json.loads((work/'bilingual-pdf/examples/en-ar/source.json').read_text());rev['languages'].reverse();rev['title'].reverse()
 for b in rev['blocks']:
  b['text'].reverse()
  for field in ('headers','rows'):
   if field in b:b[field].reverse()
-cases.append(('ar-en-reversed',rev,'bilingual',0));case_sources['ar-en-reversed']=work/'inputs/bilingual-pdf/en-ar'
+cases.append(('ar-en-reversed',rev,'bilingual',0));case_sources['ar-en-reversed']=work/'bilingual-pdf/examples/en-ar'
 no=copy.deepcopy(base);no['layout']={'covers':False,'paper':'letter'};cases.append(('letter-no-covers',no,'bilingual',0))
 multi=copy.deepcopy(base);multi['blocks']=[]
 for i in range(70):
@@ -35,13 +34,13 @@ for mode in ['bilingual','left','right']:cases.append(('parent-references-'+mode
 ov=copy.deepcopy(base);ov['blocks']=[{'id':'oversize','text':['A long explanation. '*3000,'Une longue explication. '*3000]}];cases.append(('oversized-block',ov,'bilingual',3))
 glyph=copy.deepcopy(base);glyph['blocks'][0]['text'][0]='Missing glyph 🦄';cases.append(('missing-glyph',glyph,'bilingual',2))
 for name in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja']:
- source=work/'inputs/bilingual-pdf'/name;article=json.loads((source/'source.json').read_text())
+ source=work/'bilingual-pdf/examples'/name;article=json.loads((source/'source.json').read_text())
  passage=next(b['text'] for b in article['blocks'] if b['id']=='notebook-prose')
  flow=copy.deepcopy(article);flow['blocks']=[{'id':'long-prose','kind':'paragraph','flow':'breakable','text':[(x+' ')*18 for x in passage]},{'id':'after-flow','text':passage}]
  cases.append(('flow-'+name,flow,'bilingual',0));case_sources['flow-'+name]=source
  captions={'en':'Shared photograph.','fr':'Photographie partagée.','zh-Hans':'共用照片。','ar':'صورة مشتركة.','ja':'共有写真。'}
  wide=copy.deepcopy(article);wide['blocks']=[{'id':'photo','kind':'figure','placement':'shared','image':'images/footpath.png','text':[captions[l] for l in article['languages']]},{'id':'after-photo','text':passage}]
- cases.append(('shared-photo-'+name,wide,'bilingual',0));case_sources['shared-photo-'+name]=work/'inputs/bilingual-pdf/en-zh-Hans'
+ cases.append(('shared-photo-'+name,wide,'bilingual',0));case_sources['shared-photo-'+name]=source
 
 def stage_input(name,data,source,collection=False):
  directory=work/'generated-inputs'/name;directory.mkdir(parents=True)
@@ -69,9 +68,10 @@ def run(c):
    matches=matches and len(links)==expected_links and all(link.get('page')==labels['steps']-1 for link in links)
   if not matches:r['parent_reference_error']='Parent destinations or first-child page records differ';proc.returncode=4
  if proc.returncode==0 and name in [x+'-bilingual' for x in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja']]:
-  from layout_checks import quote_geometry
+  from layout_checks import quote_geometry, article_features
   quote=quote_geometry(work/name/'document.pdf',data['languages']);r['quote_geometry']=quote
-  if not quote['ok']:proc.returncode=4
+  features=article_features(work/name/'document.pdf');r['article_features']=features
+  if not quote['ok'] or not features['ok']:proc.returncode=4
  if proc.returncode==0 and name.startswith('flow-'):
   import re
   aux=(work/name/'document.aux').read_text();page_labels={m[1]:int(m[2]) for m in re.finditer(r'\\newlabel\{pt-internal:([^{}]+)\}\{\{[^{}]*\}\{(\d+)\}',aux)}

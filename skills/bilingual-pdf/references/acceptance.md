@@ -18,7 +18,7 @@ Keep source projects complete. A Quick Reference's relative target PDF must stay
 
 Render every page to a readable image and look at it. Confirm useful first-page content, meaningful density, corresponding units on the same page, a stable divider, intact equations, properly placed list markers, readable captions and accurate figures/tables. Review both page parities and every intentional cover/blank when present. An image can compile cleanly and still have a wrong scale or label.
 
-Read source and translation independently, then reconcile meaning, names, numbers, qualifications and omissions. Exact vertical starts do not prove a translation. State when review is author-only, when an independent specialist read it, and what remains unverified.
+Read source and translation independently in context, including English readability when present, then reconcile meaning, names, numbers, negation, qualifications and omissions. Track recurring terminology and deliberate variants; prefer natural sentences over literal word substitutions. Check that every figure mentioned is present or precisely located and explained, and that a worked example includes the inputs and assumptions needed to follow it. Exact vertical starts do not prove a translation. State when review is author-only, when an independent specialist read it, and what remains unverified.
 
 ## Delivery
 

@@ -1,0 +1,82 @@
+{
+  "source_hashes": {
+    "README.md": "f86f679c14c96bbb40fbe3d747a2138dee250d3e57833289712059e47bbe80b6",
+    "en-ar/LICENSE": "51f60a5ff7e346c2b2400c495aef61cf00f8f357f984e93a9e74b7eccd3e0294",
+    "en-ar/README.md": "5aa6e74a655828de55aacc60a7ee3ad4429c105291d68a0755875ec54dc06c17",
+    "en-ar/content.tex": "294dae359eca6424e84c7677bf78f8a8260af3c0c41c636e2c9cd9bc8681f1d1",
+    "en-ar/images/PHOTO-LICENSE.md": "99c39e16caa84638355806552849d51458358a935e0de57fbd748211fef2161e",
+    "en-ar/images/figure-route-image.png": "572945049ce9e9adbe3ef0aa2aeb592f8131a1b38b2f3b0ec0921890680d9767",
+    "en-ar/images/footpath.png": "c3b6eeb37ad61c3a0d52d4f710ee7698953e7ddc343c2e6c80397f3361112b43",
+    "en-ar/languages.tex": "d3f3341ceb75d93b1378e74365a622106ab901b5bf50f24370952f36e6f39717",
+    "en-ar/main.tex": "f8b1f9a1e8d0ff1aa797146c6f3f847262017a62b150899f89dbcf0fb0bc2b3b",
+    "en-ar/paralleltext.sty": "aa7629313a2ade1d0e66c8798f3978f04195557e5d737d6c05addaa24c29f75e",
+    "en-ar/source.json": "88c6b3d447417afe0d3c1538b0a0099de48d002232bcb939d9f691ca96d6aef5",
+    "en-fr/LICENSE": "51f60a5ff7e346c2b2400c495aef61cf00f8f357f984e93a9e74b7eccd3e0294",
+    "en-fr/README.md": "3f7c2bcfd15cc16882962b23b57592ea4a9021305076740815f53099c245ddf4",
+    "en-fr/content.tex": "7d981297bc678ca63760e3c74e5550e8f5d9c569133fa83e12d60728ccb4fa33",
+    "en-fr/images/PHOTO-LICENSE.md": "99c39e16caa84638355806552849d51458358a935e0de57fbd748211fef2161e",
+    "en-fr/images/figure-route-image.png": "572945049ce9e9adbe3ef0aa2aeb592f8131a1b38b2f3b0ec0921890680d9767",
+    "en-fr/images/footpath.png": "c3b6eeb37ad61c3a0d52d4f710ee7698953e7ddc343c2e6c80397f3361112b43",
+    "en-fr/languages.tex": "9277deb8c774cb2b1afbdce735e225cb16f04c2f117a667bb0c0d66eaa067d3c",
+    "en-fr/main.tex": "f8b1f9a1e8d0ff1aa797146c6f3f847262017a62b150899f89dbcf0fb0bc2b3b",
+    "en-fr/paralleltext.sty": "aa7629313a2ade1d0e66c8798f3978f04195557e5d737d6c05addaa24c29f75e",
+    "en-fr/source.json": "71fc7c8de94104336f44f654fdc4839c218ac24c9a1fffea23cc9093ad53cbbb",
+    "en-zh-Hans/LICENSE": "51f60a5ff7e346c2b2400c495aef61cf00f8f357f984e93a9e74b7eccd3e0294",
+    "en-zh-Hans/README.md": "70573a963b227a0e5f120e1e046f1d0b4fecd5ba2babef27871072c9acb10ea4",
+    "en-zh-Hans/content.tex": "98f303571f403a9b0ebab391446b4adcea8dbfe8816bb4de988c54f087bdfea4",
+    "en-zh-Hans/images/PHOTO-LICENSE.md": "99c39e16caa84638355806552849d51458358a935e0de57fbd748211fef2161e",
+    "en-zh-Hans/images/figure-route-image.png": "572945049ce9e9adbe3ef0aa2aeb592f8131a1b38b2f3b0ec0921890680d9767",
+    "en-zh-Hans/images/footpath.png": "c3b6eeb37ad61c3a0d52d4f710ee7698953e7ddc343c2e6c80397f3361112b43",
+    "en-zh-Hans/languages.tex": "afa1625e0e8278c8c8116b1484f8326ab1a8abdf3e93541f88a172afb7cab9c6",
+    "en-zh-Hans/main.tex": "f8b1f9a1e8d0ff1aa797146c6f3f847262017a62b150899f89dbcf0fb0bc2b3b",
+    "en-zh-Hans/paralleltext.sty": "aa7629313a2ade1d0e66c8798f3978f04195557e5d737d6c05addaa24c29f75e",
+    "en-zh-Hans/source.json": "d27c807e6543f7d040346c016a3fff19ad8342dead4b60fd8edf3f24250f5eb5",
+    "zh-Hans-ja/LICENSE": "51f60a5ff7e346c2b2400c495aef61cf00f8f357f984e93a9e74b7eccd3e0294",
+    "zh-Hans-ja/README.md": "8205222faf0f49c37968e029aed44041f117fb327a74dc1774f67382de43eb67",
+    "zh-Hans-ja/content.tex": "4fc71bcb05b952798fc275391363fa1283b9912fba02c423b9d135c7e84128ac",
+    "zh-Hans-ja/images/PHOTO-LICENSE.md": "99c39e16caa84638355806552849d51458358a935e0de57fbd748211fef2161e",
+    "zh-Hans-ja/images/figure-route-image.png": "572945049ce9e9adbe3ef0aa2aeb592f8131a1b38b2f3b0ec0921890680d9767",
+    "zh-Hans-ja/images/footpath.png": "c3b6eeb37ad61c3a0d52d4f710ee7698953e7ddc343c2e6c80397f3361112b43",
+    "zh-Hans-ja/languages.tex": "16b0864ec24711298c8d8a6ebb247425e0a0d97cb6fbae64264a1379692f6acb",
+    "zh-Hans-ja/main.tex": "f8b1f9a1e8d0ff1aa797146c6f3f847262017a62b150899f89dbcf0fb0bc2b3b",
+    "zh-Hans-ja/paralleltext.sty": "aa7629313a2ade1d0e66c8798f3978f04195557e5d737d6c05addaa24c29f75e",
+    "zh-Hans-ja/source.json": "237b1a89958d0eddece5ad7445e7953205d7b90cb11ee6f1af30667c7ecb0e15"
+  },
+  "files": [
+    {
+      "path": "en-fr/document.pdf",
+      "sha256": "a6016c93dcd5fdd686183b466f06dd59d4deeb9dbf1152e3c90ca8f2d353969e"
+    },
+    {
+      "path": "en-zh-Hans/document.pdf",
+      "sha256": "f095f3997ebaba164073168b9b9b76cab2b9a15423460557e4ac40143d2dcf29"
+    },
+    {
+      "path": "en-ar/document.pdf",
+      "sha256": "e54cbe4d94146353139dfd009e6e300b18c658aaeddc8c5f66afa08350e9097c"
+    },
+    {
+      "path": "zh-Hans-ja/document.pdf",
+      "sha256": "f4569e416cd746573c2c736acfb5be87143935ab653a28e0ca134f1bf0d2077f"
+    }
+  ],
+  "previews": [
+    {
+      "path": "en-fr/preview.png",
+      "sha256": "8396117c11d1803fffed428620ae29cb38a8a0a2065d23686f953a8124770e98"
+    },
+    {
+      "path": "en-zh-Hans/preview.png",
+      "sha256": "c650c0f60f8e85b2edad644fc797125239a5f4c1cb8f8d910171f9f15d223780"
+    },
+    {
+      "path": "en-ar/preview.png",
+      "sha256": "f8c6025f25ec009197c627229477b6ac0853f153edfd2b96e3ff9e1f1c001189"
+    },
+    {
+      "path": "zh-Hans-ja/preview.png",
+      "sha256": "b649fea1ee7135379deb6ea0d1fe4b8798bf0630b7534c3d2bff81a8ff9a4d92"
+    }
+  ],
+  "regeneration": "See the repository tests/README.md. Sources and outputs are bundled in this skill; byte identity requires the same toolchain and fixed clock."
+}

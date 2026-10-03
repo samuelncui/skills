@@ -71,7 +71,7 @@ class InputTests(unittest.TestCase):
   self.doc['blocks'].append({'id':'steps.item-1','text':['A','B']})
   with self.assertRaises(InputError):validate(self.doc)
  def test_schema_examples(self):
-  for p in (ROOT/'examples/bilingual-pdf').glob('*/source.json'):
+  for p in (ROOT/'skills/bilingual-pdf/examples').glob('*/source.json'):
    if p.name.startswith('course-'):continue
    validate(json.loads(p.read_text()))
 

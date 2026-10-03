@@ -25,3 +25,18 @@ def quote_geometry(pdf_path,languages,ident='prompt'):
             ok=abs(start[0]-slot)<.2 and abs(inset-25*72/72.27)<1
             result.append({'side':side,'language':language,'slot_x':slot,'measured_slot_x':start[0],'quote_start_inset':inset,'ok':ok})
     return {'ok':all(x['ok'] for x in result),'sides':result}
+
+def article_features(pdf_path):
+    """Check the actual complete article, not only isolated helper fixtures."""
+    path = Path(pdf_path)
+    aux = path.with_suffix('.aux').read_text()
+    pages = {m[1]: int(m[2]) for m in re.finditer(r'\\newlabel\{pt-internal:([^{}]+)\}\{\{[^{}]*\}\{(\d+)\}', aux)}
+    crossed = all(pages.get('long-prose-' + side + '-finish', 0) > pages.get('long-prose-' + side, 0) for side in ('L', 'R'))
+    resumed = pages.get('notebook-L') == pages.get('notebook-R') and pages.get('notebook-L', 0) >= max(pages.get('long-prose-' + side + '-finish', 0) for side in ('L', 'R'))
+    captions = pages.get('shared-photo.caption-L') == pages.get('shared-photo.caption-R') and pages.get('shared-photo.caption-L', 0) > 0
+    with pymupdf.open(path) as pdf:
+        wide = [(i + 1, rect) for i, page in enumerate(pdf) for image in page.get_images() for rect in page.get_image_rects(image[0]) if rect.width > 400]
+        shared = len(wide) == 1 and wide[0][1].x0 < pdf[0].rect.width / 2 < wide[0][1].x1
+        captions = captions and bool(wide) and pages.get('shared-photo.caption-L') == wide[0][0]
+    return {'ok': crossed and resumed and captions and shared, 'both_paragraphs_cross_pages': crossed,
+            'following_pair_resynchronizes': resumed, 'paired_captions_with_photo': captions, 'one_full_width_photo': shared}

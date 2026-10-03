@@ -1,0 +1,38 @@
+{
+  "source_hashes": {
+    "README.md": "e5481a2de22f3aad0e4fa40ae341bf969195263016ab7f2b23ad8506bd78c16b",
+    "three-concepts/LICENSE": "51f60a5ff7e346c2b2400c495aef61cf00f8f357f984e93a9e74b7eccd3e0294",
+    "three-concepts/Makefile": "7c889e9943beabb8624bc0a998afad45eb6b7e58a3003929a376dd3646b53f24",
+    "three-concepts/README.md": "0edb7476c946a59ee37d80617af097c012f789f70d84da1358f1a87edaad1ea0",
+    "three-concepts/coverage-review.md": "a2dc0cb58eed345193e3b433fcaecda0abc7849919d2d7bf798176556ce9c576",
+    "three-concepts/languages.tex": "9500e1beef8e6c1e2546fcb440d7173704d9b8f73253b3fb669cdc4397b357ea",
+    "three-concepts/notes-content.tex": "67c71c47b64c1472a07b1e5c850d1cf01893c3fc8a22dffe2efbac5996a3af6f",
+    "three-concepts/notes.tex": "6e1f95efea3db08c3ecce0ccb805e8fabbeefb049f8f4ce9348f9e445ce1f8d4",
+    "three-concepts/paralleltext.sty": "aa7629313a2ade1d0e66c8798f3978f04195557e5d737d6c05addaa24c29f75e",
+    "three-concepts/quick-content.tex": "d319985e6c71866573b0076594b09266326c81d69691380f46c2e5b516fb2524",
+    "three-concepts/quick-reference.tex": "725d675ee0239cbf1c1b598a83405df0dd2a78eb6f7fb4f2dcf868aabee768bc",
+    "three-concepts/source-map.json": "272e87f081959c2db6402b5d11f019a6b85071341b19d7e9912d39ab5034b575",
+    "three-concepts/source.md": "5e9e8af37eae034c08478f6bd36566fda20bab4ce3898ab182cc12ac86c3edc2"
+  },
+  "files": [
+    {
+      "path": "three-concepts/notes.pdf",
+      "sha256": "0f0a98ef8500d619c38ae58c39de812be65344455de00c69617f732855f4db2a"
+    },
+    {
+      "path": "three-concepts/quick-reference.pdf",
+      "sha256": "e66037bac6cc4c01bc6a39727d41e78e350f702da5201f28c06db45efa4bbaaa"
+    }
+  ],
+  "previews": [
+    {
+      "path": "three-concepts/notes-preview.png",
+      "sha256": "d06db149397543876359e159c4d92baeaf045038981e8535b317477a8154eecf"
+    },
+    {
+      "path": "three-concepts/quick-reference-preview.png",
+      "sha256": "2d3a45f53c3ecdfcab422c67562c570f05fa18f6252401ca9381e51d33c9b0b6"
+    }
+  ],
+  "regeneration": "See the repository tests/README.md. Sources and outputs are bundled in this skill; byte identity requires the same toolchain and fixed clock."
+}

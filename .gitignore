@@ -26,6 +26,6 @@ dist/
 *.fdb_latexmk
 *.synctex.gz
 *.pdf
-!/examples/bilingual-pdf/*/document.pdf
-!/examples/course-guide-quick-reference/*/notes.pdf
-!/examples/course-guide-quick-reference/*/quick-reference.pdf
+!/skills/bilingual-pdf/examples/*/document.pdf
+!/skills/course-guide-quick-reference/examples/*/notes.pdf
+!/skills/course-guide-quick-reference/examples/*/quick-reference.pdf

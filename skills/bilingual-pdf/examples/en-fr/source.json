@@ -1,0 +1,205 @@
+{
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "title": [
+    "A slower walk through a familiar street",
+    "Redécouvrir une rue en marchant lentement"
+  ],
+  "layout": {
+    "covers": false,
+    "font_size": 10
+  },
+  "blocks": [
+    {
+      "id": "notice",
+      "kind": "heading",
+      "text": [
+        "Make room for noticing",
+        "Prendre le temps de regarder"
+      ]
+    },
+    {
+      "id": "opening",
+      "kind": "paragraph",
+      "text": [
+        "A familiar street can become little more than the space between two appointments. Try walking it once without an errand to finish. The aim is not to find an impressive landmark or collect a perfect photograph, but to notice details that a hurried journey usually edits out.",
+        "Une rue familière finit parfois par n’être que le trajet entre deux rendez-vous. Essayez de la parcourir une fois sans course à terminer. Le but n’est ni de trouver un monument remarquable ni de réussir une photographie parfaite, mais de remarquer ce qu’un passage pressé laisse de côté."
+      ]
+    },
+    {
+      "id": "change",
+      "kind": "paragraph",
+      "text": [
+        "A painted door, a patch of shade or the sound of dishes from an open window can be enough. You do not need to explain every detail immediately. A useful observation may begin as a question, and a quiet walk can leave that question open until you have time to investigate it.",
+        "Une porte peinte, un coin d’ombre ou le bruit de la vaisselle derrière une fenêtre ouverte peuvent suffire. Il n’est pas nécessaire de tout expliquer sur-le-champ. Une observation utile peut commencer par une question, que la promenade laisse ouverte jusqu’au moment où vous pourrez l’explorer."
+      ]
+    },
+    {
+      "id": "prompt",
+      "kind": "quote",
+      "text": [
+        "One sound, one colour, one question: a simple prompt for your own notes.",
+        "Un son, une couleur, une question : une consigne simple pour vos notes."
+      ]
+    },
+    {
+      "id": "shared-photo",
+      "kind": "figure",
+      "placement": "shared",
+      "image": "images/footpath.png",
+      "text": [
+        "A path photograph shared by both columns. The setting is illustrative; it is not a map of the suggested walk.",
+        "Une photographie de sentier commune aux deux colonnes. Le cadre est donné à titre d’illustration ; ce n’est pas une carte de la promenade proposée."
+      ]
+    },
+    {
+      "id": "route",
+      "kind": "heading",
+      "text": [
+        "Choose a modest route",
+        "Choisir un itinéraire simple"
+      ]
+    },
+    {
+      "id": "route-plan",
+      "kind": "paragraph",
+      "text": [
+        "Choose a starting point you can reach easily and an ending point that does not require you to rush back. A short loop is often more useful than an ambitious itinerary. Check the actual conditions where you walk; the small map below is an invented illustration, not directions for a real place.",
+        "Choisissez un départ facile d’accès et une arrivée qui ne vous oblige pas à rentrer en hâte. Une petite boucle est souvent plus utile qu’un programme ambitieux. Vérifiez les conditions sur place : le schéma ci-dessous est imaginaire et ne donne pas d’indications pour un lieu réel."
+      ]
+    },
+    {
+      "id": "route-image",
+      "kind": "figure",
+      "text": [
+        "An invented route with four stopping points. The numbers identify places to pause; they do not indicate distance, time or accessibility.",
+        "Un parcours imaginaire avec quatre haltes. Les numéros désignent des arrêts, sans indiquer leur distance, leur durée ni leur accessibilité."
+      ],
+      "image": "images/figure-route-image.png"
+    },
+    {
+      "id": "steps",
+      "kind": "list",
+      "text": [
+        [
+          "Pick one detail at each stop rather than trying to describe everything around you.",
+          "Leave a little unplanned time. If something deserves another look, you can stay.",
+          "Keep other people’s privacy in mind. A written observation does not require a photograph of a stranger."
+        ],
+        [
+          "Choisissez un détail à chaque halte, au lieu de tout décrire autour de vous.",
+          "Gardez du temps libre. Vous pourrez vous attarder si quelque chose mérite un second regard.",
+          "Respectez la vie privée des autres. Une observation écrite n’exige pas de photographier un inconnu."
+        ]
+      ]
+    },
+    {
+      "id": "long-observation",
+      "kind": "heading",
+      "text": [
+        "Stay with one observation",
+        "Approfondir une observation"
+      ]
+    },
+    {
+      "id": "long-prose",
+      "kind": "paragraph",
+      "flow": "breakable",
+      "text": [
+        "Imagine taking the same short walk on two different afternoons. On the first visit, a delivery van is waiting beside a shop, a door keeps opening, and the sound of a conversation reaches the pavement before the speakers come into view. On the second visit, the van has gone and the door is closed. It would be tempting to call one afternoon lively and the other quiet, but those words already combine many small observations into a judgment. A more useful note might begin with the things that can actually be checked: where the van stood, how long the door remained open, and whether the conversation could still be heard after turning the corner. None of this requires following strangers, recording private conversations, or treating a neighbourhood as a spectacle. You can notice the public setting while leaving people their privacy. At the next junction, pause somewhere that does not obstruct the path and look back at the route just taken. A sign that seemed obvious from one direction may be hidden by a tree from the other. The pavement may look level until a shallow slope becomes visible against a wall. Even a bench can change the shape of the walk: without stopping, it is simply an object passed on the way; after sitting down, the same place offers a different height, a different view, and time to hear sounds that footsteps had covered. When writing about the experience later, do not try to make every detail support a single neat story. Keep the uncertainty that was present on the walk. If a shop was closed, say that its door was closed when you passed, rather than assuming that it has stopped trading. If the square seemed empty, remember that your visit lasted only a few minutes. A second visit is useful because it offers another observation, not because it automatically proves the first impression wrong. You might return at another time, take the loop in the opposite direction, or follow the same route with someone who notices different things. The point is not to collect the largest number of details. It is to give a few details enough attention that the familiar street becomes easier to describe, while remaining open to what the next walk may change. Before putting the notebook away, consider what a reader who was not there would need. A phrase such as “beside the tree” may be clear to you and useless to someone else. Add a relation that can be understood without sharing your memory: the bench faced the junction, the path curved behind the hedge, or the shop door opened towards the narrow part of the pavement. These details should clarify the scene rather than make a fictional sketch sound like a surveyed map. You can also keep an unanswered question beside a description. Did the sound disappear because the window closed, because you moved farther away, or because another sound covered it? There may be no reliable answer from a single walk. Ending with that question is sometimes more accurate, and more inviting, than finishing with a confident explanation. The next visit can begin there, with curiosity rather than a conclusion already chosen. Date the note and distinguish what you wrote on the spot from what you added later. Memory can connect details that were separate at the time. That small distinction helps a future reader understand how the account was made.",
+        "Imaginez faire la même courte promenade deux après-midi différents. Lors de la première visite, une camionnette de livraison attend près d’une boutique, une porte ne cesse de s’ouvrir et le bruit d’une conversation parvient au trottoir avant que les personnes qui parlent apparaissent. Lors de la seconde visite, la camionnette est partie et la porte est fermée. Il serait tentant de qualifier le premier après-midi d’animé et le second de calme, mais ces mots rassemblent déjà de nombreuses petites observations en un jugement. Une note plus utile pourrait commencer par ce qui peut réellement être vérifié : l’endroit où la camionnette était garée, la durée pendant laquelle la porte est restée ouverte et la possibilité d’entendre encore la conversation après avoir tourné le coin. Rien de cela n’exige de suivre des inconnus, d’enregistrer des conversations privées ni de transformer un quartier en spectacle. On peut observer l’espace public tout en respectant la vie privée des gens. Au prochain carrefour, arrêtez-vous à un endroit où vous ne gênez pas le passage et regardez le chemin que vous venez de parcourir. Un panneau évident dans un sens peut être caché par un arbre dans l’autre. Le trottoir peut sembler plat jusqu’à ce qu’une légère pente se révèle par rapport à un mur. Même un banc peut transformer la promenade : si l’on ne s’arrête pas, ce n’est qu’un objet que l’on dépasse ; une fois assis, le même lieu offre une autre hauteur de regard, une autre vue et le temps d’entendre des sons que les pas couvraient. En écrivant ensuite ce récit, n’essayez pas de faire entrer chaque détail dans une seule histoire bien ordonnée. Conservez l’incertitude présente pendant la promenade. Si une boutique était fermée, dites que sa porte était fermée à votre passage, plutôt que de supposer qu’elle a cessé son activité. Si la place semblait vide, rappelez-vous que votre visite n’a duré que quelques minutes. Une seconde visite est utile parce qu’elle apporte une autre observation, non parce qu’elle prouve automatiquement que la première impression était fausse. Vous pourriez revenir à une autre heure, parcourir la boucle dans l’autre sens ou suivre le même itinéraire avec quelqu’un qui remarque d’autres choses. Le but n’est pas de recueillir le plus grand nombre de détails. Il s’agit d’accorder assez d’attention à quelques-uns pour mieux décrire cette rue familière, tout en restant ouvert à ce que la prochaine promenade pourrait changer. Avant de ranger le carnet, demandez-vous ce dont aurait besoin un lecteur qui n’était pas là. Une expression comme « à côté de l’arbre » peut vous sembler claire sans rien dire à quelqu’un d’autre. Ajoutez une relation compréhensible sans partager votre souvenir : le banc faisait face au carrefour, le sentier contournait la haie par l’arrière ou la porte de la boutique s’ouvrait vers la partie étroite du trottoir. Ces détails doivent rendre la scène plus claire, sans donner à une esquisse fictive l’allure d’une carte établie par relevé. Vous pouvez aussi laisser une question sans réponse à côté d’une description. Le son a-t-il disparu parce que la fenêtre s’est fermée, parce que vous vous êtes éloigné ou parce qu’un autre son l’a couvert ? Une seule promenade ne permet peut-être pas de répondre avec certitude. Terminer par cette question est parfois plus juste, et plus engageant, que conclure par une explication assurée. La prochaine visite pourra commencer là, avec de la curiosité plutôt qu’une conclusion déjà choisie. Datez la note et distinguez ce que vous avez écrit sur place de ce que vous avez ajouté plus tard. La mémoire peut relier des détails qui étaient séparés sur le moment. Cette petite distinction aide un futur lecteur à comprendre comment le récit a été élaboré."
+      ]
+    },
+    {
+      "id": "notebook",
+      "kind": "heading",
+      "text": [
+        "Keep a small notebook",
+        "Tenir un petit carnet"
+      ]
+    },
+    {
+      "id": "notebook-prose",
+      "kind": "paragraph",
+      "text": [
+        "A notebook can hold fragments rather than polished sentences. Record what you actually noticed before adding an interpretation. “The bench was empty” is an observation; “nobody uses this square” is a much broader claim. Keeping those two kinds of statement separate makes later writing more honest and more interesting.",
+        "Le carnet peut accueillir des fragments, sans phrases parfaitement rédigées. Notez d’abord ce que vous avez réellement observé, avant de l’interpréter. « Le banc était vide » est une observation ; « personne ne fréquente cette place » est une affirmation bien plus large. Les distinguer rendra votre récit plus juste et plus intéressant."
+      ]
+    },
+    {
+      "id": "notes-table",
+      "kind": "table",
+      "text": [
+        "These invented notes show the difference between an observation and a question. They are examples, not findings about a real neighbourhood.",
+        "Ces notes imaginaires distinguent observation et question. Ce sont des exemples, pas des constats sur un quartier réel."
+      ],
+      "headers": [
+        [
+          "Observation",
+          "Question"
+        ],
+        [
+          "Observation",
+          "Question"
+        ]
+      ],
+      "rows": [
+        [
+          [
+            "An empty bench",
+            "Is it used at another time?"
+          ],
+          [
+            "A newly painted door",
+            "What colour was it before?"
+          ],
+          [
+            "Music from a window",
+            "Does the sound change farther away?"
+          ]
+        ],
+        [
+          [
+            "Un banc vide",
+            "Est-il occupé à une autre heure ?"
+          ],
+          [
+            "Une porte repeinte",
+            "Quelle était sa couleur avant ?"
+          ],
+          [
+            "De la musique à une fenêtre",
+            "Le son change-t-il en s’éloignant ?"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "return",
+      "kind": "heading",
+      "text": [
+        "Read the walk again",
+        "Relire la promenade"
+      ]
+    },
+    {
+      "id": "return-prose",
+      "kind": "paragraph",
+      "text": [
+        "After returning, choose one note and expand it into a short paragraph. Keep the observed detail, explain why it mattered to you and mark anything you still do not know. You can check a factual question later, but you need not turn every walk into a research project. Sometimes the value lies in having paid attention.",
+        "Au retour, choisissez une note et développez-la en un court paragraphe. Conservez le détail observé, expliquez pourquoi il vous a touché et signalez ce que vous ignorez encore. Vous pourrez vérifier un fait plus tard, sans transformer chaque promenade en enquête. Parfois, sa valeur tient simplement à l’attention que vous lui avez portée."
+      ]
+    },
+    {
+      "id": "route-reference",
+      "kind": "reference",
+      "text": [
+        "Return to the route section",
+        "Revenir à la partie sur l’itinéraire"
+      ],
+      "target": "route"
+    }
+  ]
+}

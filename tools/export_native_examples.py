@@ -12,7 +12,7 @@ parser.add_argument('--check',action='store_true')
 args=parser.parse_args()
 errors=[]
 for name in ('en-fr','en-zh-Hans','en-ar','zh-Hans-ja'):
-    directory=ROOT/'examples/bilingual-pdf'/name
+    directory=ROOT/'skills/bilingual-pdf/examples'/name
     data=validate(json.loads((directory/'source.json').read_text()))
     images={}
     expected={}

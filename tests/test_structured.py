@@ -5,7 +5,7 @@ sys.path.insert(0,str(ROOT/'skills/bilingual-pdf/scripts'))
 from bilingual_pdf import InputError,validate,tex_parts,export_document
 
 class StructuredTests(unittest.TestCase):
- def setUp(self):self.doc=json.loads((ROOT/'examples/bilingual-pdf/en-zh-Hans/source.json').read_text())
+ def setUp(self):self.doc=json.loads((ROOT/'skills/bilingual-pdf/examples/en-zh-Hans/source.json').read_text())
  def table(self):return next(x for x in self.doc['blocks'] if x['kind']=='table')
  def test_native_package_route(self):
   main,locale,body=tex_parts(self.doc,'bilingual')
@@ -45,7 +45,7 @@ class StructuredTests(unittest.TestCase):
  def test_export_preserves_existing_directory(self):
   with tempfile.TemporaryDirectory() as d:
    out=Path(d)/'out';out.mkdir();(out/'keep').write_text('unchanged')
-   with self.assertRaises(InputError):export_document(self.doc,ROOT/'examples/bilingual-pdf/en-zh-Hans/source.json',out,'bilingual')
+   with self.assertRaises(InputError):export_document(self.doc,ROOT/'skills/bilingual-pdf/examples/en-zh-Hans/source.json',out,'bilingual')
    self.assertEqual((out/'keep').read_text(),'unchanged')
 
 if __name__=='__main__':unittest.main()

@@ -11,7 +11,7 @@ for starter in (source/'assets/starter/paralleltext.sty',dest/'assets/learning-s
  if args.check:
   if not starter.exists() or starter.read_bytes()!=(source/'assets/paralleltext.sty').read_bytes():errors.append(str(starter.relative_to(r)))
  else:shutil.copyfile(source/'assets/paralleltext.sty',starter)
-projects=[source/'assets/starter',dest/'assets/learning-starter']+sorted((r/'examples/bilingual-pdf').glob('*'))+sorted((r/'examples/course-guide-quick-reference').glob('*'))
+projects=[source/'assets/starter',dest/'assets/learning-starter']+sorted((r/'skills/bilingual-pdf/examples').glob('*'))+sorted((r/'skills/course-guide-quick-reference/examples').glob('*'))
 for project in projects:
  if not project.is_dir():continue
  for target,owner in [('paralleltext.sty',source/'assets/paralleltext.sty'),('LICENSE',r/'LICENSE')]:

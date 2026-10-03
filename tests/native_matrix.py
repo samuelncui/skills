@@ -65,10 +65,12 @@ def run_build(case):
         crossed=all(labels.get('long-prose-'+side+'-finish',0)>labels.get('long-prose-'+side,0) for side in ['L','R'])
         report['both_paragraphs_cross_pages']=crossed;ok=ok and crossed
     if name.startswith('article-') and ok:
-        from layout_checks import quote_geometry
+        from layout_checks import quote_geometry, article_features
         languages={'en-fr':['en','fr'],'en-zh-Hans':['en','zh-Hans'],'en-ar':['en','ar'],'zh-Hans-ja':['zh-Hans','ja']}[name[8:]]
         quote=quote_geometry(project/'main.pdf',languages)
-        report['quote_geometry']=quote;ok=ok and quote['ok']
+        report['quote_geometry']=quote
+        features=article_features(project/'main.pdf');report['article_features']=features
+        ok=ok and quote['ok'] and features['ok']
     if (name.startswith('article-') or name.startswith('flow-') or name.startswith('shared-photo-')) and args.structured_matrix and ok:
         import pymupdf
         original = args.structured_matrix/((name[8:]+'-bilingual') if name.startswith('article-') else name)/'document.pdf'
@@ -81,23 +83,23 @@ def run_build(case):
 cases = []
 for name in ('en-fr', 'en-zh-Hans', 'en-ar', 'zh-Hans-ja'):
     project = work/('article-'+name)
-    shutil.copytree(ROOT/'examples/bilingual-pdf'/name, project)
+    shutil.copytree(work/'bilingual-pdf/examples'/name, project, ignore=shutil.ignore_patterns('*.pdf', '*preview.png'))
     shutil.copyfile(style, project/'paralleltext.sty')
     cases.append(('article-'+name, project, 'ok', '', True, False))
 # Native helpers are exercised directly, with no JSON/Python renderer at build time.
-sys.path.insert(0,str(ROOT/'skills/bilingual-pdf/scripts'))
+sys.path.insert(0,str(work/'bilingual-pdf/scripts'))
 from bilingual_pdf import escape
 for name in ('en-fr','en-zh-Hans','en-ar','zh-Hans-ja'):
-    data=json.loads((ROOT/'examples/bilingual-pdf'/name/'source.json').read_text())
+    data=json.loads((work/'bilingual-pdf/examples'/name/'source.json').read_text())
     passage=next(b['text'] for b in data['blocks'] if b['id']=='notebook-prose')
     title='\\ParallelTitle{'+escape(data['title'][0])+'}{'+escape(data['title'][1])+'}\n'
     for prefix in ('flow-','shared-photo-'):
-        project=work/(prefix+name);shutil.copytree(ROOT/'examples/bilingual-pdf'/name,project);shutil.copyfile(style,project/'paralleltext.sty')
+        project=work/(prefix+name);shutil.copytree(work/'bilingual-pdf/examples'/name,project);shutil.copyfile(style,project/'paralleltext.sty')
         if prefix=='flow-':
             body='\\ParallelProse{long-prose}{'+escape((passage[0]+' ')*18)+'}{'+escape((passage[1]+' ')*18)+'}\n\\ParallelText{after-flow}{'+escape(passage[0])+'}{'+escape(passage[1])+'}'
         else:
             captions={'en':'Shared photograph.','fr':'Photographie partagée.','zh-Hans':'共用照片。','ar':'صورة مشتركة.','ja':'共有写真。'}
-            (project/'images').mkdir(exist_ok=True);shutil.copyfile(ROOT/'examples/bilingual-pdf/en-zh-Hans/images/footpath.png',project/'images/footpath.png')
+            (project/'images').mkdir(exist_ok=True);shutil.copyfile(work/'bilingual-pdf/examples/en-zh-Hans/images/footpath.png',project/'images/footpath.png')
             body='\\ParallelWideFigure{photo}{images/footpath.png}{'+captions[data['languages'][0]]+'}{'+captions[data['languages'][1]]+'}\n\\ParallelText{after-photo}{'+escape(passage[0])+'}{'+escape(passage[1])+'}'
         (project/'content.tex').write_text(title+body+'\n')
         cases.append((prefix+name,project,'ok','',True,False))
@@ -120,15 +122,15 @@ for name, body, expected, diagnostic, paired, covers in [
 # A shared numbered expression must also work in a native RTL language context.
 project = work/'arabic-equations'
 shutil.copytree(work/'bilingual-pdf/assets/starter', project)
-(project/'languages.tex').write_text((ROOT/'examples/bilingual-pdf/en-ar/languages.tex').read_text())
+(project/'languages.tex').write_text((work/'bilingual-pdf/examples/en-ar/languages.tex').read_text())
 (project/'content.tex').write_text(r'\ParallelEquation{sum}{a+b=c}\ParallelText{explanation}{A shared equation.}{معادلة مشتركة.}'+'\n')
 cases.append(('arabic-equations', project, 'ok', '', True, False))
 with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
     results = list(pool.map(run_build, cases))
 
-for name, source in [('native-learning-starter',work/'course-guide-quick-reference/assets/learning-starter'),('native-course-example',ROOT/'examples/course-guide-quick-reference/three-concepts')]:
+for name, source in [('native-learning-starter',work/'course-guide-quick-reference/assets/learning-starter'),('native-course-example',work/'course-guide-quick-reference/examples/three-concepts')]:
     project = work/name
-    shutil.copytree(source, project)
+    shutil.copytree(source, project, ignore=shutil.ignore_patterns('*.pdf', '*preview.png'))
     shutil.copyfile(style,project/'paralleltext.sty')
     proc = subprocess.run(['make', 'LATEXMK='+' '.join(BUILD)], cwd=project, capture_output=True, text=True, timeout=240)
     (project/'build.stdout').write_text(proc.stdout+proc.stderr)
