@@ -25,6 +25,7 @@
 \newcommand\ParallelRightLanguage{english}
 \NewDocumentCommand\ParallelLanguages{m m}{\renewcommand\ParallelLeftLanguage{#1}\renewcommand\ParallelRightLanguage{#2}}
 \newcommand\ParallelMode{paired}
+\newcommand\PTActiveSide{left}
 \NewDocumentCommand\ParallelSelect{m}{%
  \ifstrequal{#1}{paired}{}{\ifstrequal{#1}{left}{}{\ifstrequal{#1}{right}{}{\PackageError{paralleltext}{Unknown mode #1}{Use paired, left or right.}}}}%
  \renewcommand\ParallelMode{#1}}
@@ -42,21 +43,205 @@
 \newsavebox\PTLeftBox
 \newsavebox\PTRightBox
 \newif\ifPTBody\PTBodytrue
+\newif\ifPTHeading\PTHeadingfalse
+\newif\ifPTAfterHeading\PTAfterHeadingfalse
+\newlength\PTHeadingChainHeight\newlength\PTReservation
+\newcommand\PTHeadingReservation{0pt}
+\newcommand\PTReserveSpace[1]{%
+ \ifPTAfterHeading
+  \ifdim\dimexpr#1+\PTHeadingChainHeight\relax>\textheight
+   \PackageError{paralleltext}{Heading and following unit too tall}{Use a shorter semantic unit or flowing prose after the heading.}\fi
+  \nobreak
+ \else\Needspace{#1}\setlength\PTHeadingChainHeight{0pt}\fi}
+
 \setlength\headheight{25pt}
 \geometry{a4paper,inner=18mm,outer=18mm,top=17mm,bottom=14mm,headsep=3mm,footskip=7mm}
 \setlength\parindent{0pt}\setlength\parskip{2pt}
 \setlist[itemize]{label={\MarkerFont\textbullet},leftmargin=1.2em,itemsep=2pt,topsep=2pt}
 \setlist[enumerate]{font=\MarkerFont,leftmargin=1.5em,itemsep=2pt,topsep=2pt}
-\pagestyle{fancy}\fancyhf{}
-\fancyhead[L]{\sffamily\fontsize{7}{8}\selectfont\ParallelRunningTitle}
-\fancyfoot[LE,RO]{\MarkerFont\fontsize{8}{9.6}\selectfont\thepage}
-\renewcommand\headrulewidth{0pt}
+% Public style hooks are ordinary declarations; all setup is preamble-only.
+\newcommand\ParallelStructureColor{parallel.theme}
+\newcommand\ParallelTitleStyle{\ParallelHeadingFont\color{parallel.theme}\fontsize{17}{20.4}\selectfont}
+\newcommand\ParallelSectionStyle{\ParallelHeadingFont\color{\ParallelStructureColor}\fontsize{13}{15.6}\selectfont}
+\newcommand\ParallelSubsectionStyle{\ParallelHeadingFont\fontsize{9.5}{11.4}\selectfont}
+\newcommand\ParallelCaptionStyle{\color{parallel.secondary}}
+\newcommand\ParallelCoverStyle{\ParallelHeadingFont\color{parallel.theme}\fontsize{24}{30}\selectfont}
+\newcommand\ParallelNoteStyle{\color{parallel.secondary}}
+\newcommand\ParallelEntryStyle{\ParallelHeadingFont\color{\ParallelStructureColor}\fontsize{11}{13.2}\selectfont}
+\newcommand\ParallelDiagramStyle{\fontsize{8}{10}\selectfont}
+\newcommand\ParallelHeaderStyle{\sffamily\fontsize{7}{8}\selectfont}
+\newcommand\ParallelFooterStyle{\sffamily\fontsize{7}{8}\selectfont}
+\newcommand\ParallelPageNumberStyle{\MarkerFont\fontsize{8}{9.6}\selectfont}
+\newcommand\ParallelPageNumberFormat{\thepage}
+\newcommand\ParallelHeaderLeft{\ParallelRunningTitle}
+\newcommand\ParallelHeaderRight{}
+\newcommand\ParallelFooterLeft{}
+\newcommand\ParallelFooterRight{}
+\newcommand\ParallelPageStyle{parallel}
+\newcommand\ParallelPageNumberPosition{footer-outer}
+\newcommand\ParallelSectionSpace{65pt}
+\newcommand\ParallelSubsectionSpace{45pt}
+\newcommand\ParallelCoverTop{20mm}
+\newcommand\ParallelCoverGap{10mm}
+\newcommand\ParallelCoverBottom{}
+\newcommand\ParallelPageReferencePrefix{p.\,}
+\newcommand\ParallelDividerColor{black!35}
+\newcommand\ParallelDividerWidth{.3pt}
+\newcommand\ParallelDividerStyle{solid}
+\newcommand\ParallelBackgroundColor{white}
+\newcommand\ParallelBodyColor{black}
+\newif\ifPTDivider\PTDividertrue
+\newif\ifPTBlankVerso\PTBlankVersotrue
+\newif\ifPTBlankInsideBack\PTBlankInsideBacktrue
+\newcommand\ParallelBackParity{even}
+\newcommand\ParallelSingleColumns{1}
+\newif\ifPTTabs\PTTabsfalse
+\newcommand\ParallelTabInset{6mm}
+\newcommand\ParallelTabWidth{5mm}
+\newcommand\ParallelTabHeight{12mm}
+\newcommand\ParallelTabTop{30mm}
+\newcommand\ParallelTabStep{16mm}
+\newcommand\ParallelTabStyle{line width=.5pt,inner sep=.25mm}
+\newcommand\ParallelTabTextStyle{\sffamily\bfseries\fontsize{6}{7}\selectfont}
+\newcommand\ParallelTabRotation{0}
+\newcommand\ParallelTabSide{outer}
+\newcommand\ParallelMinimumColumnWidth{20mm}
+\newcommand\PTParagraphSkip{}\newcommand\PTParagraphIndent{}
+\newlength\PTTextLeft\newlength\PTTextTop\newlength\PTDividerX
+\newcommand\PTPageGeometry[6]{} % physical page, left, top, width, height, gap
+\newcommand\PTPairPage[2]{}     % logical unit, physical PDF page
+\makeatletter
+\newcommand\PTAvailableWidth{\if@twocolumn\columnwidth\else\textwidth\fi}
+\newcommand\PTLiveGeometry{%
+ \setlength\PTTextLeft{\dimexpr1in+\hoffset+\oddsidemargin\relax}%
+ \if@twoside\ifodd\value{page}\else\setlength\PTTextLeft{\dimexpr1in+\hoffset+\evensidemargin\relax}\fi\fi
+ \setlength\PTTextTop{\dimexpr1in+\voffset+\topmargin+\headheight+\headsep\relax}%
+ \setlength\PTDividerX{\dimexpr\PTTextLeft+\textwidth/2\relax}}
+\newcommand\PTFolioField[2]{%
+ \edef\PTFolioWhere{#1-#2}%
+ \ifdefstrequal{\ParallelPageNumberPosition}{\PTFolioWhere}{\ParallelPageNumberStyle\ParallelPageNumberFormat}{}%
+ \def\PTOuterField{right}\def\PTInnerField{left}%
+ \if@twoside\ifodd\value{page}\else\def\PTOuterField{left}\def\PTInnerField{right}\fi\fi
+ \edef\PTFolioWhere{#1-outer}\ifdefstrequal{\ParallelPageNumberPosition}{\PTFolioWhere}{%
+  \ifdefstring{\PTOuterField}{#2}{\ParallelPageNumberStyle\ParallelPageNumberFormat}{}}{}%
+ \edef\PTFolioWhere{#1-inner}\ifdefstrequal{\ParallelPageNumberPosition}{\PTFolioWhere}{%
+  \ifdefstring{\PTInnerField}{#2}{\ParallelPageNumberStyle\ParallelPageNumberFormat}{}}{}}
+\newcommand\ParallelFurnitureLanguage{\mainlanguagename}
+\newcommand\PTFurniture[1]{\foreignlanguage{\ParallelFurnitureLanguage}{#1}}
+\fancypagestyle{parallel}{%
+ \fancyhf{}\renewcommand\headrulewidth{0pt}\renewcommand\footrulewidth{0pt}%
+ \fancyheadinit{\ParallelHeaderStyle}\fancyfootinit{\ParallelPageNumberStyle}%
+ \fancyhead[L]{\PTFurniture{\ParallelHeaderStyle\ParallelHeaderLeft\PTFolioField{header}{left}}}%
+ \fancyhead[C]{\PTFurniture{\ParallelHeaderStyle\PTFolioField{header}{center}}}%
+ \fancyhead[R]{\PTFurniture{\ParallelHeaderStyle\ParallelHeaderRight\PTFolioField{header}{right}}}%
+ \fancyfoot[L]{\PTFurniture{{\ParallelFooterStyle\ParallelFooterLeft}\PTFolioField{footer}{left}}}%
+ \fancyfoot[C]{\PTFurniture{\PTFolioField{footer}{center}}}%
+ \fancyfoot[R]{\PTFurniture{{\ParallelFooterStyle\ParallelFooterRight}\PTFolioField{footer}{right}}}}
+\newcommand\PTValidateGeometry{%
+ \ifdim\ParallelDividerWidth>0pt\else\PackageError{paralleltext}{Divider width must be positive}{Set divider-width to a positive length, or divider=false.}\fi
+ \ifdim\ParallelTabInset<0pt\PackageError{paralleltext}{Tab inset must not be negative}{Use a nonnegative tab-inset.}\fi
+ \ifdim\ParallelTabWidth>0pt\else\PackageError{paralleltext}{Tab width must be positive}{Use a positive tab-width.}\fi
+ \ifdim\ParallelTabHeight>0pt\else\PackageError{paralleltext}{Tab height must be positive}{Use a positive tab-height.}\fi
+ \ifdim\ParallelTabStep>0pt\else\PackageError{paralleltext}{Tab step must be positive}{Use a positive tab-step.}\fi
+
+ \ifdim\ParallelColumnGap<0pt\PackageError{paralleltext}{Column gap must not be negative}{Set column-gap to a nonnegative length.}\fi
+ \ifdim\ParallelBodySize pt>0pt\else\PackageError{paralleltext}{Body size must be positive}{Set body-size in points.}\fi
+ \ifdim\ParallelBodyLeading pt<\ParallelBodySize pt\PackageError{paralleltext}{Body leading is smaller than body size}{Choose readable line spacing.}\fi
+ \setlength\PTWidth{\PTAvailableWidth}%
+ \ifdefstring{\ParallelMode}{paired}{\setlength\PTWidth{\dimexpr(\textwidth-\ParallelColumnGap)/2\relax}%
+  \if@twocolumn\PackageError{paralleltext}{Paired mode cannot use standard twocolumn}{Use paired mode in one-column article, or select one language.}\fi}{}%
+ \ifdim\PTWidth<\ParallelMinimumColumnWidth\PackageError{paralleltext}{Content columns too narrow}{Adjust geometry or column-gap; do not shrink the manuscript.}\fi
+ \ifdim\textheight<30mm\PackageError{paralleltext}{Text height too small}{Adjust geometry.}\fi}
+\NewDocumentCommand\ParallelDeclareProfile{m m}{\@namedef{pt@profile@#1}{#2}}
+\newcommand\PTUseProfile[1]{\ifcsname pt@profile@#1\endcsname
+ \expandafter\expandafter\expandafter\ParallelSetup\expandafter\expandafter\expandafter{\csname pt@profile@#1\endcsname}%
+ \else\PackageError{paralleltext}{Unknown profile #1}{Declare it with ParallelDeclareProfile.}\fi}
+\DeclareKeys[paralleltext]{
+ profile.code = \PTUseProfile{#1},
+ geometry.code = \geometry{#1},
+ mode.code = \ParallelSelect{#1},
+ left-language.store = \ParallelLeftLanguage,
+ right-language.store = \ParallelRightLanguage,
+ body-size.store = \ParallelBodySize,
+ body-leading.store = \ParallelBodyLeading,
+ column-gap.store = \ParallelColumnGap,
+ pair-gap.code = \setlength\PTGap{#1},
+ paragraph-skip.code = \renewcommand\PTParagraphSkip{#1}\setlength\parskip{#1},
+ paragraph-indent.code = \renewcommand\PTParagraphIndent{#1}\setlength\parindent{#1},
+ minimum-column-width.store = \ParallelMinimumColumnWidth,
+ heading-font.store = \ParallelHeadingFont,
+ title-style.store = \ParallelTitleStyle,
+ section-style.store = \ParallelSectionStyle,
+ subsection-style.store = \ParallelSubsectionStyle,
+ caption-style.store = \ParallelCaptionStyle,
+ cover-style.store = \ParallelCoverStyle,
+ note-style.store = \ParallelNoteStyle,
+ entry-style.store = \ParallelEntryStyle,
+ diagram-style.store = \ParallelDiagramStyle,
+ section-space.store = \ParallelSectionSpace,
+ subsection-space.store = \ParallelSubsectionSpace,
+ furniture-language.store = \ParallelFurnitureLanguage,
+ running-title.store = \ParallelRunningTitle,
+ header-left.store = \ParallelHeaderLeft,
+ header-right.store = \ParallelHeaderRight,
+ footer-left.store = \ParallelFooterLeft,
+ footer-right.store = \ParallelFooterRight,
+ header-style.store = \ParallelHeaderStyle,
+ footer-style.store = \ParallelFooterStyle,
+ page-number-style.store = \ParallelPageNumberStyle,
+ page-number-format.store = \ParallelPageNumberFormat,
+ page-style.code = \renewcommand\ParallelPageStyle{#1}\pagestyle{#1},
+ page-number-position.choices:nn = {footer-outer,footer-inner,footer-left,footer-center,footer-right,header-outer,header-inner,header-left,header-center,header-right,none}{\renewcommand\ParallelPageNumberPosition{#1}},
+ page-numbering.choices:nn = {arabic,roman,Roman,alph,Alph,gobble}{\pagenumbering{#1}},
+ page-reference-prefix.store = \ParallelPageReferencePrefix,
+ divider.if = PTDivider,
+ divider-color.store = \ParallelDividerColor,
+ divider-width.store = \ParallelDividerWidth,
+ divider-style.store = \ParallelDividerStyle,
+ background-color.store = \ParallelBackgroundColor,
+ cover-top.store = \ParallelCoverTop,
+ cover-gap.store = \ParallelCoverGap,
+ cover-bottom.store = \ParallelCoverBottom,
+ blank-verso.if = PTBlankVerso,
+ blank-inside-back.if = PTBlankInsideBack,
+ back-parity.choices:nn = {even,odd,any}{\renewcommand\ParallelBackParity{#1}},
+ single-columns.choices:nn = {1,2}{\renewcommand\ParallelSingleColumns{#1}},
+ tabs.if = PTTabs,
+ tab-inset.store = \ParallelTabInset,
+ tab-width.store = \ParallelTabWidth,
+ tab-height.store = \ParallelTabHeight,
+ tab-top.store = \ParallelTabTop,
+ tab-step.store = \ParallelTabStep,
+ tab-style.store = \ParallelTabStyle,
+ tab-text-style.store = \ParallelTabTextStyle,
+ tab-rotation.store = \ParallelTabRotation,
+ tab-side.choices:nn = {outer,inner,left,right}{\renewcommand\ParallelTabSide{#1}},
+ theme-color.code = \colorlet{parallel.theme}{#1},
+ body-color.code = \renewcommand\ParallelBodyColor{#1}\colorlet{parallel.body}{#1},
+ secondary-color.code = \colorlet{parallel.secondary}{#1}
+}
+\NewDocumentCommand\ParallelSetup{m}{\SetKeys[paralleltext]{#1}}
+\@onlypreamble\ParallelSetup\@onlypreamble\ParallelDeclareProfile
+\ParallelDeclareProfile{bound}{geometry={twoside,inner=24mm,outer=16mm,bindingoffset=3mm}}
+\ParallelDeclareProfile{reading}{body-size=11,body-leading=14,pair-gap=5pt,paragraph-skip=3pt,divider=false,page-number-position=footer-center}
+\pagestyle{parallel}
+\ProcessKeyOptions[paralleltext]
 \hypersetup{pdfauthor={}}
-\AtBeginDocument{\setlength\headwidth{\textwidth}}
-\AddToHook{shipout/background}{\ifPTBody\ifdefstring{\ParallelMode}{paired}{%
- \begin{tikzpicture}[remember picture,overlay]
- \draw[black!35,line width=.3pt] ([yshift=-17mm]current page.north)--([yshift=14mm]current page.south);
- \end{tikzpicture}}{}\fi}
+\AtBeginDocument{\setlength\headwidth{\textwidth}\setlength\columnsep{\ParallelColumnGap}%
+ \ifdefstring{\ParallelSingleColumns}{2}{\ifdefstring{\ParallelMode}{paired}{%
+  \PackageError{paralleltext}{single-columns=2 requires one selected language}{Use mode=left or mode=right.}}{\twocolumn}}{}%
+ \PTValidateGeometry}
+\AddToHook{shipout/background}{%
+ \PTLiveGeometry
+ \immediate\write\@auxout{\string\PTPageGeometry{\number\ReadonlyShipoutCounter}{\number\PTTextLeft}{\number\PTTextTop}{\number\textwidth}{\number\textheight}{\number\dimexpr\ParallelColumnGap\relax}}%
+ \ifPTBody\ifPTDivider\ifdefstring{\ParallelMode}{paired}{%
+  \begin{tikzpicture}[remember picture,overlay]
+  \tikzset{parallel divider/.style/.expanded={draw=\ParallelDividerColor,line width=\ParallelDividerWidth,\ParallelDividerStyle}}
+  \draw[parallel divider]
+   ([xshift=\PTDividerX,yshift=-\PTTextTop]current page.north west)--
+   ([xshift=\PTDividerX,yshift=-\dimexpr\PTTextTop+\textheight\relax]current page.north west);
+  \end{tikzpicture}}{}\fi\fi}
+\makeatother
 \ExplSyntaxOn
 \cs_new_protected:Npn \PTCheckId #1
  {\regex_match:nnT {\A pt-internal:} {#1}
@@ -104,9 +289,13 @@
 \newcommand\PairMeasure[3]{}
 \newcommand\PTRecord[1]{\protected@write\@auxout{}{\string\PairMeasure{#1}{\number\PTWidth}{\number\PTHeight}}}
 \newcommand\PTLanguage[1]{%
- \normalfont\selectlanguage{#1}\fontsize{\ParallelBodySize}{\ParallelBodyLeading}\selectfont%
+ \normalfont\selectlanguage{#1}\fontsize{\ParallelBodySize}{\ParallelBodyLeading}\selectfont\color{\ParallelBodyColor}%
  \PTLegacyCJKLinebreaks\setlength\emergencystretch{1em}\clubpenalty=10000\widowpenalty=10000%
- \@ifundefined{if@RTL}{\RaggedRight}{\if@RTL\RaggedLeft\else\RaggedRight\fi}}
+ \@ifundefined{if@RTL}{\RaggedRight}{\if@RTL\RaggedLeft\else\RaggedRight\fi}%
+ \ifdefempty{\PTParagraphSkip}{}{\setlength\parskip{\PTParagraphSkip}}%
+ \ifdefempty{\PTParagraphIndent}{}{\setlength\parindent{\PTParagraphIndent}}}
+\newcommand\PTPhysicalPage{\number\ReadonlyShipoutCounter}
+\newcommand\PTRecordPhysical[1]{\protected@write\@auxout{\let\PTPhysicalPage\relax}{\string\PTPairPage{#1}{\PTPhysicalPage}}}
 \newcommand\PTUnique[1]{\PTCheckId{#1}%
  \ifcsname pt@used@#1\endcsname\PackageError{paralleltext}{Duplicate paired ID: #1}{Every paired unit needs a unique stable ID.}\fi
  \expandafter\gdef\csname pt@used@#1\endcsname{1}}
@@ -114,54 +303,62 @@
 % Prefix executes once in the left/selected box, so counters, labels and anchors
 % travel with the content if Needspace moves the unit to the next page.
 \NewDocumentCommand\PTPlace{m +m +m +m}{%
+ \PTValidateGeometry%
  \PTUnique{#1}\par
- \ifdefstring{\ParallelMode}{paired}{\setlength\PTWidth{\dimexpr(\textwidth-\ParallelColumnGap)/2\relax}}{\setlength\PTWidth{\textwidth}}%
+ \ifdefstring{\ParallelMode}{paired}{\setlength\PTWidth{\dimexpr(\textwidth-\ParallelColumnGap)/2\relax}}{\setlength\PTWidth{\PTAvailableWidth}}%
  \begin{lrbox}{\PTLeftBox}\begin{minipage}[t]{\PTWidth}\vspace{0pt}%
- \ifdefstring{\ParallelMode}{right}{\PTLanguage{\ParallelRightLanguage}}{\PTLanguage{\ParallelLeftLanguage}}%
- #2\hypertarget{#1}{}\label{#1}\zsavepos{pt-internal:#1-L-start}\label{pt-internal:#1-L}%
+ \ifdefstring{\ParallelMode}{right}{\def\PTActiveSide{right}\PTLanguage{\ParallelRightLanguage}}{\def\PTActiveSide{left}\PTLanguage{\ParallelLeftLanguage}}%
+ #2\PTRecordPhysical{#1}\hypertarget{#1}{}\label{#1}\zsavepos{pt-internal:#1-L-start}\label{pt-internal:#1-L}%
  \ifdefstring{\ParallelMode}{right}{#4}{#3}\par\zsavepos{pt-internal:#1-L-end}\end{minipage}\end{lrbox}%
  \setlength\PTHeight{\dimexpr\ht\PTLeftBox+\dp\PTLeftBox\relax}%
  \ifdefstring{\ParallelMode}{paired}{%
-  \begin{lrbox}{\PTRightBox}\begin{minipage}[t]{\PTWidth}\vspace{0pt}\PTLanguage{\ParallelRightLanguage}%
+  \begin{lrbox}{\PTRightBox}\begin{minipage}[t]{\PTWidth}\vspace{0pt}\def\PTActiveSide{right}\PTLanguage{\ParallelRightLanguage}%
   \zsavepos{pt-internal:#1-R-start}\label{pt-internal:#1-R}#4\par\zsavepos{pt-internal:#1-R-end}\end{minipage}\end{lrbox}%
   \setlength\PTRightHeight{\dimexpr\ht\PTRightBox+\dp\PTRightBox\relax}%
   \ifdim\PTRightHeight>\PTHeight\setlength\PTHeight{\PTRightHeight}\fi}{}%
  \ifdim\PTHeight>\dimexpr\textheight-8mm\relax\PackageError{paralleltext}{PAIR TOO TALL: #1}{Split both texts at a matching semantic boundary. Never truncate or shrink to fit.}\fi
- \Needspace{\dimexpr\PTHeight+\PTGap\relax}\noindent\PTRecord{#1}%
+ \setlength\PTReservation{\dimexpr\PTHeight+\PTGap\relax}%
+ \ifPTHeading\ifdim\PTReservation<\PTHeadingReservation\setlength\PTReservation{\PTHeadingReservation}\fi\fi
+ \ifPTAfterHeading\PTReserveSpace{\dimexpr\PTHeight+\PTGap\relax}\else\PTReserveSpace{\PTReservation}\fi\noindent\PTRecord{#1}%
  % A minipage containing only an indented list can have a natural box width
  % smaller than its declared hsize. Reserve both physical slots explicitly.
  \ifdefstring{\ParallelMode}{paired}{\hbox to\textwidth{\hbox to\PTWidth{\usebox\PTLeftBox\hss}\hskip\ParallelColumnGap\hbox to\PTWidth{\usebox\PTRightBox\hss}\hss}}{\hbox to\PTWidth{\usebox\PTLeftBox\hss}}%
- \par\addvspace{\PTGap}}
+ \par
+ \ifPTHeading\nobreak\addtolength\PTHeadingChainHeight{\dimexpr\PTHeight+\PTGap\relax}\PTAfterHeadingtrue
+ \else\PTAfterHeadingfalse\fi
+ \addvspace{\PTGap}}
 \NewDocumentCommand\ParallelText{m +m +m}{\PTPlace{#1}{\phantomsection}{#2}{#3}}
 % Flowing prose uses paracol's page-aware column storage. The next unit resumes
 % below the longer translation; lines and page breaks inside a unit may differ.
 \NewDocumentCommand\ParallelProse{m +m +m}{%
- \PTUnique{#1}\par
+ \PTValidateGeometry%
+ \PTUnique{#1}\par\ifPTAfterHeading\nobreak\PTAfterHeadingfalse\fi
  \ifdefstring{\ParallelMode}{paired}{%
   \setlength\columnsep{\ParallelColumnGap}\begin{paracol}{2}%
-  {\PTLanguage{\ParallelLeftLanguage}\phantomsection\hypertarget{#1}{}\label{#1}%
+  {\def\PTActiveSide{left}\PTLanguage{\ParallelLeftLanguage}\phantomsection\PTRecordPhysical{#1}\hypertarget{#1}{}\label{#1}%
    \zsavepos{pt-internal:#1-L-start}\label{pt-internal:#1-L}%
-   #2\par\zsavepos{pt-internal:#1-L-end}\label{pt-internal:#1-L-finish}}%
+   #2\par\PTRecordFurniture\zsavepos{pt-internal:#1-L-end}\label{pt-internal:#1-L-finish}}%
   \switchcolumn[1]%
-  {\PTLanguage{\ParallelRightLanguage}\zsavepos{pt-internal:#1-R-start}\label{pt-internal:#1-R}%
-   #3\par\zsavepos{pt-internal:#1-R-end}\label{pt-internal:#1-R-finish}}%
+  {\def\PTActiveSide{right}\PTLanguage{\ParallelRightLanguage}\zsavepos{pt-internal:#1-R-start}\label{pt-internal:#1-R}%
+   #3\par\PTRecordFurniture\zsavepos{pt-internal:#1-R-end}\label{pt-internal:#1-R-finish}}%
   \end{paracol}%
  }{%
-  \begingroup\ifdefstring{\ParallelMode}{right}{\PTLanguage{\ParallelRightLanguage}}{\PTLanguage{\ParallelLeftLanguage}}%
-  \phantomsection\hypertarget{#1}{}\label{#1}%
-  \ifdefstring{\ParallelMode}{right}{#3}{#2}\par\endgroup
+  \begingroup\ifdefstring{\ParallelMode}{right}{\def\PTActiveSide{right}\PTLanguage{\ParallelRightLanguage}}{\def\PTActiveSide{left}\PTLanguage{\ParallelLeftLanguage}}%
+  \phantomsection\PTRecordPhysical{#1}\hypertarget{#1}{}\label{#1}%
+  \ifdefstring{\ParallelMode}{right}{#3}{#2}\par\PTRecordFurniture\endgroup
  }\par\addvspace{\PTGap}}
 \NewDocumentCommand\ParallelTitle{m m}{%
  \renewcommand\ParallelTitleLeft{#1}\renewcommand\ParallelTitleRight{#2}%
- \ParallelText{pt-title}{{\ParallelHeadingFont\color{parallel.theme}\fontsize{17}{20.4}\selectfont #1\par}}{{\ParallelHeadingFont\color{parallel.theme}\fontsize{17}{20.4}\selectfont #2\par}}}
+ \PTHeadingtrue\def\PTHeadingReservation{0pt}\ParallelText{pt-title}{{\ParallelTitleStyle #1\par}}{{\ParallelTitleStyle #2\par}}\PTHeadingfalse}
 \NewDocumentCommand\ParallelSection{m m m}{%
- \Needspace{65pt}\PTPlace{#1}{\refstepcounter{section}\setcounter{subsection}{0}\ifdefstring{\ParallelMode}{right}{\addcontentsline{toc}{section}{\protect\numberline{\thesection}#3}}{\addcontentsline{toc}{section}{\protect\numberline{\thesection}#2}}}%
- {{\ParallelHeadingFont\color{parallel.theme}\fontsize{13}{15.6}\selectfont\textenglish{\thesection}\enspace #2\par}}%
- {{\ParallelHeadingFont\color{parallel.theme}\fontsize{13}{15.6}\selectfont\textenglish{\thesection}\enspace #3\par}}}
+ \PTHeadingtrue\let\PTHeadingReservation\ParallelSectionSpace\PTPlace{#1}{\refstepcounter{section}\setcounter{subsection}{0}\ifdefstring{\ParallelMode}{right}{\addcontentsline{toc}{section}{\protect\numberline{\thesection}#3}}{\addcontentsline{toc}{section}{\protect\numberline{\thesection}#2}}}%
+ {{\ParallelSectionStyle\textenglish{\thesection}\enspace #2\par}}%
+ {{\ParallelSectionStyle\textenglish{\thesection}\enspace #3\par}}\PTHeadingfalse}
 \NewDocumentCommand\ParallelSubsection{O{body} m m m}{%
- \Needspace{45pt}\PTPlace{#2}{\refstepcounter{subsection}\ifdefstring{\ParallelMode}{right}{\addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}#4}}{\addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}#3}}}%
- {{\ParallelHeadingFont\color{parallel.#1}\fontsize{9.5}{11.4}\selectfont\textenglish{\thesubsection}\enspace #3\par}}%
- {{\ParallelHeadingFont\color{parallel.#1}\fontsize{9.5}{11.4}\selectfont\textenglish{\thesubsection}\enspace #4\par}}}
+ \PTCheckRole{#1}%
+ \PTHeadingtrue\let\PTHeadingReservation\ParallelSubsectionSpace\PTPlace{#2}{\refstepcounter{subsection}\ifdefstring{\ParallelMode}{right}{\addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}#4}}{\addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}#3}}}%
+ {{\ParallelSubsectionStyle\color{\ParallelRoleColor{#1}}\textenglish{\thesubsection}\enspace #3\par}}%
+ {{\ParallelSubsectionStyle\color{\ParallelRoleColor{#1}}\textenglish{\thesubsection}\enspace #4\par}}\PTHeadingfalse}
 % A shared equation has one counter step and a single standard label.
 \NewDocumentCommand\ParallelEquation{m +m}{%
  \PTPlace{#1}{\refstepcounter{equation}}%
@@ -169,44 +366,160 @@
  {\begin{otherlanguage}{english}\begin{equation*}#2\tag*{\textenglish{(\theequation)}}\end{equation*}\end{otherlanguage}}}
 \NewDocumentCommand\ParallelFigure{m m m m}{%
  \PTPlace{#1}{\refstepcounter{figure}}%
- {\includegraphics[width=\linewidth]{#2}\par{\color{parallel.secondary}\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #3\par}}%
- {\includegraphics[width=\linewidth]{#2}\par{\color{parallel.secondary}\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #4\par}}}
+ {\includegraphics[width=\linewidth]{#2}\par{\ParallelCaptionStyle\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #3\par}}%
+ {\includegraphics[width=\linewidth]{#2}\par{\ParallelCaptionStyle\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #4\par}}}
 \newsavebox\PTWideBox\newlength\PTWideHeight
 % A shared image is painted once over an opaque background, so the page's
 % center rule cannot pass through it. Its localized captions remain paired.
 \NewDocumentCommand\ParallelWideFigure{m m m m}{%
  \PTUnique{#1}\par
- \begin{lrbox}{\PTWideBox}\begin{minipage}{\textwidth}%
+ \begin{lrbox}{\PTWideBox}\begin{minipage}{\PTAvailableWidth}%
   \refstepcounter{figure}\hypertarget{#1}{}\label{#1}%
-  {\setlength\fboxsep{0pt}\colorbox{white}{\includegraphics[width=\linewidth]{#2}}}\par
+  {\setlength\fboxsep{0pt}\colorbox{\ParallelBackgroundColor}{\includegraphics[width=\linewidth]{#2}}}\par
   \ParallelText{#1.caption}%
-   {\color{parallel.secondary}\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #3}%
-   {\color{parallel.secondary}\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #4}%
+   {\ParallelCaptionStyle\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #3}%
+   {\ParallelCaptionStyle\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #4}%
  \end{minipage}\end{lrbox}%
  \setlength\PTWideHeight{\dimexpr\ht\PTWideBox+\dp\PTWideBox\relax}%
  \ifdim\PTWideHeight>\dimexpr\textheight-8mm\relax\PackageError{paralleltext}{SHARED FIGURE TOO TALL: #1}{Crop or resize the source image deliberately; keep readable captions.}\fi
- \Needspace{\dimexpr\PTWideHeight+\PTGap\relax}\noindent\hbox to\textwidth{\usebox\PTWideBox\hss}\par\addvspace{\PTGap}}
+ \PTReserveSpace{\dimexpr\PTWideHeight+\PTGap\relax}\noindent\hbox to\PTAvailableWidth{\usebox\PTWideBox\hss}\par\PTAfterHeadingfalse\addvspace{\PTGap}}
 % Use ordinary \hyperref, \ref and \pageref in bodies. This convenience wrapper
 % isolates a Latin page suffix when the active paragraph is RTL.
-\NewDocumentCommand\ParallelReference{m m}{\hyperref[#1]{#2\space\textenglish{(p.\,\pageref*{#1})}}}
+\NewDocumentCommand\ParallelReference{m m}{\hyperref[#1]{#2\space\textenglish{(\ParallelPageReferencePrefix\pageref*{#1})}}}
 \newsavebox\PTKeepBox\newlength\PTKeepHeight
 \NewDocumentEnvironment{ParallelKeep}{}{
- \begin{lrbox}{\PTKeepBox}\begin{minipage}{\textwidth}}
+ \begin{lrbox}{\PTKeepBox}\begin{minipage}{\PTAvailableWidth}}
  {\end{minipage}\end{lrbox}\setlength\PTKeepHeight{\dimexpr\ht\PTKeepBox+\dp\PTKeepBox\relax}%
  \ifdim\PTKeepHeight>\dimexpr\textheight-8mm\relax\PackageError{paralleltext}{GROUP TOO TALL}{Split at a matching semantic boundary.}\fi
- \Needspace{\PTKeepHeight}\noindent\usebox\PTKeepBox\par}
+ \PTReserveSpace{\PTKeepHeight}\noindent\usebox\PTKeepBox\par\PTAfterHeadingfalse}
+% Optional semantic components. No learning-specific taxonomy is imposed.
+\makeatletter
+\NewDocumentCommand\ParallelDeclareRole{m m m m}{%
+ \@namedef{pt@rolecolor@#1}{#2}\@namedef{pt@roleleft@#1}{#3}\@namedef{pt@roleright@#1}{#4}}
+\@onlypreamble\ParallelDeclareRole
+\ParallelDeclareRole{body}{parallel.body}{}{}
+\ParallelDeclareRole{concept}{parallel.concept}{}{}
+\ParallelDeclareRole{example}{parallel.example}{}{}
+\ParallelDeclareRole{caution}{parallel.caution}{}{}
+\ParallelDeclareRole{error}{parallel.error}{}{}
+\newcommand\PTCheckRole[1]{\ifcsname pt@rolecolor@#1\endcsname\else\PackageError{paralleltext}{Unknown semantic role #1}{Declare it with ParallelDeclareRole.}\fi}
+\newcommand\PTRole[2]{\ifcsname pt@rolecolor@#1\endcsname
+ {\ParallelHeadingFont\color{\csname pt@rolecolor@#1\endcsname}\csname pt@role#2@#1\endcsname}\enspace
+ \else\PackageError{paralleltext}{Unknown semantic role #1}{Declare it with ParallelDeclareRole.}\fi}
+\NewDocumentCommand\ParallelNote{O{body} m +m +m}{%
+ \ParallelText{#2}{{\ParallelNoteStyle\PTRole{#1}{left}#3}}{{\ParallelNoteStyle\PTRole{#1}{right}#4}}}
+\newcommand\ParallelRoleColor[1]{\csname pt@rolecolor@#1\endcsname}
+\NewDocumentCommand\ParallelLocalize{m m}{\ifdefstring{\PTActiveSide}{right}{#2}{#1}}
+\tikzset{
+ parallel node/.style={draw=parallel.secondary,rounded corners=1pt,align=center,inner sep=2pt,text width=26mm,minimum height=9mm},
+ parallel fixed/.style={parallel node,fill=black!3},
+ parallel variable/.style={parallel node,draw=parallel.example},
+ parallel arrow/.style={->,draw=parallel.secondary,line width=.45pt},
+ parallel annotation/.style={text=parallel.secondary,align=center,inner sep=1pt}}
+\NewDocumentEnvironment{ParallelDiagram}{O{}}{\begin{tikzpicture}[font=\ParallelDiagramStyle,#1]}{\end{tikzpicture}}
+\NewDocumentCommand\ParallelRoleText{m +m}{%
+ \ifcsname pt@rolecolor@#1\endcsname{\color{\csname pt@rolecolor@#1\endcsname}#2}%
+ \else\PackageError{paralleltext}{Unknown semantic role #1}{Declare it with ParallelDeclareRole.}\fi}
+\newcommand\PTCurrentEntryId{}\newcommand\PTCurrentEntryText{}
+\newcommand\PTCurrentNavigation{}
+\newcommand\PTPreviousEntry{}\newcommand\PTPreviousEntryPage{0}
+\newcommand\PTPreviousNavigation{}\newcommand\PTPreviousNavigationPage{0}
+\newcommand\PTSetEntryPage[3]{%
+ \ifcsname pt@first@#1\endcsname\else\expandafter\gdef\csname pt@first@#1\endcsname{#3}\fi
+ \expandafter\gdef\csname pt@last@#1\endcsname{#3}}
+\newcommand\PTPageEntry[3]{%
+ \def\PTThisEntry{#2}\@tempcnta=#1\relax
+ \ifx\PTThisEntry\PTPreviousEntry\@tempcnta=\PTPreviousEntryPage\relax\fi
+ \loop\PTSetEntryPage{\number\@tempcnta}{#2}{#3}\ifnum\@tempcnta<#1\advance\@tempcnta by1\repeat
+ \gdef\PTPreviousEntry{#2}\gdef\PTPreviousEntryPage{#1}}
+\newcommand\PTPageNavigation[2]{%
+ \def\PTThisNavigation{#2}\@tempcnta=#1\relax
+ \ifx\PTThisNavigation\PTPreviousNavigation\@tempcnta=\PTPreviousNavigationPage\relax\fi
+ \loop\expandafter\gdef\csname pt@nav@\number\@tempcnta @#2\endcsname{1}%
+ \ifnum\@tempcnta<#1\advance\@tempcnta by1\repeat
+ \gdef\PTPreviousNavigation{#2}\gdef\PTPreviousNavigationPage{#1}}
+\newcommand\PTRecordFurniture{%
+ \ifdefempty{\PTCurrentEntryId}{}{\protected@write\@auxout{\let\PTPhysicalPage\relax}{%
+  \string\PTPageEntry{\PTPhysicalPage}{\PTCurrentEntryId}{\PTCurrentEntryText}}}%
+ \ifdefempty{\PTCurrentNavigation}{}{\protected@write\@auxout{\let\PTPhysicalPage\relax}{%
+  \string\PTPageNavigation{\PTPhysicalPage}{\PTCurrentNavigation}}}}
+\apptocmd{\PTRecordPhysical}{\PTRecordFurniture}{}{}
+\newcommand\PTEntryHead[1]{\begingroup
+ \ifdefstring{\ParallelMode}{right}{\selectlanguage{\ParallelRightLanguage}}{\selectlanguage{\ParallelLeftLanguage}}%
+ \ifcsname pt@#1@\number\numexpr\ReadonlyShipoutCounter+1\relax\endcsname
+  \csname pt@#1@\number\numexpr\ReadonlyShipoutCounter+1\relax\endcsname\fi\endgroup}
+\newcommand\ParallelFirstEntry{\PTEntryHead{first}}
+\newcommand\ParallelLastEntry{\PTEntryHead{last}}
+\NewDocumentCommand\ParallelEntry{m m m}{%
+ \gdef\PTCurrentEntryId{#1}%
+ \ifdefstring{\ParallelMode}{right}{\gdef\PTCurrentEntryText{#3}}{\gdef\PTCurrentEntryText{#2}}%
+ \PTHeadingtrue\let\PTHeadingReservation\ParallelSubsectionSpace\ParallelText{#1}{{\ParallelEntryStyle #2}}{{\ParallelEntryStyle #3}}\PTHeadingfalse}
+\NewDocumentCommand\ParallelEndEntry{}{\gdef\PTCurrentEntryId{}\gdef\PTCurrentEntryText{}}
+\newcommand\PTNavigationList{}
+\NewDocumentCommand\ParallelDeclareNavigation{O{parallel.theme} m m m}{%
+ \ifnum#3<1\PackageError{paralleltext}{Navigation slot must be positive}{Use a positive integer slot.}\fi
+ \ifcsname pt@navslot@#2\endcsname\PackageError{paralleltext}{Duplicate navigation ID #2}{Each navigation ID must be unique.}\fi
+ \@namedef{pt@navcolor@#2}{#1}\@namedef{pt@navslot@#2}{#3}\@namedef{pt@navlabel@#2}{#4}\listadd\PTNavigationList{#2}}
+\@onlypreamble\ParallelDeclareNavigation
+\NewDocumentCommand\ParallelNavigation{m}{%
+ \ifcsname pt@navslot@#1\endcsname\gdef\PTCurrentNavigation{#1}\gdef\ParallelStructureColor{\csname pt@navcolor@#1\endcsname}%
+ \else\PackageError{paralleltext}{Unknown navigation ID #1}{Declare it with ParallelDeclareNavigation.}\fi}
+\NewDocumentCommand\ParallelEndNavigation{}{\gdef\PTCurrentNavigation{}\gdef\ParallelStructureColor{parallel.theme}}
+\newcommand\PTDrawTab[1]{%
+ \ifcsname pt@nav@\number\ReadonlyShipoutCounter @#1\endcsname
+  \def\PTTabEdge{right}%
+  \ifdefstring{\ParallelTabSide}{left}{\def\PTTabEdge{left}}{}%
+  \ifdefstring{\ParallelTabSide}{outer}{\if@twoside\ifodd\value{page}\else\def\PTTabEdge{left}\fi\fi}{}%
+  \ifdefstring{\ParallelTabSide}{inner}{\def\PTTabEdge{left}\if@twoside\ifodd\value{page}\else\def\PTTabEdge{right}\fi\fi}{}%
+  \edef\PTTabY{\the\dimexpr\ParallelTabTop+\ParallelTabStep*\numexpr\csname pt@navslot@#1\endcsname-1\relax\relax}%
+  \ifdim\dimexpr\PTTabY+\ParallelTabHeight\relax>\paperheight
+   \PackageError{paralleltext}{Navigation tab outside page}{Reduce slot count, tab-top, tab-step or tab-height.}\fi
+  \begin{tikzpicture}[remember picture,overlay]
+  \tikzset{parallel tab/.style/.expanded={fill=\csname pt@navcolor@#1\endcsname!8,draw=\csname pt@navcolor@#1\endcsname,\ParallelTabStyle}}%
+  \ifdefstring{\PTTabEdge}{right}{%
+   \node[parallel tab,anchor=north east,minimum width=\ParallelTabWidth,minimum height=\ParallelTabHeight,font=\ParallelTabTextStyle]
+    at ([xshift=-\ParallelTabInset,yshift=-\PTTabY]current page.north east){\PTFurniture{\rotatebox{\ParallelTabRotation}{\csname pt@navlabel@#1\endcsname}}};%
+  }{%
+   \node[parallel tab,anchor=north west,minimum width=\ParallelTabWidth,minimum height=\ParallelTabHeight,font=\ParallelTabTextStyle]
+    at ([xshift=\ParallelTabInset,yshift=-\PTTabY]current page.north west){\PTFurniture{\rotatebox{\ParallelTabRotation}{\csname pt@navlabel@#1\endcsname}}};%
+  }\end{tikzpicture}\fi}
+\AddToHook{shipout/background}{\ifPTBody\ifPTTabs\forlistloop\PTDrawTab\PTNavigationList\fi\fi}
+% Aligned printed navigation rows use native generated references.
+\newcommand\ParallelLocationWidth{12mm}
+\NewDocumentCommand\ParallelLocationRow{m m}{%
+ \par\noindent\parbox[t]{\dimexpr\linewidth-\ParallelLocationWidth-2mm\relax}{#1}\hfill
+ \parbox[t]{\ParallelLocationWidth}{\RaggedLeft #2}\par}
+\NewDocumentCommand\ParallelLookup{m m m m}{%
+ \ParallelText{#1}{\ParallelLocationRow{\hyperref[#2]{#3}}{\textenglish{\pageref*{#2}}}}%
+ {\ParallelLocationRow{\hyperref[#2]{#4}}{\textenglish{\pageref*{#2}}}}}
+\makeatother
 % Optional booklet lifecycle. Short articles normally omit these commands.
 \newcommand\PTBlankPage{\thispagestyle{empty}\null\clearpage}
 \NewDocumentCommand\PTCoverTitles{m m}{%
  \ifdefstring{\ParallelMode}{right}{}{%
-  {\PTLanguage{\ParallelLeftLanguage}\ParallelHeadingFont\fontsize{24}{30}\selectfont #1\par}}%
- \ifdefstring{\ParallelMode}{paired}{\vspace{10mm}}{}%
+  {\PTLanguage{\ParallelLeftLanguage}\ParallelCoverStyle #1\par}}%
+ \ifdefstring{\ParallelMode}{paired}{\vspace{\ParallelCoverGap}}{}%
  \ifdefstring{\ParallelMode}{left}{}{%
-  {\PTLanguage{\ParallelRightLanguage}\ParallelHeadingFont\fontsize{24}{30}\selectfont #2\par}}}
+  {\PTLanguage{\ParallelRightLanguage}\ParallelCoverStyle #2\par}}}
+\newcommand\PTRestoreColumns{}
+\makeatletter
+\newcommand\PTSaveColumns{\if@twocolumn\let\PTRestoreColumns\twocolumn\else\let\PTRestoreColumns\relax\fi}
+\makeatother
+\NewDocumentCommand\ParallelBlankPage{}{\clearpage\begingroup\PTBodyfalse\hypersetup{pageanchor=false}\PTBlankPage\endgroup}
 \NewDocumentCommand\ParallelFrontCover{m m}{%
- \PTBodyfalse\pagestyle{empty}\thispagestyle{empty}\vspace*{20mm}\PTCoverTitles{#1}{#2}%
- \vfill\clearpage\PTBlankPage\PTBodytrue\pagestyle{fancy}}
+ \clearpage\PTSaveColumns\onecolumn\begingroup\PTBodyfalse\pagestyle{empty}\hypersetup{pageanchor=false}\thispagestyle{empty}%
+ \vspace*{\ParallelCoverTop}\PTCoverTitles{#1}{#2}\vfill\ParallelCoverBottom\clearpage
+ \ifPTBlankVerso\PTBlankPage\fi\endgroup\PTRestoreColumns}
 \NewDocumentCommand\ParallelBackCover{m m}{%
- \clearpage\PTBodyfalse\pagestyle{empty}\ifodd\value{page}\else\PTBlankPage\fi\PTBlankPage
- \thispagestyle{empty}\vspace*{20mm}\PTCoverTitles{#1}{#2}\vfill\clearpage}
+ \clearpage\PTSaveColumns\onecolumn\begingroup\PTBodyfalse\pagestyle{empty}\hypersetup{pageanchor=false}%
+ % Physical parity remains correct even after \pagenumbering resets the folio.
+ \ifPTBlankInsideBack
+  \ifdefstring{\ParallelBackParity}{even}{\ifodd\ReadonlyShipoutCounter\PTBlankPage\fi}{}%
+  \ifdefstring{\ParallelBackParity}{odd}{\ifodd\ReadonlyShipoutCounter\else\PTBlankPage\fi}{}%
+  \PTBlankPage
+ \else
+  \ifdefstring{\ParallelBackParity}{even}{\ifodd\ReadonlyShipoutCounter\else\PTBlankPage\fi}{}%
+  \ifdefstring{\ParallelBackParity}{odd}{\ifodd\ReadonlyShipoutCounter\PTBlankPage\fi}{}%
+ \fi
+ \thispagestyle{empty}\vspace*{\ParallelCoverTop}\PTCoverTitles{#1}{#2}\vfill\ParallelCoverBottom\clearpage\endgroup\PTRestoreColumns}
 \endinput

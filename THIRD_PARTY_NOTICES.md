@@ -9,4 +9,4 @@ The repository does not bundle third-party fonts or a TeX distribution. Install 
 
 Original example text and the authored renderer/templates in this repository are covered by the repository license unless a file states otherwise. Do not copy restricted templates or educational material into this project simply because they are visible online.
 
-The shared photograph in all four article examples is by D. Benjamin Miller and is dedicated to the public domain under CC0 1.0. Its source and transformations are recorded in [the photo credit](skills/bilingual-pdf/examples/en-zh-Hans/images/PHOTO-LICENSE.md); it is not relicensed as authored repository content.
+The shared photograph in all four article examples is by D. Benjamin Miller and is dedicated to the public domain under CC0 1.0. Its source and transformations are recorded in [the photo credit](skills/bilingual-pdf/references/photo-credit.md); it is not relicensed as authored repository content.

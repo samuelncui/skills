@@ -36,7 +36,7 @@ Choose a useful ordering and document it. If the lookup claims A–Z ordering, g
 
 Use the complete `assets/learning-starter/` project for ordinary `.tex` authoring, shared `paralleltext.sty`, and native `xr-hyper`/`hyperref` links. Build `notes.tex` before `quick-reference.tex`; the resulting `notes.pdf` and `quick-reference.pdf` stay together in one folder. Both documents may be bilingual, or export one selected side. The structured collection route is also available and uses the same paired template, not another layout engine.
 
-For a worked source-to-deliverable pattern, read the [bundled three-concept example](examples/README.md): source map, full teaching notes and independently findable lookup routes, with both PDFs and all editable files together.
+For a worked source-to-deliverable pattern, read the [bundled three-concept example](references/examples.md): source map, full teaching notes and independently findable lookup routes, with both PDFs and all editable files together.
 
 Read [rendering](references/rendering.md) for the actual commands, structured contract and executable examples; read [layout](references/layout.md) only when adapting the design. Resolve paths relative to this installed skill. The skill is self-contained and does not require the sibling bilingual skill.
 
@@ -47,3 +47,7 @@ Compare the notes with the source map for coverage and factual fidelity. Check u
 Render and personally inspect every final PDF page for paired correspondence, readable figures/tables, glyphs, clipping and page references. Use an independent reviewer when the scope or risk warrants one and the environment permits it; otherwise disclose that review was sequential. Follow [review and delivery](references/review-release.md) for larger projects. A small sample does not require a full production-release process.
 
 Deliver the notes, Quick Reference, editable sources, source map and concise coverage/review limits. Do not claim the material is exam-complete or independently audited unless that was established. Native TeX is executable; `-no-shell-escape` is not a sandbox. Keep private sources and source locators out of public examples, and obtain applicable authorization before publishing or uploading.
+
+## Adjust the presentation only when needed
+
+The default style is usable without configuration. For a requested change, consult the [intent-to-option reference](references/configuration.md), add only the needed native setup keys or standard package commands, and rebuild and inspect all affected pages. Content, language/font mapping and presentation remain separate.

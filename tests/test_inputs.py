@@ -58,7 +58,7 @@ class InputTests(unittest.TestCase):
  def test_right_cover(self):
   self.doc['layout']={'covers':True}
   tex=tex_document(self.doc,'right')
-  self.assertIn(r'\ParallelSelect{right}',tex)
+  self.assertIn(r'\ParallelSetup{mode=right}',tex)
   self.assertIn(r'\ParallelFrontCover{A small garden}{Un petit jardin}',tex)
   self.assertIn(r'\ParallelBackCover{A small garden}{Un petit jardin}',tex)
  def test_unresolved_reference(self):

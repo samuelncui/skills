@@ -24,7 +24,6 @@ for name in ('en-fr','en-zh-Hans','en-ar','zh-Hans-ja'):
         # These are reviewed public source assets, not arbitrary user uploads.
         # Runtime export separately strips image metadata in its fresh project.
         relative=Path(block['image'])
-        if relative.parts[0]!='images':relative=Path('images')/relative
         images[block['id']]=relative.as_posix()
         expected[relative.as_posix()]=source.read_bytes()
     main,locale,body=tex_parts(data,'bilingual',image_names=images)

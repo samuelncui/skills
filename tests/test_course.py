@@ -2,7 +2,7 @@ import copy,importlib.util,json,sys,unittest,tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'skills/course-guide-quick-reference/scripts'))
-from course_documents import prepare,InputError,stage_figures,verify_guide_links
+from course_documents import prepare,InputError,stage_figures,verify_guide_links,unit_pages
 
 class CourseTests(unittest.TestCase):
  def setUp(self):self.data=json.loads((ROOT/'tests/fixtures/course-en-fr/source.json').read_text())
@@ -53,9 +53,18 @@ class CourseTests(unittest.TestCase):
   self.data['keywords'][0]['targets']=[self.data['topics'][0]['id']]*2
   with self.assertRaises(InputError):prepare(self.data)
  def link_fixture(self):
-  aux=r'\PairMeasure{entry.area.guide}{6553600}{1966080}'+r'\zref@newlabel{pt-internal:entry.area.guide-L-start}{\posx{0}\posy{6553600}}'+r'\zref@newlabel{pt-internal:entry.area.guide-L-end}{\posx{0}\posy{4587520}}'+r'\newlabel{pt-internal:entry.area.guide-L}{{}{1}{}{Doc-Start}{}}'
+  aux=r'\PTPairPage{entry.area.guide}{1}'+r'\PairMeasure{entry.area.guide}{6553600}{1966080}'+r'\zref@newlabel{pt-internal:entry.area.guide-L-start}{\posx{0}\posy{6553600}}'+r'\zref@newlabel{pt-internal:entry.area.guide-L-end}{\posx{0}\posy{4587520}}'+r'\newlabel{pt-internal:entry.area.guide-L}{{}{1}{}{Doc-Start}{}}'
   links=[{'source_page':0,'file':'notes.pdf','page':2,'rect':(0,100,80,110)},{'source_page':0,'file':'notes.pdf','page':2,'rect':(0,115,80,125)}]
   return aux,links
+ def test_roman_folios_separate_physical_destinations(self):
+  aux=r'\PTPairPage{topic.area}{3}\newlabel{pt-internal:topic.area-L}{{}{iii}{}{Doc-Start}{}}'
+  self.assertEqual(unit_pages(aux),({'topic.area':3},{'topic.area':'iii'}))
+ def test_gobble_cannot_supply_printed_lookup_pages(self):
+  self.data['layout']={'page_numbers':{'numbering':'gobble'}}
+  with self.assertRaises(InputError):prepare(self.data)
+ def test_roman_source_link_positions_use_physical_pages(self):
+  aux,links=self.link_fixture();aux=aux.replace('{{}{1}', '{{}{i}')
+  self.assertEqual(verify_guide_links(aux,[200],links,{'area':3},'left'),1)
  def test_wrapped_logical_link(self):
   aux,links=self.link_fixture()
   self.assertEqual(verify_guide_links(aux,[200],links,{'area':3},'left'),1)

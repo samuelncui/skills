@@ -5,7 +5,7 @@ description: Create or edit same-page bilingual PDFs with aligned source and tra
 
 # Bilingual PDF
 
-Keep source and translation in fixed physical columns, with matching semantic starts and a fixed divider. Short paired blocks stay together; long prose can flow across pages and resynchronize before the next unit. Language direction is independent of column order. The bundled design is topic-neutral; do not turn an ordinary article into course notes.
+Keep source and translation in fixed physical columns, with matching semantic starts and a configurable text-block divider. Short paired blocks stay together; long prose can flow across pages and resynchronize before the next unit. Language direction is independent of column order. The bundled design is topic-neutral; do not turn an ordinary article into course notes.
 
 ## Choose the input route
 
@@ -34,4 +34,8 @@ Deliver the PDF plus the portable `.tex` project, and the structured source when
 
 ## Consult an installed example
 
-Read the [bundled examples](examples/README.md) when choosing an authoring pattern. Four language pairs translate one complete article; each has editable LaTeX, JSON, images, a PDF and preview, including a shared photograph and genuinely flowing prose. Copy one complete folder for a worked starting point; no repository checkout is needed.
+Read the [bundled examples](references/examples.md) when choosing an authoring pattern. Four language pairs translate one complete article; each has editable LaTeX, JSON, images, a PDF and preview, including a shared photograph and genuinely flowing prose. Copy one complete folder for a worked starting point; no repository checkout is needed.
+
+## Adjust the presentation only when needed
+
+The default style is usable without configuration. For a requested change, consult the [intent-to-option reference](references/configuration.md), add only the needed native setup keys or standard package commands, and rebuild and inspect all affected pages. Content, language/font mapping and presentation remain separate.

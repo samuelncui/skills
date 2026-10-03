@@ -84,6 +84,9 @@ def validate(data):
             if 'file' in b:
                 if not isinstance(b['file'],str) or not re.fullmatch(r'(?:\.\./)?[a-z][a-z0-9/_-]*\.pdf',b['file']):raise InputError('Reference file must be a relative PDF path')
                 if isinstance(b.get('page'),bool) or not isinstance(b.get('page'),int) or b['page']<1:raise InputError('Reference page must be positive')
+                if 'page_label' in b:
+                    if not isinstance(b['page_label'],str):raise InputError('Reference page_label must be text')
+                    text_value(b['page_label'])
         if kind=='equation':
             if not isinstance(b.get('math'),str):raise InputError('Math must be a string')
             math=text_value(b.get('math'))
@@ -113,11 +116,31 @@ def validate(data):
     if any(x in ids for x in generated) or len(generated)!=len(set(generated)):raise InputError('Generated list IDs collide with explicit block IDs')
     settings=data.get('layout',{})
     if not isinstance(settings,dict):raise InputError('layout must be an object')
-    for key,default,lo,hi in [('font_size',10,9,14),('margin_mm',18,12,30),('gap_mm',6,4,12)]:
-        value=settings.get(key,default)
-        if isinstance(value,bool) or not isinstance(value,(int,float)) or not lo<=value<=hi:raise InputError('Invalid layout '+key)
-    if not isinstance(settings.get('paper','a4'),str) or settings.get('paper','a4') not in {'a4','letter'}:raise InputError('paper must be a4 or letter')
-    if not isinstance(settings.get('covers',True),bool):raise InputError('covers must be boolean')
+    allowed={'font_size','leading','margin_mm','inner_mm','outer_mm','binding_mm','top_mm','bottom_mm','gap_mm','paper','covers','twoside','profile','divider','page_numbers'}
+    if set(settings)-allowed:raise InputError('Unknown layout option: '+', '.join(sorted(set(settings)-allowed)))
+    for key,lo,hi in [('font_size',9,14),('leading',9,24),('margin_mm',8,45),('inner_mm',8,45),('outer_mm',8,45),('binding_mm',0,20),('top_mm',10,40),('bottom_mm',10,40),('gap_mm',4,16)]:
+        if key in settings:
+            value=settings[key]
+            if isinstance(value,bool) or not isinstance(value,(int,float)) or not lo<=value<=hi:raise InputError('Invalid layout '+key)
+    effective_size=settings.get('font_size',11 if settings.get('profile')=='reading' else 9)
+    if settings.get('leading',effective_size*1.2)<effective_size:raise InputError('leading must be at least font_size')
+    if settings.get('paper','a4') not in ('a4','letter','a5','legal'):raise InputError('paper must be a4, letter, a5 or legal')
+    if settings.get('profile','article') not in ('article','bound','reading'):raise InputError('Unknown layout profile')
+    for key in ('covers','twoside'):
+        if key in settings and not isinstance(settings[key],bool):raise InputError(key+' must be boolean')
+    divider=settings.get('divider',{})
+    if not isinstance(divider,dict) or set(divider)-{'enabled','color','width_pt','style'}:raise InputError('Invalid divider options')
+    if 'enabled' in divider and not isinstance(divider['enabled'],bool):raise InputError('divider.enabled must be boolean')
+    if 'color' in divider and (not isinstance(divider['color'],str) or not re.fullmatch('[0-9A-Fa-f]{6}',divider['color'])):raise InputError('divider.color must be six HTML hex digits')
+    if 'width_pt' in divider and (isinstance(divider['width_pt'],bool) or not isinstance(divider['width_pt'],(int,float)) or not 0<divider['width_pt']<=3):raise InputError('Invalid divider.width_pt')
+    if divider.get('style','solid') not in ('solid','dashed','dotted','densely dashed','densely dotted'):raise InputError('Invalid divider.style')
+    folio=settings.get('page_numbers',{})
+    if not isinstance(folio,dict) or set(folio)-{'position','numbering','prefix','suffix'}:raise InputError('Invalid page_numbers options')
+    positions={'none'}|{where+'-'+align for where in ('header','footer') for align in ('outer','inner','left','center','right')}
+    if not isinstance(folio.get('position','footer-outer'),str) or folio.get('position','footer-outer') not in positions:raise InputError('Invalid page_numbers.position')
+    if folio.get('numbering','arabic') not in ('arabic','roman','Roman','alph','Alph','gobble'):raise InputError('Invalid page_numbers.numbering')
+    for key in ('prefix','suffix'):
+        if key in folio and (not isinstance(folio[key],str) or len(folio[key])>80 or any(ord(c)<32 for c in folio[key])):raise InputError('Invalid page_numbers.'+key)
     return data
 
 def preflight(data):
@@ -181,7 +204,7 @@ def content(b,index,language):
     value=language_text(value,language)
     if kind=='reference':
         if 'file' in b:
-            return r'\href[page='+str(b['page'])+']{'+b['file']+'}{'+value+r' \textenglish{(p.\,'+str(b['page'])+')}}'
+            return r'\href[page='+str(b['page'])+']{'+b['file']+'}{'+value+r' \textenglish{(p.\,'+escape(b.get('page_label',str(b['page'])))+')}}'
         return r'\ParallelReference{'+b['target']+'}{'+value+'}'
     if kind=='quote':return r'\begin{quote}'+value+r'\end{quote}'
     return value
@@ -201,7 +224,31 @@ def tex_parts(data,mode,*,stem="document",image_names=None):
         locale.append(r'\newfontfamily'+chr(92)+name+'font'+options+'{'+PROFILES[language]['font']+'}')
         sans=PROFILES[language]['font'].replace('Serif','Sans') if language.startswith('zh') or language=='ja' else ('Latin Modern Sans' if language in ('en','fr') else PROFILES[language]['font'])
         locale.append(r'\newfontfamily'+chr(92)+name+'fontsf'+options+'{'+sans+'}')
-    locale += [r'\ParallelLanguages{'+names[0]+'}{'+names[1]+'}',r'\ParallelSelect{'+('paired' if mode=='bilingual' else mode)+'}',r'\renewcommand\ParallelBodySize{'+str(size)+'}',r'\renewcommand\ParallelBodyLeading{'+str(round(size*1.2,2))+'}',r'\renewcommand\ParallelColumnGap{'+str(gap)+'mm}',r'\geometry{'+settings.get('paper','a4')+'paper,inner='+str(margin)+'mm,outer='+str(margin)+'mm,top=17mm,bottom=14mm}',r'\hypersetup{pdftitle={'+escape(data['title'][1 if mode=='right' else 0])+r'},pdfauthor={}}']
+    setup=['mode='+('paired' if mode=='bilingual' else mode)]
+    if settings.get('profile','article')!='article':setup.insert(0,'profile='+settings['profile'])
+    if 'font_size' in settings:
+        setup+=['body-size='+str(size),'body-leading='+str(settings.get('leading',round(size*1.2,2)))]
+    elif 'leading' in settings:setup+=['body-leading='+str(settings['leading'])]
+    if 'gap_mm' in settings:setup+=['column-gap='+str(gap)+'mm']
+    geometry=[]
+    if 'paper' in settings:geometry.append(settings['paper']+'paper')
+    if 'twoside' in settings:geometry.append('twoside='+str(settings['twoside']).lower())
+    if 'margin_mm' in settings:geometry+=['inner='+str(margin)+'mm','outer='+str(margin)+'mm']
+    for key,texkey in [('inner_mm','inner'),('outer_mm','outer'),('binding_mm','bindingoffset'),('top_mm','top'),('bottom_mm','bottom')]:
+        if key in settings:geometry.append(texkey+'='+str(settings[key])+'mm')
+    if geometry:setup+=['geometry={'+','.join(geometry)+'}']
+    divider=settings.get('divider',{})
+    if 'color' in divider:
+        locale.append(r'\definecolor{parallel.adapter.divider}{HTML}{'+divider['color']+'}')
+        setup+=['divider-color=parallel.adapter.divider']
+    for key,texkey in [('enabled','divider'),('width_pt','divider-width'),('style','divider-style')]:
+        if key in divider:setup+=[texkey+'='+str(divider[key]).lower()+('pt' if key=='width_pt' else '')]
+    folio=settings.get('page_numbers',{})
+    for key in ('position','numbering'):
+        if key in folio:setup+=[('page-numbering' if key=='numbering' else 'page-number-position')+'='+folio[key]]
+    if 'prefix' in folio or 'suffix' in folio:
+        setup+=['page-number-format={'+escape(folio.get('prefix',''))+r'\thepage{}'+escape(folio.get('suffix',''))+'}']
+    locale += [r'\ParallelLanguages{'+names[0]+'}{'+names[1]+'}',r'\ParallelSetup{'+','.join(setup)+'}',r'\hypersetup{pdftitle={'+escape(data['title'][1 if mode=='right' else 0])+r'},pdfauthor={}}']
     body=[];titles=[language_text(t,l) for t,l in zip(data['title'],languages)]
     if settings.get('covers',False):body.append(r'\ParallelFrontCover{'+titles[0]+'}{'+titles[1]+'}')
     body.append(r'\ParallelTitle{'+titles[0]+'}{'+titles[1]+'}')
@@ -348,14 +395,20 @@ def check_pdf(path,covered,paired=False,margin_mm=12):
             positions={m[1]:(int(m[2]),int(m[3])) for m in re.finditer(r'\\zref@newlabel\{pt-internal:([^{}]+)\}\{\\posx\{(\d+)\}\\posy\{(\d+)\}\}',text)}
             pages={m[1]:m[2] for m in re.finditer(r'\\newlabel\{pt-internal:([^{}]+-[LR])\}\{\{[^{}]*\}\{([^{}]+)\}',text)}
             widths={m[1]:int(m[2]) for m in re.finditer(r'\\PairMeasure\{([^{}]+)\}\{(\d+)\}',text)}
+            physical={m[1]:int(m[2])-1 for m in re.finditer(r'\\PTPairPage\{([^{}]+)\}\{(\d+)\}',text)}
+            geometry={int(m[1])-1:tuple(int(m[i]) for i in range(2,7)) for m in re.finditer(r'\\PTPageGeometry'+r'\{(\d+)\}'*6,text)}
             scale=72/(72.27*65536)
             for key,pos in positions.items():
                 if not key.endswith('-L-start'):continue
                 ident=key[:-8];right=ident+'-R-start';count+=1
                 if right not in positions or positions[right][1]!=pos[1] or pages.get(ident+'-L')!=pages.get(ident+'-R'):errors.append('Pair start/page mismatch: '+ident)
                 if ident in widths and right in positions:
-                    page=int(pages.get(ident+'-L','1'))-1
-                    expected=pdf[page].rect.width-pos[0]*scale-widths[ident]*scale
+                    page=physical.get(ident)
+                    if page is None or page not in geometry:
+                        errors.append('Live page geometry evidence missing: '+ident);continue
+                    left,top,textwidth,textheight,gap=geometry[page]
+                    if abs(pos[0]*scale-left*scale)>.2:errors.append('Physical left column slot shifted: '+ident)
+                    expected=(left+widths[ident]+gap)*scale
                     if abs(positions[right][0]*scale-expected)>.2:errors.append('Physical column slot shifted: '+ident)
             if not count:errors.append('No paired position records found')
     return {'ok':not errors,'pages':len(pdf),'blank_pages':blanks,'paired_blocks_checked':count,'embedded_fonts_checked':len(fonts_checked),'errors':errors,'visual_review':'required','translation_review':'required'}
@@ -368,7 +421,7 @@ def compile_project(data,out,mode,environment,*,stem='document'):
     if p.returncode:raise RuntimeError(f"LaTeX failed; inspect {out / files['compile']}")
     log=(out/files['log']).read_text(errors='replace')
     issues=[line for line in log.splitlines() if any(t in line for t in ['Missing character:','Overfull','undefined references','multiply defined','No hyphenation patterns'])]
-    result=check_pdf(out/files['pdf'],data.get('layout',{}).get('covers',False),mode=='bilingual',data.get('layout',{}).get('margin_mm',18))
+    result=check_pdf(out/files['pdf'],data.get('layout',{}).get('covers',False),mode=='bilingual',min(data.get('layout',{}).get('inner_mm',data.get('layout',{}).get('margin_mm',16 if data.get('layout',{}).get('profile')=='bound' else 18)),data.get('layout',{}).get('outer_mm',data.get('layout',{}).get('margin_mm',16 if data.get('layout',{}).get('profile')=='bound' else 18))))
     result['environment']=environment
     result['renderer_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     result['template_sha256']={n:hashlib.sha256((out/n).read_bytes()).hexdigest() for n in ['paralleltext.sty']}

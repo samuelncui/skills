@@ -71,6 +71,7 @@ def prepare(data):
     for keyword in keywords:probe.append({'id':'keyword.'+keyword['id'],'text':keyword['title']})
     validate({**base,'title':quick['title'],'blocks':probe})
     validate(guide)
+    if base['layout'].get('page_numbers',{}).get('numbering')=='gobble':raise InputError('Printed course references need page labels; use page_numbers.position=none to hide running folios')
     return guide,quick,topics
 
 def build(input_path,output,mode,stem):
@@ -93,10 +94,17 @@ def stage_figures(guide,input_path,out,prefix="guide"):
             shutil.copyfile(source,target);block['image']=relative.as_posix()
 
 
+def unit_pages(aux):
+    """Return absolute PDF pages and native printed folios as separate values."""
+    physical={m[1]:int(m[2]) for m in re.finditer(r'\\PTPairPage\{([^{}]+)\}\{(\d+)\}',aux)}
+    folios={m[1]:m[2] for m in re.finditer(r'\\newlabel\{pt-internal:([^{}]+)-L\}\{\{[^{}]*\}\{([^{}]*)\}',aux)}
+    return physical,folios
+
 def verify_guide_links(aux,page_heights,remote,destinations,mode):
     """Check logical blocks; a wrapped PDF link may have several annotations."""
     positions={m[1]:(int(m[2]),int(m[3])) for m in re.finditer(r'\\zref@newlabel\{pt-internal:([^{}]+)\}\{\\posx\{(\d+)\}\\posy\{(\d+)\}\}',aux)}
-    pages={m[1]:int(m[2])-1 for m in re.finditer(r'\\newlabel\{pt-internal:([^{}]+-[LR])\}\{\{[^{}]*\}\{(\d+)\}',aux)}
+    physical,_=unit_pages(aux)
+    pages={ident+'-'+side:page-1 for ident,page in physical.items() for side in ['L','R']}
     widths={m[1]:int(m[2]) for m in re.finditer(r'\\PairMeasure\{([^{}]+)\}\{(\d+)\}',aux)}
     # XeTeX positions use scaled TeX points; PDF coordinates use 72 points/inch.
     scale=72/(72.27*65536);used=set();logical=0
@@ -135,7 +143,7 @@ def main():
         gi=out/'notes-input.json';gi.write_text(json.dumps(guide,ensure_ascii=False,indent=2)+'\n')
         gr=build(gi,out,args.mode,'notes')
         aux=(out/'notes.aux').read_text()
-        pages={m[1]:int(m[2]) for m in re.finditer(r'\\newlabel\{pt-internal:([^{}]+)-L\}\{\{[^{}]*\}\{(\d+)\}',aux)}
+        pages,folios=unit_pages(aux)
         by_id={t['id']:t for t in topics};entries=[]
         for t in topics:
             entries.append((t.get('sort_key',t['title'][0]).casefold(),'topic',t))
@@ -160,7 +168,7 @@ def main():
                     quick['blocks'].append({'id':ident+'.'+field,'text':[labels[field][i]+': '+t['quick'][field][i] for i in range(2)]})
             page=pages.get('topic.'+t['id'])
             if not page:raise RuntimeError('Missing generated Guide page for '+t['id'])
-            quick['blocks'].append({'id':ident+'.guide','kind':'reference','target':'topic.'+t['id'],'file':'notes.pdf','page':page,'text':[labels['guide'][i]+': '+t['title'][i] for i in range(2)]})
+            quick['blocks'].append({'id':ident+'.guide','kind':'reference','target':'topic.'+t['id'],'file':'notes.pdf','page':page,'page_label':folios['topic.'+t['id']],'text':[labels['guide'][i]+': '+t['title'][i] for i in range(2)]})
             for index,target_id in enumerate(t.get('see_also',[]),1):
                 target=by_id[target_id];quick['blocks'].append({'id':ident+'.related-'+str(index),'kind':'reference','target':'entry.'+target_id,'text':[labels['see_also'][i]+': '+target['title'][i] for i in range(2)]})
         validate(quick);stage_figures(quick,args.input,out,prefix='quick-reference');qi=out/'quick-reference-input.json';qi.write_text(json.dumps(quick,ensure_ascii=False,indent=2)+'\n')

@@ -31,3 +31,4 @@ jobs:
         run: |
           .venv/bin/python tests/render_matrix.py --output .local/ci-matrix
           .venv/bin/python tests/native_matrix.py --output .local/ci-native --structured-matrix .local/ci-matrix
+          .venv/bin/python tests/configuration_matrix.py --output .local/ci-configuration

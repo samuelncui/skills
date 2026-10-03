@@ -45,9 +45,7 @@ Floats (`figure`, `table`), `longtable`, cross-column footnotes and raw `verbati
 
 ## Fonts, language and design
 
-Use Polyglossia/fontspec normally in `languages.tex`; see [languages.md](languages.md). Language switches restore the appropriate line-breaking rules; the package does not leave Chinese rules active for Latin or Arabic text or disable all hyphenation. A modest emergency stretch permits ordinary narrow-column line breaking without reducing the font size. Defaults reproduce the compact paired design: 9 pt body, 10.8 pt leading, A4, equal 18 mm side margins, a 6 mm column gap, and a physical center divider. These are nominal geometry, not a guarantee about a printer's ink-safe area.
-
-Document-level changes belong in configuration, for example `\geometry{letterpaper,inner=18mm,outer=18mm}` or `\renewcommand\ParallelBodySize{10}` and the matching leading. Keep equal side margins for a fixed page-center divider. An asymmetric mirrored binding profile is not implemented by this package; it requires adapting the divider and physical-slot checks as well as geometry. Choose it explicitly and validate both parities rather than assuming the defaults suit every binding. Do not place per-paragraph font/spacing tweaks in the manuscript to hide layout failures. `\ParallelRunningTitle` is optional and should be short. PDF author defaults to empty; choose public metadata deliberately.
+Use Polyglossia/fontspec normally in `languages.tex`; see [languages.md](languages.md). Language switches restore appropriate line-breaking rules. The default design works with no presentation configuration. To change geometry, divider, folios, typography, covers or optional navigation, read the [configuration reference](configuration.md). It maps visual intent to native LaTeX keys and standard package hooks, with two optional profile examples. Omitted keys inherit defaults; do not edit the shared style or tune individual paragraphs to conceal a global problem. PDF author defaults to empty; choose public metadata deliberately.
 
 ## Optional booklets
 

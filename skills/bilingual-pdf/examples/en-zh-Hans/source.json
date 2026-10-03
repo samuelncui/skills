@@ -48,7 +48,7 @@
       "id": "shared-photo",
       "kind": "figure",
       "placement": "shared",
-      "image": "images/footpath.png",
+      "image": "footpath.png",
       "text": [
         "A path photograph shared by both columns. The setting is illustrative; it is not a map of the suggested walk.",
         "两种语言共用一张步道照片。这张照片用于说明散步的环境，并不是建议路线的地图。"
@@ -77,7 +77,7 @@
         "An invented route with four stopping points. The numbers identify places to pause; they do not indicate distance, time or accessibility.",
         "虚构路线上的四个停留点。数字只标识停留位置，不代表距离、时间或无障碍条件。"
       ],
-      "image": "images/figure-route-image.png"
+      "image": "figure-route-image.png"
     },
     {
       "id": "steps",

@@ -39,7 +39,7 @@ for name in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja']:
  flow=copy.deepcopy(article);flow['blocks']=[{'id':'long-prose','kind':'paragraph','flow':'breakable','text':[(x+' ')*18 for x in passage]},{'id':'after-flow','text':passage}]
  cases.append(('flow-'+name,flow,'bilingual',0));case_sources['flow-'+name]=source
  captions={'en':'Shared photograph.','fr':'Photographie partagée.','zh-Hans':'共用照片。','ar':'صورة مشتركة.','ja':'共有写真。'}
- wide=copy.deepcopy(article);wide['blocks']=[{'id':'photo','kind':'figure','placement':'shared','image':'images/footpath.png','text':[captions[l] for l in article['languages']]},{'id':'after-photo','text':passage}]
+ wide=copy.deepcopy(article);wide['blocks']=[{'id':'photo','kind':'figure','placement':'shared','image':'footpath.png','text':[captions[l] for l in article['languages']]},{'id':'after-photo','text':passage}]
  cases.append(('shared-photo-'+name,wide,'bilingual',0));case_sources['shared-photo-'+name]=source
 
 def stage_input(name,data,source,collection=False):
@@ -92,7 +92,8 @@ wrapped=copy.deepcopy(course);wrapped['topics'][0]['title']=['Average speed over
 arabic={'languages':['en','ar'],'guide_title':['Measurements — Guide','دليل القياسات'],'quick_title':['Measurements — Quick Reference','مرجع سريع للقياسات'],'labels':{'meaning':['Meaning','المعنى'],'rule':['Rule','القاعدة'],'checks':['Checks','التحقق'],'guide':['Guide','الدليل'],'see':['See','انظر']},'topics':[{'id':'mean','title':['Mean','المتوسط'],'guide_blocks':[copy.deepcopy(rtlrefs['blocks'][3])],'quick':{'meaning':['The sum divided by the count.','المجموع مقسوما على العدد.'],'rule':['For two values, add them and divide by two.','اجمع القيمتين ثم اقسم المجموع على اثنين.'],'checks':['Use comparable values and consistent units.','استخدم قيما قابلة للمقارنة ووحدات متسقة.']},'aliases':[{'id':'average','title':['Average','المعدل']}]}],'keywords':[{'id':'measurements','title':['Measurements','القياسات'],'targets':['mean']}]}
 flexible=copy.deepcopy(course)
 flexible['topics'][0]['quick']={'blocks':[{'id':'speed.quick-summary','text':course['topics'][0]['quick']['meaning']},{'id':'speed.quick-figure','kind':'figure','image':'trip.png','text':['An original trip diagram.','Un schéma original du trajet.']},{'id':'speed.quick-related','kind':'reference','target':'entry.'+course['topics'][1]['id'],'text':['Another concept','Une autre notion']}]}
-course_cases=[('flexible-course-blocks',flexible,'bilingual'),('isolated-course',course,'bilingual'),('wrapped-course-links',wrapped,'bilingual'),('rtl-course',arabic,'bilingual'),('rtl-course-right',arabic,'right')]
+roman=copy.deepcopy(course);roman['layout']={'profile':'bound','page_numbers':{'numbering':'roman','position':'footer-inner'}}
+course_cases=[('roman-bound-course',roman,'bilingual'),('flexible-course-blocks',flexible,'bilingual'),('isolated-course',course,'bilingual'),('wrapped-course-links',wrapped,'bilingual'),('rtl-course',arabic,'bilingual'),('rtl-course-right',arabic,'right')]
 def run_course(case):
  name,data,mode=case;ip=stage_input(name,data,work/'fixtures/course-en-fr',collection=True)
  proc=subprocess.run([sys.executable,str(work/'course-guide-quick-reference/scripts/course_documents.py'),str(ip),'--output',str(work/name),'--mode',mode],cwd=work,capture_output=True,text=True,timeout=240)

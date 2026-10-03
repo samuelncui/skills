@@ -60,3 +60,5 @@ A collection has `languages`, `guide_title`, `quick_title`, optional `layout`, l
 - The implementation builds one notes/Quick bundle for the explicitly supplied collection. It does not infer textbook content, translate, OCR, verify pedagogy, combine courses or install software. Larger collections should be divided by an explicit authoring decision, not an invisible fixed course count.
 
 Success means implemented mechanical checks passed. Perform source coverage, factual, language, retrieval and full-page visual review before claiming a finished learning tool. Choose a new output directory; errors are JSON and must be fixed rather than ignored.
+
+Physical PDF destinations and printed folios are separate: Roman/letter page numbering uses native logical labels for visible pointers while links still target absolute PDF pages. The structured collection rejects `numbering: "gobble"` because its printed lookup requires page labels; use `position: "none"` to hide running folios while retaining meaningful printed references. Native LaTeX retains the normal `\pageref` semantics if deliberately using empty page labels.

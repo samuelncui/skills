@@ -10,8 +10,8 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTICLES = ('en-fr', 'en-zh-Hans', 'en-ar', 'zh-Hans-ja')
 EXAMPLE_ROOTS = ('skills/bilingual-pdf/examples', 'skills/course-guide-quick-reference/examples')
 ARTICLE_ROOT, COURSE_ROOT = EXAMPLE_ROOTS
-COURSE = COURSE_ROOT + '/three-concepts'
-PDFS = {**{f'{ARTICLE_ROOT}/{name}/document.pdf': f'{name}-bilingual/document.pdf' for name in ARTICLES},
+COURSE = COURSE_ROOT
+PDFS = {**{f'{ARTICLE_ROOT}/{name}/output.pdf': f'{name}-bilingual/document.pdf' for name in ARTICLES},
         f'{COURSE}/notes.pdf': 'native-course-example/notes.pdf',
         f'{COURSE}/quick-reference.pdf': 'native-course-example/quick-reference.pdf'}
 INPUTS = [f'{ARTICLE_ROOT}/{name}/source.json' for name in ARTICLES] + [f'{COURSE}/source.md', f'{COURSE}/source-map.json']

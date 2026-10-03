@@ -23,8 +23,8 @@ class ExampleTests(unittest.TestCase):
             root = Path(d); matrix, source = self.fixture(root); out = root / 'bundle'
             records = collect_examples(matrix, out, source)
             self.assertEqual(len(records), 6)
-            self.assertTrue((out / 'skills/course-guide-quick-reference/examples/three-concepts/notes.pdf').exists())
-            self.assertTrue((out / 'skills/course-guide-quick-reference/examples/three-concepts/quick-reference.pdf').exists())
+            self.assertTrue((out / 'skills/course-guide-quick-reference/examples/notes.pdf').exists())
+            self.assertTrue((out / 'skills/course-guide-quick-reference/examples/quick-reference.pdf').exists())
             self.assertFalse((out / 'private.log').exists())
             self.assertTrue(all(not Path(x['path']).is_absolute() for x in records))
             self.assertEqual(check_examples(out, source), 6)
@@ -100,7 +100,7 @@ class InstalledExampleTests(unittest.TestCase):
         import hashlib
         hashes = set()
         for source in self.article_root.glob('*/source.json'):
-            for filename in ('main.tex', 'content.tex', 'languages.tex', 'paralleltext.sty', 'LICENSE', 'images/PHOTO-LICENSE.md'):
+            for filename in ('main.tex', 'content.tex', 'languages.tex', 'paralleltext.sty'):
                 self.assertTrue((source.parent / filename).is_file())
             for block in json.loads(source.read_text())['blocks']:
                 if block.get('kind') == 'figure':
@@ -108,7 +108,7 @@ class InstalledExampleTests(unittest.TestCase):
                     self.assertTrue(image.is_relative_to(source.parent.resolve()) and image.is_file())
                     if block.get('placement') == 'shared': hashes.add(hashlib.sha256(image.read_bytes()).hexdigest())
         self.assertEqual(len(hashes), 1)
-        course = self.root / 'skills/course-guide-quick-reference/examples/three-concepts'
+        course = self.root / 'skills/course-guide-quick-reference/examples'
         for name in ('notes.tex', 'quick-reference.tex', 'source.md', 'source-map.json'):
             self.assertTrue((course / name).is_file())
         self.assertFalse((self.root / 'examples').exists() and any((self.root / 'examples').rglob('*.*')))

@@ -1,6 +1,6 @@
 # Validation and realistic usage tests
 
-The current suites include **64 unit tests**, **36 structured-render cases** and **22 native-LaTeX cases**. Exact completed results and positive-PDF/page counts are recorded in RESULTS.json. Expected failures are counted as tests, not usable deliverables. Exact case results, source/output hashes and review limits are in [RESULTS.json](RESULTS.json). Remote CI status belongs to the exact commit shown in Actions, not this local record.
+The current suites include **77 unit tests**, **37 structured-render cases**, **22 native-LaTeX cases** and **41 configuration cases**. Exact completed results and positive-PDF/page counts are recorded in RESULTS.json. Expected failures are counted as tests, not usable deliverables. Exact case results, source/output hashes and review limits are in [RESULTS.json](RESULTS.json). Remote CI status belongs to the exact commit shown in Actions, not this local record.
 
 ## Structured route
 
@@ -24,15 +24,21 @@ The current suites include **64 unit tests**, **36 structured-render cases** and
 - Standard `xr-hyper`/`hyperref` named cross-PDF destinations resolve to the actual flat `notes.pdf` target.
 - Direct native prose/shared-photo helper fixtures match their structured equivalents pixel-for-pixel in the same environment.
 
+## Native configuration and lifecycle
+
+The configuration matrix exercises zero-setup defaults and sparse native/package-key overrides; A4, Letter and custom paper; mirrored binding and oneside geometry; actual divider endpoints; high-resolution full-height ink clearance; custom folio notation and positions; standard page styles and manual one/two-column transitions; configurable cover blank/parity rules; semantic roles, diagrams, localized entry heads and navigation tabs; paragraph register propagation; heading attachment; and long paired/selected/Arabic continuation furniture. It rejects unknown keys/roles/navigation, impossible geometry, invalid choices and late setup. Independently authored native and structured configuration fixtures must match pixels. The collection matrix also checks Roman printed folios against physical cross-PDF destinations.
+
+The independent API review reproduced and verified corrections for minipage paragraph resets, selected-flow continuation records, cover column-state restoration, heading orphans, and ambient-language leakage into shipped furniture. These are executable regressions, not manuscript-specific page patches. Configuration styles and built-in profiles are documented at skill level; the two native profile files are optional.
+
 ## Realistic skill use
 
-A fresh learning-skill run received only the complete installed skill and the small original teaching source. It authored three notes pages, two Quick pages and a 32-record source map. A second review found grouped secondary headwords and English action labels in the Chinese trace. Those were corrected: three alias rows and 23 keyword rows now lead to three canonical concepts, including independently findable Overflow, Queue and Removal order. The corrected bundle passed relocation, page inspection and 63 link-annotation checks. Source uncertainty remains explicit. See [the example review record](../skills/course-guide-quick-reference/examples/three-concepts/coverage-review.md).
+A fresh learning-skill run received only the complete installed skill and the small original teaching source. It authored three notes pages, two Quick pages and a 32-record source map. A second review found grouped secondary headwords and English action labels in the Chinese trace. Those were corrected: three alias rows and 23 keyword rows now lead to three canonical concepts, including independently findable Overflow, Queue and Removal order. The corrected bundle passed relocation, page inspection and 63 link-annotation checks. Source uncertainty remains explicit. See [the example review record](../skills/course-guide-quick-reference/examples/coverage-review.md).
 
 A separate bilingual-skill run built the English/Chinese structured article, copied only six portable source files into a fresh project, and built it directly with latexmk. Its two PDFs were pixel-identical at 1273 × 1800; all four page images were inspected. Input hashes stayed unchanged, package bytes matched, and recorder evidence showed no JSON, Python generation or sibling-skill input in the native build. This tests export followed by native compilation, not independent starter-based authorship.
 
 The current relocation also rebuilds each skill separately in a fresh installation containing no sibling skill. TeX recorder files confirm that the resulting article and notes/Quick builds consume no source-checkout inputs. The two skill-local example manifests use only portable relative paths.
 
-The [skill-creator](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra) manifest checks also passed. The important evidence is executable behavior and the reviewed output, not frontmatter validity alone.
+The [official skill structure](https://developers.openai.com/plugins/build/skills) manifest checks also passed. The important evidence is executable behavior and the reviewed output, not frontmatter validity alone.
 
 ## Reproduce
 
@@ -45,6 +51,7 @@ python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 tools/check_package.py
 python3 tests/render_matrix.py --output .local/new-structured-matrix
 python3 tests/native_matrix.py --output .local/new-native-matrix --structured-matrix .local/new-structured-matrix
+python3 tests/configuration_matrix.py --output .local/new-configuration-matrix
 python3 tools/collect_example_outputs.py --check --output .
 ```
 
@@ -68,7 +75,8 @@ python3 tools/sync_renderer.py
 export SOURCE_DATE_EPOCH=1767225600 FORCE_SOURCE_DATE=1
 python3 tests/render_matrix.py --output .local/new-structured-matrix
 python3 tests/native_matrix.py --output .local/new-native-matrix --structured-matrix .local/new-structured-matrix
+python3 tests/configuration_matrix.py --output .local/new-configuration-matrix
 python3 tools/collect_example_outputs.py --matrix .local/new-structured-matrix --native-matrix .local/new-native-matrix --output .local/new-pdfs --previews .local/new-previews
 ```
 
-Inspect every final page, then overlay the `skills/` subtrees from `.local/new-pdfs/` and `.local/new-previews/` into the repository's `skills/`. Only six PDFs, six first-page previews and the two local manifests are staged. Sources, images and licenses stay beside them. Verify with `python3 tools/collect_example_outputs.py --check --output .`. Manifest paths are local to each installed examples folder; build tools remain repository-only. Exact byte reproduction requires the same TeX engine, packages, fonts and fixed clock.
+Inspect every final page, then overlay the `skills/` subtrees from `.local/new-pdfs/` and `.local/new-previews/` into the repository's `skills/`. Only six PDFs, six first-page previews and the two local manifests are staged. Sources and images stay beside them; skill-level references hold usage guidance and photo attribution, and each installed skill carries its license. Verify with `python3 tools/collect_example_outputs.py --check --output .`. Manifest paths are local to each installed examples folder; build tools remain repository-only. Exact byte reproduction requires the same TeX engine, packages, fonts and fixed clock.

@@ -11,13 +11,13 @@ Two independently installable agent skills for aligned, same-page bilingual docu
 
 Examples are installed inside their owning skill. All four article editions translate the same original text and demonstrate a full-width shared photograph, paired captions and a continuous paragraph flowing across pages. Each folder keeps its source, editable LaTeX, images, PDF and preview together:
 
-- [English / French article](skills/bilingual-pdf/examples/en-fr/): [PDF](skills/bilingual-pdf/examples/en-fr/document.pdf)
-- [English / Chinese article](skills/bilingual-pdf/examples/en-zh-Hans/): [PDF](skills/bilingual-pdf/examples/en-zh-Hans/document.pdf)
-- [English / Arabic article](skills/bilingual-pdf/examples/en-ar/): [PDF](skills/bilingual-pdf/examples/en-ar/document.pdf)
-- [Chinese / Japanese article](skills/bilingual-pdf/examples/zh-Hans-ja/): [PDF](skills/bilingual-pdf/examples/zh-Hans-ja/document.pdf)
-- [Three-concept learning set](skills/course-guide-quick-reference/examples/three-concepts/): [notes](skills/course-guide-quick-reference/examples/three-concepts/notes.pdf), [Quick Reference](skills/course-guide-quick-reference/examples/three-concepts/quick-reference.pdf), [original source](skills/course-guide-quick-reference/examples/three-concepts/source.md)
+- [English / French article](skills/bilingual-pdf/examples/en-fr/): [PDF](skills/bilingual-pdf/examples/en-fr/output.pdf)
+- [English / Chinese article](skills/bilingual-pdf/examples/en-zh-Hans/): [PDF](skills/bilingual-pdf/examples/en-zh-Hans/output.pdf)
+- [English / Arabic article](skills/bilingual-pdf/examples/en-ar/): [PDF](skills/bilingual-pdf/examples/en-ar/output.pdf)
+- [Chinese / Japanese article](skills/bilingual-pdf/examples/zh-Hans-ja/): [PDF](skills/bilingual-pdf/examples/zh-Hans-ja/output.pdf)
+- [Three-concept learning set](skills/course-guide-quick-reference/examples/): [notes](skills/course-guide-quick-reference/examples/notes.pdf), [Quick Reference](skills/course-guide-quick-reference/examples/quick-reference.pdf), [original source](skills/course-guide-quick-reference/examples/source.md)
 
-The [article example guide](skills/bilingual-pdf/examples/README.md) and [learning example guide](skills/course-guide-quick-reference/examples/README.md) include build commands and adaptation instructions. These are directly browsable public examples; no Actions artifact download is needed. The compact structured-course compatibility fixture lives under `tests/fixtures/`, separate from the public learning example.
+The [article example guide](skills/bilingual-pdf/references/examples.md) and [learning example guide](skills/course-guide-quick-reference/references/examples.md) include build commands and adaptation instructions. These are directly browsable public examples; no Actions artifact download is needed. The compact structured-course compatibility fixture lives under `tests/fixtures/`, separate from the public learning example.
 
 ## Install
 
@@ -36,7 +36,7 @@ Native LaTeX projects use ordinary `article` documents, separate content/languag
 
 ```sh
 cd skills/bilingual-pdf/examples/en-zh-Hans
-latexmk -xelatex -interaction=nonstopmode -halt-on-error -latexoption=-no-shell-escape -jobname=document main.tex
+latexmk -xelatex -interaction=nonstopmode -halt-on-error -latexoption=-no-shell-escape -jobname=output main.tex
 ```
 
 Structured input can be exported to the same editable LaTeX or rendered and checked in one command:
@@ -49,6 +49,10 @@ python3 skills/bilingual-pdf/scripts/bilingual_pdf.py render skills/bilingual-pd
 Choose fresh output directories. Existing projects are never silently overwritten. JSON is the implemented interchange reader; other structured formats need an explicit mapping to the same semantic fields.
 
 The learning skill adds source reading, explanatory notes, independently findable lookup terms and generated notes pointers. Its native starter builds `notes.pdf` and `quick-reference.pdf` together. The structured collection adapter produces the same flat PDF arrangement with named editable sources; it does not require a fixed Meaning/Rule/Checks writing structure.
+
+## Adjust the design
+
+No setup is required for the default style. Add sparse `\ParallelSetup{...}` overrides only when needed: mirrored binding geometry, divider color/dash/width, folio position/format, heading styles, spacing or optional tabs. Ordinary geometry, fontspec, Polyglossia, fancyhdr, enumitem and TikZ commands remain available. See the [intent-to-option guide](skills/bilingual-pdf/references/configuration.md), including two ready-to-use profile files. The structured adapter emits the same settings.
 
 ## Dependencies and limits
 
@@ -73,6 +77,6 @@ The [test guide](tests/README.md#regenerate-curated-outputs) gives the complete 
 
 ## Privacy and licensing
 
-The existing [MIT attribution](LICENSE) is retained. Public teaching texts and diagrams are original generic material; the shared photograph in every article edition has its own [CC0 attribution](skills/bilingual-pdf/examples/en-zh-Hans/images/PHOTO-LICENSE.md). No private learning sources or personal provenance belong in published artifacts. Fonts, TeX packages and Python libraries retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
+The existing [MIT attribution](LICENSE) is retained. Public teaching texts and diagrams are original generic material; the shared photograph in every article edition has its own [CC0 attribution](skills/bilingual-pdf/references/photo-credit.md). No private learning sources or personal provenance belong in published artifacts. Fonts, TeX packages and Python libraries retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
 
 Rendering is local. Any translation performed by the host agent is a separate data-processing step. Translation accuracy, domain suitability and error-free output are not guaranteed.

@@ -99,7 +99,7 @@ for name in ('en-fr','en-zh-Hans','en-ar','zh-Hans-ja'):
             body='\\ParallelProse{long-prose}{'+escape((passage[0]+' ')*18)+'}{'+escape((passage[1]+' ')*18)+'}\n\\ParallelText{after-flow}{'+escape(passage[0])+'}{'+escape(passage[1])+'}'
         else:
             captions={'en':'Shared photograph.','fr':'Photographie partagée.','zh-Hans':'共用照片。','ar':'صورة مشتركة.','ja':'共有写真。'}
-            (project/'images').mkdir(exist_ok=True);shutil.copyfile(work/'bilingual-pdf/examples/en-zh-Hans/images/footpath.png',project/'images/footpath.png')
+            (project/'images').mkdir(exist_ok=True);shutil.copyfile(work/'bilingual-pdf/examples/en-zh-Hans/footpath.png',project/'images/footpath.png')
             body='\\ParallelWideFigure{photo}{images/footpath.png}{'+captions[data['languages'][0]]+'}{'+captions[data['languages'][1]]+'}\n\\ParallelText{after-photo}{'+escape(passage[0])+'}{'+escape(passage[1])+'}'
         (project/'content.tex').write_text(title+body+'\n')
         cases.append((prefix+name,project,'ok','',True,False))
@@ -128,7 +128,7 @@ cases.append(('arabic-equations', project, 'ok', '', True, False))
 with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
     results = list(pool.map(run_build, cases))
 
-for name, source in [('native-learning-starter',work/'course-guide-quick-reference/assets/learning-starter'),('native-course-example',work/'course-guide-quick-reference/examples/three-concepts')]:
+for name, source in [('native-learning-starter',work/'course-guide-quick-reference/assets/learning-starter'),('native-course-example',work/'course-guide-quick-reference/examples')]:
     project = work/name
     shutil.copytree(source, project, ignore=shutil.ignore_patterns('*.pdf', '*preview.png'))
     shutil.copyfile(style,project/'paralleltext.sty')
