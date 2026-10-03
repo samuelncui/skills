@@ -1,0 +1,1 @@
+-r skills/bilingual-pdf/requirements.txt

@@ -1,0 +1,96 @@
+{
+  "languages": [
+    "en",
+    "ar"
+  ],
+  "title": [
+    "A small garden",
+    "حديقة صغيرة"
+  ],
+  "blocks": [
+    {
+      "id": "check",
+      "kind": "heading",
+      "text": [
+        "Check the soil before watering",
+        "افحص التربة قبل الري"
+      ]
+    },
+    {
+      "id": "explain",
+      "text": [
+        "Check the soil before adding water. A dry surface does not always mean that the roots need more water.",
+        "افحص التربة قبل إضافة الماء. جفاف السطح لا يعني دائما أن الجذور تحتاج إلى مزيد من الماء."
+      ]
+    },
+    {
+      "id": "steps",
+      "kind": "list",
+      "text": [
+        [
+          "Pour water into a measuring cup",
+          "Record the amount of water"
+        ],
+        [
+          "صب الماء في كوب القياس",
+          "سجل كمية الماء"
+        ]
+      ]
+    },
+    {
+      "id": "average",
+      "kind": "equation",
+      "text": [
+        "The average of two measurements is their sum divided by two.",
+        "متوسط قياسين يساوي مجموعهما مقسوما على اثنين."
+      ],
+      "math": "m = \\frac{x_1+x_2}{2}"
+    },
+    {
+      "id": "mixed",
+      "text": [
+        "Record 12.5 mL at 09:30 on 2026-01-15 in the PDF.",
+        {
+          "runs": [
+            {
+              "text": "سجل ",
+              "direction": "rtl"
+            },
+            {
+              "text": "12.5 mL",
+              "direction": "ltr"
+            },
+            {
+              "text": " في الساعة ",
+              "direction": "rtl"
+            },
+            {
+              "text": "09:30",
+              "direction": "ltr"
+            },
+            {
+              "text": " بتاريخ ",
+              "direction": "rtl"
+            },
+            {
+              "text": "2026-01-15",
+              "direction": "ltr"
+            },
+            {
+              "text": " في ملف ",
+              "direction": "rtl"
+            },
+            {
+              "text": "PDF",
+              "direction": "ltr"
+            },
+            {
+              "text": ".",
+              "direction": "rtl"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

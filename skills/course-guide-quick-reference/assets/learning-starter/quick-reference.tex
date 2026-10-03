@@ -1,0 +1,10 @@
+\documentclass[10pt,twoside]{article}
+\usepackage{xr-hyper} % Before hyperref, which is loaded by paralleltext.
+\usepackage{paralleltext}
+\input{languages.tex}
+% Keep both PDFs and the notes AUX file together in this project directory.
+\externaldocument[notes-]{notes}[notes.pdf]
+\hypersetup{pdftitle={Keywords and concepts},pdfauthor={}}
+\begin{document}
+\input{quick-content.tex}
+\end{document}

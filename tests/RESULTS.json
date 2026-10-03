@@ -1,0 +1,1019 @@
+{
+  "stage": "locally-validated-clean-layout",
+  "date": "2026-10-03",
+  "scope": "Original generic examples, installed-skill projects and explicit layout regressions; not universal language or professional-domain certification.",
+  "unit_tests": 59,
+  "render_suites": [
+    {
+      "suite": "structured",
+      "passed": true,
+      "case_count": 36,
+      "cases": [
+        {
+          "case": "en-fr-bilingual",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "2fed256388f11338363a762051f34e28398628e506175a3843b1fc9169a8b584",
+              "paired_blocks_checked": 21,
+              "embedded_fonts_checked": 4,
+              "quote_start_insets_pt": [
+                24.9064,
+                24.9018
+              ]
+            }
+          ]
+        },
+        {
+          "case": "en-fr-left",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "ccfcf29de29da43b863ecd27aed908e52434b139b494dceca871c613f35f3cf9",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 4
+            }
+          ]
+        },
+        {
+          "case": "en-fr-right",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "38bae0c139da23557bfa00331df5c075c21e4e9fbf80d71edb729da0d8a922fb",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 4
+            }
+          ]
+        },
+        {
+          "case": "en-zh-Hans-bilingual",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 3,
+              "sha256": "d23b16f714cf4eac0010ba96576d1aff8dadad93b9c48844d3f5e18543f8e017",
+              "paired_blocks_checked": 24,
+              "embedded_fonts_checked": 7,
+              "quote_start_insets_pt": [
+                24.9064,
+                24.9018
+              ]
+            }
+          ]
+        },
+        {
+          "case": "en-zh-Hans-left",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 3,
+              "sha256": "6b9f66c60e34a2f701e7e5c1f5d92ee3e36d2ed0fb36bf3663db2f6b618b7363",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 4
+            }
+          ]
+        },
+        {
+          "case": "en-zh-Hans-right",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "45422fd19045cf7c909959c178b1d8e43a9abdf01303d4ec3477dfcee8536dcc",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 7
+            }
+          ]
+        },
+        {
+          "case": "en-ar-bilingual",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "0c66d2bc4b6750d0fb0b8a1ca7ed368a0ae7ec503ea3f2f1df55d3fe9d80ffe9",
+              "paired_blocks_checked": 21,
+              "embedded_fonts_checked": 6,
+              "quote_start_insets_pt": [
+                24.9064,
+                24.9116
+              ]
+            }
+          ]
+        },
+        {
+          "case": "en-ar-left",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "610324623b83dfe314ac24927c9f2e9b8d9b9a1f1e934f7ac31a40ad2c12d9d6",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 4
+            }
+          ]
+        },
+        {
+          "case": "en-ar-right",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "5520a89faf78e264f4c3f31fdf57aff154fe1b0cd9e2ed39d195b60a00a25edc",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 6
+            }
+          ]
+        },
+        {
+          "case": "zh-Hans-ja-bilingual",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "2c7f40ea6dd6c68d3602aca871424f1ca5296c49003ac9584914db271628e183",
+              "paired_blocks_checked": 21,
+              "embedded_fonts_checked": 10,
+              "quote_start_insets_pt": [
+                24.9064,
+                24.9018
+              ]
+            }
+          ]
+        },
+        {
+          "case": "zh-Hans-ja-left",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "d55e414394fc77774110807b0f75c37b0b70b909a4b2895c13a2e0bf51f6df6d",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 7
+            }
+          ]
+        },
+        {
+          "case": "zh-Hans-ja-right",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "d10c90d2d30be3f22cf8c6d7eb60c768d03a8d5cfd83d9ec6bb9f6cb68a254a9",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 7
+            }
+          ]
+        },
+        {
+          "case": "rtl-references-bilingual",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "0de765d200347f055a1c21d4d0e15a01d7aa44437c1bb33e8d1a39db6a6a3ea3",
+              "paired_blocks_checked": 10,
+              "embedded_fonts_checked": 6
+            }
+          ]
+        },
+        {
+          "case": "rtl-references-left",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "7b2c31fc9bc5d1d37870f41fdfa2410676febd8b3f2e480c947066cdb8a1188c",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 4
+            }
+          ]
+        },
+        {
+          "case": "rtl-references-right",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "0fd78e64cee3cc6cd3cda084b895f3412030ad536de6f3912914ee36f79a6a7c",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 6
+            }
+          ]
+        },
+        {
+          "case": "ar-en-reversed",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "dc1b822fb3970f9b529f32e78da1bcac1986888e2a272851d2e1eb135e9da6ae",
+              "paired_blocks_checked": 21,
+              "embedded_fonts_checked": 6
+            }
+          ]
+        },
+        {
+          "case": "letter-no-covers",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "43cd500eec536043f016e0696df78c1ed35e887b1f58cc8a5cd195fc930fcd7d",
+              "paired_blocks_checked": 7,
+              "embedded_fonts_checked": 4
+            }
+          ]
+        },
+        {
+          "case": "multipage-uneven",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 12,
+              "sha256": "629e492f8d4479de0694cb826fa23f73af47a1b22dda995e4150b8ace635c158",
+              "paired_blocks_checked": 73,
+              "embedded_fonts_checked": 3
+            }
+          ]
+        },
+        {
+          "case": "parent-references-bilingual",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 6,
+              "sha256": "3610dc416157f63a77732312e39697189e6e35c581cc2d876508fcc20d76a763",
+              "paired_blocks_checked": 9,
+              "embedded_fonts_checked": 4
+            }
+          ]
+        },
+        {
+          "case": "parent-references-left",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 6,
+              "sha256": "146c52a8ca5eaf8b32c264000eac572796671cfafb075cb65754398c77d930bb",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 4
+            }
+          ]
+        },
+        {
+          "case": "parent-references-right",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 6,
+              "sha256": "3af6605864c6f7ef894d2800d817fff470f2d96eb8b057c5221d2afdb9ae97c3",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 4
+            }
+          ]
+        },
+        {
+          "case": "oversized-block",
+          "passed": true,
+          "expected_exit": 3,
+          "actual_exit": 3
+        },
+        {
+          "case": "missing-glyph",
+          "passed": true,
+          "expected_exit": 2,
+          "actual_exit": 2
+        },
+        {
+          "case": "flow-en-fr",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "ef8fa0203496db92fa0dfadba6d3c394a20637157cd26df99d66cc60b22f1c16",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 3,
+              "both_paragraphs_cross_pages": true
+            }
+          ]
+        },
+        {
+          "case": "shared-photo-en-fr",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "52552a7f6a1b25828c3373a5947a740b86579cdfd0c7975e49f10352406a7578",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 4,
+              "one_full_width_image": true
+            }
+          ]
+        },
+        {
+          "case": "flow-en-zh-Hans",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "9ddab83e7a96247c5dc561201de5b2388f0a3582cabdb190a66c49201d3855f0",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 5,
+              "both_paragraphs_cross_pages": true
+            }
+          ]
+        },
+        {
+          "case": "shared-photo-en-zh-Hans",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "66ffeba0210054fade882a3eaa097e5b87b19a868cdaa9f9f85de64cf4fa5e4e",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 7,
+              "one_full_width_image": true
+            }
+          ]
+        },
+        {
+          "case": "flow-en-ar",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "8ac7539057ea800f5ab5c84d73791773978798f0fe4d233ee173efe2094bc6cf",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 5,
+              "both_paragraphs_cross_pages": true
+            }
+          ]
+        },
+        {
+          "case": "shared-photo-en-ar",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "ac319c206466059592204e2438c80f03ff7090788b5bd85fae1adf13c6040db3",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 6,
+              "one_full_width_image": true
+            }
+          ]
+        },
+        {
+          "case": "flow-zh-Hans-ja",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "344e6065cea87138eb0f11068307ecd5574af6afa0673c86416fa3fe6ed875b1",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 5,
+              "both_paragraphs_cross_pages": true
+            }
+          ]
+        },
+        {
+          "case": "shared-photo-zh-Hans-ja",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "312fe0f02b0b94ec3234e212458541eae5c4df795a2ce7371c9e58735b129f33",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 8,
+              "one_full_width_image": true
+            }
+          ]
+        },
+        {
+          "case": "flexible-course-blocks",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "guide",
+              "pages": 2,
+              "sha256": "4705fdfd49ba5452c0a8b3edc1ef891422ca49747d57148ad7bec476ad1f066e",
+              "paired_blocks_checked": 20,
+              "embedded_fonts_checked": 5
+            },
+            {
+              "part": "quick",
+              "pages": 1,
+              "sha256": "e88325f26e8035500d2617ac30f724c8aed298bea0b51b0c1d8c55e9b24234e4",
+              "paired_blocks_checked": 27,
+              "embedded_fonts_checked": 4
+            }
+          ]
+        },
+        {
+          "case": "isolated-course",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "guide",
+              "pages": 2,
+              "sha256": "4705fdfd49ba5452c0a8b3edc1ef891422ca49747d57148ad7bec476ad1f066e",
+              "paired_blocks_checked": 20,
+              "embedded_fonts_checked": 5
+            },
+            {
+              "part": "quick",
+              "pages": 1,
+              "sha256": "5ba533b18a86b162aac5a3a15b760b92dc20721ad1f1df1f8a233e0fbfbcfa0f",
+              "paired_blocks_checked": 27,
+              "embedded_fonts_checked": 3
+            }
+          ]
+        },
+        {
+          "case": "wrapped-course-links",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "guide",
+              "pages": 2,
+              "sha256": "b4b252481d031d64ef69119dd92fa4c18918ce4825de97b7ec65dd0b5d3fff7a",
+              "paired_blocks_checked": 20,
+              "embedded_fonts_checked": 5
+            },
+            {
+              "part": "quick",
+              "pages": 1,
+              "sha256": "8b2c158df9e2b1f3665215f2f4b516e2f824527049683e86532db7fc423686d1",
+              "paired_blocks_checked": 27,
+              "embedded_fonts_checked": 3
+            }
+          ]
+        },
+        {
+          "case": "rtl-course",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "guide",
+              "pages": 1,
+              "sha256": "68a3f25d71f694724f438e6bead618b0a9bbc09d085dd924db56d659687d75b1",
+              "paired_blocks_checked": 4,
+              "embedded_fonts_checked": 6
+            },
+            {
+              "part": "quick",
+              "pages": 1,
+              "sha256": "cd0cdef353247b4d7cbdf99c4cdd921877119ed550ee7fd4a2959d1884a4039c",
+              "paired_blocks_checked": 10,
+              "embedded_fonts_checked": 5
+            }
+          ]
+        },
+        {
+          "case": "rtl-course-right",
+          "passed": true,
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "documents": [
+            {
+              "part": "guide",
+              "pages": 1,
+              "sha256": "436ddd886b8d6f5b6b44c832a08d6beee82682b7364119ccf024a798223b0f79",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 5
+            },
+            {
+              "part": "quick",
+              "pages": 1,
+              "sha256": "3e95474911a711649496d4419b2ffaaba0a3c3e532078a98b3b2116532d9394c",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "suite": "native",
+      "passed": true,
+      "case_count": 22,
+      "cases": [
+        {
+          "case": "article-en-fr",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "bc2a7dc57701b4616ee486d550fee2f6c22fb291b6efdbe3bb37ae3555916fcd",
+              "paired_blocks_checked": 21,
+              "embedded_fonts_checked": 4,
+              "native_and_structured_pixels_identical": true,
+              "quote_start_insets_pt": [
+                24.9064,
+                24.9018
+              ]
+            }
+          ]
+        },
+        {
+          "case": "article-en-zh-Hans",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 3,
+              "sha256": "7e62a616002b63b0d71f10de3766e608e910b643a71d5e9ffa7e0ee843631a7b",
+              "paired_blocks_checked": 24,
+              "embedded_fonts_checked": 7,
+              "native_and_structured_pixels_identical": true,
+              "quote_start_insets_pt": [
+                24.9064,
+                24.9018
+              ]
+            }
+          ]
+        },
+        {
+          "case": "article-en-ar",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "be5ba0bdc1a266a96164570221ae8504981e896b3032fb1e6ba9b8ccffb85569",
+              "paired_blocks_checked": 21,
+              "embedded_fonts_checked": 6,
+              "native_and_structured_pixels_identical": true,
+              "quote_start_insets_pt": [
+                24.9064,
+                24.9116
+              ]
+            }
+          ]
+        },
+        {
+          "case": "article-zh-Hans-ja",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "92f94cfc3eb9ca50380842390d0eb68e68aa866086c45ba76f6bd67e6f9b98a4",
+              "paired_blocks_checked": 21,
+              "embedded_fonts_checked": 10,
+              "native_and_structured_pixels_identical": true,
+              "quote_start_insets_pt": [
+                24.9064,
+                24.9018
+              ]
+            }
+          ]
+        },
+        {
+          "case": "flow-en-fr",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "470bac604b2cf7357cbf3a18dd68c6fdf7575423297798fb41255e53994275c3",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 3,
+              "native_and_structured_pixels_identical": true,
+              "both_paragraphs_cross_pages": true
+            }
+          ]
+        },
+        {
+          "case": "shared-photo-en-fr",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "5bcb58e29c10a64c7c1703dced0c6d726219a000a945a436bbaa267e9761778d",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 4,
+              "native_and_structured_pixels_identical": true
+            }
+          ]
+        },
+        {
+          "case": "flow-en-zh-Hans",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "ef7956165688cf7494fb96fa0d9afbcc33ef22f99b255d8aca7460caa5aea8e8",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 5,
+              "native_and_structured_pixels_identical": true,
+              "both_paragraphs_cross_pages": true
+            }
+          ]
+        },
+        {
+          "case": "shared-photo-en-zh-Hans",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "cf187450236acc9b5fa385395f95829bf77bf59034186bd7fc382b80acdc91e0",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 7,
+              "native_and_structured_pixels_identical": true
+            }
+          ]
+        },
+        {
+          "case": "flow-en-ar",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "234d7ce670a8ecda8875005d190795b1b29d48794da5ffc9ba0ad5ed804ed40d",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 5,
+              "native_and_structured_pixels_identical": true,
+              "both_paragraphs_cross_pages": true
+            }
+          ]
+        },
+        {
+          "case": "shared-photo-en-ar",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "8d4933af5e285f402092e98bcf6b1dc9b265f0f9ce01147799c9c96ef136a98d",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 6,
+              "native_and_structured_pixels_identical": true
+            }
+          ]
+        },
+        {
+          "case": "flow-zh-Hans-ja",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 2,
+              "sha256": "a32e7dac18155eb37b2c6f2ba60e81c9187e6f8473c80f6842d0f4d6faf87a80",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 5,
+              "native_and_structured_pixels_identical": true,
+              "both_paragraphs_cross_pages": true
+            }
+          ]
+        },
+        {
+          "case": "shared-photo-zh-Hans-ja",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "a33120b4f41ab02ea886d652a92d9a62d76fb41d7b2738f1df23f2ff2c882ddb",
+              "paired_blocks_checked": 3,
+              "embedded_fonts_checked": 8,
+              "native_and_structured_pixels_identical": true
+            }
+          ]
+        },
+        {
+          "case": "starter",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "253b88f6c835e6196af9a67cd5b3c4b48077841f463f9321b6777650c465ae0d",
+              "paired_blocks_checked": 5,
+              "embedded_fonts_checked": 6
+            }
+          ]
+        },
+        {
+          "case": "labels-and-equations",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "0e3378b7e4232003e15fec19d52051373ea2cca604b2239dd9cf2d1c2ed583dc",
+              "paired_blocks_checked": 5,
+              "embedded_fonts_checked": 5,
+              "single_equation_counter_steps": true
+            }
+          ]
+        },
+        {
+          "case": "duplicate-id",
+          "passed": true,
+          "compile_exit": 12,
+          "expected": "Duplicate paired ID"
+        },
+        {
+          "case": "reserved-id",
+          "passed": true,
+          "compile_exit": 12,
+          "expected": "Reserved paired ID namespace"
+        },
+        {
+          "case": "oversize-native",
+          "passed": true,
+          "compile_exit": 12,
+          "expected": "PAIR TOO TALL"
+        },
+        {
+          "case": "missing-glyph-native",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 4
+        },
+        {
+          "case": "right-booklet",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 6,
+              "sha256": "f3389e26877b381f0ff0ea3d3b57fa754598536fe256a9284ef5b7b84810326f",
+              "paired_blocks_checked": 0,
+              "embedded_fonts_checked": 4,
+              "unselected_cover_language_absent": true
+            }
+          ]
+        },
+        {
+          "case": "arabic-equations",
+          "passed": true,
+          "compile_exit": 0,
+          "qa_exit": 0,
+          "documents": [
+            {
+              "part": "document",
+              "pages": 1,
+              "sha256": "7e95d749b178d39cbd5443974204d07ca197bcc599e45c4ae28eb80beb9fafcc",
+              "paired_blocks_checked": 2,
+              "embedded_fonts_checked": 4,
+              "shared_equation_baselines_aligned": true
+            }
+          ]
+        },
+        {
+          "case": "native-learning-starter",
+          "passed": true,
+          "compile_exit": 0,
+          "documents": [
+            {
+              "part": "notes",
+              "pages": 1,
+              "sha256": "821c873137c770a561b805d41e39ac9530b8cef8a81432ffbb622881b4ebf05b",
+              "paired_blocks_checked": 5,
+              "embedded_fonts_checked": 7
+            },
+            {
+              "part": "quick-reference",
+              "pages": 1,
+              "sha256": "69b04605ffd63c131f7ab50aae970c0560b24a1f76781f22ad1a484bd7a792f5",
+              "paired_blocks_checked": 8,
+              "embedded_fonts_checked": 7
+            }
+          ]
+        },
+        {
+          "case": "native-course-example",
+          "passed": true,
+          "compile_exit": 0,
+          "documents": [
+            {
+              "part": "notes",
+              "pages": 3,
+              "sha256": "0f0a98ef8500d619c38ae58c39de812be65344455de00c69617f732855f4db2a",
+              "paired_blocks_checked": 39,
+              "embedded_fonts_checked": 11
+            },
+            {
+              "part": "quick-reference",
+              "pages": 2,
+              "sha256": "e66037bac6cc4c01bc6a39727d41e78e350f702da5201f28c06db45efa4bbaaa",
+              "paired_blocks_checked": 45,
+              "embedded_fonts_checked": 10
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "positive_pdfs": 59,
+  "positive_pages": 124,
+  "source_sha256": {
+    "skills/bilingual-pdf/assets/paralleltext.sty": "aa7629313a2ade1d0e66c8798f3978f04195557e5d737d6c05addaa24c29f75e",
+    "skills/bilingual-pdf/scripts/bilingual_pdf.py": "35ab6e67046246f6f306745739060696178ef7399a7c5f3aee33ec8dd1f4b491",
+    "skills/course-guide-quick-reference/scripts/course_documents.py": "2873592a5e87204c11120415c1f076dd66dc286a769d54f33183a7a64107ee04",
+    "tests/render_matrix.py": "4100f000688d7c4d98f08c1a3646ef1f6961b1e454926f40c40c06b208d4d3ad",
+    "tests/native_matrix.py": "e444ca4c2f1f1a1dcf60057b7e28bd17f6b3d984aace4125675bad23879fb449",
+    "tests/layout_checks.py": "12e7b23ad7f8b3bd5332be84372d28c2ec72a1d8631970f5450229c74cb11cca"
+  },
+  "curated_outputs": "../examples/MANIFEST.json",
+  "local_environment": {
+    "python": "3.12.14",
+    "engine": "XeTeX 0.999996, TeX Live 2025/dev/Debian",
+    "polyglossia": "2.4",
+    "pymupdf": "1.26.6",
+    "source_date_epoch": 1767225600
+  },
+  "independent_review": {
+    "curated_article_pages": 9,
+    "learning_pages_previously_reviewed_and_pixel_equal": 5,
+    "checks": [
+      "Four-language physical quote slots and glyph insets",
+      "One shared photograph with paired captions and masked divider",
+      "True cross-page prose, unequal continuations and next-unit resynchronization",
+      "Native counters increment once and references resolve",
+      "CC0 photo source, metadata and generic public-content audit"
+    ],
+    "limits": "Author-level language reconciliation; not professional linguistic certification. Stress fixtures repeat text for layout testing."
+  },
+  "realistic_usage": [
+    {
+      "workflow": "Original teaching source to independently authored notes and keyword/concept Quick",
+      "passed": true,
+      "notes_pages": 3,
+      "quick_pages": 2,
+      "source_map_records": 32,
+      "lookup_corrections_reviewed": true,
+      "source_only_relocation": true
+    },
+    {
+      "workflow": "Independent native starter authoring and separate structured authoring of a supplied article with a shared photo and continuous long paragraph",
+      "passed": true,
+      "pages_per_route": 2,
+      "source_paragraphs_preserved": true,
+      "paired_blocks": 4,
+      "embedded_fonts": 7,
+      "source_only_rebuilds": true,
+      "pixels_equal_at_dpi": 108,
+      "pdf_bytes_equal_between_routes": false,
+      "reviewed_pages": 4,
+      "minor_hurdle": "Removed the documented optional native running title to match the structured presentation."
+    }
+  ],
+  "legacy_cjk_compatibility": {
+    "cause": "Polyglossia before 2.3 lacks the Chinese/Japanese automatic line-breaking hooks.",
+    "simulated_legacy_cases_passed": 5,
+    "negative_control_reproduced_prior_ci_failures": true,
+    "nested_language_assertions_passed": 18,
+    "modern_guard_noop_passed": true,
+    "actual_old_distribution_validation": "Use the exact-commit Ubuntu 24.04 Actions result; local simulation is not old-distribution certification."
+  },
+  "unverified": [
+    "Other language combinations and traditional Chinese",
+    "Vertical writing and unrestricted font fallback",
+    "Native Windows font discovery",
+    "Printer-specific ink requirements",
+    "PDF/UA"
+  ],
+  "notes": [
+    "Expected failure cases are not counted as usable PDFs.",
+    "No overflow or missing glyph is accepted in positive cases.",
+    "Native and structured pixel comparisons use the same environment; cross-platform byte identity is not claimed.",
+    "Native TeX is executable; disabled shell escape is not a filesystem sandbox."
+  ]
+}

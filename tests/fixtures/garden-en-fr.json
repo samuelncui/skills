@@ -1,0 +1,50 @@
+{
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "title": [
+    "A small garden",
+    "Un petit jardin"
+  ],
+  "blocks": [
+    {
+      "id": "check",
+      "kind": "heading",
+      "text": [
+        "Check the soil before watering",
+        "Vérifier la terre avant d’arroser"
+      ]
+    },
+    {
+      "id": "explain",
+      "text": [
+        "Check the soil before adding water. A dry surface does not always mean that the roots need more water.",
+        "Vérifiez la terre avant d’ajouter de l’eau. Une surface sèche ne signifie pas toujours que les racines ont besoin de plus d’eau."
+      ]
+    },
+    {
+      "id": "steps",
+      "kind": "list",
+      "text": [
+        [
+          "Pour water into a measuring cup",
+          "Record the amount of water"
+        ],
+        [
+          "Versez de l’eau dans un verre doseur",
+          "Notez la quantité d’eau"
+        ]
+      ]
+    },
+    {
+      "id": "average",
+      "kind": "equation",
+      "text": [
+        "The average of two measurements is their sum divided by two.",
+        "La moyenne de deux mesures est leur somme divisée par deux."
+      ],
+      "math": "m = \\frac{x_1+x_2}{2}"
+    }
+  ]
+}

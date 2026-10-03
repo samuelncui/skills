@@ -1,0 +1,179 @@
+{
+  "languages": [
+    "en",
+    "ar"
+  ],
+  "title": [
+    "A slower walk through a familiar street",
+    "نزهة هادئة في شارع مألوف"
+  ],
+  "layout": {
+    "covers": false,
+    "font_size": 10
+  },
+  "blocks": [
+    {
+      "id": "notice",
+      "kind": "heading",
+      "text": [
+        "Make room for noticing",
+        "اترك وقتا للملاحظة"
+      ]
+    },
+    {
+      "id": "opening",
+      "kind": "paragraph",
+      "text": [
+        "A familiar street can become little more than the space between two appointments. Try walking it once without an errand to finish. The aim is not to find an impressive landmark or collect a perfect photograph, but to notice details that a hurried journey usually edits out.",
+        "قد يتحول الشارع المألوف إلى مجرد طريق بين موعد وآخر. جرّب أن تسير فيه مرة من دون مهمة يجب إنجازها. ليس الهدف العثور على معلم مدهش أو التقاط صورة مثالية، بل ملاحظة التفاصيل التي يغفل عنها المرور السريع عادة."
+      ]
+    },
+    {
+      "id": "change",
+      "kind": "paragraph",
+      "text": [
+        "A painted door, a patch of shade or the sound of dishes from an open window can be enough. You do not need to explain every detail immediately. A useful observation may begin as a question, and a quiet walk can leave that question open until you have time to investigate it.",
+        "قد يكفي باب مطلي أو بقعة ظل أو صوت الأطباق من نافذة مفتوحة. لا تحتاج إلى تفسير كل تفصيل في الحال. فقد تبدأ الملاحظة المفيدة بسؤال، ويمكن للنزهة الهادئة أن تتركه مفتوحا إلى أن تجد وقتا للبحث فيه."
+      ]
+    },
+    {
+      "id": "route",
+      "kind": "heading",
+      "text": [
+        "Choose a modest route",
+        "اختر مسارا بسيطا"
+      ]
+    },
+    {
+      "id": "route-plan",
+      "kind": "paragraph",
+      "text": [
+        "Choose a starting point you can reach easily and an ending point that does not require you to rush back. A short loop is often more useful than an ambitious itinerary. Check the actual conditions where you walk; the small map below is an invented illustration, not directions for a real place.",
+        "اختر نقطة بداية يسهل الوصول إليها ونقطة نهاية لا تضطرك إلى العودة مسرعا. قد يكون مسار دائري قصير أنسب من برنامج طموح. تحقّق من الظروف الفعلية في مكان سيرك؛ فالرسم أدناه تخيلي، وليس إرشادات للوصول إلى مكان حقيقي."
+      ]
+    },
+    {
+      "id": "route-image",
+      "kind": "figure",
+      "text": [
+        "An invented route with four stopping points. The numbers identify places to pause; they do not indicate distance, time or accessibility.",
+        "مسار تخيلي يضم أربع نقاط للتوقف. تحدد الأرقام مواضع الوقوف، ولا تدل على المسافة أو الوقت أو سهولة الوصول."
+      ],
+      "image": "images/figure-route-image.png"
+    },
+    {
+      "id": "steps",
+      "kind": "list",
+      "text": [
+        [
+          "Pick one detail at each stop rather than trying to describe everything around you.",
+          "Leave a little unplanned time. If something deserves another look, you can stay.",
+          "Keep other people’s privacy in mind. A written observation does not require a photograph of a stranger."
+        ],
+        [
+          "اختر تفصيلا واحدا عند كل توقف، بدلا من محاولة وصف كل ما حولك.",
+          "اترك بعض الوقت بلا خطة. يمكنك البقاء إذا وجدت ما يستحق نظرة أخرى.",
+          "راع خصوصية الآخرين. تدوين ملاحظة لا يستلزم تصوير شخص لا تعرفه."
+        ]
+      ]
+    },
+    {
+      "id": "notebook",
+      "kind": "heading",
+      "text": [
+        "Keep a small notebook",
+        "احتفظ بدفتر صغير"
+      ],
+      "break_before": true
+    },
+    {
+      "id": "notebook-prose",
+      "kind": "paragraph",
+      "text": [
+        "A notebook can hold fragments rather than polished sentences. Record what you actually noticed before adding an interpretation. “The bench was empty” is an observation; “nobody uses this square” is a much broader claim. Keeping those two kinds of statement separate makes later writing more honest and more interesting.",
+        "يمكن أن يضم الدفتر شذرات بدلا من جمل مصقولة. سجّل ما لاحظته فعلا قبل إضافة تفسير. «كان المقعد خاليا» ملاحظة، أما «لا أحد يستخدم هذه الساحة» فهو ادعاء أوسع بكثير. الفصل بين النوعين يجعل الكتابة اللاحقة أكثر صدقا وإثارة للاهتمام."
+      ]
+    },
+    {
+      "id": "prompt",
+      "kind": "quote",
+      "text": [
+        "One sound, one colour, one question: a simple prompt for your own notes.",
+        "صوت واحد، ولون واحد، وسؤال واحد: تذكير بسيط لكتابة ملاحظاتك."
+      ]
+    },
+    {
+      "id": "notes-table",
+      "kind": "table",
+      "text": [
+        "These invented notes show the difference between an observation and a question. They are examples, not findings about a real neighbourhood.",
+        "توضح هذه الملاحظات المتخيلة الفرق بين الملاحظة والسؤال. إنها أمثلة، وليست نتائج عن حي حقيقي."
+      ],
+      "headers": [
+        [
+          "Observation",
+          "Question"
+        ],
+        [
+          "الملاحظة",
+          "السؤال"
+        ]
+      ],
+      "rows": [
+        [
+          [
+            "An empty bench",
+            "Is it used at another time?"
+          ],
+          [
+            "A newly painted door",
+            "What colour was it before?"
+          ],
+          [
+            "Music from a window",
+            "Does the sound change farther away?"
+          ]
+        ],
+        [
+          [
+            "مقعد خال",
+            "هل يُستخدم في وقت آخر؟"
+          ],
+          [
+            "باب طُلي حديثا",
+            "ما لونه السابق؟"
+          ],
+          [
+            "موسيقى من نافذة",
+            "هل يتغير الصوت عند الابتعاد؟"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "return",
+      "kind": "heading",
+      "text": [
+        "Read the walk again",
+        "اقرأ النزهة من جديد"
+      ]
+    },
+    {
+      "id": "return-prose",
+      "kind": "paragraph",
+      "text": [
+        "After returning, choose one note and expand it into a short paragraph. Keep the observed detail, explain why it mattered to you and mark anything you still do not know. You can check a factual question later, but you need not turn every walk into a research project. Sometimes the value lies in having paid attention.",
+        "بعد العودة، اختر ملاحظة ووسّعها إلى فقرة قصيرة. احتفظ بالتفصيل الذي رأيته، واشرح سبب أهميته لك، وحدد ما لا تزال تجهله. يمكنك التحقق من سؤال واقعي لاحقا، لكن لا حاجة إلى تحويل كل نزهة إلى مشروع بحث. أحيانا تكمن القيمة في أنك انتبهت فحسب."
+      ]
+    },
+    {
+      "id": "route-reference",
+      "kind": "reference",
+      "text": [
+        "Return to the route section",
+        "العودة إلى قسم المسار"
+      ],
+      "target": "route"
+    }
+  ]
+}

@@ -1,0 +1,212 @@
+\NeedsTeXFormat{LaTeX2e}[2022-06-01]
+\ProvidesPackage{paralleltext}[2026/10/03 Semantic paired text for XeLaTeX]
+% Shared design only. Manuscripts and language/font choices live in .tex files.
+\RequirePackage{iftex}
+\ifXeTeX\else\PackageError{paralleltext}{XeLaTeX is required}{Compile with latexmk -xelatex.}\fi
+\RequirePackage{fontspec,unicode-math,amsmath,geometry,needspace,booktabs,array,tabularx}
+\RequirePackage{xcolor,tikz,graphicx,enumitem,ragged2e,etoolbox,paracol}
+\RequirePackage[unicode,colorlinks,linkcolor=black,urlcolor=blue,filecolor=black]{hyperref}
+\RequirePackage{bookmark,fancyhdr,zref-savepos}
+% Load language support after the packages patched by its bidi dependency.
+\RequirePackage{polyglossia}
+\setdefaultlanguage{english}
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmathfont{Latin Modern Math}
+\newfontfamily\MarkerFont{Latin Modern Roman}
+\definecolor{parallel.concept}{HTML}{0B4F8A}
+\definecolor{parallel.example}{HTML}{006B5B}
+\definecolor{parallel.caution}{HTML}{8A5A00}
+\definecolor{parallel.error}{HTML}{A4262C}
+\definecolor{parallel.body}{HTML}{161616}
+\definecolor{parallel.secondary}{HTML}{50555A}
+\definecolor{parallel.theme}{HTML}{4C6174}
+\newcommand\ParallelLeftLanguage{english}
+\newcommand\ParallelRightLanguage{english}
+\NewDocumentCommand\ParallelLanguages{m m}{\renewcommand\ParallelLeftLanguage{#1}\renewcommand\ParallelRightLanguage{#2}}
+\newcommand\ParallelMode{paired}
+\NewDocumentCommand\ParallelSelect{m}{%
+ \ifstrequal{#1}{paired}{}{\ifstrequal{#1}{left}{}{\ifstrequal{#1}{right}{}{\PackageError{paralleltext}{Unknown mode #1}{Use paired, left or right.}}}}%
+ \renewcommand\ParallelMode{#1}}
+\newcommand\ParallelBodySize{9}
+\newcommand\ParallelBodyLeading{10.8}
+\newcommand\ParallelColumnGap{6mm}
+\newcommand\ParallelTitleLeft{}
+\newcommand\ParallelTitleRight{}
+\newcommand\ParallelRunningTitle{}
+\newcommand\ParallelHeadingFont{\sffamily\bfseries\hyphenpenalty=10000\exhyphenpenalty=10000}
+\newlength\PTWidth
+\newlength\PTHeight
+\newlength\PTRightHeight
+\newlength\PTGap\setlength\PTGap{2.5pt}
+\newsavebox\PTLeftBox
+\newsavebox\PTRightBox
+\newif\ifPTBody\PTBodytrue
+\setlength\headheight{25pt}
+\geometry{a4paper,inner=18mm,outer=18mm,top=17mm,bottom=14mm,headsep=3mm,footskip=7mm}
+\setlength\parindent{0pt}\setlength\parskip{2pt}
+\setlist[itemize]{label={\MarkerFont\textbullet},leftmargin=1.2em,itemsep=2pt,topsep=2pt}
+\setlist[enumerate]{font=\MarkerFont,leftmargin=1.5em,itemsep=2pt,topsep=2pt}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\sffamily\fontsize{7}{8}\selectfont\ParallelRunningTitle}
+\fancyfoot[LE,RO]{\MarkerFont\fontsize{8}{9.6}\selectfont\thepage}
+\renewcommand\headrulewidth{0pt}
+\hypersetup{pdfauthor={}}
+\AtBeginDocument{\setlength\headwidth{\textwidth}}
+\AddToHook{shipout/background}{\ifPTBody\ifdefstring{\ParallelMode}{paired}{%
+ \begin{tikzpicture}[remember picture,overlay]
+ \draw[black!35,line width=.3pt] ([yshift=-17mm]current page.north)--([yshift=14mm]current page.south);
+ \end{tikzpicture}}{}\fi}
+\ExplSyntaxOn
+\cs_new_protected:Npn \PTCheckId #1
+ {\regex_match:nnT {\A pt-internal:} {#1}
+   {\PackageError{paralleltext}{Reserved~paired~ID~namespace}{Do~not~begin~IDs~with~pt-internal:.}}}
+\ExplSyntaxOff
+\makeatletter
+% bidi 25.2.2 adds a literal trailing space inside each tabular box. Remove
+% that exact token only for that release; newer/older implementations are untouched.
+\AtBeginDocument{%
+ \ifcsdef{bidi@version}{%
+  \ifdefstring{\bidi@version}{25.2.2}{%
+   \patchcmd{\endtabular}{\m@th $ }{\m@th $}{%
+    \expandafter\let\csname endtabular*\endcsname\endtabular
+    \PackageInfo{paralleltext}{Removed bidi 25.2.2 trailing tabular space}%
+   }{\PackageWarning{paralleltext}{Unrecognized bidi 25.2.2 table definition; check table widths}}%
+  }{}%
+ }{}%
+}
+% Polyglossia 2.3 (2024-09-23) supplies these CJK rules itself.
+% XeTeXlinebreaklocale is global: nested language returns need explicit repair.
+\newcommand\PTLegacyCJKLinebreaks{}
+\@ifpackagelater{polyglossia}{2024/09/23}{}{%
+ \newskip\PTLegacyLinebreakSkip
+ \PTLegacyLinebreakSkip=\XeTeXlinebreakskip
+ \renewcommand\PTLegacyCJKLinebreaks{%
+  \ifdefstring{\languagename}{chinese}{%
+   \XeTeXlinebreaklocale "zh"%
+   \XeTeXlinebreakskip=0pt plus 0.1em minus 0.01em\relax
+  }{\ifdefstring{\languagename}{japanese}{%
+   \XeTeXlinebreaklocale "ja"%
+   \XeTeXlinebreakskip=0pt plus 0.1em minus 0.01em\relax
+  }{%
+   \XeTeXlinebreaklocale ""%
+   \XeTeXlinebreakskip=\PTLegacyLinebreakSkip
+  }}%
+ }%
+ % This documented Polyglossia hook runs after both block and inline switches.
+ % Old versions lack the nestedextras callback; repair the enclosing language
+ % after the inline group closes rather than leaking its global locale.
+ \apptocmd{\polyglossia@language@switched}{%
+  \PTLegacyCJKLinebreaks\aftergroup\PTLegacyCJKLinebreaks
+ }{}{\PackageError{paralleltext}{Cannot install legacy CJK language hook}{Use Polyglossia 2.3 or newer.}}%
+}
+
+\newcommand\PairMeasure[3]{}
+\newcommand\PTRecord[1]{\protected@write\@auxout{}{\string\PairMeasure{#1}{\number\PTWidth}{\number\PTHeight}}}
+\newcommand\PTLanguage[1]{%
+ \normalfont\selectlanguage{#1}\fontsize{\ParallelBodySize}{\ParallelBodyLeading}\selectfont%
+ \PTLegacyCJKLinebreaks\setlength\emergencystretch{1em}\clubpenalty=10000\widowpenalty=10000%
+ \@ifundefined{if@RTL}{\RaggedRight}{\if@RTL\RaggedLeft\else\RaggedRight\fi}}
+\newcommand\PTUnique[1]{\PTCheckId{#1}%
+ \ifcsname pt@used@#1\endcsname\PackageError{paralleltext}{Duplicate paired ID: #1}{Every paired unit needs a unique stable ID.}\fi
+ \expandafter\gdef\csname pt@used@#1\endcsname{1}}
+\makeatother
+% Prefix executes once in the left/selected box, so counters, labels and anchors
+% travel with the content if Needspace moves the unit to the next page.
+\NewDocumentCommand\PTPlace{m +m +m +m}{%
+ \PTUnique{#1}\par
+ \ifdefstring{\ParallelMode}{paired}{\setlength\PTWidth{\dimexpr(\textwidth-\ParallelColumnGap)/2\relax}}{\setlength\PTWidth{\textwidth}}%
+ \begin{lrbox}{\PTLeftBox}\begin{minipage}[t]{\PTWidth}\vspace{0pt}%
+ \ifdefstring{\ParallelMode}{right}{\PTLanguage{\ParallelRightLanguage}}{\PTLanguage{\ParallelLeftLanguage}}%
+ #2\hypertarget{#1}{}\label{#1}\zsavepos{pt-internal:#1-L-start}\label{pt-internal:#1-L}%
+ \ifdefstring{\ParallelMode}{right}{#4}{#3}\par\zsavepos{pt-internal:#1-L-end}\end{minipage}\end{lrbox}%
+ \setlength\PTHeight{\dimexpr\ht\PTLeftBox+\dp\PTLeftBox\relax}%
+ \ifdefstring{\ParallelMode}{paired}{%
+  \begin{lrbox}{\PTRightBox}\begin{minipage}[t]{\PTWidth}\vspace{0pt}\PTLanguage{\ParallelRightLanguage}%
+  \zsavepos{pt-internal:#1-R-start}\label{pt-internal:#1-R}#4\par\zsavepos{pt-internal:#1-R-end}\end{minipage}\end{lrbox}%
+  \setlength\PTRightHeight{\dimexpr\ht\PTRightBox+\dp\PTRightBox\relax}%
+  \ifdim\PTRightHeight>\PTHeight\setlength\PTHeight{\PTRightHeight}\fi}{}%
+ \ifdim\PTHeight>\dimexpr\textheight-8mm\relax\PackageError{paralleltext}{PAIR TOO TALL: #1}{Split both texts at a matching semantic boundary. Never truncate or shrink to fit.}\fi
+ \Needspace{\dimexpr\PTHeight+\PTGap\relax}\noindent\PTRecord{#1}%
+ % A minipage containing only an indented list can have a natural box width
+ % smaller than its declared hsize. Reserve both physical slots explicitly.
+ \ifdefstring{\ParallelMode}{paired}{\hbox to\textwidth{\hbox to\PTWidth{\usebox\PTLeftBox\hss}\hskip\ParallelColumnGap\hbox to\PTWidth{\usebox\PTRightBox\hss}\hss}}{\hbox to\PTWidth{\usebox\PTLeftBox\hss}}%
+ \par\addvspace{\PTGap}}
+\NewDocumentCommand\ParallelText{m +m +m}{\PTPlace{#1}{\phantomsection}{#2}{#3}}
+% Flowing prose uses paracol's page-aware column storage. The next unit resumes
+% below the longer translation; lines and page breaks inside a unit may differ.
+\NewDocumentCommand\ParallelProse{m +m +m}{%
+ \PTUnique{#1}\par
+ \ifdefstring{\ParallelMode}{paired}{%
+  \setlength\columnsep{\ParallelColumnGap}\begin{paracol}{2}%
+  {\PTLanguage{\ParallelLeftLanguage}\phantomsection\hypertarget{#1}{}\label{#1}%
+   \zsavepos{pt-internal:#1-L-start}\label{pt-internal:#1-L}%
+   #2\par\zsavepos{pt-internal:#1-L-end}\label{pt-internal:#1-L-finish}}%
+  \switchcolumn[1]%
+  {\PTLanguage{\ParallelRightLanguage}\zsavepos{pt-internal:#1-R-start}\label{pt-internal:#1-R}%
+   #3\par\zsavepos{pt-internal:#1-R-end}\label{pt-internal:#1-R-finish}}%
+  \end{paracol}%
+ }{%
+  \begingroup\ifdefstring{\ParallelMode}{right}{\PTLanguage{\ParallelRightLanguage}}{\PTLanguage{\ParallelLeftLanguage}}%
+  \phantomsection\hypertarget{#1}{}\label{#1}%
+  \ifdefstring{\ParallelMode}{right}{#3}{#2}\par\endgroup
+ }\par\addvspace{\PTGap}}
+\NewDocumentCommand\ParallelTitle{m m}{%
+ \renewcommand\ParallelTitleLeft{#1}\renewcommand\ParallelTitleRight{#2}%
+ \ParallelText{pt-title}{{\ParallelHeadingFont\color{parallel.theme}\fontsize{17}{20.4}\selectfont #1\par}}{{\ParallelHeadingFont\color{parallel.theme}\fontsize{17}{20.4}\selectfont #2\par}}}
+\NewDocumentCommand\ParallelSection{m m m}{%
+ \Needspace{65pt}\PTPlace{#1}{\refstepcounter{section}\setcounter{subsection}{0}\ifdefstring{\ParallelMode}{right}{\addcontentsline{toc}{section}{\protect\numberline{\thesection}#3}}{\addcontentsline{toc}{section}{\protect\numberline{\thesection}#2}}}%
+ {{\ParallelHeadingFont\color{parallel.theme}\fontsize{13}{15.6}\selectfont\textenglish{\thesection}\enspace #2\par}}%
+ {{\ParallelHeadingFont\color{parallel.theme}\fontsize{13}{15.6}\selectfont\textenglish{\thesection}\enspace #3\par}}}
+\NewDocumentCommand\ParallelSubsection{O{body} m m m}{%
+ \Needspace{45pt}\PTPlace{#2}{\refstepcounter{subsection}\ifdefstring{\ParallelMode}{right}{\addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}#4}}{\addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}#3}}}%
+ {{\ParallelHeadingFont\color{parallel.#1}\fontsize{9.5}{11.4}\selectfont\textenglish{\thesubsection}\enspace #3\par}}%
+ {{\ParallelHeadingFont\color{parallel.#1}\fontsize{9.5}{11.4}\selectfont\textenglish{\thesubsection}\enspace #4\par}}}
+% A shared equation has one counter step and a single standard label.
+\NewDocumentCommand\ParallelEquation{m +m}{%
+ \PTPlace{#1}{\refstepcounter{equation}}%
+ {\begin{otherlanguage}{english}\begin{equation*}#2\tag*{\textenglish{(\theequation)}}\end{equation*}\end{otherlanguage}}%
+ {\begin{otherlanguage}{english}\begin{equation*}#2\tag*{\textenglish{(\theequation)}}\end{equation*}\end{otherlanguage}}}
+\NewDocumentCommand\ParallelFigure{m m m m}{%
+ \PTPlace{#1}{\refstepcounter{figure}}%
+ {\includegraphics[width=\linewidth]{#2}\par{\color{parallel.secondary}\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #3\par}}%
+ {\includegraphics[width=\linewidth]{#2}\par{\color{parallel.secondary}\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #4\par}}}
+\newsavebox\PTWideBox\newlength\PTWideHeight
+% A shared image is painted once over an opaque background, so the page's
+% center rule cannot pass through it. Its localized captions remain paired.
+\NewDocumentCommand\ParallelWideFigure{m m m m}{%
+ \PTUnique{#1}\par
+ \begin{lrbox}{\PTWideBox}\begin{minipage}{\textwidth}%
+  \refstepcounter{figure}\hypertarget{#1}{}\label{#1}%
+  {\setlength\fboxsep{0pt}\colorbox{white}{\includegraphics[width=\linewidth]{#2}}}\par
+  \ParallelText{#1.caption}%
+   {\color{parallel.secondary}\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #3}%
+   {\color{parallel.secondary}\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #4}%
+ \end{minipage}\end{lrbox}%
+ \setlength\PTWideHeight{\dimexpr\ht\PTWideBox+\dp\PTWideBox\relax}%
+ \ifdim\PTWideHeight>\dimexpr\textheight-8mm\relax\PackageError{paralleltext}{SHARED FIGURE TOO TALL: #1}{Crop or resize the source image deliberately; keep readable captions.}\fi
+ \Needspace{\dimexpr\PTWideHeight+\PTGap\relax}\noindent\hbox to\textwidth{\usebox\PTWideBox\hss}\par\addvspace{\PTGap}}
+% Use ordinary \hyperref, \ref and \pageref in bodies. This convenience wrapper
+% isolates a Latin page suffix when the active paragraph is RTL.
+\NewDocumentCommand\ParallelReference{m m}{\hyperref[#1]{#2\space\textenglish{(p.\,\pageref*{#1})}}}
+\newsavebox\PTKeepBox\newlength\PTKeepHeight
+\NewDocumentEnvironment{ParallelKeep}{}{
+ \begin{lrbox}{\PTKeepBox}\begin{minipage}{\textwidth}}
+ {\end{minipage}\end{lrbox}\setlength\PTKeepHeight{\dimexpr\ht\PTKeepBox+\dp\PTKeepBox\relax}%
+ \ifdim\PTKeepHeight>\dimexpr\textheight-8mm\relax\PackageError{paralleltext}{GROUP TOO TALL}{Split at a matching semantic boundary.}\fi
+ \Needspace{\PTKeepHeight}\noindent\usebox\PTKeepBox\par}
+% Optional booklet lifecycle. Short articles normally omit these commands.
+\newcommand\PTBlankPage{\thispagestyle{empty}\null\clearpage}
+\NewDocumentCommand\PTCoverTitles{m m}{%
+ \ifdefstring{\ParallelMode}{right}{}{%
+  {\PTLanguage{\ParallelLeftLanguage}\ParallelHeadingFont\fontsize{24}{30}\selectfont #1\par}}%
+ \ifdefstring{\ParallelMode}{paired}{\vspace{10mm}}{}%
+ \ifdefstring{\ParallelMode}{left}{}{%
+  {\PTLanguage{\ParallelRightLanguage}\ParallelHeadingFont\fontsize{24}{30}\selectfont #2\par}}}
+\NewDocumentCommand\ParallelFrontCover{m m}{%
+ \PTBodyfalse\pagestyle{empty}\thispagestyle{empty}\vspace*{20mm}\PTCoverTitles{#1}{#2}%
+ \vfill\clearpage\PTBlankPage\PTBodytrue\pagestyle{fancy}}
+\NewDocumentCommand\ParallelBackCover{m m}{%
+ \clearpage\PTBodyfalse\pagestyle{empty}\ifodd\value{page}\else\PTBlankPage\fi\PTBlankPage
+ \thispagestyle{empty}\vspace*{20mm}\PTCoverTitles{#1}{#2}\vfill\clearpage}
+\endinput

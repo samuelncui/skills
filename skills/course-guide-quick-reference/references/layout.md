@@ -1,0 +1,13 @@
+# Shared paired design
+
+The same `paralleltext.sty` supports both native `.tex` manuscripts and structured imports. Use a standard `article` document with separate language configuration and content files. The starter uses Polyglossia/fontspec, ordinary lists/math/tables and native labels/references. Do not copy a layout implementation into every chapter.
+
+Source and translation occupy fixed physical columns, and each corresponding unit starts at the same height on the same page. Unequal text lengths are normal. Each unit is a measured, unbreakable minipage; split long sections at corresponding paragraphs or list items. Never force entire chapters into one unit, shrink type or truncate content. Use `ParallelKeep` only for short groups that truly need to stay together.
+
+Inside paired arguments, ordinary paragraphs, display mathematics, bounded `tabularx`, `quote`, labels and references are supported. Floating `figure`/`table`, `longtable`, raw `verbatim`, and page-level footnotes are outside that contract. Use the nonfloating `ParallelFigure` helper, short tables, inline code and paired notes instead. Native `.tex` remains editable and can use other packages where compatible, but that does not make arbitrary LaTeX automatically supported by the paired minipages.
+
+Use semantic headings and optional role colors, with accurate text labels. Definitions/results, examples/procedures and cautions may have different visual roles; ordinary prose remains neutral. Do not label a property or applicability condition as a validation check just to fit a template.
+
+A short notes sample normally starts with paired body text. Covers and genuinely blank inner faces are optional for bound booklets. Keep equal side margins for the center divider, and verify the final paper size, outside folios, binding margin and actual printer needs. The defaults are a tested design, not a guarantee for every printer.
+
+Build notes first, then the Quick Reference. Its native `xr-hyper` import reads the notes `.aux` file; distribute the PDFs together in the documented relative folders. The structured builder can instead resolve page destinations during its build. In either route, the renderer—not manual typing—owns page numbers.
