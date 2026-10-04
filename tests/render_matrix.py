@@ -14,15 +14,16 @@ base=json.loads((work/'fixtures/garden-en-fr.json').read_text());base['layout']=
 for name in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja']:
  for mode in ['bilingual','left','right']:
   source=work/'bilingual-pdf/examples'/name
-  cases.append((name+'-'+mode,json.loads((source/'source.json').read_text()),mode,0));case_sources[name+'-'+mode]=source
+  cases.append((name+'-'+mode,json.loads((source/'source.json').read_text()),mode,0));case_sources[name+'-'+mode]=work/'bilingual-pdf/assets'
 rtlrefs=json.loads((work/'fixtures/garden-en-ar.json').read_text());rtlrefs['blocks'] += [{'id':'intro-ref','kind':'reference','target':'check','text':['See the introduction','انظر المقدمة']},{'id':'average-ref','kind':'reference','target':'average','text':['See the average','انظر المتوسط']}]
 for mode in ['bilingual','left','right']:cases.append(('rtl-references-'+mode,rtlrefs,mode,0))
 rev=json.loads((work/'bilingual-pdf/examples/en-ar/source.json').read_text());rev['languages'].reverse();rev['title'].reverse()
 for b in rev['blocks']:
  b['text'].reverse()
+ if isinstance(b.get('image'),list):b['image'].reverse()
  for field in ('headers','rows'):
   if field in b:b[field].reverse()
-cases.append(('ar-en-reversed',rev,'bilingual',0));case_sources['ar-en-reversed']=work/'bilingual-pdf/examples/en-ar'
+cases.append(('ar-en-reversed',rev,'bilingual',0));case_sources['ar-en-reversed']=work/'bilingual-pdf/assets'
 no=copy.deepcopy(base);no['layout']={'covers':False,'paper':'letter'};cases.append(('letter-no-covers',no,'bilingual',0))
 multi=copy.deepcopy(base);multi['blocks']=[]
 for i in range(70):
@@ -37,17 +38,18 @@ for name in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja']:
  source=work/'bilingual-pdf/examples'/name;article=json.loads((source/'source.json').read_text())
  passage=next(b['text'] for b in article['blocks'] if b['id']=='notebook-prose')
  flow=copy.deepcopy(article);flow['blocks']=[{'id':'long-prose','kind':'paragraph','flow':'breakable','text':[(x+' ')*18 for x in passage]},{'id':'after-flow','text':passage}]
- cases.append(('flow-'+name,flow,'bilingual',0));case_sources['flow-'+name]=source
+ cases.append(('flow-'+name,flow,'bilingual',0));case_sources['flow-'+name]=work/'bilingual-pdf/assets'
  captions={'en':'Shared photograph.','fr':'Photographie partagée.','zh-Hans':'共用照片。','ar':'صورة مشتركة.','ja':'共有写真。'}
  wide=copy.deepcopy(article);wide['blocks']=[{'id':'photo','kind':'figure','placement':'shared','image':'footpath.png','text':[captions[l] for l in article['languages']]},{'id':'after-photo','text':passage}]
- cases.append(('shared-photo-'+name,wide,'bilingual',0));case_sources['shared-photo-'+name]=source
+ cases.append(('shared-photo-'+name,wide,'bilingual',0));case_sources['shared-photo-'+name]=work/'bilingual-pdf/assets'
 
 def stage_input(name,data,source,collection=False):
  directory=work/'generated-inputs'/name;directory.mkdir(parents=True)
  blocks=data['blocks'] if not collection else [b for t in data['topics'] for b in t['guide_blocks']+t['quick'].get('blocks',[])]
  for block in blocks:
   if block.get('kind')=='figure':
-   relative=Path(block['image']);target=directory/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source/relative,target)
+   for image in (block['image'] if isinstance(block['image'],list) else [block['image']]):
+    relative=Path(image);target=directory/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source/relative,target)
  ip=directory/'source.json';ip.write_text(json.dumps(data,ensure_ascii=False));return ip
 
 def run(c):
@@ -72,6 +74,16 @@ def run(c):
   quote=quote_geometry(work/name/'document.pdf',data['languages']);r['quote_geometry']=quote
   features=article_features(work/name/'document.pdf');r['article_features']=features
   if not quote['ok'] or not features['ok']:proc.returncode=4
+ if proc.returncode==0 and name in [x+'-'+side for x in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja'] for side in ['left','right']]:
+  import hashlib,pymupdf
+  from PIL import Image
+  route=next(b for b in data['blocks'] if b['id']=='route-image')['image']
+  wanted=route[0 if mode=='left' else 1];unwanted=route[1 if mode=='left' else 0]
+  def image_digest(filename):
+   with Image.open(work/'bilingual-pdf/assets'/filename) as image:return hashlib.md5(image.convert('RGB').tobytes()).digest()
+  with pymupdf.open(work/name/'document.pdf') as pdf:digests=[image['digest'] for page in pdf for image in page.get_image_info(hashes=True)]
+  r['selected_language_uses_its_localized_image']=image_digest(wanted) in digests and image_digest(unwanted) not in digests
+  if not r['selected_language_uses_its_localized_image']:proc.returncode=4
  if proc.returncode==0 and name.startswith('flow-'):
   import re
   aux=(work/name/'document.aux').read_text();page_labels={m[1]:int(m[2]) for m in re.finditer(r'\\newlabel\{pt-internal:([^{}]+)\}\{\{[^{}]*\}\{(\d+)\}',aux)}
@@ -93,10 +105,16 @@ arabic={'languages':['en','ar'],'guide_title':['Measurements — Guide','دلي�
 flexible=copy.deepcopy(course)
 flexible['topics'][0]['quick']={'blocks':[{'id':'speed.quick-summary','text':course['topics'][0]['quick']['meaning']},{'id':'speed.quick-figure','kind':'figure','image':'trip.png','text':['An original trip diagram.','Un schéma original du trajet.']},{'id':'speed.quick-related','kind':'reference','target':'entry.'+course['topics'][1]['id'],'text':['Another concept','Une autre notion']}]}
 roman=copy.deepcopy(course);roman['layout']={'profile':'bound','page_numbers':{'numbering':'roman','position':'footer-inner'}}
-course_cases=[('roman-bound-course',roman,'bilingual'),('flexible-course-blocks',flexible,'bilingual'),('isolated-course',course,'bilingual'),('wrapped-course-links',wrapped,'bilingual'),('rtl-course',arabic,'bilingual'),('rtl-course-right',arabic,'right')]
+course_cases=[('roman-bound-course',roman,'bilingual'),('flexible-course-blocks',flexible,'bilingual'),('isolated-course',course,'bilingual'),('wrapped-course-links',wrapped,'bilingual'),('rtl-course',arabic,'bilingual'),('rtl-course-right',arabic,'right'),('relocated-course-dependency',course,'bilingual')]
+relocated_engine=work/'unrelated engines'/'chosen renderer'
+relocated_course=work/'workflows'/'lesson only'
+shutil.copytree(work/'bilingual-pdf',relocated_engine)
+shutil.copytree(work/'course-guide-quick-reference',relocated_course)
 def run_course(case):
  name,data,mode=case;ip=stage_input(name,data,work/'fixtures/course-en-fr',collection=True)
- proc=subprocess.run([sys.executable,str(work/'course-guide-quick-reference/scripts/course_documents.py'),str(ip),'--output',str(work/name),'--mode',mode],cwd=work,capture_output=True,text=True,timeout=240)
+ engine=relocated_engine if name=='relocated-course-dependency' else work/'bilingual-pdf'
+ adapter=relocated_course if name=='relocated-course-dependency' else work/'course-guide-quick-reference'
+ proc=subprocess.run([sys.executable,str(adapter/'scripts/course_documents.py'),'--bilingual-skill',str(engine),str(ip),'--output',str(work/name),'--mode',mode],cwd=work,capture_output=True,text=True,timeout=240)
  valid_json=True
  try:result=json.loads(proc.stdout)
  except json.JSONDecodeError:result={'error':proc.stdout+proc.stderr};valid_json=False

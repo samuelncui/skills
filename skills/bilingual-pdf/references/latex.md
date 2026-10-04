@@ -1,6 +1,25 @@
 # Native LaTeX authoring
 
-Use the complete starter project named by the skill entrypoint (`assets/starter/` for a general article, `assets/learning-starter/` for notes and Quick Reference). Each document uses the standard `article` class, `\usepackage{paralleltext}`, a language configuration, and `\input{content.tex}`. Content supplies meaning; the package owns paired placement, typography and optional print furniture. No custom class or Python body generator is required.
+Use a worked project from `examples/` or the minimal document below. The installed article projects find `paralleltext.sty` and reusable images through their `../../assets` fallback; see the [human guide](../README.md#native-latex) for copying and portable delivery. Each uses the standard `article` class, a language configuration and ordinary manuscript files. Content supplies meaning; the package owns paired placement, typography and optional print furniture. No custom class or Python body generator is required.
+
+## Minimal native document
+
+Put this in a fresh `main.tex` with `paralleltext.sty` beside it, or expose the installed skill's `assets/` through `TEXINPUTS`:
+
+```tex
+\documentclass[10pt,twoside]{article}
+\usepackage{paralleltext}
+\setotherlanguage{french}
+\newfontfamily\frenchfont{Latin Modern Roman}
+\newfontfamily\frenchfontsf{Latin Modern Sans}
+\ParallelLanguages{english}{french}
+\begin{document}
+\ParallelTitle{A short observation}{Une brève observation}
+\ParallelText{opening}{Notice one detail.}{Remarquez un détail.}
+\end{document}
+```
+
+Compile with the command in [Build and trust boundary](#build-and-trust-boundary). No `\ParallelSetup` is required. In a longer project, move font/language declarations into `languages.tex`, body commands into `content.tex`, and optional presentation settings into `layout.tex`. Read [language setup](languages.md) before changing scripts.
 
 ## Small public API
 
@@ -13,8 +32,8 @@ Use the complete starter project named by the skill entrypoint (`assets/starter/
 \ParallelText{first-stop}
   {An ordinary paragraph with \emph{emphasis} and $x+y$.}
   {一段普通正文，可以包含\emph{强调}以及公式 $x+y$。}
-\ParallelFigure{route-image}{route.png}{A schematic route.}{路线示意图。}
-\ParallelWideFigure{shared-photo}{path.png}{A shared photograph.}{共用照片。}
+\ParallelFigure{route-image}{route-en.png}{A schematic route.}{路线示意图。}[route-zh-Hans.png]
+\ParallelWideFigure{shared-photo}{footpath.png}{A shared photograph.}{共用照片。}
 \ParallelProse{long-observation}
   {A long ordinary paragraph may continue across pages here.}
   {这里的长段落可以自然跨页。}
@@ -26,7 +45,8 @@ Use the complete starter project named by the skill entrypoint (`assets/starter/
 - `ParallelText` accepts ordinary, bounded LaTeX bodies. It anchors the supplied ID; `\pageref{first-stop}` and `\hyperref[first-stop]{...}` work normally.
 - Sections/subsections increment their native LaTeX counter once, then display its value in both languages. They write one source-title table-of-contents/bookmark entry per logical heading. `\ref{route}` is the section number. `ParallelSubsection` optionally selects `body`, `concept`, `example`, `caution` or `error` color; put an accurate textual label in the heading so meaning never depends on color alone.
 - `\ParallelEquation{eq:balance}{a+b=c}` advances `equation` once, repeats the expression and its number in an explicit left-to-right math context, and supplies one standard label. Keep localized explanatory prose in a separate paired unit. Use it for shared numbered mathematics; `\ref{eq:balance}` returns that number.
-- `ParallelFigure` repeats the same image once in each column with localized captions; it increments `figure` once and creates a standard label. `ParallelWideFigure` instead prints the image once across the full text width, masks the center rule behind the image, and keeps two localized captions below it. The next paired unit resumes the normal columns. It also reserves `<id>.caption` for the caption pair. For genuinely different localized images, put ordinary `\includegraphics` and captions in a `ParallelText` unit instead.
+- `\ParallelFigure{id}{left-image}{left-caption}{right-caption}[right-image]` places the specified image and caption on each side, advances `figure` once and creates a standard label. The optional final argument supplies a different localized right image. Omitting it retains the four-argument API and repeats the left image. Selected-language output uses that side's image and caption. Prefer `ParallelWideFigure` when one identical image should be shared.
+- `\ParallelWideFigure{id}{image}{left-caption}{right-caption}` prints one image across the full text width, masks the center rule behind it and keeps two localized captions below. It reserves `<id>.caption` for the caption pair; the next unit resumes normal columns. A shared image is one scalar path, not a localized pair. Both figure helpers are bounded units and must fit on a page.
 - `ParallelReference` is a convenience around native `\hyperref` and `\pageref`; it isolates its Latin page suffix in RTL text. Authors may use localized native reference wording instead.
 - `\begin{ParallelKeep} ... \end{ParallelKeep}` keeps several short paired units together, for example an equation and its explanation.
 - IDs are unique, stable labels. The package rejects duplicate paired IDs. `pt-title` is reserved for `ParallelTitle`; automatic measurement labels use the reserved `pt-internal:` namespace. Public IDs beginning with that prefix are rejected; labels such as `foo` and `foo-L` otherwise remain distinct.

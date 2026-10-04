@@ -73,6 +73,13 @@ class ExampleTests(unittest.TestCase):
             root = Path(d); matrix, source = self.fixture(root); out = root / 'bundle'; out.mkdir()
             with self.assertRaises(ValueError): collect_examples(matrix, out, source)
 
+    def test_changed_shared_asset_invalidates_manifest(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);matrix,source=self.fixture(root);out=root/'bundle'
+            collect_examples(matrix,out,source)
+            (source/'skills/bilingual-pdf/assets/footpath.png').write_bytes(b'changed photo')
+            with self.assertRaisesRegex(ValueError,'shared assets changed'):check_examples(out,source)
+
 
 class InstalledExampleTests(unittest.TestCase):
     root = Path(__file__).resolve().parents[1]
@@ -84,7 +91,7 @@ class InstalledExampleTests(unittest.TestCase):
         structure = None
         translations = {}
         for doc in documents:
-            skeleton = [{k: v for k, v in b.items() if k not in ('text', 'headers', 'rows')} for b in doc['blocks']]
+            skeleton = [{k: v for k, v in b.items() if k not in ('text', 'headers', 'rows', 'image')} for b in doc['blocks']]
             if structure is None: structure = skeleton
             self.assertEqual(skeleton, structure)
             self.assertTrue(any(b.get('placement') == 'shared' for b in doc['blocks']))
@@ -96,17 +103,25 @@ class InstalledExampleTests(unittest.TestCase):
                 translations[language] = text
         self.assertEqual(set(translations), {'en', 'fr', 'ar', 'zh-Hans', 'ja'})
 
-    def test_each_example_is_self_contained(self):
+    def test_examples_share_skill_assets(self):
         import hashlib
         hashes = set()
         for source in self.article_root.glob('*/source.json'):
-            for filename in ('main.tex', 'content.tex', 'languages.tex', 'paralleltext.sty'):
+            for filename in ('main.tex', 'content.tex', 'languages.tex'):
                 self.assertTrue((source.parent / filename).is_file())
-            for block in json.loads(source.read_text())['blocks']:
+            self.assertFalse((source.parent / 'paralleltext.sty').exists())
+            document=json.loads(source.read_text())
+            for block in document['blocks']:
                 if block.get('kind') == 'figure':
-                    image = (source.parent / block['image']).resolve()
-                    self.assertTrue(image.is_relative_to(source.parent.resolve()) and image.is_file())
-                    if block.get('placement') == 'shared': hashes.add(hashlib.sha256(image.read_bytes()).hexdigest())
+                    names=block['image'] if isinstance(block['image'],list) else [block['image']]
+                    for name in names:
+                        image = (self.article_root.parent / 'assets' / name).resolve()
+                        self.assertTrue(image.is_relative_to(self.article_root.parent.resolve()) and image.is_file())
+                        self.assertFalse((source.parent/name).exists())
+                        if block.get('placement') == 'shared': hashes.add(hashlib.sha256(image.read_bytes()).hexdigest())
+                    if block.get('placement')=='paired':
+                        self.assertEqual(names,['route-'+language+'.png' for language in document['languages']])
+                        self.assertNotEqual(hashlib.sha256((self.article_root.parent/'assets'/names[0]).read_bytes()).digest(),hashlib.sha256((self.article_root.parent/'assets'/names[1]).read_bytes()).digest())
         self.assertEqual(len(hashes), 1)
         course = self.root / 'skills/course-guide-quick-reference/examples'
         for name in ('notes.tex', 'quick-reference.tex', 'source.md', 'source-map.json'):

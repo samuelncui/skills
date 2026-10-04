@@ -38,5 +38,12 @@ def article_features(pdf_path):
         wide = [(i + 1, rect) for i, page in enumerate(pdf) for image in page.get_images() for rect in page.get_image_rects(image[0]) if rect.width > 400]
         shared = len(wide) == 1 and wide[0][1].x0 < pdf[0].rect.width / 2 < wide[0][1].x1
         captions = captions and bool(wide) and pages.get('shared-photo.caption-L') == wide[0][0]
-    return {'ok': crossed and resumed and captions and shared, 'both_paragraphs_cross_pages': crossed,
-            'following_pair_resynchronizes': resumed, 'paired_captions_with_photo': captions, 'one_full_width_photo': shared}
+        narrow=[(i,image) for i,page in enumerate(pdf) for image in page.get_image_info(hashes=True) if 100<image['bbox'][2]-image['bbox'][0]<300]
+        narrow.sort(key=lambda item:item[1]['bbox'][0])
+        localized=len(narrow)==2 and narrow[0][0]==narrow[1][0] and narrow[0][1]['digest']!=narrow[1][1]['digest']
+        if localized:
+            left,right=narrow[0][1]['bbox'],narrow[1][1]['bbox'];center=pdf[narrow[0][0]].rect.width/2
+            localized=left[2]<center<right[0] and abs(left[1]-right[1])<.2
+    return {'ok': crossed and resumed and captions and shared and localized, 'both_paragraphs_cross_pages': crossed,
+            'following_pair_resynchronizes': resumed, 'paired_captions_with_photo': captions, 'one_full_width_photo': shared,
+            'distinct_localized_images_in_aligned_columns':localized}

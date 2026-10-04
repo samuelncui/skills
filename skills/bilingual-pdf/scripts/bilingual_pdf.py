@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+RENDERER_API_VERSION = 1
 PROFILES = {
     'en': {'font': 'Latin Modern Roman', 'direction': 'ltr', 'locale': 'en'},
     'fr': {'font': 'Latin Modern Roman', 'direction': 'ltr', 'locale': 'fr'},
@@ -22,6 +23,27 @@ PROFILES = {
 MATH_COMMANDS = {'frac','sqrt','sum','prod','int','infty','alpha','beta','gamma','theta','sigma','mu','pi','Delta','times','cdot','pm','leq','geq','neq','approx','log','ln','exp','sin','cos','left','right','mathrm','mathbf','text','quad','qquad','overline','hat','bar'}
 
 class InputError(ValueError): pass
+
+def figure_images(block):
+    """One shared image or an ordered pair of localized column images."""
+    image=block.get('image')
+    images=image if isinstance(image,list) else [image]
+    if isinstance(image,list) and (len(image)!=2 or block.get('placement')=='shared'):
+        raise InputError('Paired figures require two image paths; shared figures require one')
+    for path in images:
+        if not isinstance(path,str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_./-]*\.(?:png|jpg|jpeg)',path) or '..' in Path(path).parts:
+            raise InputError('Figure image must be a relative PNG/JPEG path without traversal')
+    return images
+
+def resolve_image(input_path,relative,asset_root=None):
+    """Resolve only inside the explicitly selected asset root, including symlinks."""
+    figure_images({'image':relative})
+    base=Path(asset_root).resolve() if asset_root is not None else Path(input_path).resolve().parent
+    if not base.is_dir():raise InputError('Asset root must be an existing directory')
+    source=(base/relative).resolve()
+    if not source.is_relative_to(base):raise InputError('Figure escapes the asset root')
+    if not source.is_file():raise InputError('Missing figure inside asset root: '+relative)
+    return source
 
 def escape(text):
     substitutions = {'\\':r'\textbackslash{}','{':r'\{','}':r'\}','$':r'\$','&':r'\&','#':r'\#','%':r'\%','_':r'\_','~':r'\textasciitilde{}','^':r'\textasciicircum{}'}
@@ -76,8 +98,7 @@ def validate(data):
             values=value if kind=='list' else [value]
             if PROFILES[languages[index]]['direction']!='rtl' and any(isinstance(x,dict) for x in values):raise InputError('Explicit directional runs currently require an RTL paragraph')
         if kind=='figure':
-            image=b.get('image')
-            if not isinstance(image,str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_./-]*\.(?:png|jpg|jpeg)',image) or '..' in Path(image).parts:raise InputError('Figure image must be a relative PNG/JPEG path')
+            figure_images(b)
         if kind=='reference':
             target=b.get('target')
             if not isinstance(target,str) or not re.fullmatch(r'[a-z][a-z0-9.-]{0,79}',target):raise InputError('Reference target must be an identifier')
@@ -256,7 +277,11 @@ def tex_parts(data,mode,*,stem="document",image_names=None):
         if b.get('break_before'):body.append(r'\clearpage')
         ident=b['id'];kind=b.get('kind','paragraph');pair=[content(b,i,l) if kind!='list' else '' for i,l in enumerate(languages)]
         if kind=='heading':body.append(r'\ParallelSection{'+ident+'}{'+pair[0]+'}{'+pair[1]+'}')
-        elif kind=='figure':body.append(('\\ParallelWideFigure{' if b.get('placement')=='shared' else '\\ParallelFigure{')+ident+'}{'+image_names.get(ident,'figure-'+ident+'.png')+'}{'+pair[0]+'}{'+pair[1]+'}')
+        elif kind=='figure':
+            names=image_names.get(ident)
+            if names is None:names=['figure-'+ident+'/'+side+'.png' for side in ('left','right')] if len(figure_images(b))==2 else ['figure-'+ident+'/image.png']
+            if isinstance(names,str):names=[names]
+            body.append(('\\ParallelWideFigure{' if b.get('placement')=='shared' else '\\ParallelFigure{')+ident+'}{'+names[0]+'}{'+pair[0]+'}{'+pair[1]+'}'+('['+names[1]+']' if len(names)==2 else ''))
         elif kind=='list':
             for i,(left,right) in enumerate(zip(*b['text'])):
                 pair=[language_text(left,languages[0]),language_text(right,languages[1])]
@@ -308,7 +333,7 @@ def project_filenames(stem='document'):
     return {'tex':stem+'.tex','languages':prefix+'languages.tex','content':prefix+'content.tex',
             'pdf':stem+'.pdf','log':stem+'.log','compile':prefix+'compile.log','result':prefix+'result.json'}
 
-def write_project(data,input_path,out,mode,*,stem='document'):
+def write_project(data,input_path,out,mode,*,stem='document',asset_root=None):
     """Write a new named document inside an already-created collection folder.
 
     Existing document/assets are never overwritten. Shared package/license files
@@ -318,8 +343,8 @@ def write_project(data,input_path,out,mode,*,stem='document'):
     if not out.is_dir():raise InputError('Project directory must already exist')
     figures=[b for b in data['blocks'] if b.get('kind')=='figure']
     prefix=Path() if stem=='document' else Path('images')/stem
-    images={b['id']:(prefix/('figure-'+b['id']+'.png')).as_posix() for b in figures}
-    targets=[out/name for name in files.values()]+[out/(stem+suffix) for suffix in ('.aux','.xdv','.fls','.fdb_latexmk','.toc')]+[out/name for name in images.values()]
+    images={b['id']:([(prefix/('figure-'+b['id'])/(side+'.png')).as_posix() for side in ('left','right')] if len(figure_images(b))==2 else [(prefix/('figure-'+b['id'])/'image.png').as_posix()]) for b in figures}
+    targets=[out/name for name in files.values()]+[out/(stem+suffix) for suffix in ('.aux','.xdv','.fls','.fdb_latexmk','.toc')]+[out/name for names in images.values() for name in names]
     if any(target.exists() or target.is_symlink() for target in targets):raise InputError('Named document or image already exists; preserve previous outputs')
     shared={'paralleltext.sty':ROOT/'assets/paralleltext.sty','LICENSE':ROOT/'LICENSE'}
     for name,source in shared.items():
@@ -327,15 +352,15 @@ def write_project(data,input_path,out,mode,*,stem='document'):
         if target.is_symlink() or (target.exists() and target.read_bytes()!=source.read_bytes()):raise InputError('Existing shared project resource differs: '+name)
     from PIL import Image
     for block in figures:
-        source=(input_path.resolve().parent/block['image']).resolve()
-        if not source.is_relative_to(input_path.resolve().parent):raise InputError('Figure escapes the input directory')
-        target=out/images[block['id']]
-        if not target.resolve().is_relative_to(out.resolve()):raise InputError('Figure output escapes the project directory')
-        target.parent.mkdir(parents=True,exist_ok=True)
-        with Image.open(source) as im:
-            if im.format not in {'PNG','JPEG'}:raise InputError('Unsupported image bytes')
-            image=im.convert('RGBA');background=Image.new('RGBA',image.size,'white');background.alpha_composite(image)
-            background.convert('RGB').save(target)
+        for relative,name in zip(figure_images(block),images[block['id']]):
+            source=resolve_image(input_path,relative,asset_root)
+            target=out/name
+            if not target.resolve().is_relative_to(out.resolve()):raise InputError('Figure output escapes the project directory')
+            target.parent.mkdir(parents=True,exist_ok=True)
+            with Image.open(source) as im:
+                if im.format not in {'PNG','JPEG'}:raise InputError('Unsupported image bytes')
+                image=im.convert('RGBA');background=Image.new('RGBA',image.size,'white');background.alpha_composite(image)
+                background.convert('RGB').save(target)
     for name,source in shared.items():
         if not (out/name).exists():shutil.copyfile(source,out/name)
     main,locale,body=tex_parts(data,mode,stem=stem,image_names=images)
@@ -343,10 +368,10 @@ def write_project(data,input_path,out,mode,*,stem='document'):
         (out/name).write_text(text,encoding='utf-8')
     return files
 
-def export_document(data,input_path,out,mode,*,stem='document'):
+def export_document(data,input_path,out,mode,*,stem='document',asset_root=None):
     if out.exists():raise InputError('Output directory already exists; choose a new directory to preserve previous outputs')
     out.mkdir(parents=True)
-    return write_project(data,input_path,out,mode,stem=stem)
+    return write_project(data,input_path,out,mode,stem=stem,asset_root=asset_root)
 
 def check_pdf(path,covered,paired=False,margin_mm=12):
     import pymupdf as fitz
@@ -435,6 +460,7 @@ def main():
     parser.add_argument('command',choices=['preflight','export','render','validate'])
     parser.add_argument('input',type=Path)
     parser.add_argument('--output',type=Path)
+    parser.add_argument('--asset-root',type=Path,help='Read figure paths inside this directory only (default: input directory)')
     parser.add_argument('--mode',choices=['bilingual','left','right'],default='bilingual')
     parser.add_argument('--no-covers',action='store_true',help='Compatibility flag: validate assumes no covers by default')
     parser.add_argument('--covers',action='store_true',help='For validate: require booklet cover/blank parity')
@@ -452,7 +478,7 @@ def main():
             result={'ok':True} if args.command=='export' else preflight(data);code=0 if result['ok'] else 2
             if args.command in ('export','render') and result['ok']:
                 if not args.output:raise InputError('--output is required')
-                out=args.output.resolve();export_document(data,args.input,out,args.mode)
+                out=args.output.resolve();export_document(data,args.input,out,args.mode,asset_root=args.asset_root)
                 if args.command=='export':
                     print(json.dumps({'ok':True,'tex':str(out/'document.tex'),'editable_content':str(out/'content.tex'),'build':'latexmk -xelatex -interaction=nonstopmode -halt-on-error -latexoption=-no-shell-escape document.tex'}));return 0
                 result=compile_project(data,out,args.mode,result)

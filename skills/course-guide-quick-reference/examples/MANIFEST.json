@@ -1,15 +1,21 @@
 {
   "source_hashes": {
-    "Makefile": "7c889e9943beabb8624bc0a998afad45eb6b7e58a3003929a376dd3646b53f24",
+    "Makefile": "eb7d11c91cbe51a8bea3ec83a5e7d4c3ae755d519f0d3dd20f004a5972f76395",
     "coverage-review.md": "a2dc0cb58eed345193e3b433fcaecda0abc7849919d2d7bf798176556ce9c576",
     "languages.tex": "9500e1beef8e6c1e2546fcb440d7173704d9b8f73253b3fb669cdc4397b357ea",
     "notes-content.tex": "67c71c47b64c1472a07b1e5c850d1cf01893c3fc8a22dffe2efbac5996a3af6f",
     "notes.tex": "6e1f95efea3db08c3ecce0ccb805e8fabbeefb049f8f4ce9348f9e445ce1f8d4",
-    "paralleltext.sty": "8304a5a30682f1d04f0e8a0c3871a44810b2174fcbab1ed90ae75b3585bf961c",
     "quick-content.tex": "d319985e6c71866573b0076594b09266326c81d69691380f46c2e5b516fb2524",
     "quick-reference.tex": "725d675ee0239cbf1c1b598a83405df0dd2a78eb6f7fb4f2dcf868aabee768bc",
     "source-map.json": "272e87f081959c2db6402b5d11f019a6b85071341b19d7e9912d39ab5034b575",
     "source.md": "5e9e8af37eae034c08478f6bd36566fda20bab4ce3898ab182cc12ac86c3edc2"
+  },
+  "renderer_dependency": {
+    "skill": "bilingual-pdf",
+    "skill_relative_hashes": {
+      "scripts/bilingual_pdf.py": "23401470dbb1636a8a7a7b3f11cdfb13e6d7f67d3cb525233d32b97b575a3bb4",
+      "assets/paralleltext.sty": "2d7f23fc9f499d1cc94b9bb51c5502f95d3e9974377144a1867786e809eb949d"
+    }
   },
   "files": [
     {
@@ -31,5 +37,5 @@
       "sha256": "2d3a45f53c3ecdfcab422c67562c570f05fa18f6252401ca9381e51d33c9b0b6"
     }
   ],
-  "regeneration": "See the repository tests/README.md. Sources and outputs are bundled in this skill; byte identity requires the same toolchain and fixed clock."
+  "regeneration": "See the repository tests/README.md. Example source paths are relative to this examples directory; renderer dependency paths are relative to the named installed skill. Byte identity requires the same toolchain and fixed clock."
 }

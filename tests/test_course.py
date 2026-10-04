@@ -2,7 +2,8 @@ import copy,importlib.util,json,sys,unittest,tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'skills/course-guide-quick-reference/scripts'))
-from course_documents import prepare,InputError,stage_figures,verify_guide_links,unit_pages
+from course_documents import prepare,InputError,stage_figures,verify_guide_links,unit_pages,configure_renderer
+configure_renderer(ROOT/'skills/bilingual-pdf')
 
 class CourseTests(unittest.TestCase):
  def setUp(self):self.data=json.loads((ROOT/'tests/fixtures/course-en-fr/source.json').read_text())

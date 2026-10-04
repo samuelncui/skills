@@ -13,7 +13,7 @@ cd new-project
 latexmk -xelatex -interaction=nonstopmode -halt-on-error -latexoption=-no-shell-escape document.tex
 ```
 
-Or run `python3 scripts/bilingual_pdf.py render input.json --output new-project`. `--mode left` and `--mode right` export only the selected language. `export` needs Python and Pillow for safe image staging; `preflight`/`render` also need the documented QA and TeX dependencies. A native build of the exported project needs no Python.
+Or run `python3 scripts/bilingual_pdf.py render input.json --output new-project`. Use `--asset-root path/to/assets` for images stored outside the input file's parent directory; for bundled articles, run from the skill directory with `--asset-root assets`. `--mode left` and `--mode right` export only the selected language. `export` needs Python and Pillow for safe image staging; `preflight`/`render` also need the documented QA and TeX dependencies. A native build of the exported project needs no Python.
 
 Outputs: `document.tex`, `languages.tex`, `content.tex`, `paralleltext.sty`, staged figure files, and (after building) `document.pdf` plus ordinary TeX auxiliaries. `render` additionally writes `result.json`. Preserve input files; choose a new output directory for each export. The final portable source project consists of authored/generated `.tex`, the package and images, not logs or private inputs.
 
@@ -50,7 +50,7 @@ Unknown keys, out-of-range numbers, raw TeX styles and invalid choices are rejec
 - **heading**: two titles; emits one numbered paired section.
 - **list**: `text` contains two equally sized nonempty arrays of item text. Each matching item is a separate aligned unit with an ordinary LaTeX bullet list.
 - **quote**: two strings in a paired `quote` environment. This is formatting, not a claim that a quotation is licensed or accurately attributed.
-- **figure**: `image` is a relative PNG/JPEG path contained within the input directory; `text` supplies two captions. The same image is shown on both sides. Images are decoded and re-encoded to a staged PNG. Localized image variants are available through native LaTeX rather than this schema.
+- **figure**: `image` is one relative PNG/JPEG path or exactly two ordered paths `[left, right]`; `text` supplies two captions. Default `placement: "paired"` supports localized images, while a scalar repeats one image. `placement: "shared"` accepts a scalar only and prints it once across both columns. Images are resolved under the configured asset root, decoded and re-encoded to staged PNGs. Selected-language output uses its matching image. See the asset boundary below.
 - **table**: `headers` contains two equally sized arrays of plain strings, one to five columns. `rows` contains two equally sized arrays of rows; each row has the matching column count. `text` supplies paired captions. Header/row pairs align independently and are kept together with the caption. Split a table that is too tall at an explicit corresponding boundary.
 - **equation**: `math` contains a bounded LaTeX math expression; `text` explains it in both languages. The expression is shared and kept with its explanation. Only documented mathematical commands are allowed; arbitrary TeX, file access and character-code escapes are rejected. Use native `.tex` for trusted authored mathematics outside this limited importer.
 - **reference**: `target` names an existing block; `text` supplies the displayed link wording. Native `\hyperref`/`\pageref` generate the destination and page. Collection-generated references can additionally carry a bounded relative PDF `file`, positive physical `page`, and plain-text printed `page_label` (for example `iii`). The collection build derives both the absolute destination and logical folio from native output; they are not typed into a notes manuscript.
@@ -77,4 +77,20 @@ Commands emit JSON. Exit codes: 1 invalid input, 2 missing dependency/font/glyph
 
 An ordinary paragraph may add `"flow": "breakable"`. It maps to `\ParallelProse`: both texts start together, each can cross pages naturally, and the next block resynchronizes below the longer text. No arbitrary text splitting or font shrinking is performed. Line breaks and within-paragraph page breaks may differ. The default `"atomic"` remains a bounded pair. `flow` is rejected on non-paragraph blocks.
 
-A figure may add `"placement": "shared"` to print its image once across the full text width, with two localized captions and the divider hidden behind the image. The default `"paired"` repeats the image in each column. Both use the same canonical package as native LaTeX. A shared figure reserves `<id>.caption`; it remains a bounded unit and must fit on a page. Images are local PNG/JPEG files under the input directory and require appropriate reuse rights.
+A figure may add `"placement": "shared"` to print one image across the full text width, with two localized captions and the divider hidden behind it. Use a scalar image path for this placement; a pair is rejected. Default `"paired"` places the selected images in their columns, repeating a scalar image for backward compatibility. Both map to the same native package helpers. A shared figure reserves `<id>.caption`; figures remain bounded units that must fit on a page.
+
+```json
+{"id":"photo","kind":"figure","image":"footpath.png","placement":"shared",
+ "text":["A shared path photograph.","Une photographie de sentier commune."]}
+```
+
+```json
+{"id":"route","kind":"figure","image":["route-en.png","route-fr.png"],
+ "text":["A schematic route.","Un itinéraire schématique."]}
+```
+
+## Image asset boundary
+
+The asset root is `--asset-root DIRECTORY`, or the input JSON file's parent directory when omitted. The root option is a filesystem path supplied by the caller; every JSON image value is relative to that root. Bundled article JSON uses simple names such as `footpath.png` and `route-en.png`, and the example commands supply the skill's `assets/` directory explicitly.
+
+Absolute image paths, traversal such as `../`, and symlinks resolving outside the root are rejected. Each image must exist as a supported local PNG/JPEG file inside the resolved root. The exporter safely stages images in the output, so an exported project does not depend on the original asset pool. The option does not authorize arbitrary file reads or relax source/image rights. The converter never downloads remote images.

@@ -364,10 +364,11 @@
  \PTPlace{#1}{\refstepcounter{equation}}%
  {\begin{otherlanguage}{english}\begin{equation*}#2\tag*{\textenglish{(\theequation)}}\end{equation*}\end{otherlanguage}}%
  {\begin{otherlanguage}{english}\begin{equation*}#2\tag*{\textenglish{(\theequation)}}\end{equation*}\end{otherlanguage}}}
-\NewDocumentCommand\ParallelFigure{m m m m}{%
+% Optional final argument selects a distinct localized right-column image.
+\NewDocumentCommand\ParallelFigure{m m m m o}{%
  \PTPlace{#1}{\refstepcounter{figure}}%
  {\includegraphics[width=\linewidth]{#2}\par{\ParallelCaptionStyle\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #3\par}}%
- {\includegraphics[width=\linewidth]{#2}\par{\ParallelCaptionStyle\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #4\par}}}
+ {\IfNoValueTF{#5}{\includegraphics[width=\linewidth]{#2}}{\includegraphics[width=\linewidth]{#5}}\par{\ParallelCaptionStyle\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #4\par}}}
 \newsavebox\PTWideBox\newlength\PTWideHeight
 % A shared image is painted once over an opaque background, so the page's
 % center rule cannot pass through it. Its localized captions remain paired.

@@ -77,7 +77,11 @@
         "An invented route with four stopping points. The numbers identify places to pause; they do not indicate distance, time or accessibility.",
         "虚构路线上的四个停留点。数字只标识停留位置，不代表距离、时间或无障碍条件。"
       ],
-      "image": "figure-route-image.png"
+      "image": [
+        "route-en.png",
+        "route-zh-Hans.png"
+      ],
+      "placement": "paired"
     },
     {
       "id": "steps",

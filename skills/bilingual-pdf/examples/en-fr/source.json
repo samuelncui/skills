@@ -77,7 +77,11 @@
         "An invented route with four stopping points. The numbers identify places to pause; they do not indicate distance, time or accessibility.",
         "Un parcours imaginaire avec quatre haltes. Les numéros désignent des arrêts, sans indiquer leur distance, leur durée ni leur accessibilité."
       ],
-      "image": "figure-route-image.png"
+      "image": [
+        "route-en.png",
+        "route-fr.png"
+      ],
+      "placement": "paired"
     },
     {
       "id": "steps",

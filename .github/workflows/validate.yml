@@ -9,13 +9,16 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Check independent packages and input safety
+      - name: Install validation dependencies
         run: |
-          python3 tools/sync_renderer.py --check
-          python3 tools/export_native_examples.py --check
-          python3 -m unittest discover -s tests -p 'test_*.py' -v
-          python3 tools/check_package.py
-          python3 tools/collect_example_outputs.py --check --output .
+          python3 -m venv .venv
+          .venv/bin/pip install -r requirements.txt
+      - name: Check skill packages, declared dependency and input safety
+        run: |
+          .venv/bin/python tools/export_native_examples.py --check
+          .venv/bin/python -m unittest discover -s tests -p 'test_*.py' -v
+          .venv/bin/python tools/check_package.py
+          .venv/bin/python tools/collect_example_outputs.py --check --output .
   render:
     runs-on: ubuntu-24.04
     timeout-minutes: 30

@@ -4,6 +4,9 @@ import json,re,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 errors=[];skills=[]
+for filename,expected in [('paralleltext.sty','skills/bilingual-pdf/assets/paralleltext.sty'),('bilingual_pdf.py','skills/bilingual-pdf/scripts/bilingual_pdf.py')]:
+ found=sorted(p.relative_to(ROOT).as_posix() for p in (ROOT/'skills').rglob(filename) if p.is_file())
+ if found!=[expected]:errors.append('Renderer must have one owner: '+filename)
 for skill in sorted((ROOT/'skills').iterdir()):
  if not skill.is_dir():continue
  main=skill/'SKILL.md'

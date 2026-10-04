@@ -1,6 +1,6 @@
 # Validation and realistic usage tests
 
-The current suites include **77 unit tests**, **37 structured-render cases**, **22 native-LaTeX cases** and **41 configuration cases**. Exact completed results and positive-PDF/page counts are recorded in RESULTS.json. Expected failures are counted as tests, not usable deliverables. Exact case results, source/output hashes and review limits are in [RESULTS.json](RESULTS.json). Remote CI status belongs to the exact commit shown in Actions, not this local record.
+The current suites include **94 unit tests**, **38 structured-render cases**, **26 native-LaTeX cases** and **41 configuration cases**. Exact completed results and positive-PDF/page counts are recorded in RESULTS.json. Expected failures are counted as tests, not usable deliverables. Exact case results, source/output hashes and review limits are in [RESULTS.json](RESULTS.json). Remote CI status belongs to the exact commit shown in Actions, not this local record.
 
 ## Structured route
 
@@ -17,7 +17,7 @@ The current suites include **77 unit tests**, **37 structured-render cases**, **
 ## Native LaTeX route
 
 - Each checked-in article project builds directly with latexmk in an isolated directory. Its pixels match the equivalent structured-route PDF in the same environment.
-- Both installed starters build without a sibling skill; the full notes/Quick example rebuilds from ordinary `.tex`.
+- Minimal native authoring still works without starter trees. Four installed article examples resolve the one skill-level style/image pool directly. The course example and minimal notes/Quick pair use the explicitly selected installed bilingual dependency.
 - Public IDs `foo` and `foo-L` remain distinct; duplicate IDs and the reserved measurement namespace are rejected.
 - Shared equation counters advance once. An RTL numbered-math regression checks actual formula baseline equality, not only block-start markers.
 - Native missing glyphs and oversized units are caught; a selected-language booklet omits the unselected cover language and preserves blank inner faces.
@@ -32,11 +32,11 @@ The independent API review reproduced and verified corrections for minipage para
 
 ## Realistic skill use
 
-A fresh learning-skill run received only the complete installed skill and the small original teaching source. It authored three notes pages, two Quick pages and a 32-record source map. A second review found grouped secondary headwords and English action labels in the Chinese trace. Those were corrected: three alias rows and 23 keyword rows now lead to three canonical concepts, including independently findable Overflow, Queue and Removal order. The corrected bundle passed relocation, page inspection and 63 link-annotation checks. Source uncertainty remains explicit. See [the example review record](../skills/course-guide-quick-reference/examples/coverage-review.md).
+Before this dependency refactor, a fresh learning-skill run received the then-self-contained skill and the small original teaching source. It authored three notes pages, two Quick pages and a 32-record source map. A second review found grouped secondary headwords and English action labels in the Chinese trace. Those were corrected: three alias rows and 23 keyword rows now lead to three canonical concepts, including independently findable Overflow, Queue and Removal order. The corrected bundle passed relocation, page inspection and 63 link-annotation checks. Source uncertainty remains explicit. See [the example review record](../skills/course-guide-quick-reference/examples/coverage-review.md).
 
-A separate bilingual-skill run built the English/Chinese structured article, copied only six portable source files into a fresh project, and built it directly with latexmk. Its two PDFs were pixel-identical at 1273 × 1800; all four page images were inspected. Input hashes stayed unchanged, package bytes matched, and recorder evidence showed no JSON, Python generation or sibling-skill input in the native build. This tests export followed by native compilation, not independent starter-based authorship.
+The earlier bilingual-skill authoring check built the English/Chinese structured article, copied only six portable source files into a fresh project, and built it directly with latexmk. Its two PDFs were pixel-identical at 1273 × 1800; all four page images were inspected. Input hashes stayed unchanged, package bytes matched, and recorder evidence showed no JSON, Python generation or sibling-skill input in the native build. This tested export followed by native compilation; current minimal authoring and installed-source checks are separate.
 
-The current relocation also rebuilds each skill separately in a fresh installation containing no sibling skill. TeX recorder files confirm that the resulting article and notes/Quick builds consume no source-checkout inputs. The two skill-local example manifests use only portable relative paths.
+Current relocation checks install bilingual independently and exercise course with an explicitly supplied renderer in unrelated paths containing spaces. Missing or incompatible dependencies report actionable errors before output creation. TeX recorder files verify that installed examples consume the selected skill assets rather than source-checkout files. Manifests record portable local source paths and the named renderer/shared-asset hashes.
 
 The [official skill structure](https://developers.openai.com/plugins/build/skills) manifest checks also passed. The important evidence is executable behavior and the reviewed output, not frontmatter validity alone.
 
@@ -46,7 +46,6 @@ After installing the documented dependencies:
 
 ```sh
 python3 tools/export_native_examples.py --check
-python3 tools/sync_renderer.py --check
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 tools/check_package.py
 python3 tests/render_matrix.py --output .local/new-structured-matrix
@@ -55,7 +54,7 @@ python3 tests/configuration_matrix.py --output .local/new-configuration-matrix
 python3 tools/collect_example_outputs.py --check --output .
 ```
 
-Matrices copy complete skills into fresh directories. The native tests compile authored `.tex` without using the JSON adapter to generate their bodies. GitHub Actions runs the same checks with public Ubuntu dependencies; it does not deliver example artifacts.
+Unit tests cover localized image schemas, bounded asset roots, traversal/symlink escapes, collision-free exported names, renderer API compatibility and literal dependency paths through Make. Matrices copy complete skills into fresh directories. The native tests compile authored `.tex` without using the JSON adapter to generate their bodies. GitHub Actions runs the same checks with public Ubuntu dependencies; it does not deliver example artifacts.
 
 ## Review limits
 
@@ -71,7 +70,6 @@ Repository-only maintenance commands; installed skills do not execute these tool
 
 ```sh
 python3 tools/export_native_examples.py
-python3 tools/sync_renderer.py
 export SOURCE_DATE_EPOCH=1767225600 FORCE_SOURCE_DATE=1
 python3 tests/render_matrix.py --output .local/new-structured-matrix
 python3 tests/native_matrix.py --output .local/new-native-matrix --structured-matrix .local/new-structured-matrix
@@ -79,4 +77,4 @@ python3 tests/configuration_matrix.py --output .local/new-configuration-matrix
 python3 tools/collect_example_outputs.py --matrix .local/new-structured-matrix --native-matrix .local/new-native-matrix --output .local/new-pdfs --previews .local/new-previews
 ```
 
-Inspect every final page, then overlay the `skills/` subtrees from `.local/new-pdfs/` and `.local/new-previews/` into the repository's `skills/`. Only six PDFs, six first-page previews and the two local manifests are staged. Sources and images stay beside them; skill-level references hold usage guidance and photo attribution, and each installed skill carries its license. Verify with `python3 tools/collect_example_outputs.py --check --output .`. Manifest paths are local to each installed examples folder; build tools remain repository-only. Exact byte reproduction requires the same TeX engine, packages, fonts and fixed clock.
+Inspect every final page, then overlay the `skills/` subtrees from `.local/new-pdfs/` and `.local/new-previews/` into the repository's `skills/`. Only six PDFs, six first-page previews and the two local manifests are staged. Sources remain beside their outputs; article images live once under the bilingual skill assets. Skill READMEs hold usage guidance, references hold photo attribution, and each skill carries its license. Verify with `python3 tools/collect_example_outputs.py --check --output .`. Example paths are local to their installed examples folder; renderer dependency hashes use paths relative to the named bilingual-pdf skill. Build tools remain repository-only. Exact byte reproduction requires the same TeX engine, packages, fonts and fixed clock.

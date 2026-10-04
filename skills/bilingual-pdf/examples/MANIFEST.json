@@ -1,50 +1,51 @@
 {
   "source_hashes": {
-    "en-ar/content.tex": "4fbfc2b515bef9182f9a25e5ae82a2041bf2894c87b27da3464b8254a032d531",
-    "en-ar/figure-route-image.png": "572945049ce9e9adbe3ef0aa2aeb592f8131a1b38b2f3b0ec0921890680d9767",
-    "en-ar/footpath.png": "c3b6eeb37ad61c3a0d52d4f710ee7698953e7ddc343c2e6c80397f3361112b43",
+    "en-ar/content.tex": "623616764c62082ead06176546e890d694a829e6653697fdc0506ebb14e09b5c",
     "en-ar/languages.tex": "dcb8d583ed1204a8a5892a6f21ea7b182316a3cd5b696146f90447c479fb2c85",
-    "en-ar/main.tex": "f8b1f9a1e8d0ff1aa797146c6f3f847262017a62b150899f89dbcf0fb0bc2b3b",
-    "en-ar/paralleltext.sty": "8304a5a30682f1d04f0e8a0c3871a44810b2174fcbab1ed90ae75b3585bf961c",
-    "en-ar/source.json": "5257b374d98294f50657aea5a0c8b9ee721b563d8555c857f2322042c10aab77",
-    "en-fr/content.tex": "f4c9a27277099825ac36cbaace5ed362e589fe867926386b2e64181a6553b749",
-    "en-fr/figure-route-image.png": "572945049ce9e9adbe3ef0aa2aeb592f8131a1b38b2f3b0ec0921890680d9767",
-    "en-fr/footpath.png": "c3b6eeb37ad61c3a0d52d4f710ee7698953e7ddc343c2e6c80397f3361112b43",
+    "en-ar/main.tex": "7bbd69766caf17da9d32d3ba1c9582eceb3e067c3d70c51be8a1182ea6f4a23a",
+    "en-ar/source.json": "e3560945b50eddef10b8271701ac604cda1d8c33fcbe0d34349303943edb7595",
+    "en-fr/content.tex": "57b868902912bf9629d74587986e2972aa07bce935547e1f30841a7cc501dafa",
     "en-fr/languages.tex": "ad93c3cd9feb213490ebb141670878306d0b028b861851da7494a0456f1c8f53",
-    "en-fr/main.tex": "f8b1f9a1e8d0ff1aa797146c6f3f847262017a62b150899f89dbcf0fb0bc2b3b",
-    "en-fr/paralleltext.sty": "8304a5a30682f1d04f0e8a0c3871a44810b2174fcbab1ed90ae75b3585bf961c",
-    "en-fr/source.json": "42ec794587be247b30e959fe0e39c4fb78735f21ab1b392f80b4f0878c1d0a3c",
-    "en-zh-Hans/content.tex": "253dc01e98be3972b192d7c86f33fad1470117fe00b5404d992d17d2c17c1e3d",
-    "en-zh-Hans/figure-route-image.png": "572945049ce9e9adbe3ef0aa2aeb592f8131a1b38b2f3b0ec0921890680d9767",
-    "en-zh-Hans/footpath.png": "c3b6eeb37ad61c3a0d52d4f710ee7698953e7ddc343c2e6c80397f3361112b43",
+    "en-fr/main.tex": "7bbd69766caf17da9d32d3ba1c9582eceb3e067c3d70c51be8a1182ea6f4a23a",
+    "en-fr/source.json": "510b2f29551c37e12cb2255ac4746f9cc78d25979623dc72964c22dee2230a10",
+    "en-zh-Hans/content.tex": "8e8e6467800e15ccec3575ab69af66292b89e8a2a579eb88559de50b75784c3f",
     "en-zh-Hans/languages.tex": "88a98765ccee16b529549e34d32e036bc67c51cf2133a360eee1840f1dba379d",
-    "en-zh-Hans/main.tex": "f8b1f9a1e8d0ff1aa797146c6f3f847262017a62b150899f89dbcf0fb0bc2b3b",
-    "en-zh-Hans/paralleltext.sty": "8304a5a30682f1d04f0e8a0c3871a44810b2174fcbab1ed90ae75b3585bf961c",
-    "en-zh-Hans/source.json": "e1f0aab9546a6d40f40016eb83c057007edd9c54f062bae2d368c232871a5cbd",
-    "zh-Hans-ja/content.tex": "e90f0876e54b6fefb27a1a8252f17b6e62443070337df30e12ddcfc2f6e98a96",
-    "zh-Hans-ja/figure-route-image.png": "572945049ce9e9adbe3ef0aa2aeb592f8131a1b38b2f3b0ec0921890680d9767",
-    "zh-Hans-ja/footpath.png": "c3b6eeb37ad61c3a0d52d4f710ee7698953e7ddc343c2e6c80397f3361112b43",
+    "en-zh-Hans/main.tex": "7bbd69766caf17da9d32d3ba1c9582eceb3e067c3d70c51be8a1182ea6f4a23a",
+    "en-zh-Hans/source.json": "6cc116c79835310b477b164ae9ac2229193b6492b1dd61e47aaedab6b17d6ab9",
+    "zh-Hans-ja/content.tex": "5212e708d20727f2c3f3b6f40750bd58a02de3445ba5ba7e636b2e9014f4c450",
     "zh-Hans-ja/languages.tex": "8914c2edd9372cdce368afda98587e9290c2d4364cc17cc568a47aba873d9e2f",
-    "zh-Hans-ja/main.tex": "f8b1f9a1e8d0ff1aa797146c6f3f847262017a62b150899f89dbcf0fb0bc2b3b",
-    "zh-Hans-ja/paralleltext.sty": "8304a5a30682f1d04f0e8a0c3871a44810b2174fcbab1ed90ae75b3585bf961c",
-    "zh-Hans-ja/source.json": "e23057f7a295941518c393ee160703cd47b8e30c9143043990f5110a91308542"
+    "zh-Hans-ja/main.tex": "7bbd69766caf17da9d32d3ba1c9582eceb3e067c3d70c51be8a1182ea6f4a23a",
+    "zh-Hans-ja/source.json": "3ebf7df290af6112afb5e483814f407aa5401cc2a22f2ea3b43bb78cbb0fef42"
+  },
+  "renderer_dependency": {
+    "skill": "bilingual-pdf",
+    "skill_relative_hashes": {
+      "scripts/bilingual_pdf.py": "23401470dbb1636a8a7a7b3f11cdfb13e6d7f67d3cb525233d32b97b575a3bb4",
+      "assets/paralleltext.sty": "2d7f23fc9f499d1cc94b9bb51c5502f95d3e9974377144a1867786e809eb949d",
+      "assets/footpath.png": "c3b6eeb37ad61c3a0d52d4f710ee7698953e7ddc343c2e6c80397f3361112b43",
+      "assets/route-en.png": "bf5c327a2b268808968ba2c2d5a33232551459f5f44699897c03b1b9e4c3eec4",
+      "assets/route-fr.png": "f9b13b693ba5b54a189fe379794cb400e582dc5dec17c72f9a831207f3ac826a",
+      "assets/route-zh-Hans.png": "1025c71576499607b3a7fea33f9bc915b183cfdec77bf2556f883697464d45ee",
+      "assets/route-ar.png": "09d4fe86c99fccaf23ea965d467006db07690b5ed32161b64f825284342ca2f8",
+      "assets/route-ja.png": "a6722ab89299c0214d9d1ae3066177face6aaff0b30f42c5f282c779311bdcd8"
+    }
   },
   "files": [
     {
       "path": "en-fr/output.pdf",
-      "sha256": "33b4c89093dc9b29e803925b2c21fac451e6e4fb480856b71224dd80cb3c206a"
+      "sha256": "591fc99e6270c6636f582c3c14740bc23f6f1b4b84d0b0eabdb0ae216d312f6e"
     },
     {
       "path": "en-zh-Hans/output.pdf",
-      "sha256": "7b21b9cb583394d2b6e858b48533fa519ee72a7a8001618f9a5cbd19ef0425e6"
+      "sha256": "a0becda8849327427aeaef12323519859e2c3785a116b3b66e4497b4892aa9ab"
     },
     {
       "path": "en-ar/output.pdf",
-      "sha256": "c73c425596d6364d1a642da56e30172d2dd31973bd107670f4824b74d3311591"
+      "sha256": "0f1dc28768b50590fa14057da754736c705d403d76204f74b178a3e608f737fd"
     },
     {
       "path": "zh-Hans-ja/output.pdf",
-      "sha256": "e5c05e506f551bcae413e8b0469cf185f0cc73e5fde696ca2ac57854ab3d2e84"
+      "sha256": "3a52fb32e854f28125082d0e4fdb45a79786d48334c035bd484ded1c219f8940"
     }
   ],
   "previews": [
@@ -65,5 +66,5 @@
       "sha256": "b649fea1ee7135379deb6ea0d1fe4b8798bf0630b7534c3d2bff81a8ff9a4d92"
     }
   ],
-  "regeneration": "See the repository tests/README.md. Sources and outputs are bundled in this skill; byte identity requires the same toolchain and fixed clock."
+  "regeneration": "See the repository tests/README.md. Example source paths are relative to this examples directory; renderer dependency paths are relative to the named installed skill. Byte identity requires the same toolchain and fixed clock."
 }

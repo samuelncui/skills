@@ -14,7 +14,10 @@ COURSE = COURSE_ROOT
 PDFS = {**{f'{ARTICLE_ROOT}/{name}/output.pdf': f'{name}-bilingual/document.pdf' for name in ARTICLES},
         f'{COURSE}/notes.pdf': 'native-course-example/notes.pdf',
         f'{COURSE}/quick-reference.pdf': 'native-course-example/quick-reference.pdf'}
-INPUTS = [f'{ARTICLE_ROOT}/{name}/source.json' for name in ARTICLES] + [f'{COURSE}/source.md', f'{COURSE}/source-map.json']
+ENGINE_ROOT = 'skills/bilingual-pdf'
+ENGINE_INPUTS = ['scripts/bilingual_pdf.py', 'assets/paralleltext.sty']
+ASSET_INPUTS = ['assets/footpath.png'] + ['assets/route-' + language + '.png' for language in ('en', 'fr', 'zh-Hans', 'ar', 'ja')]
+INPUTS = [f'{ARTICLE_ROOT}/{name}/source.json' for name in ARTICLES] + [f'{COURSE}/source.md', f'{COURSE}/source-map.json'] + [f'{ENGINE_ROOT}/{name}' for name in ENGINE_INPUTS + ASSET_INPUTS]
 PREVIEWS = {**{f'{ARTICLE_ROOT}/{name}/preview.png': (f'{name}-bilingual/document.pdf', 0) for name in ARTICLES},
             f'{COURSE}/notes-preview.png': ('native-course-example/notes.pdf', 0),
             f'{COURSE}/quick-reference-preview.png': ('native-course-example/quick-reference.pdf', 0)}
@@ -30,6 +33,11 @@ def bounded_file(base, relative):
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def renderer_hashes(source_root, example_root):
+    names = ENGINE_INPUTS + (ASSET_INPUTS if example_root == ARTICLE_ROOT else [])
+    return {name: digest(bounded_file(source_root / ENGINE_ROOT, name)) for name in names}
 
 
 def source_names(source_root, example_root):
@@ -70,9 +78,10 @@ def collect_examples(matrix, output, source_root=ROOT, native_matrix=None):
         base = source_root / example_root
         manifest = {
             'source_hashes': {name: digest(bounded_file(base, name)) for name in source_names(source_root, example_root)},
+            'renderer_dependency': {'skill': 'bilingual-pdf', 'skill_relative_hashes': renderer_hashes(source_root, example_root)},
             'files': [{**x, 'path': str(Path(x['path']).relative_to(example_root))} for x in records if x['path'].startswith(example_root + '/')],
             'previews': [],
-            'regeneration': 'See the repository tests/README.md. Sources and outputs are bundled in this skill; byte identity requires the same toolchain and fixed clock.'}
+            'regeneration': 'See the repository tests/README.md. Example source paths are relative to this examples directory; renderer dependency paths are relative to the named installed skill. Byte identity requires the same toolchain and fixed clock.'}
         (output / example_root / 'MANIFEST.json').write_text(json.dumps(manifest, indent=2) + '\n')
     return records
 
@@ -82,6 +91,8 @@ def check_examples(output, source_root=ROOT):
     for example_root in EXAMPLE_ROOTS:
         base = output / example_root
         manifest = json.loads((base / 'MANIFEST.json').read_text())
+        if manifest.get('renderer_dependency') != {'skill': 'bilingual-pdf', 'skill_relative_hashes': renderer_hashes(source_root, example_root)}:
+            raise ValueError('Renderer or shared assets changed; regenerate curated outputs')
         expected_pdfs = {str(Path(x).relative_to(example_root)) for x in PDFS if x.startswith(example_root + '/')}
         expected_previews = {str(Path(x).relative_to(example_root)) for x in PREVIEWS if x.startswith(example_root + '/')}
         if {x['path'] for x in manifest['files']} != expected_pdfs:

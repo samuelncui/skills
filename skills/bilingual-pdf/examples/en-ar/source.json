@@ -77,7 +77,11 @@
         "An invented route with four stopping points. The numbers identify places to pause; they do not indicate distance, time or accessibility.",
         "مسار تخيلي يضم أربع نقاط للتوقف. تحدد الأرقام مواضع الوقوف، ولا تدل على المسافة أو الوقت أو سهولة الوصول."
       ],
-      "image": "figure-route-image.png"
+      "image": [
+        "route-en.png",
+        "route-ar.png"
+      ],
+      "placement": "paired"
     },
     {
       "id": "steps",

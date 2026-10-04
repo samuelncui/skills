@@ -1,53 +1,42 @@
 ---
 name: course-guide-quick-reference
-description: Turn authorized courseware, textbooks or other learning sources into understandable notes and a companion keyword-and-concept Quick Reference. Use for creating or revising these paired learning tools, not document-format conversion alone.
+description: Turn authorized courseware, textbooks or other learning sources into understandable notes and a companion keyword-and-concept Quick Reference. Use for creating or revising these paired learning tools, not document-format conversion alone. Requires the installed bilingual-pdf skill for rendering.
 ---
 
 # Learning Notes and Quick Reference
 
-Create two complementary products: notes that teach, and a Quick Reference that helps a reader retrieve the right concept. The reusable workflow matters more than any particular subject or field list.
+Create notes that teach and a Quick Reference that retrieves the right concept. This skill owns the teaching workflow and collection adapter; `bilingual-pdf` owns all rendering and layout behavior.
 
-## Understand the source before summarizing
+## Resolve the required dependency
 
-Identify the audience, prerequisites, requested source scope, language editions and output needs. Read the actual slides/pages, including diagrams and worked examples. Preserve an existing useful manuscript rather than restarting it.
+Discover `bilingual-pdf` through the host's installed-skill listing and read its `SKILL.md`. Use the reported installation directory, never a hardcoded sibling path. Pass it as `--bilingual-skill` or `BILINGUAL_PDF_SKILL` for `scripts/course_documents.py`; the native example Makefile uses `BILINGUAL_PDF_SKILL` too. If absent, tell the user it must be installed through the host's supported process. Do not download or install it automatically.
 
-Create a compact source map: source locator → concept → planned notes section. Record missing explanations, conflicting claims and unreadable material. Separate what the source says from your own derived examples or explanations. Never invent a source page, attribution or conclusion to fill a gap. Use only material the user is authorized to process; publication of textbook excerpts or figures requires separate rights review.
+Read the [human guide](README.md) for build commands and the dependency's canonical references for native API, structured input, languages, configuration and acceptance. Resolve those references under that installed directory; do not recreate copies in this skill.
 
-## Author notes that teach
+## Understand and map the source
 
-Organize by the reader's learning dependencies, not necessarily the slide order. Explain the purpose, meaning, assumptions, mechanism and application that each concept actually needs. Work through calculations completely; use concrete examples for non-numerical material. Label limitations and pitfalls accurately. “Checks” should contain actionable validation, not every property of a topic.
+Establish audience, prerequisites, source scope, languages and output needs. Read actual slides/pages, including diagrams and worked examples; preserve an existing useful manuscript. Create a source map: exact source locator → concept → planned notes section and coverage status. Record gaps, conflicts and unreadable material. Distinguish source claims from derived explanation or original examples; never invent a locator or attribution. Use authorized material and review publication rights separately.
 
-Read [authoring](references/authoring.md) for source handling and concept design. There is no required number of courses, chapters or concepts, and no mandatory Meaning/Rule/Checks template for every entry. Preserve the requested scope; do not silently combine unrelated courses.
+## Author explanatory notes
 
-## Derive the keyword-and-concept Quick Reference
+Organize by learning dependencies rather than blindly following slide order. Explain each concept's purpose, meaning, assumptions, mechanism and application as needed. Work through calculations; make non-numerical examples concrete. Label limitations and pitfalls accurately. “Checks” should be actionable validation, not a list of properties.
 
-Give each concept one canonical entry. Use concise definitions, formulas, decision rules, procedures, examples or caveats as appropriate. Keep enough assumptions to make a shortcut usable; move extended teaching to the notes.
+Read [authoring](references/authoring.md). There is no fixed course count or mandatory Meaning/Rule/Checks structure. Preserve requested scope and do not combine unrelated courses silently.
 
-Provide lookup routes from the words a reader is likely to remember:
+## Derive findable lookup routes
 
-- **Canonical concept:** the substantive entry, with a stable label and a notes section/page pointer.
-- **Alias or acronym:** a redirect to that concept, not a second copy of its explanation.
-- **Secondary keyword/task:** an inverted lookup to one or more relevant concepts.
-- **Related concept:** a useful explicit cross-reference, not an arbitrary link added just to populate a field.
+Give each concept one canonical entry with a stable label and generated notes section/page pointer. Use concise definitions, formulas, decision rules, procedures, examples or caveats as appropriate. Keep the assumptions that make a shortcut valid.
 
-Choose a useful ordering and document it. If the lookup claims A–Z ordering, give every advertised alias/keyword its own findable position; grouping several words under only the first word is not a complete alphabetical lookup. Native LaTeX references must generate page numbers; never type page pointers by hand. Recheck every alias, keyword and notes link after pagination changes.
+- Aliases and acronyms redirect to the canonical concept.
+- Secondary keywords/tasks point to one or more concepts.
+- Related concepts receive meaningful explicit cross-references.
 
-## Produce portable documents
+State the ordering. Every advertised A–Z alias/keyword needs its own findable position; grouping several words under only the first is insufficient. Generate page numbers from native references, never by hand. Recheck lookup routes after pagination changes.
 
-Use the complete `assets/learning-starter/` project for ordinary `.tex` authoring, shared `paralleltext.sty`, and native `xr-hyper`/`hyperref` links. Build `notes.tex` before `quick-reference.tex`; the resulting `notes.pdf` and `quick-reference.pdf` stay together in one folder. Both documents may be bilingual, or export one selected side. The structured collection route is also available and uses the same paired template, not another layout engine.
+## Build and review
 
-For a worked source-to-deliverable pattern, read the [bundled three-concept example](references/examples.md): source map, full teaching notes and independently findable lookup routes, with both PDFs and all editable files together.
+Adapt the complete `examples/` learning project or use the collection contract in [rendering](references/rendering.md). Native LaTeX and structured input use the dependency's same package. Build notes before Quick Reference; keep the flat `notes.pdf` and `quick-reference.pdf` together. Either document may be bilingual or use one selected side.
 
-Read [rendering](references/rendering.md) for the actual commands, structured contract and executable examples; read [layout](references/layout.md) only when adapting the design. Resolve paths relative to this installed skill. The skill is self-contained and does not require the sibling bilingual skill.
+Compare notes with the source map, checking coverage, claims, units, assumptions, worked steps and language equivalence. Test realistic keyword/alias lookups and generated notes links. Render and inspect every final PDF page for pairing, figures, glyphs, clipping and references. Use independent review when warranted and available; otherwise disclose sequential review. Follow [review and delivery](references/review-release.md) at a depth appropriate to the assignment.
 
-## Check the result, not only the build
-
-Compare the notes with the source map for coverage and factual fidelity. Check units, assumptions, worked steps, definitions, language equivalence and unsupported claims. Then use the Quick Reference to answer realistic lookup questions; confirm that the links land at the promised explanation.
-
-Render and personally inspect every final PDF page for paired correspondence, readable figures/tables, glyphs, clipping and page references. Use an independent reviewer when the scope or risk warrants one and the environment permits it; otherwise disclose that review was sequential. Follow [review and delivery](references/review-release.md) for larger projects. A small sample does not require a full production-release process.
-
-Deliver the notes, Quick Reference, editable sources, source map and concise coverage/review limits. Do not claim the material is exam-complete or independently audited unless that was established. Native TeX is executable; `-no-shell-escape` is not a sandbox. Keep private sources and source locators out of public examples, and obtain applicable authorization before publishing or uploading.
-
-## Adjust the presentation only when needed
-
-The default style is usable without configuration. For a requested change, consult the [intent-to-option reference](references/configuration.md), add only the needed native setup keys or standard package commands, and rebuild and inspect all affected pages. Content, language/font mapping and presentation remain separate.
+Deliver both PDFs, portable editable sources, source map and concise coverage/review limits. Do not claim exam completeness or an independent audit without evidence. Native TeX executes code; disabled shell escape is not a sandbox. Keep private sources and locators out of public examples and obtain applicable authorization before publishing or uploading.

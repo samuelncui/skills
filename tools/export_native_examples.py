@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'skills/bilingual-pdf/scripts'))
-from bilingual_pdf import validate,tex_parts
+from bilingual_pdf import validate,tex_parts,figure_images,resolve_image
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--check',action='store_true')
 args=parser.parse_args()
@@ -18,15 +18,12 @@ for name in ('en-fr','en-zh-Hans','en-ar','zh-Hans-ja'):
     expected={}
     for block in data['blocks']:
         if block.get('kind')!='figure':continue
-        source=(directory/block['image']).resolve()
-        if not source.is_relative_to(directory.resolve()) or not source.is_file():
-            raise ValueError('Missing or out-of-project figure: '+block['image'])
-        # These are reviewed public source assets, not arbitrary user uploads.
-        # Runtime export separately strips image metadata in its fresh project.
-        relative=Path(block['image'])
-        images[block['id']]=relative.as_posix()
-        expected[relative.as_posix()]=source.read_bytes()
+        # Shared assets belong to the owning skill, not each language edition.
+        images[block['id']]=figure_images(block)
+        for image in images[block['id']]:
+            resolve_image(directory/'source.json',image,ROOT/'skills/bilingual-pdf/assets')
     main,locale,body=tex_parts(data,'bilingual',image_names=images)
+    main=main.replace(r'\usepackage{paralleltext}',r'\makeatletter\def\input@path{{../../assets/}}\makeatother'+'\n'+r'\usepackage{paralleltext}'+'\n'+r'\graphicspath{{../../assets/}}')
     expected.update({'main.tex':main.encode(),'languages.tex':locale.encode(),'content.tex':body.encode()})
     for filename,content in expected.items():
         target=directory/filename

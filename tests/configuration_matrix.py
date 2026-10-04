@@ -73,6 +73,8 @@ for name,setup,content,diagnostic in [
 # Full manuscript regressions preserve scripts and flow under asymmetric geometry.
 for pair in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja']:
  d=work/('bound-'+pair);shutil.copytree(work/'installed/examples'/pair,d,ignore=shutil.ignore_patterns('*.pdf','preview.png'))
+ for asset in (work/'installed/assets').iterdir():
+  if asset.suffix in ('.sty','.png'):shutil.copyfile(asset,d/asset.name)
  main=d/'main.tex';main.write_text(main.read_text().replace(r'\begin{document}',r'\ParallelSetup{profile=bound,divider-style={dash pattern=on 2pt off 1pt,line cap=round}}'+'\n'+r'\begin{document}'))
  cases.append(dict(name='bound-'+pair,project=d,error=None,paired=True,covers=False,margin=15))
 

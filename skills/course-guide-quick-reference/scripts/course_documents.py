@@ -1,10 +1,42 @@
 #!/usr/bin/env python3
 """Build a scoped Guide and alphabetically navigable companion Quick Reference."""
-import argparse,copy,json,re,subprocess,sys,shutil
+import argparse,copy,importlib.util,json,os,re,subprocess,sys,shutil
 from pathlib import Path
-from bilingual_pdf import InputError,validate,preflight,write_project,compile_project
 
 HERE=Path(__file__).resolve().parent
+class InputError(ValueError): pass
+_renderer=None
+
+def configure_renderer(skill_path=None):
+    """Use an explicitly discovered installed skill; never guess or download it."""
+    global _renderer
+    _renderer=None
+    value=skill_path or os.environ.get('BILINGUAL_PDF_SKILL')
+    if not value:
+        raise InputError('Install bilingual-pdf alongside this skill, then pass its installed directory with --bilingual-skill or BILINGUAL_PDF_SKILL. No dependency was downloaded.')
+    root=Path(value).expanduser().resolve()
+    required=[root/'SKILL.md',root/'scripts/bilingual_pdf.py',root/'assets/paralleltext.sty']
+    if any(not p.is_file() or not p.resolve().is_relative_to(root) for p in required):
+        raise InputError('Invalid bilingual-pdf skill directory: expected SKILL.md, scripts/bilingual_pdf.py and assets/paralleltext.sty')
+    if not re.search(r'^name:\s*bilingual-pdf\s*$',required[0].read_text(),re.M):
+        raise InputError('The selected dependency must be the bilingual-pdf skill')
+    spec=importlib.util.spec_from_file_location('_course_bilingual_pdf',required[1])
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    api=('InputError','validate','preflight','write_project','compile_project','figure_images','resolve_image')
+    if getattr(module,'RENDERER_API_VERSION',None)!=1 or any(not callable(getattr(module,name,None)) for name in api):
+        raise InputError('Incompatible bilingual-pdf renderer. Update both skills from the same repository revision (renderer API 1 required).')
+    _renderer=module
+    return root
+
+def renderer_call(name,*args,**kwargs):
+    if _renderer is None:configure_renderer()
+    try:return getattr(_renderer,name)(*args,**kwargs)
+    except _renderer.InputError as error:raise InputError(str(error)) from error
+
+def validate(*args,**kwargs):return renderer_call('validate',*args,**kwargs)
+def preflight(*args,**kwargs):return renderer_call('preflight',*args,**kwargs)
+def write_project(*args,**kwargs):return renderer_call('write_project',*args,**kwargs)
+def compile_project(*args,**kwargs):return renderer_call('compile_project',*args,**kwargs)
 
 def pair(value,name):
     if not isinstance(value,list) or len(value)!=2 or any(not isinstance(x,str) or not x.strip() for x in value):raise InputError(name+' requires two nonempty strings')
@@ -83,15 +115,21 @@ def build(input_path,output,mode,stem):
     if not result.get('ok'):raise RuntimeError(json.dumps(result))
     return result
 
-def stage_figures(guide,input_path,out,prefix="guide"):
+def stage_figures(guide,input_path,out,prefix="guide",asset_root=None):
     """Keep editable inputs portable without occupying reserved output folders."""
     for block in guide['blocks']:
         if block.get('kind')=='figure':
-            source=(input_path.resolve().parent/block['image']).resolve()
-            if not source.is_relative_to(input_path.resolve().parent):raise InputError('Figure escapes collection input directory')
-            relative=Path('input-assets')/prefix/(block['id']+source.suffix.lower())
-            target=out/relative;target.parent.mkdir(parents=True,exist_ok=True)
-            shutil.copyfile(source,target);block['image']=relative.as_posix()
+            staged=[]
+            images=renderer_call('figure_images',block)
+            for index,image in enumerate(images):
+                source=renderer_call('resolve_image',input_path,image,asset_root)
+                relative=Path('input-assets')/prefix/(Path(block['id'])/(('left' if index==0 else 'right')+source.suffix.lower()) if len(images)==2 else Path(block['id'])/('image'+source.suffix.lower()))
+                target=out/relative
+                if not target.resolve().is_relative_to(out.resolve()):raise InputError('Figure output escapes collection directory')
+                if target.exists() or target.is_symlink():raise InputError('Figure staging would overwrite an existing file')
+                target.parent.mkdir(parents=True,exist_ok=True)
+                shutil.copyfile(source,target);staged.append(relative.as_posix())
+            block['image']=staged if isinstance(block['image'],list) else staged[0]
 
 
 def unit_pages(aux):
@@ -133,13 +171,16 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('input',type=Path);parser.add_argument('--output',required=True,type=Path)
     parser.add_argument('--mode',choices=['bilingual','left','right'],default='bilingual')
+    parser.add_argument('--bilingual-skill',type=Path,help='Installed bilingual-pdf directory; defaults to BILINGUAL_PDF_SKILL')
+    parser.add_argument('--asset-root',type=Path,help='Bounded image directory (default: input directory)')
     args=parser.parse_args()
     try:
+        configure_renderer(args.bilingual_skill)
         data=json.loads(args.input.read_text());guide,quick,topics=prepare(data)
         out=args.output.resolve()
         if out.exists():raise InputError('Choose a new output directory')
         out.mkdir(parents=True)
-        stage_figures(guide,args.input,out,prefix='notes')
+        stage_figures(guide,args.input,out,prefix='notes',asset_root=args.asset_root)
         gi=out/'notes-input.json';gi.write_text(json.dumps(guide,ensure_ascii=False,indent=2)+'\n')
         gr=build(gi,out,args.mode,'notes')
         aux=(out/'notes.aux').read_text()
@@ -171,7 +212,7 @@ def main():
             quick['blocks'].append({'id':ident+'.guide','kind':'reference','target':'topic.'+t['id'],'file':'notes.pdf','page':page,'page_label':folios['topic.'+t['id']],'text':[labels['guide'][i]+': '+t['title'][i] for i in range(2)]})
             for index,target_id in enumerate(t.get('see_also',[]),1):
                 target=by_id[target_id];quick['blocks'].append({'id':ident+'.related-'+str(index),'kind':'reference','target':'entry.'+target_id,'text':[labels['see_also'][i]+': '+target['title'][i] for i in range(2)]})
-        validate(quick);stage_figures(quick,args.input,out,prefix='quick-reference');qi=out/'quick-reference-input.json';qi.write_text(json.dumps(quick,ensure_ascii=False,indent=2)+'\n')
+        validate(quick);stage_figures(quick,args.input,out,prefix='quick-reference',asset_root=args.asset_root);qi=out/'quick-reference-input.json';qi.write_text(json.dumps(quick,ensure_ascii=False,indent=2)+'\n')
         qr=build(qi,out,args.mode,'quick-reference')
         import pymupdf as fitz
         qpdf=fitz.open(out/'quick-reference.pdf');remote=[]

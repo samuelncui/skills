@@ -4,6 +4,7 @@ import argparse
 import concurrent.futures
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -23,6 +24,18 @@ for name in ('bilingual-pdf', 'course-guide-quick-reference'):
     shutil.copytree(ROOT/'skills'/name, work/name, ignore=shutil.ignore_patterns('__pycache__'))
 style = work/'bilingual-pdf/assets/paralleltext.sty'
 qa_script = work/'bilingual-pdf/scripts/bilingual_pdf.py'
+def stage_assets(project):
+    for asset in (work/'bilingual-pdf/assets').iterdir():
+        if asset.suffix in ('.sty','.png'):
+            shutil.copyfile(asset,project/asset.name)
+
+def minimal_project(project):
+    project.mkdir()
+    shutil.copyfile(style,project/'paralleltext.sty')
+    (project/'main.tex').write_text('\\documentclass[10pt,twoside]{article}\n\\usepackage{paralleltext}\n\\input{languages.tex}\n\\begin{document}\n\\input{content.tex}\n\\end{document}\n')
+    shutil.copyfile(work/'bilingual-pdf/examples/en-zh-Hans/languages.tex',project/'languages.tex')
+    (project/'content.tex').write_text(r'\ParallelText{first}{A minimal authored document.}{一个简单的原生文档。}')
+
 BUILD = ['latexmk', '-norc', '-xelatex', '-interaction=nonstopmode', '-halt-on-error', '-latexoption=-no-shell-escape']
 
 def check_pdf(path, paired=True, covers=False):
@@ -43,6 +56,12 @@ def run_build(case):
         return {'case': name, 'passed': False, 'compile_exit': proc.returncode, 'error': proc.stdout[-2500:]}
     code, report = check_pdf(project/'main.pdf', paired, covers)
     ok = code == (4 if expected == 'qa-error' else 0)
+    if name.startswith('installed-') and ok:
+        recorder=(project/'main.fls').read_text()
+        inputs=[(project/line[6:]).resolve() for line in recorder.splitlines() if line.startswith('INPUT ')]
+        report['installed_skill_assets_without_example_copies']=not (project/'paralleltext.sty').exists() and style.resolve() in inputs
+        report['no_source_checkout_inputs']=not any(path.is_relative_to(ROOT/'skills') for path in inputs)
+        ok=ok and report['installed_skill_assets_without_example_copies'] and report['no_source_checkout_inputs']
     if expected == 'qa-error': ok = ok and any(diagnostic in e for e in report['errors'])
     if name == 'labels-and-equations' and ok:
         aux = (project/'main.aux').read_text()
@@ -82,9 +101,10 @@ def run_build(case):
 
 cases = []
 for name in ('en-fr', 'en-zh-Hans', 'en-ar', 'zh-Hans-ja'):
+    cases.append(('installed-'+name,work/'bilingual-pdf/examples'/name,'ok','',True,False))
     project = work/('article-'+name)
     shutil.copytree(work/'bilingual-pdf/examples'/name, project, ignore=shutil.ignore_patterns('*.pdf', '*preview.png'))
-    shutil.copyfile(style, project/'paralleltext.sty')
+    stage_assets(project)
     cases.append(('article-'+name, project, 'ok', '', True, False))
 # Native helpers are exercised directly, with no JSON/Python renderer at build time.
 sys.path.insert(0,str(work/'bilingual-pdf/scripts'))
@@ -94,18 +114,18 @@ for name in ('en-fr','en-zh-Hans','en-ar','zh-Hans-ja'):
     passage=next(b['text'] for b in data['blocks'] if b['id']=='notebook-prose')
     title='\\ParallelTitle{'+escape(data['title'][0])+'}{'+escape(data['title'][1])+'}\n'
     for prefix in ('flow-','shared-photo-'):
-        project=work/(prefix+name);shutil.copytree(work/'bilingual-pdf/examples'/name,project);shutil.copyfile(style,project/'paralleltext.sty')
+        project=work/(prefix+name);shutil.copytree(work/'bilingual-pdf/examples'/name,project);stage_assets(project)
         if prefix=='flow-':
             body='\\ParallelProse{long-prose}{'+escape((passage[0]+' ')*18)+'}{'+escape((passage[1]+' ')*18)+'}\n\\ParallelText{after-flow}{'+escape(passage[0])+'}{'+escape(passage[1])+'}'
         else:
             captions={'en':'Shared photograph.','fr':'Photographie partagée.','zh-Hans':'共用照片。','ar':'صورة مشتركة.','ja':'共有写真。'}
-            (project/'images').mkdir(exist_ok=True);shutil.copyfile(work/'bilingual-pdf/examples/en-zh-Hans/footpath.png',project/'images/footpath.png')
+            (project/'images').mkdir(exist_ok=True);shutil.copyfile(work/'bilingual-pdf/assets/footpath.png',project/'images/footpath.png')
             body='\\ParallelWideFigure{photo}{images/footpath.png}{'+captions[data['languages'][0]]+'}{'+captions[data['languages'][1]]+'}\n\\ParallelText{after-photo}{'+escape(passage[0])+'}{'+escape(passage[1])+'}'
         (project/'content.tex').write_text(title+body+'\n')
         cases.append((prefix+name,project,'ok','',True,False))
 
 for name, body, expected, diagnostic, paired, covers in [
-    ('starter', None, 'ok', '', True, False),
+    ('minimal-authoring', None, 'ok', '', True, False),
     ('labels-and-equations', r'\ParallelText{foo}{First.}{第一段。}\ParallelText{foo-L}{Second.}{第二段。}\ParallelEquation{eq:first}{a+b=c}\ParallelEquation{eq:second}{x=y}\ParallelText{links}{\ParallelReference{foo}{First}; \ParallelReference{foo-L}{second}; equations \ref{eq:first}, \ref{eq:second}.}{\ParallelReference{foo}{第一段}；\ParallelReference{foo-L}{第二段}；公式 \ref{eq:first}、\ref{eq:second}。}', 'ok', '', True, False),
     ('duplicate-id', r'\ParallelText{same}{One.}{一。}\ParallelText{same}{Two.}{二。}', 'compile-error', 'Duplicate paired ID', True, False),
     ('reserved-id', r'\ParallelText{pt-internal:bad}{One.}{一。}', 'compile-error', 'Reserved paired ID namespace', True, False),
@@ -114,32 +134,35 @@ for name, body, expected, diagnostic, paired, covers in [
     ('right-booklet', r'\ParallelFrontCover{English cover}{中文封面}\ParallelText{one}{English body.}{中文正文。}\ParallelBackCover{English cover}{中文封底}', 'ok', '', False, True),
 ]:
     project = work/name
-    shutil.copytree(work/'bilingual-pdf/assets/starter', project)
+    minimal_project(project)
     if body is not None: (project/'content.tex').write_text(body+'\n')
     if name == 'right-booklet':
-        p = project/'languages.tex'; p.write_text(p.read_text().replace('{paired}', '{right}'))
+        p = project/'languages.tex'; p.write_text(p.read_text().replace('{paired}', '{right}').replace('mode=paired','mode=right'))
     cases.append((name, project, expected, diagnostic, paired, covers))
 # A shared numbered expression must also work in a native RTL language context.
 project = work/'arabic-equations'
-shutil.copytree(work/'bilingual-pdf/assets/starter', project)
+minimal_project(project)
 (project/'languages.tex').write_text((work/'bilingual-pdf/examples/en-ar/languages.tex').read_text())
 (project/'content.tex').write_text(r'\ParallelEquation{sum}{a+b=c}\ParallelText{explanation}{A shared equation.}{معادلة مشتركة.}'+'\n')
 cases.append(('arabic-equations', project, 'ok', '', True, False))
 with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
     results = list(pool.map(run_build, cases))
 
-for name, source in [('native-learning-starter',work/'course-guide-quick-reference/assets/learning-starter'),('native-course-example',work/'course-guide-quick-reference/examples')]:
+for name, source in [('native-learning-minimal',work/'course-guide-quick-reference/examples'),('native-course-example',work/'course-guide-quick-reference/examples')]:
     project = work/name
     shutil.copytree(source, project, ignore=shutil.ignore_patterns('*.pdf', '*preview.png'))
-    shutil.copyfile(style,project/'paralleltext.sty')
-    proc = subprocess.run(['make', 'LATEXMK='+' '.join(BUILD)], cwd=project, capture_output=True, text=True, timeout=240)
+    if name=='native-learning-minimal':
+        (project/'notes-content.tex').write_text(r'\ParallelTitle{Notes}{笔记}\ParallelSection{sample}{Speed}{速率}\ParallelText{body}{Distance divided by elapsed time.}{路程除以经过的时间。}')
+        (project/'quick-content.tex').write_text(r'\ParallelTitle{Quick reference}{速查表}\ParallelText{speed}{Speed: distance divided by time. See section~\ref{notes-sample}, page~\pageref{notes-sample}.}{速率：路程除以时间。见第~\ref{notes-sample}~节，第~\pageref{notes-sample}~页。}')
+    proc = subprocess.run(['make', 'LATEXMK='+' '.join(BUILD)], cwd=project, env={**os.environ,'BILINGUAL_PDF_SKILL':str(work/'bilingual-pdf')}, capture_output=True, text=True, timeout=240)
     (project/'build.stdout').write_text(proc.stdout+proc.stderr)
     reports = []
     if proc.returncode == 0:
         for part in ('notes', 'quick-reference'):
             code, result = check_pdf(project/(part+'.pdf'))
             reports.append({'part': part, 'qa_exit': code, 'result': result})
-    results.append({'case': name, 'passed': proc.returncode == 0 and all(x['qa_exit'] == 0 for x in reports), 'compile_exit': proc.returncode, 'documents': reports})
+    dependency_used=proc.returncode==0 and all(str(style) in (project/(part+'.fls')).read_text() for part in ('notes','quick-reference')) and not (project/'paralleltext.sty').exists()
+    results.append({'case': name, 'passed': proc.returncode == 0 and all(x['qa_exit'] == 0 for x in reports) and dependency_used, 'compile_exit': proc.returncode, 'documents': reports,'explicit_external_renderer_used':dependency_used})
 report = {'ok': all(x['passed'] for x in results), 'tests': results, 'visual_review': 'required', 'language_review': 'required'}
 (work/'matrix.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
 print(json.dumps({'ok': report['ok'], 'cases': len(results), 'failures': [x for x in results if not x['passed']]}, ensure_ascii=False))

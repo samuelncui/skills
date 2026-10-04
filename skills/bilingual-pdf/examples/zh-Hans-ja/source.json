@@ -77,7 +77,11 @@
         "虚构路线上的四个停留点。数字只标识停留位置，不代表距离、时间或无障碍条件。",
         "四つの立ち止まる場所を示した架空の道順です。数字は場所の目印であり、距離、所要時間、バリアフリー状況を示すものではありません。"
       ],
-      "image": "figure-route-image.png"
+      "image": [
+        "route-zh-Hans.png",
+        "route-ja.png"
+      ],
+      "placement": "paired"
     },
     {
       "id": "steps",
