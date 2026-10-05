@@ -18,6 +18,14 @@ Default for a small change: assess affected behavior and callers, state the sele
 
 A routine small change needs a short decision, not a testing-plan document. Honor explicit required checks even if expensive; report or resolve blockers rather than silently omitting them.
 
+## Reuse evidence across the whole iteration
+
+Before another run, check whether previous verification evidence still applies to the exact relevant source, dependencies, configuration, toolchain, environment, and fixtures. Invalidate only the affected scope; unknown identity or changed assumptions require fresh evidence or an explicit limitation. Keep the result and tested inputs together in existing project records, without building a separate tracking system.
+
+After a fix, rerun the failing checks and affected callers first. After a preparation/tool failure, resume the failed stage and its dependents; do not restart successful, still-valid stages. Choose one authoritative final full gate when required, usually the existing CI gate, rather than duplicating it locally without a distinct risk or mandated check. Label reused evidence separately from newly executed checks.
+
+Optimize the whole iteration's elapsed time, including preparation, waiting, execution, diagnosis, and rework. Before repeating benchmarks, state the unresolved question and stopping condition; do not repeat unchanged comparisons or keep polling/restarting work without a new reason. See the cost/performance reference for scope and evidence decisions.
+
 ## Maintain executable tests with the change
 
 - Reuse the project's runner and language: for example, Go testing, pytest/unittest, or an existing JavaScript runner. Add dependencies or a new framework only when the existing facilities leave a concrete gap. Use scripts for orchestration, not a second assertion framework.

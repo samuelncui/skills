@@ -13,6 +13,8 @@ Installez `testing-workflow` avec l'installateur de skills de votre environnemen
 
 Fournissez la modification ou le dépôt, les échecs connus, les contrôles obligatoires et les services exclus ou plafonds de coût. Vous obtiendrez une courte définition du périmètre, les tests exécutables nécessaires et un compte rendu distinguant réussite, échec, omission volontaire, blocage et absence d'exécution. La [procédure agent](SKILL.md) et la [référence coût et performance](references/cost-and-performance.md) détaillent la méthode.
 
+Au cours d'une itération, une vérification antérieure reste valable seulement si ses entrées et hypothèses pertinentes correspondent encore. Après une modification ou une interruption, reprenez les contrôles concernés ou l'étape en échec plutôt que tout recommencer. Conservez les validations finales obligatoires, évitez de dupliquer sans raison la même suite en local et en CI, et justifiez toute mesure de performance supplémentaire par une question non résolue et un critère d'arrêt. La référence coût et performance détaille ces choix.
+
 ## Essayer l'exemple
 
 Lisez le [normaliseur d'étiquettes](examples/tags.py) et ses [tests](examples/test_tags.py). Depuis le répertoire du skill installé, avec Python 3.11 ou ultérieur, sans paquet tiers, exécutez :

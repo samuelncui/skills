@@ -13,6 +13,8 @@ Installieren Sie `testing-workflow` mit dem Skill-Installer Ihrer Umgebung oder 
 
 Geben Sie die Änderung oder das Repository, bekannte Fehler, Pflichtprüfungen sowie ausgeschlossene Dienste oder Kostengrenzen an. Sie erhalten einen kurzen Prüfumfang, bei Bedarf gepflegte ausführbare Tests und einen Bericht, der bestandene, fehlgeschlagene, übersprungene, blockierte und nicht ausgeführte Prüfungen unterscheidet. Der [Agenten-Workflow](SKILL.md) und die [Referenz zu Kosten und Leistung](references/cost-and-performance.md) erläutern das Vorgehen.
 
+Innerhalb einer Iteration gelten frühere Prüfergebnisse nur weiter, solange die relevanten Eingaben und Annahmen übereinstimmen. Wiederholen Sie nach Änderungen oder Unterbrechungen nur betroffene Prüfungen oder fehlgeschlagene Schritte, statt alles neu zu starten. Behalten Sie verbindliche Abschlussprüfungen bei, vermeiden Sie unbegründete Doppelprüfungen lokal und in CI und benennen Sie vor weiteren Leistungsmessungen die offene Frage und das Abbruchkriterium. Einzelheiten stehen in der Referenz zu Kosten und Leistung.
+
 ## Beispiel ausführen
 
 Lesen Sie die [Tag-Normalisierung](examples/tags.py) und ihre [Tests](examples/test_tags.py). Führen Sie im Verzeichnis des installierten Skills mit Python 3.11 oder neuer folgenden Befehl aus. Zusätzliche Pakete sind nicht erforderlich.

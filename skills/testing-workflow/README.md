@@ -13,6 +13,8 @@ Install `testing-workflow` with your host's skill installer, or copy its complet
 
 Provide the change or repository, known failures, required checks, and any excluded services or cost limits. Expect a short verification scope, maintained executable tests where needed, and a report separating passed, failed, skipped, blocked, and unrun checks. The [agent workflow](SKILL.md) and [cost/performance reference](references/cost-and-performance.md) contain the detailed method.
 
+Across an iteration, previous verification evidence remains usable only while its relevant inputs and assumptions still match. After a change or interruption, refresh the affected checks or failed stages instead of restarting everything. Keep required final gates, avoid unjustified local/CI duplication, and explain further benchmark runs by an unresolved question and stopping condition. Details stay in the cost/performance reference.
+
 ## Try the example
 
 Read the [tag normalizer](examples/tags.py) and [tests](examples/test_tags.py). From this installed skill's directory, with Python 3.11+ and no third-party packages, run:
