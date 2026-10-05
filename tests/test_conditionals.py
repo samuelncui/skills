@@ -18,6 +18,8 @@ class ConditionalSkillInstallation(unittest.TestCase):
                 ROOT / "skills/write-if-statements", installed,
                 ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
             )
+            self.assertEqual((installed / "LICENSE").read_bytes(),
+                             (ROOT / "LICENSE").read_bytes())
             env = dict(os.environ)
             env.pop("PYTHONPATH", None)
             result = subprocess.run(
