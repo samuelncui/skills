@@ -7,6 +7,7 @@ Des compétences pour les documents bilingues, les supports d’apprentissage et
 - [bilingual-pdf](skills/bilingual-pdf/README.fr.md): Met en page des articles, rapports et supports bilingues côte à côte à partir de textes appariés.
 - [study-notes](skills/study-notes/README.fr.md): Transforme des sources pédagogiques en notes explicatives, aide-mémoire, index de mots-clés ou arbres de décision.
 - [testing-workflow](skills/testing-workflow/SKILL.md): Conçoit et exécute des tests automatisés et des benchmarks adaptés au coût et au risque des changements logiciels.
+- [write-if-statements](skills/write-if-statements/SKILL.md) : Écrire et relire des instructions if lisibles, puis refactoriser les conditions sans changer le comportement.
 
 ## Installation
 
@@ -16,6 +17,7 @@ Avec le [Skills CLI](https://github.com/vercel-labs/skills) ou un outil d’inst
 npx skills add samuelncui/skills --skill bilingual-pdf
 npx skills add samuelncui/skills --skill study-notes
 npx skills add samuelncui/skills --skill testing-workflow
+npx skills add samuelncui/skills --skill write-if-statements
 ```
 
 Installez les répertoires complets des compétences nécessaires avec les commandes ci-dessus ou la méthode prise en charge par votre hôte. `study-notes` nécessite aussi `bilingual-pdf` ; `testing-workflow` est indépendant. Les guides liés ci-dessus décrivent la configuration, l’utilisation et les exemples de chaque compétence.

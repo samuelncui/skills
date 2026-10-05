@@ -7,6 +7,7 @@ Skills für zweisprachige Dokumente, Lernmaterialien und kostenbewusste Software
 - [bilingual-pdf](skills/bilingual-pdf/README.de.md): Erstellt zweisprachige Artikel, Berichte und Handouts in parallelen Spalten aus zugeordneten Textpaaren.
 - [study-notes](skills/study-notes/README.de.md): Verwandelt Lernquellen in erklärende Notizen, Kurzreferenzen, Stichwortverzeichnisse oder Entscheidungsbäume.
 - [testing-workflow](skills/testing-workflow/SKILL.md): Entwirft und führt automatisierte Tests und Benchmarks passend zu Kosten und Risiken von Softwareänderungen aus.
+- [write-if-statements](skills/write-if-statements/SKILL.md): Lesbare if-Anweisungen schreiben und prüfen sowie Bedingungslogik ohne Verhaltensänderung refaktorieren.
 
 ## Installation
 
@@ -16,6 +17,7 @@ Mit der [Skills CLI](https://github.com/vercel-labs/skills) oder einem kompatibl
 npx skills add samuelncui/skills --skill bilingual-pdf
 npx skills add samuelncui/skills --skill study-notes
 npx skills add samuelncui/skills --skill testing-workflow
+npx skills add samuelncui/skills --skill write-if-statements
 ```
 
 Installieren Sie die vollständigen Verzeichnisse der benötigten Skills mit den obigen Befehlen oder einer vom Host unterstützten Methode. `study-notes` benötigt zusätzlich `bilingual-pdf`; `testing-workflow` ist unabhängig. Einrichtung, Verwendung und Beispiele finden Sie in den oben verlinkten Anleitungen der einzelnen Skills.

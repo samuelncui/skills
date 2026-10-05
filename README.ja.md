@@ -7,6 +7,7 @@
 - [bilingual-pdf](skills/bilingual-pdf/README.ja.md): 対応する文章から、左右対照の二言語記事・レポート・配布資料を作成します。
 - [study-notes](skills/study-notes/README.ja.md): 学習資料から解説ノート、クイックリファレンス、キーワード索引、決定木を作成します。
 - [testing-workflow](skills/testing-workflow/SKILL.md): ソフトウェアの変更に対し、コストとリスクを考慮した自動テストとベンチマークを設計・実行します。
+- [write-if-statements](skills/write-if-statements/SKILL.md)：読みやすい if 文の作成・レビューと、動作を保った条件分岐のリファクタリング。
 
 ## インストール
 
@@ -16,6 +17,7 @@
 npx skills add samuelncui/skills --skill bilingual-pdf
 npx skills add samuelncui/skills --skill study-notes
 npx skills add samuelncui/skills --skill testing-workflow
+npx skills add samuelncui/skills --skill write-if-statements
 ```
 
 上記のコマンド、またはホストが対応する方法で、必要なスキルのディレクトリ一式をインストールしてください。`study-notes` には `bilingual-pdf` も必要です。`testing-workflow` は独立して使えます。設定、使い方、サンプルは上記リンク先の各スキルのガイドを参照してください。
