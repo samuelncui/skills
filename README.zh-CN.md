@@ -7,7 +7,7 @@
 - [bilingual-pdf](skills/bilingual-pdf/README.zh-CN.md): 将配对文本排版为同页双栏的双语文章、报告或阅读材料。
 - [study-notes](skills/study-notes/README.zh-CN.md): 将学习来源整理为讲解型笔记、速查手册、关键词索引或决策树。
 - [testing-workflow](skills/testing-workflow/SKILL.md): 针对软件变更，设计并执行兼顾成本与风险的自动化测试和基准测试。
-- [write-if-statements](skills/write-if-statements/SKILL.md)：编写和审查易读的 if 语句，并在保持行为不变的前提下重构条件逻辑。
+- [write-if-statements](skills/write-if-statements/README.zh-CN.md)：编写和审查易读的 if 语句，并在保持行为不变的前提下重构条件逻辑。
 
 ## 安装
 

@@ -7,7 +7,7 @@ Des compétences pour les documents bilingues, les supports d’apprentissage et
 - [bilingual-pdf](skills/bilingual-pdf/README.fr.md): Met en page des articles, rapports et supports bilingues côte à côte à partir de textes appariés.
 - [study-notes](skills/study-notes/README.fr.md): Transforme des sources pédagogiques en notes explicatives, aide-mémoire, index de mots-clés ou arbres de décision.
 - [testing-workflow](skills/testing-workflow/SKILL.md): Conçoit et exécute des tests automatisés et des benchmarks adaptés au coût et au risque des changements logiciels.
-- [write-if-statements](skills/write-if-statements/SKILL.md) : Écrire et relire des instructions if lisibles, puis refactoriser les conditions sans changer le comportement.
+- [write-if-statements](skills/write-if-statements/README.fr.md) : Écrire et relire des instructions if lisibles, puis refactoriser les conditions sans changer le comportement.
 
 ## Installation
 

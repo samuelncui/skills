@@ -7,7 +7,7 @@ Skills für zweisprachige Dokumente, Lernmaterialien und kostenbewusste Software
 - [bilingual-pdf](skills/bilingual-pdf/README.de.md): Erstellt zweisprachige Artikel, Berichte und Handouts in parallelen Spalten aus zugeordneten Textpaaren.
 - [study-notes](skills/study-notes/README.de.md): Verwandelt Lernquellen in erklärende Notizen, Kurzreferenzen, Stichwortverzeichnisse oder Entscheidungsbäume.
 - [testing-workflow](skills/testing-workflow/SKILL.md): Entwirft und führt automatisierte Tests und Benchmarks passend zu Kosten und Risiken von Softwareänderungen aus.
-- [write-if-statements](skills/write-if-statements/SKILL.md): Lesbare if-Anweisungen schreiben und prüfen sowie Bedingungslogik ohne Verhaltensänderung refaktorieren.
+- [write-if-statements](skills/write-if-statements/README.de.md): Lesbare if-Anweisungen schreiben und prüfen sowie Bedingungslogik ohne Verhaltensänderung refaktorieren.
 
 ## Installation
 
