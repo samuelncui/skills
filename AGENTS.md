@@ -22,6 +22,8 @@ Keep defaults usable without setup. New visual behavior belongs in the canonical
 
 ## Documentation ownership
 
+Every skill, including a new one, must ship its own LICENSE and human README.md, README.zh-CN.md, README.ja.md, README.fr.md and README.de.md. Root catalog entries must link the matching human guide, never fall back to SKILL.md. Keep guides brief and link owned references/examples rather than duplicating them. Repository-specific requirements take precedence over generic skill-authoring minimalism. Before delivery, check the changed files against these requirements and distinguish structural test evidence from human content/language review.
+
 Keep the root README a concise catalog with install/dependency guidance. Each skill README is its human use/example guide; each SKILL.md is a concise agent workflow. Keep full rendering, language, configuration and safety references only in bilingual-pdf. Resolve cross-skill references through the host's installed-skill discovery, not relative sibling links. Use complete worked examples plus a minimal native reference snippet instead of maintaining parallel starter trees. Preserve native/structured parity, full configuration detail, RTL/CJK requirements and flowing-prose behavior when simplifying documentation.
 
 ## Automated verification and co-maintenance
