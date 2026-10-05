@@ -1,0 +1,38 @@
+\StudyDeclareQuestion{choose-goal}{What is the reader trying to do?}{读者想完成什么？}
+\StudyChoice{choose-goal}{A}{Understand an idea.}{理解一个概念。}{make-notes}
+\StudyChoice{choose-goal}{B}{Find something from a remembered word or task.}{根据记得的词语或任务查找内容。}{choose-lookup}
+\StudyChoice{choose-goal}{C}{Choose a method from known conditions.}{根据已知条件选择方法。}{make-tree}
+\StudyUnknown{choose-goal}{}{}{clarify-goal}
+
+\StudyDeclareQuestion{choose-lookup}{Does the reader need a compact answer or locations?}{读者需要简明答案，还是定位信息？}
+\StudyChoice{choose-lookup}{A}{A compact answer with direct lookup routes.}{带直接检索路径的简明答案。}{make-quick}
+\StudyChoice{choose-lookup}{B}{Only compact locations.}{只要紧凑的定位信息。}{make-index}
+\StudyUnknown{choose-lookup}{}{}{clarify-lookup}
+
+\StudyDeclareLeaf{make-notes}{Build explanatory notes}{制作解释性笔记}{
+ \ParallelParagraph{tree-method-notes}{Map the authorized source, explain the concept and show a worked application. Retain conditions and mark gaps. Select notes in the build; use the shared paragraph-flow option for long prose.}{映射获准使用的来源，解释概念并展示具体应用。保留条件并标记缺口。构建时选择 notes；长正文使用公共段落跨页选项。}
+}
+\StudyContinue{make-notes}{review-set}{Check the explanation and output.}{检查解释与产物。}
+\StudyDeclareLeaf{make-quick}{Build the unified Quick Reference}{制作统一速查}{
+ \ParallelParagraph{tree-method-quick}{Declare canonical entries and direct aliases/keyword targets in one registry. Group deliberate headword matches, preserve distinct senses and generate target pages. Select quick-reference; notes can be included when requested.}{在同一份记录中声明规范条目，以及直接的别名／关键词目标。合并明确属于同一词头的内容，保留不同含义，并生成目标页码。选择 quick-reference；需要时可同时包含笔记。}
+}
+\StudyContinue{make-quick}{review-set}{Try realistic remembered-word lookups.}{测试真实的记忆词检索。}
+\StudyDeclareLeaf{make-index}{Build the optional Keyword Index}{制作可选关键词索引}{
+ \ParallelParagraph{tree-method-index}{Use the same registry in compact mode. Keep canonical and subentry destinations. Select keyword-index only when the reader wants this separate pointer view; do not make it a second mandatory lookup location.}{以紧凑模式使用同一份记录，保留概念和子条目目标。只有读者需要独立定位视图时才选择 keyword-index，不要让它成为第二个必须查找的位置。}
+}
+\StudyContinue{make-index}{review-set}{Verify every pointer.}{核对所有定位。}
+\StudyDeclareLeaf{make-tree}{Build a question-to-method tree}{制作问题到方法的决策树}{
+ \ParallelParagraph{tree-method-tree}{Ask about observable conditions. Add alternatives, explicit unknown routes and useful method leaves. Mark conditional clarification returns and required continuations separately. Select decision-tree and test each path.}{询问可观察条件，添加不同选项、明确的未知路径和有用的方法叶节点。分别标记有条件的澄清返回与必需后续步骤。选择 decision-tree，并测试每条路径。}
+}
+\StudyContinue{make-tree}{review-set}{Exercise choices and return conditions.}{走通选项并核对返回条件。}
+
+\StudyDeclareClarification{clarify-goal}{Ask for one real reader task}{询问一个真实阅读任务}{
+ \ParallelParagraph{tree-clarify-goal}{Ask the reader to give an example of what they will try to understand, find or decide. Obtain that example before returning to the first question; do not guess the required form.}{请读者举例说明将尝试理解、查找或决定什么。取得这个例子后再返回第一个问题，不要猜测所需形式。}
+}{choose-goal}
+\StudyDeclareClarification{clarify-lookup}{Try one remembered-word lookup}{试一次记忆词检索}{
+ \ParallelParagraph{tree-clarify-lookup}{Ask what the reader expects after finding the word: a concise explanation, or only a location. Use that answer to return to the lookup question.}{询问读者找到这个词之后期待看到什么：简明解释，还是仅仅一个位置？根据回答返回检索问题。}
+}{choose-lookup}
+
+\StudyDeclareLeaf{review-set}{Review, then deliver selected forms}{复核后交付所选资料}{
+ \ParallelParagraph{tree-review}{Check source coverage, explanations, real lookup targets and decision paths separately. Inspect every final PDF page and its links. Deliver only selected forms with the source map and portable native project. Report any remaining limitations.}{分别检查来源覆盖、解释、真实检索目标和决策路径。查看全部最终 PDF 页面及其链接。只交付所选形式，并附来源映射和可移植原生项目。说明仍然存在的限制。}
+}

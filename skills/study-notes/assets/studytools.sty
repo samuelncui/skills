@@ -1,0 +1,412 @@
+\NeedsTeXFormat{LaTeX2e}[2022-06-01]
+\ProvidesPackage{studytools}[2026/10/05 Native study records and decision navigation]
+% A thin authoring layer. All layout, fonts and paired rendering belong to paralleltext.
+\RequirePackage{xr-hyper}
+\RequirePackage{paralleltext}
+\makeatletter
+\@ifundefined{ParallelTextAPIVersion}{\PackageError{studytools}{Compatible bilingual-pdf is required}{Install both skills from a matching revision; native renderer API 2 is required.}}{%
+ \ifnum\ParallelTextAPIVersion=2\relax\else\PackageError{studytools}{Unsupported native renderer API}{Install both skills from a matching revision; native renderer API 2 is required.}\fi}
+\makeatother
+\newcommand\StudyToolsAPIVersion{1}
+\newcommand\StudyPageLabelLeft{p.}
+\newcommand\StudyPageLabelRight{p.}
+\newcommand\StudyNotesLabelLeft{Notes}
+\newcommand\StudyNotesLabelRight{Notes}
+\newcommand\StudySectionLabelLeft{section}
+\newcommand\StudySectionLabelRight{section}
+\newcommand\StudyUnknownLabelLeft{Unknown / insufficient information}
+\newcommand\StudyUnknownLabelRight{Unknown / insufficient information}
+\newcommand\StudyReturnLabelLeft{After obtaining the missing information, return to}
+\newcommand\StudyReturnLabelRight{After obtaining the missing information, return to}
+\newcommand\StudyContinueLabelLeft{Required next step}
+\newcommand\StudyContinueLabelRight{Required next step}
+\newcommand\StudyLocalReferenceLeft[2]{#1 (\StudyPageLabelLeft~#2)}
+\newcommand\StudyLocalReferenceRight[2]{#1 (\StudyPageLabelRight~#2)}
+\newcommand\StudyNotesLocationLeft[3]{#1 \StudySectionLabelLeft~#2, \StudyPageLabelLeft~#3}
+\newcommand\StudyNotesLocationRight[3]{#1 \StudySectionLabelRight~#2, \StudyPageLabelRight~#3}
+\newif\ifStudyHasNotes\StudyHasNotesfalse
+\NewDocumentCommand\StudyNotesSource{m m}{%
+ \StudyDeclareNotesSource{notes}{\StudyNotesLabelLeft}{\StudyNotesLabelRight}{#1}{#2}}
+\ExplSyntaxOn
+\seq_new:N \g__study_records_seq
+\seq_new:N \g__study_subentries_seq
+\prop_new:N \g__study_kind_prop
+\prop_new:N \g__study_group_prop
+\prop_new:N \g__study_sort_prop
+\prop_new:N \g__study_left_prop
+\prop_new:N \g__study_right_prop
+\prop_new:N \g__study_notes_prop
+\prop_new:N \g__study_body_prop
+\prop_new:N \g__study_short_left_prop
+\prop_new:N \g__study_short_right_prop
+\prop_new:N \g__study_context_left_prop
+\prop_new:N \g__study_context_right_prop
+\prop_new:N \g__study_notes_source_prop
+\prop_new:N \g__study_docs_left_prop
+\prop_new:N \g__study_docs_right_prop
+\prop_new:N \g__study_parent_prop
+\prop_new:N \l__study_group_counts_prop
+\bool_new:N \l__study_first_in_group_bool
+\prop_new:N \g__study_group_sort_prop
+\tl_new:N \l__study_notes_source_tl
+\tl_new:N \l__study_doc_tl
+\tl_new:N \l__study_group_tl
+\tl_new:N \l__study_short_left_tl
+\tl_new:N \l__study_short_right_tl
+\bool_new:N \g__study_alphabet_bool
+\bool_new:N \l__study_skip_target_bool
+\cs_new_eq:NN \__study_saved_header_left:n \ParallelEntryHeaderLeft
+\cs_new_eq:NN \__study_saved_header_right:n \ParallelEntryHeaderRight
+\tl_new:N \l__study_context_left_tl
+\tl_new:N \l__study_context_right_tl
+\tl_new:N \l__study_current_group_tl
+\tl_new:N \l__study_current_record_tl
+\tl_new:N \l__study_kind_tl
+\tl_new:N \l__study_target_tl
+\int_new:N \l__study_row_int
+\seq_new:N \l__study_sorted_seq
+\bool_new:N \l__study_index_bool
+\cs_generate_variant:Nn \str_compare:nNnTF {eNe}
+\cs_generate_variant:Nn \str_if_eq:nnTF {ee}
+\cs_generate_variant:Nn \regex_match:nnTF {nV}
+\cs_new_protected:Npn \__study_error:nn #1#2
+ { \PackageError{studytools}{#1}{#2} }
+\cs_new_protected:Npn \__study_check_id:n #1
+ {
+  \regex_match:nnF {\A [A-Za-z] [-A-Za-z0-9._:]* \Z} {#1}
+   {\__study_error:nn {Invalid~study~ID:~#1}{Use~a~letter,~then~letters,~digits,~dot,~colon,~underscore~or~hyphen.}}
+  \prop_if_in:NnT \g__study_kind_prop {#1}
+   {\__study_error:nn {Duplicate~study~ID:~#1}{Every~concept,~subentry~and~route~needs~its~own~stable~ID.}}
+ }
+\keys_define:nn {study/record}
+ {
+  lookup .tl_set:N = \l__study_group_tl,
+  notes-source .tl_set:N = \l__study_notes_source_tl,
+  header-left .tl_set:N = \l__study_short_left_tl,
+  header-right .tl_set:N = \l__study_short_right_tl,
+  context-left .tl_set:N = \l__study_context_left_tl,
+  context-right .tl_set:N = \l__study_context_right_tl
+ }
+\keys_define:nn {study}
+ {
+  page-label-left .code:n = \renewcommand\StudyPageLabelLeft{#1},
+  page-label-right .code:n = \renewcommand\StudyPageLabelRight{#1},
+  notes-label-left .code:n = \renewcommand\StudyNotesLabelLeft{#1},
+  notes-label-right .code:n = \renewcommand\StudyNotesLabelRight{#1},
+  section-label-left .code:n = \renewcommand\StudySectionLabelLeft{#1},
+  section-label-right .code:n = \renewcommand\StudySectionLabelRight{#1},
+  unknown-label-left .code:n = \renewcommand\StudyUnknownLabelLeft{#1},
+  unknown-label-right .code:n = \renewcommand\StudyUnknownLabelRight{#1},
+  return-label-left .code:n = \renewcommand\StudyReturnLabelLeft{#1},
+  return-label-right .code:n = \renewcommand\StudyReturnLabelRight{#1},
+  continue-label-left .code:n = \renewcommand\StudyContinueLabelLeft{#1},
+  continue-label-right .code:n = \renewcommand\StudyContinueLabelRight{#1}
+ }
+\NewDocumentCommand \StudySetup {m} {\keys_set:nn {study}{#1}}
+\cs_new_protected:Npn \__study_record:nnnnnn #1#2#3#4#5#6
+ {
+  \__study_check_id:n {#2}
+  \tl_set:Nn \l__study_group_tl {#2}
+  \tl_set:Nn \l__study_notes_source_tl {notes}
+  \tl_set:Nn \l__study_short_left_tl {#4}
+  \tl_set:Nn \l__study_short_right_tl {#5}
+  \tl_clear:N \l__study_context_left_tl
+  \tl_clear:N \l__study_context_right_tl
+  \keys_set:nn {study/record}{#1}
+  \tl_if_blank:nT {#3}
+   {\__study_error:nn {Empty~sort~key~for~#2}{Supply~an~explicit~sort~key;~display~titles~are~not~parsed.}}
+  \prop_gput:NnV \g__study_group_prop {#2}\l__study_group_tl
+  \prop_gput:NnV \g__study_notes_source_prop {#2}\l__study_notes_source_tl
+  \prop_gput:NnV \g__study_short_left_prop {#2}\l__study_short_left_tl
+  \prop_gput:NnV \g__study_short_right_prop {#2}\l__study_short_right_tl
+  \prop_gput:Nnn \g__study_sort_prop {#2}{#3}
+  \prop_gput:Nnn \g__study_left_prop {#2}{#4}
+  \prop_gput:Nnn \g__study_right_prop {#2}{#5}
+  \prop_gput:Nnn \g__study_kind_prop {#2}{#6}
+  \prop_gput:NnV \g__study_context_left_prop {#2}\l__study_context_left_tl
+  \prop_gput:NnV \g__study_context_right_prop {#2}\l__study_context_right_tl
+  \prop_get:NVNTF \g__study_group_sort_prop \l__study_group_tl \l_tmpa_tl
+   {\tl_if_eq:VnF \l_tmpa_tl {#3}
+     {\__study_error:nn {Lookup~group~has~different~sort~keys}{Records~sharing~lookup=~must~use~one~identical~sort~key.}}}
+   {\prop_gput:NVn \g__study_group_sort_prop \l__study_group_tl {#3}}
+  \seq_gput_right:Nn \g__study_records_seq {#2}
+ }
+\NewDocumentCommand \StudyDeclareConcept {O{} m m m m m +m}
+ {
+  \__study_record:nnnnnn {#1}{#2}{#3}{#4}{#5}{concept}
+  \prop_gput:Nnn \g__study_notes_prop {#2}{#6}
+  \prop_gput:Nnn \g__study_body_prop {#2}{#7}
+ }
+\NewDocumentCommand \StudyDeclareRoute {O{} m m m m}
+ {
+  \__study_record:nnnnnn {#1}{#2}{#3}{#4}{#5}{route}
+  \seq_new:c {g__study_targets_#2_seq}
+ }
+\NewDocumentCommand \StudyRouteTarget {m m m m}
+ {
+  \prop_get:NnNTF \g__study_kind_prop {#1}\l_tmpa_tl
+   {
+    \str_if_eq:VnTF \l_tmpa_tl {route}
+     {\seq_gput_right:cn {g__study_targets_#1_seq}{{#2}{#3}{#4}}}
+     {\__study_error:nn {Target~owner~#1~is~not~a~route}{Use~StudyDeclareRoute~before~StudyRouteTarget.}}
+   }
+   {\__study_error:nn {Unknown~route~#1}{Declare~the~route~before~its~target~rows.}}
+ }
+\NewDocumentCommand \StudyDeclareAlias {O{} m m m m m}
+ {
+  \StudyDeclareRoute[#1]{#2}{#3}{#4}{#5}
+  \StudyRouteTarget{#2}{#6}{}{}
+ }
+\NewDocumentCommand \StudyDeclareSubentry {m m m m m}
+ {
+  \__study_check_id:n {#1}
+  \prop_gput:Nnn \g__study_kind_prop {#1}{subentry}
+  \prop_gput:Nnn \g__study_parent_prop {#1}{#2}
+  \prop_gput:Nnx \g__study_notes_source_prop {#1}{\prop_item:Nn\g__study_notes_source_prop{#2}}
+  \prop_gput:Nnn \g__study_left_prop {#1}{#3}
+  \prop_gput:Nnn \g__study_right_prop {#1}{#4}
+  \prop_gput:Nnn \g__study_notes_prop {#1}{#5}
+  \seq_gput_right:Nn \g__study_subentries_seq {#1}
+ }
+\cs_new_protected:Npn \__study_check_target:nnn #1#2#3
+ {
+  \prop_get:NnNTF \g__study_kind_prop {#1}\l_tmpa_tl
+   {
+    \str_if_eq:VnT \l_tmpa_tl {route}
+     {\__study_error:nn {Route~target~#1~is~another~route}{Target~a~canonical~concept~or~subentry;~alias~chains~are~not~allowed.}}
+   }
+   {\__study_error:nn {Unknown~study~target~#1}{Declare~the~canonical~concept~or~subentry~before~the~document~starts.}}
+ }
+\cs_new_protected:Npn \__study_validate:
+ {
+  \prop_clear:N\l__study_group_counts_prop
+  \seq_map_inline:Nn\g__study_records_seq
+   {\prop_get:NnN\g__study_kind_prop{##1}\l_tmpa_tl
+    \str_if_eq:VnT\l_tmpa_tl{concept}
+     {\prop_get:NnN\g__study_group_prop{##1}\l_tmpa_tl
+      \prop_get:NVNTF\l__study_group_counts_prop\l_tmpa_tl\l_tmpb_tl
+       {\prop_put:NVx\l__study_group_counts_prop\l_tmpa_tl{\int_eval:n{\l_tmpb_tl+1}}}
+       {\prop_put:NVn\l__study_group_counts_prop\l_tmpa_tl{1}}}}
+  \seq_map_inline:Nn\g__study_records_seq
+   {\prop_get:NnN\g__study_kind_prop{##1}\l_tmpa_tl
+    \str_if_eq:VnT\l_tmpa_tl{concept}
+     {\prop_get:NnN\g__study_group_prop{##1}\l_tmpa_tl
+      \prop_get:NVN\l__study_group_counts_prop\l_tmpa_tl\l_tmpb_tl
+      \int_compare:nNnT{\l_tmpb_tl}>{1}
+       {\prop_get:NnN\g__study_context_left_prop{##1}\l_tmpa_tl
+        \tl_if_blank:VT\l_tmpa_tl{\__study_error:nn{Missing~left~sense~label~for~##1}{Shared~lookup~groups~with~several~concepts~need~paired~context~labels.}}
+        \prop_get:NnN\g__study_context_right_prop{##1}\l_tmpa_tl
+        \tl_if_blank:VT\l_tmpa_tl{\__study_error:nn{Missing~right~sense~label~for~##1}{Shared~lookup~groups~with~several~concepts~need~paired~context~labels.}}}}}
+
+  \seq_map_inline:Nn \g__study_records_seq
+   {
+    \prop_get:NnN \g__study_kind_prop {##1}\l_tmpa_tl
+    \str_if_eq:VnT \l_tmpa_tl {route}
+     {
+      \seq_if_empty:cT {g__study_targets_##1_seq}
+       {\__study_error:nn {Route~##1~has~no~targets}{Add~at~least~one~StudyRouteTarget.}}
+      \seq_map_inline:cn {g__study_targets_##1_seq}{\__study_check_target:nnn ####1}
+     }
+   }
+  \seq_map_inline:Nn \g__study_subentries_seq
+   {
+    \prop_get:NnN \g__study_parent_prop {##1}\l_tmpa_tl
+    \prop_get:NVNTF \g__study_kind_prop \l_tmpa_tl \l_tmpb_tl
+     {\str_if_eq:VnF \l_tmpb_tl {concept}
+       {\__study_error:nn {Subentry~##1~has~a~non-concept~parent}{Use~a~canonical~concept~ID.}}}
+     {\__study_error:nn {Subentry~##1~has~an~unknown~parent}{Declare~its~canonical~concept.}}
+   }
+ }
+\AtBeginDocument{\__study_validate:}
+\cs_new:Npn \__study_title:nn #1#2
+ {\str_if_eq:nnTF{#2}{left}{\prop_item:Nn\g__study_left_prop{#1}}{\prop_item:Nn\g__study_right_prop{#1}}}
+\cs_new:Npn \__study_page_label:n #1
+ {\str_if_eq:nnTF{#1}{left}{\StudyPageLabelLeft}{\StudyPageLabelRight}}
+\cs_new:Npn \__study_notes_label:n #1
+ {\str_if_eq:nnTF{#1}{left}{\StudyNotesLabelLeft}{\StudyNotesLabelRight}}
+\cs_new:Npn \__study_section_label:n #1
+ {\str_if_eq:nnTF{#1}{left}{\StudySectionLabelLeft}{\StudySectionLabelRight}}
+\NewDocumentCommand \StudyDeclareNotesSource {m m m m m}
+ {
+  \prop_if_in:NnT \g__study_docs_left_prop {#1}
+   {\__study_error:nn {Duplicate~notes~source~#1}{Each~external~document~needs~a~unique~source~ID.}}
+  \prop_gput:Nnn \g__study_docs_left_prop {#1}{#2}
+  \prop_gput:Nnn \g__study_docs_right_prop {#1}{#3}
+  \externaldocument[study-notes-#1-]{#4}[#5]
+  \StudyHasNotestrue
+ }
+\cs_new_protected:Npn \__study_notes:nn #1#2
+ {
+  \prop_get:NnNT \g__study_notes_source_prop {#1}\l__study_doc_tl
+   {
+    \prop_if_in:NVTF \g__study_docs_left_prop \l__study_doc_tl
+     {
+      \prop_get:NnNT \g__study_notes_prop {#1}\l_tmpa_tl
+       {
+        \tl_if_blank:VF \l_tmpa_tl
+         {
+          \hyperref[study-notes-\l__study_doc_tl-\l_tmpa_tl]
+           {\str_if_eq:nnTF{#2}{left}
+             {\StudyNotesLocationLeft{\prop_item:NV\g__study_docs_left_prop\l__study_doc_tl}{\ref*{study-notes-\l__study_doc_tl-\l_tmpa_tl}}{\pageref*{study-notes-\l__study_doc_tl-\l_tmpa_tl}}}
+             {\StudyNotesLocationRight{\prop_item:NV\g__study_docs_right_prop\l__study_doc_tl}{\ref*{study-notes-\l__study_doc_tl-\l_tmpa_tl}}{\pageref*{study-notes-\l__study_doc_tl-\l_tmpa_tl}}}}
+         }
+       }
+     }{}
+   }
+ }
+\cs_new:Npn \__study_concept_title:nn #1#2
+ {
+  \__study_title:nn{#1}{#2}
+  \str_if_eq:nnTF{#2}{left}
+   {\exp_args:Ne\tl_if_blank:nF{\prop_item:Nn\g__study_context_left_prop{#1}}{~(\prop_item:Nn\g__study_context_left_prop{#1})}}
+   {\exp_args:Ne\tl_if_blank:nF{\prop_item:Nn\g__study_context_right_prop{#1}}{~(\prop_item:Nn\g__study_context_right_prop{#1})}}
+ }
+\cs_new:Npn \__study_target_title:nn #1#2
+ {
+  \prop_if_in:NnTF\g__study_parent_prop{#1}
+   {\exp_args:Ne\__study_concept_title:nn{\prop_item:Nn\g__study_parent_prop{#1}}{#2}:~\__study_title:nn{#1}{#2}}
+   {\__study_concept_title:nn{#1}{#2}}
+ }
+\cs_new_protected:Npn \__study_link:nn #1#2
+ {
+  \hyperref[study:#1]
+   {\str_if_eq:nnTF{#2}{left}
+     {\StudyLocalReferenceLeft{\__study_target_title:nn{#1}{#2}}{\pageref*{study:#1}}}
+     {\StudyLocalReferenceRight{\__study_target_title:nn{#1}{#2}}{\pageref*{study:#1}}}}
+ }
+\NewDocumentCommand \StudyReference {m}
+ {\ParallelLocalize{\__study_link:nn{#1}{left}}{\__study_link:nn{#1}{right}}}
+\NewDocumentCommand \StudyNotesReference {m}
+ {\ParallelLocalize{\__study_notes:nn{#1}{left}}{\__study_notes:nn{#1}{right}}}
+\NewDocumentCommand \StudySubentry {m +m}
+ {
+  \ParallelSubsection*{study:#1}{\__study_title:nn{#1}{left}}{\__study_title:nn{#1}{right}}
+  #2
+ }
+\cs_new_protected:Npn \__study_target_row:nnn #1#2#3
+ {
+  \bool_set_false:N\l__study_skip_target_bool
+  \tl_if_blank:nT{#2#3}
+   {\prop_get:NnNT\g__study_group_prop{#1}\l_tmpa_tl
+     {\prop_get:NVN\g__study_group_prop\l__study_current_record_tl\l_tmpb_tl
+      \tl_if_eq:NNT\l_tmpa_tl\l_tmpb_tl{\bool_set_true:N\l__study_skip_target_bool}}}
+  \bool_if:NF\l__study_skip_target_bool
+   {
+  \int_incr:N \l__study_row_int
+  \exp_args:Nx \ParallelText{study-route:\tl_use:N \l__study_current_record_tl :\int_use:N\l__study_row_int}
+   {
+    \tl_if_blank:nF{#2}{\textbf{#2}:~}
+    \__study_link:nn{#1}{left}
+    \ifStudyHasNotes\par\__study_notes:nn{#1}{left}\fi
+   }
+   {
+    \tl_if_blank:nF{#3}{\textbf{#3}:~}
+    \__study_link:nn{#1}{right}
+    \ifStudyHasNotes\par\__study_notes:nn{#1}{right}\fi
+   }
+   }
+ }
+\NewDocumentCommand \StudyAlphabetNavigation {}
+ {
+  \bool_if:NTF\g__study_alphabet_bool
+   {\__study_error:nn{Alphabet~navigation~already~declared}{Call~StudyAlphabetNavigation~once~in~the~preamble.}}
+   {\bool_gset_true:N\g__study_alphabet_bool
+    \int_zero:N\l_tmpa_int
+    \clist_map_inline:nn{A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z}
+     {\int_incr:N\l_tmpa_int
+      \use:x{\exp_not:N\ParallelDeclareNavigation{study-alpha-##1}{\int_use:N\l_tmpa_int}{##1}}}}
+ }
+\NewDocumentCommand \StudyLookupGroupHook {m m m} {}
+\cs_new_protected:Npn \__study_render_record:n #1
+ {
+  \tl_set:Nn \l__study_current_record_tl {#1}
+  \renewcommand\ParallelEntryHeaderLeft[1]{\prop_item:Nn\g__study_short_left_prop{#1}}
+  \renewcommand\ParallelEntryHeaderRight[1]{\prop_item:Nn\g__study_short_right_prop{#1}}
+  \prop_get:NnN \g__study_group_prop {#1}\l__study_group_tl
+  \prop_get:NnN \g__study_kind_prop {#1}\l__study_kind_tl
+  \tl_if_eq:NNTF \l__study_group_tl \l__study_current_group_tl
+   {\bool_set_false:N\l__study_first_in_group_bool
+    \str_if_eq:VnT \l__study_kind_tl {concept}
+     {
+      \ParallelSubsection*{study:#1}
+       {\prop_item:Nn\g__study_context_left_prop{#1}}
+       {\prop_item:Nn\g__study_context_right_prop{#1}}
+     }
+   }
+   {
+    \bool_set_true:N\l__study_first_in_group_bool
+    \tl_set_eq:NN \l__study_current_group_tl \l__study_group_tl
+    \bool_if:NT\g__study_alphabet_bool
+     {\tl_set:Nx\l_tmpa_tl{\prop_item:Nn\g__study_sort_prop{#1}}
+      \tl_set:Nx\l_tmpb_tl{\str_uppercase:f{\tl_head:V\l_tmpa_tl}}
+      \regex_match:nVTF{\A[A-Z]\Z}\l_tmpb_tl
+       {\use:x{\exp_not:N\ParallelNavigation{study-alpha-\l_tmpb_tl}}}{\ParallelEndNavigation}}
+    \StudyLookupGroupHook{#1}{\prop_item:Nn\g__study_group_prop{#1}}{\prop_item:Nn\g__study_sort_prop{#1}}
+    \ParallelEntry{study:#1}{\__study_title:nn{#1}{left}}{\__study_title:nn{#1}{right}}
+   }
+  \str_if_eq:VnTF \l__study_kind_tl {concept}
+   {
+    \bool_if:NT\l__study_first_in_group_bool
+     {\prop_get:NnN\g__study_context_left_prop{#1}\l_tmpa_tl
+      \tl_if_blank:VF\l_tmpa_tl
+       {\ParallelText{study-context:#1}{\prop_item:Nn\g__study_context_left_prop{#1}}{\prop_item:Nn\g__study_context_right_prop{#1}}}}
+    \bool_if:NTF \l__study_index_bool
+     {\seq_map_inline:Nn\g__study_subentries_seq
+       {\prop_get:NnN\g__study_parent_prop{##1}\l_tmpa_tl
+        \tl_if_eq:VnT\l_tmpa_tl{#1}
+         {\ParallelSubsection*{study:##1}{\__study_title:nn{##1}{left}}{\__study_title:nn{##1}{right}}
+          \ifStudyHasNotes\ParallelText{study-notes-row:##1}{\__study_notes:nn{##1}{left}}{\__study_notes:nn{##1}{right}}\fi}}}
+     {\prop_item:Nn\g__study_body_prop{#1}}
+    \ifStudyHasNotes
+     \ParallelText{study-notes-row:#1}{\__study_notes:nn{#1}{left}}{\__study_notes:nn{#1}{right}}
+    \fi
+   }
+   {
+    \int_zero:N \l__study_row_int
+    \seq_map_inline:cn {g__study_targets_#1_seq}{\__study_target_row:nnn ##1}
+   }
+ }
+% Compare each field separately: a delimiter-joined key misorders prefix strings.
+\cs_new_protected:Npn \__study_compare_ids:nn #1#2
+ {\str_compare:nNnTF{#1}>{#2}{\sort_return_swapped:}{\sort_return_same:}}
+\cs_new_protected:Npn \__study_compare_kind:nn #1#2
+ {\str_if_eq:eeTF{\prop_item:Nn\g__study_kind_prop{#1}}{\prop_item:Nn\g__study_kind_prop{#2}}
+   {\__study_compare_ids:nn{#1}{#2}}
+   {\str_compare:eNeTF{\prop_item:Nn\g__study_kind_prop{#1}}>{\prop_item:Nn\g__study_kind_prop{#2}}{\sort_return_swapped:}{\sort_return_same:}}}
+\cs_new_protected:Npn \__study_compare_group:nn #1#2
+ {\str_if_eq:eeTF{\prop_item:Nn\g__study_group_prop{#1}}{\prop_item:Nn\g__study_group_prop{#2}}
+   {\__study_compare_kind:nn{#1}{#2}}
+   {\str_compare:eNeTF{\prop_item:Nn\g__study_group_prop{#1}}>{\prop_item:Nn\g__study_group_prop{#2}}{\sort_return_swapped:}{\sort_return_same:}}}
+\cs_new_protected:Npn \__study_compare:nn #1#2
+ {\str_if_eq:eeTF{\prop_item:Nn\g__study_sort_prop{#1}}{\prop_item:Nn\g__study_sort_prop{#2}}
+   {\__study_compare_group:nn{#1}{#2}}
+   {\str_compare:eNeTF{\prop_item:Nn\g__study_sort_prop{#1}}>{\prop_item:Nn\g__study_sort_prop{#2}}{\sort_return_swapped:}{\sort_return_same:}}}
+\cs_new_protected:Npn \__study_print:n #1
+ {
+  \str_if_eq:nnTF{#1}{index}{\bool_set_true:N\l__study_index_bool}{\bool_set_false:N\l__study_index_bool}
+  \cs_set_eq:NN\__study_saved_header_left:n\ParallelEntryHeaderLeft
+  \cs_set_eq:NN\__study_saved_header_right:n\ParallelEntryHeaderRight
+  \seq_set_eq:NN \l__study_sorted_seq \g__study_records_seq
+  \seq_sort:Nn \l__study_sorted_seq {\__study_compare:nn{##1}{##2}}
+  \tl_clear:N \l__study_current_group_tl
+  \seq_map_inline:Nn \l__study_sorted_seq {\__study_render_record:n{##1}}
+  \ParallelEndEntry\ParallelEndNavigation
+  \cs_set_eq:NN\ParallelEntryHeaderLeft\__study_saved_header_left:n
+  \cs_set_eq:NN\ParallelEntryHeaderRight\__study_saved_header_right:n
+ }
+\NewDocumentCommand \StudyPrintQuickReference {}{\__study_print:n{quick}}
+\NewDocumentCommand \StudyPrintKeywordIndex {}{\__study_print:n{index}}
+\ExplSyntaxOff
+\input{study-tree.tex}
+\makeatletter
+\@onlypreamble\StudySetup
+\@onlypreamble\StudyAlphabetNavigation
+\@onlypreamble\StudyNotesSource
+\@onlypreamble\StudyDeclareNotesSource
+\@onlypreamble\StudyDeclareConcept
+\@onlypreamble\StudyDeclareRoute
+\@onlypreamble\StudyDeclareAlias
+\@onlypreamble\StudyDeclareSubentry
+\@onlypreamble\StudyRouteTarget
+\makeatother
+\endinput

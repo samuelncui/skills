@@ -1,5 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}[2022-06-01]
 \ProvidesPackage{paralleltext}[2026/10/03 Semantic paired text for XeLaTeX]
+\newcommand\ParallelTextAPIVersion{2}
 % Shared design only. Manuscripts and language/font choices live in .tex files.
 \RequirePackage{iftex}
 \ifXeTeX\else\PackageError{paralleltext}{XeLaTeX is required}{Compile with latexmk -xelatex.}\fi
@@ -31,6 +32,8 @@
  \renewcommand\ParallelMode{#1}}
 \newcommand\ParallelBodySize{9}
 \newcommand\ParallelBodyLeading{10.8}
+\newcommand\ParallelParagraphFlow{keep}
+\newcommand\ParallelParagraphEmergencyStretch{\linewidth}
 \newcommand\ParallelColumnGap{6mm}
 \newcommand\ParallelTitleLeft{}
 \newcommand\ParallelTitleRight{}
@@ -70,6 +73,13 @@
 \newcommand\ParallelEntryStyle{\ParallelHeadingFont\color{\ParallelStructureColor}\fontsize{11}{13.2}\selectfont}
 \newcommand\ParallelDiagramStyle{\fontsize{8}{10}\selectfont}
 \newcommand\ParallelHeaderStyle{\sffamily\fontsize{7}{8}\selectfont}
+\newcommand\ParallelEntryHeaderLeft[1]{#1}
+\newcommand\ParallelEntryHeaderRight[1]{#1}
+\newcommand\ParallelEntryHeaderWidth{.46\headwidth}
+\newcommand\ParallelEntryHeaderMaxLines{2}
+\newcommand\ParallelEntryContinuationLeft{}
+\newcommand\ParallelEntryContinuationRight{}
+\newsavebox\PTEntryHeaderBox
 \newcommand\ParallelFooterStyle{\sffamily\fontsize{7}{8}\selectfont}
 \newcommand\ParallelPageNumberStyle{\MarkerFont\fontsize{8}{9.6}\selectfont}
 \newcommand\ParallelPageNumberFormat{\thepage}
@@ -84,6 +94,8 @@
 \newcommand\ParallelCoverTop{20mm}
 \newcommand\ParallelCoverGap{10mm}
 \newcommand\ParallelCoverBottom{}
+\newcommand\ParallelDocumentVersion{}
+\newcommand\ParallelDocumentStatus{}
 \newcommand\ParallelPageReferencePrefix{p.\,}
 \newcommand\ParallelDividerColor{black!35}
 \newcommand\ParallelDividerWidth{.3pt}
@@ -144,6 +156,7 @@
  \ifdim\ParallelTabHeight>0pt\else\PackageError{paralleltext}{Tab height must be positive}{Use a positive tab-height.}\fi
  \ifdim\ParallelTabStep>0pt\else\PackageError{paralleltext}{Tab step must be positive}{Use a positive tab-step.}\fi
 
+ \ifdim\ParallelParagraphEmergencyStretch<0pt\PackageError{paralleltext}{Paragraph emergency stretch must not be negative}{Use a nonnegative length for paragraph-emergency-stretch.}\fi
  \ifdim\ParallelColumnGap<0pt\PackageError{paralleltext}{Column gap must not be negative}{Set column-gap to a nonnegative length.}\fi
  \ifdim\ParallelBodySize pt>0pt\else\PackageError{paralleltext}{Body size must be positive}{Set body-size in points.}\fi
  \ifdim\ParallelBodyLeading pt<\ParallelBodySize pt\PackageError{paralleltext}{Body leading is smaller than body size}{Choose readable line spacing.}\fi
@@ -164,10 +177,12 @@
  right-language.store = \ParallelRightLanguage,
  body-size.store = \ParallelBodySize,
  body-leading.store = \ParallelBodyLeading,
+ paragraph-flow.choices:nn = {keep,breakable}{\renewcommand\ParallelParagraphFlow{#1}},
  column-gap.store = \ParallelColumnGap,
  pair-gap.code = \setlength\PTGap{#1},
  paragraph-skip.code = \renewcommand\PTParagraphSkip{#1}\setlength\parskip{#1},
  paragraph-indent.code = \renewcommand\PTParagraphIndent{#1}\setlength\parindent{#1},
+ paragraph-emergency-stretch.store = \ParallelParagraphEmergencyStretch,
  minimum-column-width.store = \ParallelMinimumColumnWidth,
  heading-font.store = \ParallelHeadingFont,
  title-style.store = \ParallelTitleStyle,
@@ -187,6 +202,10 @@
  footer-left.store = \ParallelFooterLeft,
  footer-right.store = \ParallelFooterRight,
  header-style.store = \ParallelHeaderStyle,
+ entry-header-width.store = \ParallelEntryHeaderWidth,
+ entry-header-max-lines.store = \ParallelEntryHeaderMaxLines,
+ entry-continuation-left.store = \ParallelEntryContinuationLeft,
+ entry-continuation-right.store = \ParallelEntryContinuationRight,
  footer-style.store = \ParallelFooterStyle,
  page-number-style.store = \ParallelPageNumberStyle,
  page-number-format.store = \ParallelPageNumberFormat,
@@ -202,6 +221,8 @@
  cover-top.store = \ParallelCoverTop,
  cover-gap.store = \ParallelCoverGap,
  cover-bottom.store = \ParallelCoverBottom,
+ document-version.store = \ParallelDocumentVersion,
+ document-status.store = \ParallelDocumentStatus,
  blank-verso.if = PTBlankVerso,
  blank-inside-back.if = PTBlankInsideBack,
  back-parity.choices:nn = {even,odd,any}{\renewcommand\ParallelBackParity{#1}},
@@ -290,7 +311,7 @@
 \newcommand\PTRecord[1]{\protected@write\@auxout{}{\string\PairMeasure{#1}{\number\PTWidth}{\number\PTHeight}}}
 \newcommand\PTLanguage[1]{%
  \normalfont\selectlanguage{#1}\fontsize{\ParallelBodySize}{\ParallelBodyLeading}\selectfont\color{\ParallelBodyColor}%
- \PTLegacyCJKLinebreaks\setlength\emergencystretch{1em}\clubpenalty=10000\widowpenalty=10000%
+ \PTLegacyCJKLinebreaks\setlength\emergencystretch{\ParallelParagraphEmergencyStretch}\clubpenalty=10000\widowpenalty=10000%
  \@ifundefined{if@RTL}{\RaggedRight}{\if@RTL\RaggedLeft\else\RaggedRight\fi}%
  \ifdefempty{\PTParagraphSkip}{}{\setlength\parskip{\PTParagraphSkip}}%
  \ifdefempty{\PTParagraphIndent}{}{\setlength\parindent{\PTParagraphIndent}}}
@@ -347,6 +368,17 @@
   \phantomsection\PTRecordPhysical{#1}\hypertarget{#1}{}\label{#1}%
   \ifdefstring{\ParallelMode}{right}{#3}{#2}\par\PTRecordFurniture\endgroup
  }\par\addvspace{\PTGap}}
+% General paragraphs inherit the global choice; explicit Text/Prose remain overrides.
+\DeclareKeys[parallelparagraph]{
+ flow.choices:nn = {default,keep,breakable}{%
+  \def\PTParagraphChoice{#1}%
+  \ifdefstring{\PTParagraphChoice}{default}{\edef\PTParagraphChoice{\ParallelParagraphFlow}}{}}
+}
+\NewDocumentCommand\ParallelParagraph{O{} m +m +m}{%
+ \begingroup\edef\PTParagraphChoice{\ParallelParagraphFlow}%
+ \SetKeys[parallelparagraph]{#1}%
+ % End the option scope before rendering: heading/flow lifecycle changes must persist.
+ \ifdefstring{\PTParagraphChoice}{breakable}{\endgroup\ParallelProse{#2}{#3}{#4}}{\endgroup\ParallelText{#2}{#3}{#4}}}
 \NewDocumentCommand\ParallelTitle{m m}{%
  \renewcommand\ParallelTitleLeft{#1}\renewcommand\ParallelTitleRight{#2}%
  \PTHeadingtrue\def\PTHeadingReservation{0pt}\ParallelText{pt-title}{{\ParallelTitleStyle #1\par}}{{\ParallelTitleStyle #2\par}}\PTHeadingfalse}
@@ -354,11 +386,12 @@
  \PTHeadingtrue\let\PTHeadingReservation\ParallelSectionSpace\PTPlace{#1}{\refstepcounter{section}\setcounter{subsection}{0}\ifdefstring{\ParallelMode}{right}{\addcontentsline{toc}{section}{\protect\numberline{\thesection}#3}}{\addcontentsline{toc}{section}{\protect\numberline{\thesection}#2}}}%
  {{\ParallelSectionStyle\textenglish{\thesection}\enspace #2\par}}%
  {{\ParallelSectionStyle\textenglish{\thesection}\enspace #3\par}}\PTHeadingfalse}
-\NewDocumentCommand\ParallelSubsection{O{body} m m m}{%
- \PTCheckRole{#1}%
- \PTHeadingtrue\let\PTHeadingReservation\ParallelSubsectionSpace\PTPlace{#2}{\refstepcounter{subsection}\ifdefstring{\ParallelMode}{right}{\addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}#4}}{\addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}#3}}}%
- {{\ParallelSubsectionStyle\color{\ParallelRoleColor{#1}}\textenglish{\thesubsection}\enspace #3\par}}%
- {{\ParallelSubsectionStyle\color{\ParallelRoleColor{#1}}\textenglish{\thesubsection}\enspace #4\par}}\PTHeadingfalse}
+\NewDocumentCommand\ParallelSubsection{s O{body} m m m}{%
+ \PTCheckRole{#2}%
+ \PTHeadingtrue\let\PTHeadingReservation\ParallelSubsectionSpace\PTPlace{#3}{%
+  \IfBooleanTF{#1}{\phantomsection}{\refstepcounter{subsection}\ifdefstring{\ParallelMode}{right}{\addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}#5}}{\addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}#4}}}}%
+ {{\ParallelSubsectionStyle\color{\ParallelRoleColor{#2}}\IfBooleanF{#1}{\textenglish{\thesubsection}\enspace}#4\par}}%
+ {{\ParallelSubsectionStyle\color{\ParallelRoleColor{#2}}\IfBooleanF{#1}{\textenglish{\thesubsection}\enspace}#5\par}}\PTHeadingfalse}
 % A shared equation has one counter step and a single standard label.
 \NewDocumentCommand\ParallelEquation{m +m}{%
  \PTPlace{#1}{\refstepcounter{equation}}%
@@ -426,8 +459,12 @@
 \newcommand\PTPreviousEntry{}\newcommand\PTPreviousEntryPage{0}
 \newcommand\PTPreviousNavigation{}\newcommand\PTPreviousNavigationPage{0}
 \newcommand\PTSetEntryPage[3]{%
- \ifcsname pt@first@#1\endcsname\else\expandafter\gdef\csname pt@first@#1\endcsname{#3}\fi
- \expandafter\gdef\csname pt@last@#1\endcsname{#3}}
+ \ifcsname pt@first@#1\endcsname\else
+  \expandafter\gdef\csname pt@first@#1\endcsname{#3}%
+  \expandafter\gdef\csname pt@firstid@#1\endcsname{#2}\fi
+ \ifcsname pt@entryfirstpage@#2\endcsname\else\expandafter\xdef\csname pt@entryfirstpage@#2\endcsname{#1}\fi
+ \expandafter\gdef\csname pt@last@#1\endcsname{#3}%
+ \expandafter\gdef\csname pt@lastid@#1\endcsname{#2}}
 \newcommand\PTPageEntry[3]{%
  \def\PTThisEntry{#2}\@tempcnta=#1\relax
  \ifx\PTThisEntry\PTPreviousEntry\@tempcnta=\PTPreviousEntryPage\relax\fi
@@ -447,13 +484,26 @@
 \apptocmd{\PTRecordPhysical}{\PTRecordFurniture}{}{}
 \newcommand\PTEntryHead[1]{\begingroup
  \ifdefstring{\ParallelMode}{right}{\selectlanguage{\ParallelRightLanguage}}{\selectlanguage{\ParallelLeftLanguage}}%
- \ifcsname pt@#1@\number\numexpr\ReadonlyShipoutCounter+1\relax\endcsname
-  \csname pt@#1@\number\numexpr\ReadonlyShipoutCounter+1\relax\endcsname\fi\endgroup}
+ \edef\PTHeaderPage{\number\numexpr\ReadonlyShipoutCounter+1\relax}%
+ \ifcsname pt@#1@\PTHeaderPage\endcsname
+  \edef\PTHeaderId{\csname pt@#1id@\PTHeaderPage\endcsname}%
+  \begin{lrbox}{\PTEntryHeaderBox}\begin{minipage}[t]{\ParallelEntryHeaderWidth}%
+   \ifstrequal{#1}{last}{\RaggedLeft}{\RaggedRight}%
+   \csname pt@#1@\PTHeaderPage\endcsname
+   \ifnum\PTHeaderPage>\csname pt@entryfirstpage@\PTHeaderId\endcsname\relax
+    \ifdefstring{\ParallelMode}{right}{\ParallelEntryContinuationRight}{\ParallelEntryContinuationLeft}%
+   \fi
+  \end{minipage}\end{lrbox}%
+  \ifdim\dimexpr\ht\PTEntryHeaderBox+\dp\PTEntryHeaderBox\relax>\dimexpr\baselineskip*\ParallelEntryHeaderMaxLines+1pt\relax
+   \PackageError{paralleltext}{Entry header exceeds configured line limit}{Supply a shorter header with ParallelEntryHeaderLeft/Right, or explicitly configure header width/height. Do not truncate the heading.}%
+  \fi
+  \usebox\PTEntryHeaderBox
+ \fi\endgroup}
 \newcommand\ParallelFirstEntry{\PTEntryHead{first}}
 \newcommand\ParallelLastEntry{\PTEntryHead{last}}
 \NewDocumentCommand\ParallelEntry{m m m}{%
  \gdef\PTCurrentEntryId{#1}%
- \ifdefstring{\ParallelMode}{right}{\gdef\PTCurrentEntryText{#3}}{\gdef\PTCurrentEntryText{#2}}%
+ \ifdefstring{\ParallelMode}{right}{\protected@xdef\PTCurrentEntryText{\ParallelEntryHeaderRight{#3}}}{\protected@xdef\PTCurrentEntryText{\ParallelEntryHeaderLeft{#2}}}%
  \PTHeadingtrue\let\PTHeadingReservation\ParallelSubsectionSpace\ParallelText{#1}{{\ParallelEntryStyle #2}}{{\ParallelEntryStyle #3}}\PTHeadingfalse}
 \NewDocumentCommand\ParallelEndEntry{}{\gdef\PTCurrentEntryId{}\gdef\PTCurrentEntryText{}}
 \newcommand\PTNavigationList{}

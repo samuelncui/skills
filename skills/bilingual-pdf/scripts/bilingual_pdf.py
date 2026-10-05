@@ -19,6 +19,7 @@ PROFILES = {
     'zh-Hant': {'font': 'Noto Serif CJK TC', 'direction': 'ltr', 'locale': 'zh'},
     'ja': {'font': 'Noto Serif CJK JP', 'direction': 'ltr', 'locale': 'ja'},
     'ar': {'font': 'Noto Naskh Arabic', 'direction': 'rtl', 'locale': 'ar'},
+    'he': {'font': 'DejaVu Sans', 'direction': 'rtl', 'locale': 'he'},
 }
 MATH_COMMANDS = {'frac','sqrt','sum','prod','int','infty','alpha','beta','gamma','theta','sigma','mu','pi','Delta','times','cdot','pm','leq','geq','neq','approx','log','ln','exp','sin','cos','left','right','mathrm','mathbf','text','quad','qquad','overline','hat','bar'}
 
@@ -83,7 +84,7 @@ def validate(data):
         if not isinstance(b.get('break_before',False),bool):raise InputError('break_before must be boolean')
         kind=b.get('kind','paragraph')
         if not isinstance(kind,str) or kind not in {'paragraph','heading','list','equation','reference','figure','quote','table'}:raise InputError('Unsupported block kind: '+str(kind))
-        if 'flow' in b and (kind!='paragraph' or b['flow'] not in ('atomic','breakable')):raise InputError('flow is atomic or breakable, for paragraph blocks only')
+        if 'flow' in b and (kind!='paragraph' or b['flow'] not in ('atomic','keep','breakable')):raise InputError('flow is keep, breakable or atomic (keep alias), for paragraph blocks only')
         if 'placement' in b and (kind!='figure' or b['placement'] not in ('paired','shared')):raise InputError('placement is paired or shared, for figures only')
         pair=b.get('text')
         if not isinstance(pair,list) or len(pair)!=2:raise InputError('Each block needs exactly two paired texts')
@@ -122,11 +123,13 @@ def validate(data):
             if not isinstance(rows,list) or len(rows)!=2 or any(not isinstance(x,list) or not x for x in rows) or len(rows[0])!=len(rows[1]):raise InputError('Table rows must align across languages')
             for side in range(2):
                 for cell in h[side]:
-                    if not isinstance(cell,str):raise InputError('Table header must be plain text')
                     text_value(cell)
+                    if isinstance(cell,dict) and PROFILES[languages[side]]['direction']!='rtl':raise InputError('Directional table cells require an RTL language')
                 for row in rows[side]:
-                    if not isinstance(row,list) or len(row)!=len(h[side]) or any(not isinstance(x,str) for x in row):raise InputError('Table row has wrong columns or non-text cell')
-                    for cell in row:text_value(cell)
+                    if not isinstance(row,list) or len(row)!=len(h[side]) or any(not isinstance(x,(str,dict)) for x in row):raise InputError('Table row has wrong columns or non-text cell')
+                    for cell in row:
+                        text_value(cell)
+                        if isinstance(cell,dict) and PROFILES[languages[side]]['direction']!='rtl':raise InputError('Directional table cells require an RTL language')
         if b.get('kind')=='reference' and 'file' not in b and b['target'] not in ids:raise InputError('Unresolved local reference: '+b['target'])
     generated=[]
     for b in blocks:
@@ -137,8 +140,9 @@ def validate(data):
     if any(x in ids for x in generated) or len(generated)!=len(set(generated)):raise InputError('Generated list IDs collide with explicit block IDs')
     settings=data.get('layout',{})
     if not isinstance(settings,dict):raise InputError('layout must be an object')
-    allowed={'font_size','leading','margin_mm','inner_mm','outer_mm','binding_mm','top_mm','bottom_mm','gap_mm','paper','covers','twoside','profile','divider','page_numbers'}
+    allowed={'font_size','leading','margin_mm','inner_mm','outer_mm','binding_mm','top_mm','bottom_mm','gap_mm','paper','covers','twoside','profile','divider','page_numbers','paragraph_flow'}
     if set(settings)-allowed:raise InputError('Unknown layout option: '+', '.join(sorted(set(settings)-allowed)))
+    if settings.get('paragraph_flow','keep') not in ('keep','breakable'):raise InputError('paragraph_flow must be keep or breakable')
     for key,lo,hi in [('font_size',9,14),('leading',9,24),('margin_mm',8,45),('inner_mm',8,45),('outer_mm',8,45),('binding_mm',0,20),('top_mm',10,40),('bottom_mm',10,40),('gap_mm',4,16)]:
         if key in settings:
             value=settings[key]
@@ -181,7 +185,7 @@ def preflight(data):
     font_requests=[(language,PROFILES[language]['font']) for language in data['languages']]
     for language in data['languages']:
         body_font=PROFILES[language]['font']
-        heading_font=body_font.replace('Serif','Sans') if language.startswith('zh') or language=='ja' else ('Latin Modern Sans' if language in ('en','fr') else body_font)
+        heading_font=body_font.replace('Serif','Sans') if language.startswith('zh') or language in ('ja','he') else ('Latin Modern Sans' if language in ('en','fr') else body_font)
         font_requests.append((language+':headings',heading_font))
     font_requests += [('math','Latin Modern Math'),('marker','Latin Modern Roman')]
     for language,wanted in font_requests:
@@ -198,7 +202,7 @@ def preflight(data):
                 if isinstance(value,dict):return ''.join(run['text'] for run in value['runs'] if (run['direction']=='ltr')==latin)
                 if isinstance(value,list):return ''.join(chars(x,latin) for x in value)
                 return '' if latin else value
-            if language=='marker':sample='•'+''.join(chars(v,True) for b in data['blocks'] for v in b['text'])
+            if language=='marker':sample='•'+''.join(chars(v,True) for b in data['blocks'] for v in b['text'])+''.join(chars(b[field],True) for b in data['blocks'] if b.get('kind')=='table' for field in ('headers','rows'))
             else:
                 def block_chars(b,i):
                     if ':headings' in language:return chars(b['text'][i]) if b.get('kind')=='heading' else ''
@@ -210,7 +214,7 @@ def preflight(data):
         fonts.append({'language':language,'requested':wanted,'matched':lines[0] if lines else '', 'available':exact,'missing_glyphs':missing_glyphs})
     return {'ok':not package_missing and all(f['available'] and not f['missing_glyphs'] for f in fonts),'missing_packages':package_missing,'fonts':fonts,'engine':subprocess.run(['xelatex','--version'],capture_output=True,text=True).stdout.splitlines()[0]}
 
-NATIVE_LANGUAGES = {'en':'english','fr':'french','zh-Hans':'chinese','zh-Hant':'chinese','ja':'japanese','ar':'arabic'}
+NATIVE_LANGUAGES = {'en':'english','fr':'french','zh-Hans':'chinese','zh-Hant':'chinese','ja':'japanese','ar':'arabic','he':'hebrew'}
 
 def language_text(text,language,prefix='',suffix=''):
     if isinstance(text,dict):
@@ -241,11 +245,12 @@ def tex_parts(data,mode,*,stem="document",image_names=None):
         if name!='english':
             options='[numerals=maghrib]' if language=='ar' else ('[variant=traditional]' if language=='zh-Hant' else '')
             locale.append(r'\setotherlanguage'+options+'{'+name+'}')
-        options='[Script=Arabic]' if language=='ar' else ''
+        options={'ar':'[Script=Arabic]','he':'[Script=Hebrew]'}.get(language,'')
         locale.append(r'\newfontfamily'+chr(92)+name+'font'+options+'{'+PROFILES[language]['font']+'}')
-        sans=PROFILES[language]['font'].replace('Serif','Sans') if language.startswith('zh') or language=='ja' else ('Latin Modern Sans' if language in ('en','fr') else PROFILES[language]['font'])
+        sans=PROFILES[language]['font'].replace('Serif','Sans') if language.startswith('zh') or language in ('ja','he') else ('Latin Modern Sans' if language in ('en','fr') else PROFILES[language]['font'])
         locale.append(r'\newfontfamily'+chr(92)+name+'fontsf'+options+'{'+sans+'}')
     setup=['mode='+('paired' if mode=='bilingual' else mode)]
+    if 'paragraph_flow' in settings:setup.append('paragraph-flow='+settings['paragraph_flow'])
     if settings.get('profile','article')!='article':setup.insert(0,'profile='+settings['profile'])
     if 'font_size' in settings:
         setup+=['body-size='+str(size),'body-leading='+str(settings.get('leading',round(size*1.2,2)))]
@@ -300,7 +305,7 @@ def tex_parts(data,mode,*,stem="document",image_names=None):
                     spec='@{}'+('>{'+align+r'\arraybackslash}X')*len(row)+'@{}'
                     table=r'\begin{tabularx}{\linewidth}{'+spec+'}'
                     if row_index==0:table+=r'\toprule '
-                    table+=' & '.join((r'\textbf{'+escape(x)+'}') if row_index==0 else escape(x) for x in row)+r'\\ '
+                    table+=' & '.join((r'\textbf{'+language_text(x,languages[side])+'}') if row_index==0 else language_text(x,languages[side]) for x in row)+r'\\ '
                     if row_index==0:table+=r'\midrule '
                     if row_index==len(b['rows'][0]):table+=r'\bottomrule '
                     table+=r'\end{tabularx}'
@@ -310,7 +315,12 @@ def tex_parts(data,mode,*,stem="document",image_names=None):
                     cells.append(table)
                 body.append(r'\ParallelText{'+ident+'.row-'+str(row_index)+'}{'+cells[0]+'}{'+cells[1]+'}')
             body.append(r'\ParallelText{'+ident+'.caption}{'+pair[0]+'}{'+pair[1]+r'}\end{ParallelKeep}')
-        else:body.append(('\\ParallelProse{' if b.get('flow')=='breakable' else '\\ParallelText{')+ident+'}{'+pair[0]+'}{'+pair[1]+'}')
+        else:
+            if kind=='paragraph':
+                flow=b.get('flow','default')
+                if flow=='atomic':flow='keep'
+                body.append('\\ParallelParagraph'+('' if flow=='default' else '[flow='+flow+']')+'{'+ident+'}{'+pair[0]+'}{'+pair[1]+'}')
+            else:body.append('\\ParallelText{'+ident+'}{'+pair[0]+'}{'+pair[1]+'}')
     if settings.get('covers',False):body.append(r'\ParallelBackCover{'+titles[0]+'}{'+titles[1]+'}')
     main=r"""\documentclass[10pt,twoside]{article}
 \usepackage{paralleltext}
@@ -436,7 +446,7 @@ def check_pdf(path,covered,paired=False,margin_mm=12):
                     expected=(left+widths[ident]+gap)*scale
                     if abs(positions[right][0]*scale-expected)>.2:errors.append('Physical column slot shifted: '+ident)
             if not count:errors.append('No paired position records found')
-    return {'ok':not errors,'pages':len(pdf),'blank_pages':blanks,'paired_blocks_checked':count,'embedded_fonts_checked':len(fonts_checked),'errors':errors,'visual_review':'required','translation_review':'required'}
+    return {'ok':not errors,'pages':len(pdf),'blank_pages':blanks,'paired_blocks_checked':count,'embedded_fonts_checked':len(fonts_checked),'errors':errors,'visual_review':'required','semantic_review':'caller responsibility'}
 
 def compile_project(data,out,mode,environment,*,stem='document'):
     """Compile and check one named project through the canonical rendering path."""

@@ -1,1 +1,4 @@
 -r skills/bilingual-pdf/requirements.txt
+
+# Repository-only schema conformance tests.
+jsonschema>=4.23,<5

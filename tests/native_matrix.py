@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build ordinary authored LaTeX in isolated projects; no Python body generation."""
 import argparse
-import concurrent.futures
+from matrix_support import add_matrix_arguments, initialize_output, execute_matrix, run_command, repeat_text, first_sentence
 import hashlib
 import json
 import os
@@ -15,22 +15,32 @@ ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--structured-matrix', type=Path)
+add_matrix_arguments(parser)
 args = parser.parse_args()
-work = args.output.resolve()
-if work.exists():
-    raise SystemExit('Choose a new test directory')
-work.mkdir(parents=True)
-for name in ('bilingual-pdf', 'course-guide-quick-reference'):
-    shutil.copytree(ROOT/'skills'/name, work/name, ignore=shutil.ignore_patterns('__pycache__'))
+work = initialize_output(args.output,args.resume)
+for name in ('bilingual-pdf',):
+    shutil.copytree(ROOT/'skills'/name, work/name, ignore=shutil.ignore_patterns('__pycache__'),dirs_exist_ok=True)
 style = work/'bilingual-pdf/assets/paralleltext.sty'
 qa_script = work/'bilingual-pdf/scripts/bilingual_pdf.py'
 def stage_assets(project):
     for asset in (work/'bilingual-pdf/assets').iterdir():
-        if asset.suffix in ('.sty','.png'):
+        if asset.suffix in ('.sty','.tex'):
             shutil.copyfile(asset,project/asset.name)
+    # Pixel comparisons need the same raster inputs as structured export:
+    # opaque RGB samples without density/ancillary metadata. Installed-example
+    # cases above keep and validate the untouched original shared image pool.
+    from PIL import Image
+    for asset in (work/'bilingual-pdf/examples/shared').glob('*.png'):
+        with Image.open(asset) as original:
+            rgba=original.convert('RGBA')
+            background=Image.new('RGBA',original.size,'white')
+            background.alpha_composite(rgba)
+            background.convert('RGB').save(project/asset.name)
+    main=project/'main.tex'
+    main.write_text(main.read_text().replace(r'\graphicspath{{../shared/}}',r'\graphicspath{{./}}'))
 
 def minimal_project(project):
-    project.mkdir()
+    project.mkdir(exist_ok=True)
     shutil.copyfile(style,project/'paralleltext.sty')
     (project/'main.tex').write_text('\\documentclass[10pt,twoside]{article}\n\\usepackage{paralleltext}\n\\input{languages.tex}\n\\begin{document}\n\\input{content.tex}\n\\end{document}\n')
     shutil.copyfile(work/'bilingual-pdf/examples/en-zh-Hans/languages.tex',project/'languages.tex')
@@ -42,12 +52,12 @@ def check_pdf(path, paired=True, covers=False):
     command = [sys.executable, str(qa_script), 'validate', str(path)]
     if paired: command.append('--paired')
     if covers: command.append('--covers')
-    proc = subprocess.run(command, capture_output=True, text=True, timeout=60)
+    proc = run_command(command, cwd=path.parent, capture_output=True, text=True, timeout=60)
     return proc.returncode, json.loads(proc.stdout)
 
 def run_build(case):
     name, project, expected, diagnostic, paired, covers = case
-    proc = subprocess.run(BUILD+['main.tex'], cwd=project, capture_output=True, text=True, timeout=240)
+    proc = run_command(BUILD+['main.tex'], cwd=project, capture_output=True, text=True, timeout=105)
     (project/'build.stdout').write_text(proc.stdout+proc.stderr)
     if expected == 'compile-error':
         ok = proc.returncode != 0 and diagnostic in (proc.stdout+proc.stderr)
@@ -85,7 +95,7 @@ def run_build(case):
         report['both_paragraphs_cross_pages']=crossed;ok=ok and crossed
     if name.startswith('article-') and ok:
         from layout_checks import quote_geometry, article_features
-        languages={'en-fr':['en','fr'],'en-zh-Hans':['en','zh-Hans'],'en-ar':['en','ar'],'zh-Hans-ja':['zh-Hans','ja']}[name[8:]]
+        languages={'en-fr':['en','fr'],'en-zh-Hans':['en','zh-Hans'],'en-ar':['en','ar'],'en-he':['en','he'],'zh-Hans-ja':['zh-Hans','ja']}[name[8:]]
         quote=quote_geometry(project/'main.pdf',languages)
         report['quote_geometry']=quote
         features=article_features(project/'main.pdf');report['article_features']=features
@@ -97,30 +107,31 @@ def run_build(case):
             equal = len(a) == len(b) and all(a[i].get_pixmap(alpha=False).samples == b[i].get_pixmap(alpha=False).samples for i in range(len(a)))
         ok = ok and equal
         report['native_and_structured_pixels_identical'] = equal
+        report['comparison_raster_inputs'] = 'Matched opaque RGB pixels without ancillary density metadata; installed-original cases are separate'
     return {'case': name, 'passed': ok, 'compile_exit': proc.returncode, 'qa_exit': code, 'result': report}
 
 cases = []
-for name in ('en-fr', 'en-zh-Hans', 'en-ar', 'zh-Hans-ja'):
+for name in ('en-fr', 'en-zh-Hans', 'en-ar', 'en-he', 'zh-Hans-ja'):
     cases.append(('installed-'+name,work/'bilingual-pdf/examples'/name,'ok','',True,False))
     project = work/('article-'+name)
-    shutil.copytree(work/'bilingual-pdf/examples'/name, project, ignore=shutil.ignore_patterns('*.pdf', '*preview.png'))
+    shutil.copytree(work/'bilingual-pdf/examples'/name, project, ignore=shutil.ignore_patterns('*.pdf', '*preview.png'),dirs_exist_ok=True)
     stage_assets(project)
     cases.append(('article-'+name, project, 'ok', '', True, False))
 # Native helpers are exercised directly, with no JSON/Python renderer at build time.
 sys.path.insert(0,str(work/'bilingual-pdf/scripts'))
-from bilingual_pdf import escape
-for name in ('en-fr','en-zh-Hans','en-ar','zh-Hans-ja'):
+from bilingual_pdf import escape, language_text
+for name in ('en-fr','en-zh-Hans','en-ar','en-he','zh-Hans-ja'):
     data=json.loads((work/'bilingual-pdf/examples'/name/'source.json').read_text())
-    passage=next(b['text'] for b in data['blocks'] if b['id']=='notebook-prose')
+    passage=next(b['text'] for b in data['blocks'] if b['id']=='continuing-prose')
     title='\\ParallelTitle{'+escape(data['title'][0])+'}{'+escape(data['title'][1])+'}\n'
     for prefix in ('flow-','shared-photo-'):
-        project=work/(prefix+name);shutil.copytree(work/'bilingual-pdf/examples'/name,project);stage_assets(project)
+        project=work/(prefix+name);shutil.copytree(work/'bilingual-pdf/examples'/name,project,dirs_exist_ok=True);stage_assets(project)
         if prefix=='flow-':
-            body='\\ParallelProse{long-prose}{'+escape((passage[0]+' ')*18)+'}{'+escape((passage[1]+' ')*18)+'}\n\\ParallelText{after-flow}{'+escape(passage[0])+'}{'+escape(passage[1])+'}'
+            body='\\ParallelProse{long-prose}{'+language_text(repeat_text(passage[0]),data['languages'][0])+'}{'+language_text(repeat_text(passage[1]),data['languages'][1])+'}\n\\ParallelParagraph{after-flow}{'+escape(first_sentence(passage[0]))+'}{'+escape(first_sentence(passage[1]))+'}'
         else:
-            captions={'en':'Shared photograph.','fr':'Photographie partagée.','zh-Hans':'共用照片。','ar':'صورة مشتركة.','ja':'共有写真。'}
-            (project/'images').mkdir(exist_ok=True);shutil.copyfile(work/'bilingual-pdf/assets/footpath.png',project/'images/footpath.png')
-            body='\\ParallelWideFigure{photo}{images/footpath.png}{'+captions[data['languages'][0]]+'}{'+captions[data['languages'][1]]+'}\n\\ParallelText{after-photo}{'+escape(passage[0])+'}{'+escape(passage[1])+'}'
+            captions={'en':'Shared photograph.','fr':'Photographie partagée.','zh-Hans':'共用照片。','ar':'صورة مشتركة.','ja':'共有写真。','he':'תרשים משותף.'}
+            (project/'images').mkdir(exist_ok=True);shutil.copyfile(project/'layout-anatomy.png',project/'images/layout-anatomy.png')
+            body='\\ParallelWideFigure{photo}{images/layout-anatomy.png}{'+captions[data['languages'][0]]+'}{'+captions[data['languages'][1]]+'}\n\\ParallelParagraph{after-photo}{'+escape(first_sentence(passage[0]))+'}{'+escape(first_sentence(passage[1]))+'}'
         (project/'content.tex').write_text(title+body+'\n')
         cases.append((prefix+name,project,'ok','',True,False))
 
@@ -145,25 +156,5 @@ minimal_project(project)
 (project/'languages.tex').write_text((work/'bilingual-pdf/examples/en-ar/languages.tex').read_text())
 (project/'content.tex').write_text(r'\ParallelEquation{sum}{a+b=c}\ParallelText{explanation}{A shared equation.}{معادلة مشتركة.}'+'\n')
 cases.append(('arabic-equations', project, 'ok', '', True, False))
-with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-    results = list(pool.map(run_build, cases))
 
-for name, source in [('native-learning-minimal',work/'course-guide-quick-reference/examples'),('native-course-example',work/'course-guide-quick-reference/examples')]:
-    project = work/name
-    shutil.copytree(source, project, ignore=shutil.ignore_patterns('*.pdf', '*preview.png'))
-    if name=='native-learning-minimal':
-        (project/'notes-content.tex').write_text(r'\ParallelTitle{Notes}{笔记}\ParallelSection{sample}{Speed}{速率}\ParallelText{body}{Distance divided by elapsed time.}{路程除以经过的时间。}')
-        (project/'quick-content.tex').write_text(r'\ParallelTitle{Quick reference}{速查表}\ParallelText{speed}{Speed: distance divided by time. See section~\ref{notes-sample}, page~\pageref{notes-sample}.}{速率：路程除以时间。见第~\ref{notes-sample}~节，第~\pageref{notes-sample}~页。}')
-    proc = subprocess.run(['make', 'LATEXMK='+' '.join(BUILD)], cwd=project, env={**os.environ,'BILINGUAL_PDF_SKILL':str(work/'bilingual-pdf')}, capture_output=True, text=True, timeout=240)
-    (project/'build.stdout').write_text(proc.stdout+proc.stderr)
-    reports = []
-    if proc.returncode == 0:
-        for part in ('notes', 'quick-reference'):
-            code, result = check_pdf(project/(part+'.pdf'))
-            reports.append({'part': part, 'qa_exit': code, 'result': result})
-    dependency_used=proc.returncode==0 and all(str(style) in (project/(part+'.fls')).read_text() for part in ('notes','quick-reference')) and not (project/'paralleltext.sty').exists()
-    results.append({'case': name, 'passed': proc.returncode == 0 and all(x['qa_exit'] == 0 for x in reports) and dependency_used, 'compile_exit': proc.returncode, 'documents': reports,'explicit_external_renderer_used':dependency_used})
-report = {'ok': all(x['passed'] for x in results), 'tests': results, 'visual_review': 'required', 'language_review': 'required'}
-(work/'matrix.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
-print(json.dumps({'ok': report['ok'], 'cases': len(results), 'failures': [x for x in results if not x['passed']]}, ensure_ascii=False))
-raise SystemExit(0 if report['ok'] else 1)
+raise SystemExit(execute_matrix(cases,run_build,work,args,'native'))

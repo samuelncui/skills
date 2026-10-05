@@ -4,206 +4,190 @@
     "zh-Hans"
   ],
   "title": [
-    "A slower walk through a familiar street",
-    "放慢脚步，重看熟悉的街道"
+    "Two languages, one readable page",
+    "两种语言，一份易读文档"
   ],
   "layout": {
     "covers": false,
-    "font_size": 10
+    "font_size": 10,
+    "paragraph_flow": "breakable"
   },
   "blocks": [
     {
-      "id": "notice",
+      "id": "choose-route",
       "kind": "heading",
       "text": [
-        "Make room for noticing",
-        "留一点时间观察"
+        "Choose a source route",
+        "选择源文件形式"
       ]
     },
     {
       "id": "opening",
-      "kind": "paragraph",
       "text": [
-        "A familiar street can become little more than the space between two appointments. Try walking it once without an errand to finish. The aim is not to find an impressive landmark or collect a perfect photograph, but to notice details that a hurried journey usually edits out.",
-        "一条熟悉的街道，有时只是两项日程之间的一段路。不妨试着走一次，不急着完成任何差事。目的不是寻找引人注目的地标，也不是拍出完美的照片，而是留意那些在匆忙赶路时被忽略的细节。"
+        "Bilingual PDF places corresponding content in fixed physical columns. The calling agent supplies the text pairs and the order of the document; the renderer aligns their visible starts. A short translation does not have to be padded to match a longer one. Paragraphs, list items and table rows each have their own alignment boundary. Native LaTeX and structured JSON reach the same package, so changing the source route does not create a different design engine. Work in a new project and keep the original input unchanged. This guide is itself an example of the layout it describes.",
+        "Bilingual PDF 将对应内容放在固定的左右栏中。调用模型提供成对的文本及文档顺序，排版工具负责对齐它们在页面上的起始位置。较短的译文不需要为了凑齐长度而补充文字。段落、列表项和表格行各有自己的对齐边界。原生 LaTeX 与结构化 JSON 使用同一个排版包，因此更换输入形式不会产生另一套设计引擎。请在新项目中工作，并保留原始输入。本指南本身就是其所介绍排版方式的示例。"
       ]
     },
     {
-      "id": "change",
-      "kind": "paragraph",
-      "text": [
-        "A painted door, a patch of shade or the sound of dishes from an open window can be enough. You do not need to explain every detail immediately. A useful observation may begin as a question, and a quiet walk can leave that question open until you have time to investigate it.",
-        "一扇刷过漆的门、一片树荫，或敞开的窗户里传来的碗碟声，都可以成为观察的起点。无须立刻解释每一个细节。有价值的观察可能先是一个问题；散步时可以暂时保留它，等有空再进一步了解。"
-      ]
-    },
-    {
-      "id": "prompt",
-      "kind": "quote",
-      "text": [
-        "One sound, one colour, one question: a simple prompt for your own notes.",
-        "一种声音、一种颜色、一个问题：给自己的笔记一个简单的提示。"
-      ]
-    },
-    {
-      "id": "shared-photo",
-      "kind": "figure",
-      "placement": "shared",
-      "image": "footpath.png",
-      "text": [
-        "A path photograph shared by both columns. The setting is illustrative; it is not a map of the suggested walk.",
-        "两种语言共用一张步道照片。这张照片用于说明散步的环境，并不是建议路线的地图。"
-      ]
-    },
-    {
-      "id": "route",
-      "kind": "heading",
-      "text": [
-        "Choose a modest route",
-        "选一条简单的路线"
-      ]
-    },
-    {
-      "id": "route-plan",
-      "kind": "paragraph",
-      "text": [
-        "Choose a starting point you can reach easily and an ending point that does not require you to rush back. A short loop is often more useful than an ambitious itinerary. Check the actual conditions where you walk; the small map below is an invented illustration, not directions for a real place.",
-        "起点最好方便到达，终点也不应让你必须匆忙折返。比起排得满满的行程，一小段环线往往更合适。出行时仍需查看当地的实际情况；下图是虚构的示意图，并不是某个真实地点的路线指引。"
-      ]
-    },
-    {
-      "id": "route-image",
-      "kind": "figure",
-      "text": [
-        "An invented route with four stopping points. The numbers identify places to pause; they do not indicate distance, time or accessibility.",
-        "虚构路线上的四个停留点。数字只标识停留位置，不代表距离、时间或无障碍条件。"
-      ],
-      "image": [
-        "route-en.png",
-        "route-zh-Hans.png"
-      ],
-      "placement": "paired"
-    },
-    {
-      "id": "steps",
-      "kind": "list",
-      "text": [
-        [
-          "Pick one detail at each stop rather than trying to describe everything around you.",
-          "Leave a little unplanned time. If something deserves another look, you can stay.",
-          "Keep other people’s privacy in mind. A written observation does not require a photograph of a stranger."
-        ],
-        [
-          "每次停留只选一个细节，不必试图描述周围的一切。",
-          "留一点没有安排的时间。遇到值得再看一眼的事物，可以多停留一会儿。",
-          "留意他人的隐私。写下一项观察，并不需要给陌生人拍照。"
-        ]
-      ]
-    },
-    {
-      "id": "long-observation",
-      "kind": "heading",
-      "text": [
-        "Stay with one observation",
-        "把一次观察写完整"
-      ]
-    },
-    {
-      "id": "long-prose",
-      "kind": "paragraph",
-      "flow": "breakable",
-      "text": [
-        "Imagine taking the same short walk on two different afternoons. On the first visit, a delivery van is waiting beside a shop, a door keeps opening, and the sound of a conversation reaches the pavement before the speakers come into view. On the second visit, the van has gone and the door is closed. It would be tempting to call one afternoon lively and the other quiet, but those words already combine many small observations into a judgment. A more useful note might begin with the things that can actually be checked: where the van stood, how long the door remained open, and whether the conversation could still be heard after turning the corner. None of this requires following strangers, recording private conversations, or treating a neighbourhood as a spectacle. You can notice the public setting while leaving people their privacy. At the next junction, pause somewhere that does not obstruct the path and look back at the route just taken. A sign that seemed obvious from one direction may be hidden by a tree from the other. The pavement may look level until a shallow slope becomes visible against a wall. Even a bench can change the shape of the walk: without stopping, it is simply an object passed on the way; after sitting down, the same place offers a different height, a different view, and time to hear sounds that footsteps had covered. When writing about the experience later, do not try to make every detail support a single neat story. Keep the uncertainty that was present on the walk. If a shop was closed, say that its door was closed when you passed, rather than assuming that it has stopped trading. If the square seemed empty, remember that your visit lasted only a few minutes. A second visit is useful because it offers another observation, not because it automatically proves the first impression wrong. You might return at another time, take the loop in the opposite direction, or follow the same route with someone who notices different things. The point is not to collect the largest number of details. It is to give a few details enough attention that the familiar street becomes easier to describe, while remaining open to what the next walk may change. Before putting the notebook away, consider what a reader who was not there would need. A phrase such as “beside the tree” may be clear to you and useless to someone else. Add a relation that can be understood without sharing your memory: the bench faced the junction, the path curved behind the hedge, or the shop door opened towards the narrow part of the pavement. These details should clarify the scene rather than make a fictional sketch sound like a surveyed map. You can also keep an unanswered question beside a description. Did the sound disappear because the window closed, because you moved farther away, or because another sound covered it? There may be no reliable answer from a single walk. Ending with that question is sometimes more accurate, and more inviting, than finishing with a confident explanation. The next visit can begin there, with curiosity rather than a conclusion already chosen. Date the note and distinguish what you wrote on the spot from what you added later. Memory can connect details that were separate at the time. That small distinction helps a future reader understand how the account was made.",
-        "设想在两个不同的下午，沿着同一条短路线散步。第一次经过时，一辆送货车停在商店旁，店门不断开合，还没有看见说话的人，交谈声就已经传到了人行道上。第二次经过时，车走了，门也关着。很容易把第一个下午说成“热闹”，把第二个说成“安静”，但这些词已经把许多细小的观察合并成了判断。更有用的笔记，或许可以先写能够核实的事：车停在哪里，门开了多久，以及转过街角后是否还能听见交谈声。这并不要求跟踪陌生人、记录私人谈话，或把一个社区当成供人围观的景观。观察公共环境的同时，仍然可以尊重他人的隐私。走到下一个路口时，找一个不妨碍通行的位置停下，回头看看刚走过的路。从一个方向看很显眼的标牌，换个方向可能被树遮住；原本看起来平坦的人行道，在墙边的参照下也许显出了一点缓坡。就连一张长椅，也能改变这次散步的体验：不停下来时，它只是途中经过的物件；坐下来后，同一个地方却提供了不同的视线高度、不同的景致，也让人有时间听见先前被脚步声盖住的声音。之后写下这段经历时，不必让每个细节都服务于一个整齐的故事。保留散步时原本存在的不确定性。如果店门关着，就写经过时门是关着的，不要据此推断商店已经停业；如果广场看起来空荡荡，也要记得自己只在那里待了几分钟。再去一次的价值，在于增加一份观察，而不是自动证明第一次的印象有误。可以换个时间再来，沿着相反的方向走这条环线，也可以和一个会留意不同事物的人同行。目的不是收集尽可能多的细节，而是认真看清其中的几个，让熟悉的街道变得更容易描述，同时仍然愿意接受下一次散步带来的新发现。 合上笔记本之前，还可以想一想：一个没有到过现场的读者，需要知道什么？“在树旁边”这样的说法，对自己可能很清楚，对别人却未必有用。不妨补上一个不依赖共同记忆也能理解的位置关系：长椅朝向路口，步道绕到树篱后面，或者店门朝着人行道较窄的一侧打开。这些细节的作用是让场景更清楚，而不是把一段虚构示例写得像经过测绘的地图。描述旁边也可以保留一个尚未回答的问题。声音消失了，是因为窗户关上了，因为自己走远了，还是因为另一种声音把它盖住了？只散步一次，也许无法得到可靠的答案。有时，以这个问题结束，会比给出一个自信的解释更准确，也更能引起继续观察的兴趣。下一次来时，可以从这里重新开始，带着好奇心，而不是带着一个预先选好的结论。给笔记标上日期，区分哪些内容是在现场写下的，哪些是后来补充的。记忆可能会把当时彼此独立的细节联系起来。这个小小的区分，有助于后来的读者了解这段记录是如何形成的。"
-      ]
-    },
-    {
-      "id": "notebook",
-      "kind": "heading",
-      "text": [
-        "Keep a small notebook",
-        "带一本小笔记本"
-      ]
-    },
-    {
-      "id": "notebook-prose",
-      "kind": "paragraph",
-      "text": [
-        "A notebook can hold fragments rather than polished sentences. Record what you actually noticed before adding an interpretation. “The bench was empty” is an observation; “nobody uses this square” is a much broader claim. Keeping those two kinds of statement separate makes later writing more honest and more interesting.",
-        "笔记本里可以写片段，不必句句都完整漂亮。先记录实际看到的内容，再补充解释。“长椅是空的”是一项观察；“没有人来这个广场”则是范围大得多的判断。把这两类表述分开，之后写出来的文字会更诚实，也更有意思。"
-      ]
-    },
-    {
-      "id": "notes-table",
+      "id": "routes-table",
       "kind": "table",
       "text": [
-        "These invented notes show the difference between an observation and a question. They are examples, not findings about a real neighbourhood.",
-        "这些虚构的笔记展示了观察与问题的区别，只是示例，并非对某个真实街区的调查结果。"
+        "Two source routes, one rendering implementation.",
+        "两种源文件形式，共用一套排版实现。"
       ],
       "headers": [
         [
-          "Observation",
-          "Question"
+          "Route",
+          "Use it when",
+          "Result"
         ],
         [
-          "观察",
-          "问题"
+          "形式",
+          "适用情形",
+          "结果"
         ]
       ],
       "rows": [
         [
           [
-            "An empty bench",
-            "Is it used at another time?"
+            "Native LaTeX",
+            "You want editable commands, mathematics or standard package hooks.",
+            "Compile the manuscript directly."
           ],
           [
-            "A newly painted door",
-            "What colour was it before?"
+            "Structured JSON",
+            "You already have ordered pairs of text, rows and image paths.",
+            "Export editable LaTeX, or render it immediately."
           ],
           [
-            "Music from a window",
-            "Does the sound change farther away?"
+            "Selected language",
+            "The reader needs only the physical left or right side.",
+            "Choose left or right mode without rewriting the source."
           ]
         ],
         [
           [
-            "一张空长椅",
-            "换个时间会有人坐吗？"
+            "原生 LaTeX",
+            "需要直接编辑命令、数学公式或标准包钩子。",
+            "直接编译文稿。"
           ],
           [
-            "一扇新刷漆的门",
-            "它以前是什么颜色？"
+            "结构化 JSON",
+            "已有按顺序组织的文本对、表格行和图像路径。",
+            "导出可编辑的 LaTeX，或立即渲染。"
           ],
           [
-            "窗户里传来音乐",
-            "走远一点，听起来会不同吗？"
+            "单语输出",
+            "读者只需要物理左栏或右栏的内容。",
+            "选择 left 或 right 模式，无需重写源文件。"
           ]
         ]
       ]
     },
     {
-      "id": "return",
+      "id": "page-flow",
       "kind": "heading",
       "text": [
-        "Read the walk again",
-        "回来以后，再读一遍这段路"
+        "Choose whether paragraphs can cross pages",
+        "选择是否允许段落跨页"
       ]
     },
     {
-      "id": "return-prose",
-      "kind": "paragraph",
+      "id": "flow-options",
       "text": [
-        "After returning, choose one note and expand it into a short paragraph. Keep the observed detail, explain why it mattered to you and mark anything you still do not know. You can check a factual question later, but you need not turn every walk into a research project. Sometimes the value lies in having paid attention.",
-        "回来后，可以选一条笔记，展开成一小段文字。保留观察到的细节，说明它为什么对你重要，并标明还有哪些事情尚不清楚。事实性的问题可以稍后核实，但不必把每次散步都变成一个研究项目。有时候，认真留意过，本身就有价值。"
+        "Set paragraph-flow=breakable in the native preamble to allow ordinary ParallelParagraph content to continue over a page boundary. A paragraph can override that choice with flow=keep. JSON uses layout.paragraph_flow and a paragraph-level flow field. Keep-together content stays on one page; an oversized unit produces an error rather than being truncated or shrunk. ParallelText and ParallelProse remain explicit bounded and flowing alternatives. The following deliberately continuous paragraph demonstrates the flowing route.",
+        "在原生文稿的导言区设置 paragraph-flow=breakable，即可允许普通 ParallelParagraph 内容跨越分页边界。单个段落可以用 flow=keep 覆盖该设置。JSON 使用 layout.paragraph_flow 和段落级 flow 字段。保持完整的内容单元会留在一页内；若单元过大，工具会报错，不会截断或缩小它。ParallelText 和 ParallelProse 仍分别提供明确的整块和连续排版方式。下面这个有意保持连续的段落展示跨页排版。"
       ]
     },
     {
-      "id": "route-reference",
-      "kind": "reference",
+      "id": "continuing-prose",
+      "flow": "breakable",
       "text": [
-        "Return to the route section",
-        "回看路线部分"
+        "A readable parallel document does not require equal line counts. One language may need more words, different punctuation or a different number of lines to express the supplied content. In a flowing paragraph, each physical column continues at its own natural pace, while the package records the shared paragraph boundary and restores alignment before the next pair begins. This means that a reader can follow a long explanation without a page-sized empty hole caused by moving the whole paragraph to the next sheet. It also means that the last lines of the two translations need not sit at exactly the same height. The useful promise is a stable place to begin the next corresponding unit. When choosing the policy, distinguish continuous prose from objects whose pieces should remain together. A short definition, a formula with a short explanation or a compact diagram may be a good bounded unit. A long explanation that would fill several pages is usually a candidate for flowing prose. Do not put a flowing paragraph inside a minipage or another keep-together wrapper, because the enclosing box prevents page breaking. Do not repair a layout problem by removing sentences, inventing extra text, changing the meaning or shrinking a single troublesome block. Instead, use the documented flow option and inspect the actual result. After building, look at the end of the first page, the continuation on the next page and the start of the following paired section. Check that neither column is clipped, that the physical divider follows the live text block and that the next section begins at a corresponding position. Repeat this check with the requested fonts and language direction. A successful compiler exit proves that a file was produced; it does not prove that all visible page details are correct. Keeping source, language configuration and presentation separate makes a later font, paper or binding change easier to test without rewriting the manuscript.",
+        "可读的双语对照文档并不要求两栏行数相同。不同语言可能需要更多词语、不同的标点，或者不同数量的行，才能表达所提供的内容。在允许跨页的段落中，每一物理栏都按自身自然长度继续排版，排版包记录共同的段落边界，并在下一对内容开始前恢复对齐。因此，读者可以连续阅读长篇说明，而不会因为整段被搬到下一张纸上而留下大片空白。两种语言的最后几行也不必落在完全相同的高度。真正有用的保证，是下一组对应内容有一个稳定的共同起点。选择策略时，应区分连续正文与需要保持完整的对象。简短定义、带简短说明的公式或紧凑图示，通常适合作为不可拆分的单元；可能占据多页的长篇说明，则通常适合连续正文。不要把可跨页段落放进 minipage 或其他保持整块的容器中，因为外层盒子会阻止分页。也不要通过删除句子、凭空补充文字、改变含义或单独缩小某个难排的区块来修补版面。应使用文档规定的跨页选项，并检查实际结果。构建后，查看前一页末尾、下一页的续文，以及其后成对小节的起点。确认两栏都没有被裁切，物理分隔线随实际正文区域延伸，下一节也从对应位置开始。对所需字体和语言方向重复这些检查。编译器成功退出，只能证明生成了文件，并不能证明页面上的所有细节都正确。将源内容、语言配置与呈现设置分开，能够在以后更换字体、纸张或装订方式时，更容易测试而不必重写文稿。"
+      ]
+    },
+    {
+      "id": "figures-and-references",
+      "kind": "heading",
+      "text": [
+        "Use figures, tables and references",
+        "使用插图、表格与引用"
+      ]
+    },
+    {
+      "id": "shared-layout",
+      "kind": "figure",
+      "placement": "shared",
+      "image": "layout-anatomy.png",
+      "text": [
+        "One shared diagram spans the full text width; its captions remain paired.",
+        "同一张示意图横跨整个正文宽度，图注仍然成对对齐。"
+      ]
+    },
+    {
+      "id": "localized-pipeline",
+      "kind": "figure",
+      "image": [
+        "pipeline-en.png",
+        "pipeline-zh-Hans.png"
       ],
-      "target": "route"
+      "text": [
+        "The same pipeline has labels in each column's own language.",
+        "同一处理流程在每一栏中使用该栏语言的标签。"
+      ]
+    },
+    {
+      "id": "quotation",
+      "kind": "quote",
+      "text": [
+        "“Corresponding starts matter more than identical line counts.” This short quotation is original example text; quotation layout does not imply an external source.",
+        "“对应的起点比相同的行数更重要。”这段短引文是原创示例文本；引文样式不表示它来自外部来源。"
+      ]
+    },
+    {
+      "id": "column-width",
+      "kind": "equation",
+      "math": "w=\\frac{W-g}{2}",
+      "text": [
+        "For a usable text width W and a gap g, each paired column has width w. If W is 170 mm and g is 6 mm, w is 82 mm.",
+        "设可用正文宽度为 W，栏间距为 g，则每一对照栏的宽度为 w。如果 W 为 170 mm，g 为 6 mm，则 w 为 82 mm。"
+      ]
+    },
+    {
+      "id": "check-and-deliver",
+      "kind": "heading",
+      "text": [
+        "Check the PDF and deliver the project",
+        "检查 PDF 并交付项目"
+      ]
+    },
+    {
+      "id": "checks",
+      "kind": "list",
+      "text": [
+        [
+          "Inspect actual pages for matching starts, table-row alignment, paragraph continuations, clipping and intended whitespace. A first-page preview cannot show the whole document.",
+          "For RTL and CJK, inspect shaping, punctuation, mixed-script identifiers and physical column order. Language direction does not decide which side a language occupies.",
+          "Follow generated references to their real destinations. Printed folios can differ from physical PDF page numbers. Keep relative cross-document targets beside each other.",
+          "Deliver the PDF and a portable source project with required package, image and license files. Native TeX executes code; disabled shell escape is not a filesystem sandbox."
+        ],
+        [
+          "查看实际页面，检查对应起点、表格行对齐、段落续排、裁切及预期留白。首页预览无法展示整份文档。",
+          "对于 RTL 与 CJK，检查字形连接、标点、混合文字标识符和物理栏顺序。语言书写方向并不决定它位于哪一栏。",
+          "沿自动生成的引用检查真实目标。印刷页码可能不同于 PDF 的物理页号。使用相对跨文档链接的文件应保存在一起。",
+          "交付 PDF 及可移植源项目，包括必要的排版包、图像与许可证文件。原生 TeX 可以执行代码；关闭 shell escape 并不等于文件系统沙箱。"
+        ]
+      ]
+    },
+    {
+      "id": "back-to-flow",
+      "kind": "reference",
+      "target": "page-flow",
+      "text": [
+        "Return to the page-breaking controls",
+        "返回段落分页设置"
+      ]
     }
   ]
 }

@@ -1,0 +1,141 @@
+{
+  "source": "source.md",
+  "source_kind": "original self-hosted teaching text",
+  "manuscript_format": "native LaTeX",
+  "coverage": [
+    {
+      "source_section": "S1",
+      "concepts": [
+        "notes",
+        "quick",
+        "index",
+        "tree"
+      ],
+      "notes": [
+        "notes",
+        "quick",
+        "index",
+        "tree"
+      ],
+      "lookup": [
+        "notes",
+        "quick",
+        "index",
+        "tree"
+      ],
+      "decision": [
+        "choose-goal",
+        "choose-lookup"
+      ]
+    },
+    {
+      "source_section": "S2",
+      "concepts": [
+        "evidence"
+      ],
+      "notes": [
+        "notes-evidence"
+      ],
+      "lookup": [
+        "evidence",
+        "coverage",
+        "source-map"
+      ],
+      "decision": [
+        "review-set"
+      ]
+    },
+    {
+      "source_section": "S3",
+      "concepts": [
+        "build"
+      ],
+      "notes": [
+        "build"
+      ],
+      "lookup": [
+        "build",
+        "portable-project"
+      ],
+      "decision": [
+        "make-notes",
+        "make-quick",
+        "make-index",
+        "make-tree"
+      ]
+    },
+    {
+      "source_section": "S4",
+      "concepts": [
+        "quick"
+      ],
+      "notes": [
+        "quick"
+      ],
+      "lookup": [
+        "quick",
+        "aliases",
+        "find-word",
+        "qr"
+      ],
+      "decision": [
+        "make-quick",
+        "make-index"
+      ]
+    },
+    {
+      "source_section": "S5",
+      "concepts": [
+        "notes-flow"
+      ],
+      "notes": [
+        "notes-flow"
+      ],
+      "lookup": [
+        "notes-flow",
+        "page-breaks"
+      ],
+      "decision": [
+        "make-notes"
+      ]
+    },
+    {
+      "source_section": "S6",
+      "concepts": [
+        "tree-unknown"
+      ],
+      "notes": [
+        "tree-clarification"
+      ],
+      "lookup": [
+        "tree-unknown",
+        "missing-information",
+        "unknown"
+      ],
+      "decision": [
+        "clarify-goal",
+        "clarify-lookup",
+        "review-set"
+      ]
+    },
+    {
+      "source_section": "S7",
+      "concepts": [
+        "review"
+      ],
+      "notes": [
+        "review"
+      ],
+      "lookup": [
+        "evidence"
+      ],
+      "decision": [
+        "review-set"
+      ]
+    }
+  ],
+  "limits": [
+    "The example demonstrates the skill workflow, not mastery of an external subject.",
+    "Source coverage and layout verification are separate checks."
+  ]
+}

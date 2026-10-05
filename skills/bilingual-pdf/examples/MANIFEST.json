@@ -1,70 +1,85 @@
 {
   "source_hashes": {
-    "en-ar/content.tex": "623616764c62082ead06176546e890d694a829e6653697fdc0506ebb14e09b5c",
-    "en-ar/languages.tex": "dcb8d583ed1204a8a5892a6f21ea7b182316a3cd5b696146f90447c479fb2c85",
-    "en-ar/main.tex": "7bbd69766caf17da9d32d3ba1c9582eceb3e067c3d70c51be8a1182ea6f4a23a",
-    "en-ar/source.json": "e3560945b50eddef10b8271701ac604cda1d8c33fcbe0d34349303943edb7595",
-    "en-fr/content.tex": "57b868902912bf9629d74587986e2972aa07bce935547e1f30841a7cc501dafa",
-    "en-fr/languages.tex": "ad93c3cd9feb213490ebb141670878306d0b028b861851da7494a0456f1c8f53",
-    "en-fr/main.tex": "7bbd69766caf17da9d32d3ba1c9582eceb3e067c3d70c51be8a1182ea6f4a23a",
-    "en-fr/source.json": "510b2f29551c37e12cb2255ac4746f9cc78d25979623dc72964c22dee2230a10",
-    "en-zh-Hans/content.tex": "8e8e6467800e15ccec3575ab69af66292b89e8a2a579eb88559de50b75784c3f",
-    "en-zh-Hans/languages.tex": "88a98765ccee16b529549e34d32e036bc67c51cf2133a360eee1840f1dba379d",
-    "en-zh-Hans/main.tex": "7bbd69766caf17da9d32d3ba1c9582eceb3e067c3d70c51be8a1182ea6f4a23a",
-    "en-zh-Hans/source.json": "6cc116c79835310b477b164ae9ac2229193b6492b1dd61e47aaedab6b17d6ab9",
-    "zh-Hans-ja/content.tex": "5212e708d20727f2c3f3b6f40750bd58a02de3445ba5ba7e636b2e9014f4c450",
-    "zh-Hans-ja/languages.tex": "8914c2edd9372cdce368afda98587e9290c2d4364cc17cc568a47aba873d9e2f",
-    "zh-Hans-ja/main.tex": "7bbd69766caf17da9d32d3ba1c9582eceb3e067c3d70c51be8a1182ea6f4a23a",
-    "zh-Hans-ja/source.json": "3ebf7df290af6112afb5e483814f407aa5401cc2a22f2ea3b43bb78cbb0fef42"
+    "en-ar/content.tex": "e276a081111c188c77bbb44b443e18bffb5ffb95c2c6fc48b10e2b00b14dd622",
+    "en-ar/languages.tex": "146aea19bf3c3bb8a9c0b2f6df3befada2df51f02d84c050f22b6582e25e9c76",
+    "en-ar/main.tex": "c85ef4694cc266ca2b71f56c7649078104368b14fd8ea5ef24813ca4d5316b72",
+    "en-ar/source.json": "4d8c5f2cb9cf8d14f973b81d60e2031ce3ec89962eb410edbab617caed6d8611",
+    "en-fr/content.tex": "ff8dacc03e9ada3f2e4521ddd8ce2fccc13d4b66428dc532b07d3dd7967963c0",
+    "en-fr/languages.tex": "77f771f5dad8db5b005acfa1f0a6029c595bbacd67afe5d1b70d4080e3fd52fd",
+    "en-fr/main.tex": "c85ef4694cc266ca2b71f56c7649078104368b14fd8ea5ef24813ca4d5316b72",
+    "en-fr/source.json": "1f2d0829305797d69e3b761d00dde1b25e4859c30ddc68e790eb39c5b650dd4c",
+    "en-he/content.tex": "c0535ce67f0995994ae26a53b926cddb60ed87d4edec67082f7dd5f27534a2a7",
+    "en-he/languages.tex": "a44aa550b8ecf9a4a8088f4e09f9ea8c70a0442450d78cb6051c2fed0111f449",
+    "en-he/main.tex": "c85ef4694cc266ca2b71f56c7649078104368b14fd8ea5ef24813ca4d5316b72",
+    "en-he/source.json": "3941e5c13aab9fd9e9f74dd73a0868718e924413ca5428d05838c6b3a3042397",
+    "en-zh-Hans/content.tex": "27149fef622251937c3fb06591c833c038726f1de9172a8865aa67f425e4ca6f",
+    "en-zh-Hans/languages.tex": "1b01d91434b7095e8ced44f51feb0513e47303d6c821380c27d50bd181bddc04",
+    "en-zh-Hans/main.tex": "c85ef4694cc266ca2b71f56c7649078104368b14fd8ea5ef24813ca4d5316b72",
+    "en-zh-Hans/source.json": "8d45329592211a45606869bd5c4e5a50a98a47fb015e600367f7eb739a79360a",
+    "shared/illustrations.tex": "0d1509743635158d804fa36e8fab70476773eacbb27d45b4df574cbd07468257",
+    "shared/layout-anatomy.png": "3e7550f5eb3fbfad447b957f103f5542a04279c6ac8c08f955f481fac94ca052",
+    "shared/pipeline-ar.png": "53225249684c25910c968ef321a8c192eb5d2b668440c3b115d7cd7d7a70434c",
+    "shared/pipeline-en.png": "dd49814708c004d0984a3175315a6b0759f0cee97f8f42df7743a6c169257442",
+    "shared/pipeline-fr.png": "fd14d2ac5268b4f71d7facd5901e235f343af06789dd536304b55cf77a747477",
+    "shared/pipeline-he.png": "88fcd8466ff0d85d0d3cdbac24ca1609f0b3a44b6696efa331d2ac42235fc47b",
+    "shared/pipeline-ja.png": "b4615e63e9d60057e50c603feca3480ff5fafcfa8ffa1c7aeb5e14484bbedfb7",
+    "shared/pipeline-zh-Hans.png": "2bdf6223fda1a211f476e2eaba3e50aa31e0e8b5930426f602f39a5ce79a1622",
+    "zh-Hans-ja/content.tex": "ef808eea4096464b599de348c827be3f1ea4b1f002045b0aa261b7101d444084",
+    "zh-Hans-ja/languages.tex": "18fd9969c35a2a092b524c508003e002fcc524230049ad3d15d92db742d4a627",
+    "zh-Hans-ja/main.tex": "c85ef4694cc266ca2b71f56c7649078104368b14fd8ea5ef24813ca4d5316b72",
+    "zh-Hans-ja/source.json": "460f500a654faf41d060e5bd8ee80263fffab332b92f2f441f0bb7801250e13a"
   },
-  "renderer_dependency": {
-    "skill": "bilingual-pdf",
-    "skill_relative_hashes": {
-      "scripts/bilingual_pdf.py": "23401470dbb1636a8a7a7b3f11cdfb13e6d7f67d3cb525233d32b97b575a3bb4",
-      "assets/paralleltext.sty": "2d7f23fc9f499d1cc94b9bb51c5502f95d3e9974377144a1867786e809eb949d",
-      "assets/footpath.png": "c3b6eeb37ad61c3a0d52d4f710ee7698953e7ddc343c2e6c80397f3361112b43",
-      "assets/route-en.png": "bf5c327a2b268808968ba2c2d5a33232551459f5f44699897c03b1b9e4c3eec4",
-      "assets/route-fr.png": "f9b13b693ba5b54a189fe379794cb400e582dc5dec17c72f9a831207f3ac826a",
-      "assets/route-zh-Hans.png": "1025c71576499607b3a7fea33f9bc915b183cfdec77bf2556f883697464d45ee",
-      "assets/route-ar.png": "09d4fe86c99fccaf23ea965d467006db07690b5ed32161b64f825284342ca2f8",
-      "assets/route-ja.png": "a6722ab89299c0214d9d1ae3066177face6aaff0b30f42c5f282c779311bdcd8"
+  "package_dependencies": {
+    "bilingual-pdf": {
+      "scripts/bilingual_pdf.py": "e0ea4fb490aeb6d689664b28cd27b06bfb6de6b8392a94a26e31b290060b43e2",
+      "assets/paralleltext.sty": "b174567b3c57cdc4079534070c4376685026221596ff7e3ac30b0132604aa0d4",
+      "assets/bound-profile.tex": "87854c291355fc88c3fafcfb16f0f7bdcca951d3db88ad2074cdefe152b80e6c",
+      "assets/reading-profile.tex": "a2b9ee83b843faf289aee5e76c48205f2346aff24b774e48662970ccccc54332"
     }
   },
   "files": [
     {
       "path": "en-fr/output.pdf",
-      "sha256": "591fc99e6270c6636f582c3c14740bc23f6f1b4b84d0b0eabdb0ae216d312f6e"
+      "sha256": "6d6e38abef38ed44f2ba2d6dc8b3f4d8389131a94809c3d49db66cf1f3c21781"
     },
     {
       "path": "en-zh-Hans/output.pdf",
-      "sha256": "a0becda8849327427aeaef12323519859e2c3785a116b3b66e4497b4892aa9ab"
+      "sha256": "07da5fcf800d353ec7c57c6cf2bb9e8eff78803b2f3249a79359c8dacbf70af1"
     },
     {
       "path": "en-ar/output.pdf",
-      "sha256": "0f1dc28768b50590fa14057da754736c705d403d76204f74b178a3e608f737fd"
+      "sha256": "dd4aff21867c0122f880bb23545659c4494df9a4fde7c8fefb42832ceb396474"
+    },
+    {
+      "path": "en-he/output.pdf",
+      "sha256": "adf7b3073181bbc4ace290186f76c75fc8b42ddc820af3b387caba1ed44001ad"
     },
     {
       "path": "zh-Hans-ja/output.pdf",
-      "sha256": "3a52fb32e854f28125082d0e4fdb45a79786d48334c035bd484ded1c219f8940"
+      "sha256": "d5d26a1b086203f49672fdaf4d903a369a0672a80d54e1c79e5801184e8211a6"
     }
   ],
   "previews": [
     {
       "path": "en-fr/preview.png",
-      "sha256": "8396117c11d1803fffed428620ae29cb38a8a0a2065d23686f953a8124770e98"
+      "sha256": "9da431b0668c7f84744c2410c6d17971355841950e3c9c4095da201bded517c7"
     },
     {
       "path": "en-zh-Hans/preview.png",
-      "sha256": "c650c0f60f8e85b2edad644fc797125239a5f4c1cb8f8d910171f9f15d223780"
+      "sha256": "8523648587222e8dce4d6f435540770b3573b64de0b629513f1145e6f9cea2e1"
     },
     {
       "path": "en-ar/preview.png",
-      "sha256": "f8c6025f25ec009197c627229477b6ac0853f153edfd2b96e3ff9e1f1c001189"
+      "sha256": "b3361253a7933f59b9116b85c0f33972d3157b4d4288a8791c1b1b2abbe431e5"
+    },
+    {
+      "path": "en-he/preview.png",
+      "sha256": "7392df0d6f0fa6385db2a222fe21b8c5b10841d0d668aeda82cd23ce23ec5574"
     },
     {
       "path": "zh-Hans-ja/preview.png",
-      "sha256": "b649fea1ee7135379deb6ea0d1fe4b8798bf0630b7534c3d2bff81a8ff9a4d92"
+      "sha256": "dc8d7e12e10b90795a3ebbdfa14832e97fde1bcae1aa6d6cc0333e124038707a"
     }
   ],
-  "regeneration": "See the repository tests/README.md. Example source paths are relative to this examples directory; renderer dependency paths are relative to the named installed skill. Byte identity requires the same toolchain and fixed clock."
+  "regeneration": "See tests/README.md. Source paths are relative to this examples directory; package paths are relative to the named installed skill. Exact bytes require the same toolchain and fixed clock."
 }

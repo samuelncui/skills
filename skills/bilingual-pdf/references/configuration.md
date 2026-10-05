@@ -1,89 +1,164 @@
-# Configure the native LaTeX design
+# Native configuration reference
 
-The default design works without `\ParallelSetup`: A4, equal 18 mm side margins, 9 pt body on 10.8 pt leading, a 6 mm column gap, a thin gray divider, and an outside footer folio. Start there. Omitted settings inherit their current values; an adjustment never requires a full configuration object or editing `paralleltext.sty`.
+The default design works without `\ParallelSetup`: A4, 18 mm inner/outer margins, 9 pt body on 10.8 pt leading, a 6 mm column gap, a 0.3 pt gray divider and an outside footer folio. All keys below are supported by both package options and `\ParallelSetup{...}`. The latter is preamble-only. Unknown keys and invalid enumerated choices are errors.
 
-Keep manuscript content in `content.tex`, language/font declarations in `languages.tex`, and optional presentation choices in a short `layout.tex`. Input configuration after `\usepackage{paralleltext}` and before `\begin{document}`. `\ParallelSetup{...}` and package options use the same LaTeX kernel key-value interface. Unknown keys and invalid choices are errors. Setup/profile/role/navigation declarations are preamble-only; semantic commands belong in the body. Native TeX keys intentionally accept trusted LaTeX, not untrusted text.
+Configuration is sparse and ordered. Omitted values retain the current value, including prior profile changes; an empty setup does not reset anything. Apply a profile first and then explicit overrides. Trusted native TeX declarations are allowed in style/content keys. JSON exposes a smaller data-only subset in [input.md](input.md) and [the schema](../schemas/document.schema.json).
 
-## Intent → configuration
+Keep language/font choices in `languages.tex`, optional presentation in `layout.tex`, and paired content in the manuscript. Neither a profile nor a page size changes supplied wording.
 
-| Change | Native interface |
-| --- | --- |
-| Paper, one-/two-sided pages, margins, binding allowance | `geometry={letterpaper,twoside,inner=24mm,outer=16mm,bindingoffset=3mm}`; ordinary `\geometry` is also supported |
-| Show one language | `mode=left` or `mode=right`; `paired` is the default |
-| Selected language in two ordinary newspaper columns | `mode=left,single-columns=2`; paired mode requires one standard document column |
-| Languages, fonts, shaping/direction | Standard Polyglossia/fontspec declarations, plus `left-language` / `right-language` or `\ParallelLanguages` |
-| Body size/leading | `body-size=10,body-leading=12` (numbers in pt); no automatic shrinking |
-| Column/block/paragraph spacing | `column-gap=7mm,pair-gap=3pt,paragraph-skip=2pt,paragraph-indent=0pt` |
-| Divider | `divider=true,divider-color=black!40,divider-width=.4pt,divider-style=dashed`; `divider=false` hides it |
-| Heading/body palette | `theme-color`, `body-color`, `secondary-color` take xcolor expressions; semantic role colors use `\ParallelDeclareRole` |
-| Heading, caption, note, entry, diagram or cover type | `title-style`, `section-style`, `subsection-style`, `caption-style`, `note-style`, `entry-style`, `diagram-style`, `cover-style` are declaration hooks |
-| Shared heading family | `heading-font={\sffamily\bfseries}`; language-specific font families remain in fontspec |
-| Minimum space reserved before a heading | `section-space=65pt,subsection-space=45pt` |
-| Running text | `running-title={Short title}`; `header-left`, `header-right`, `footer-left`, `footer-right` |
-| Running text typography | `header-style`, `footer-style`, `page-number-style` |
-| Folio position | `page-number-position=footer-outer`, `footer-inner`, `footer-left`, `footer-center`, `footer-right`, the five corresponding `header-...` choices, or `none` |
-| Folio notation | `page-numbering=roman` or native `\pagenumbering{roman}`; choices are `arabic`, `roman`, `Roman`, `alph`, `Alph`, `gobble` |
-| Folio appearance | `page-number-format={\textendash\enspace\thepage\enspace\textendash}`; keep `\thepage` dynamic |
-| Native page-style control | `page-style=empty` or ordinary `\pagestyle` / `\thispagestyle`; the package's named style is `parallel` |
-| Printed reference suffix | `page-reference-prefix={p.\,}`; use native localized `\hyperref`/`\pageref` for other grammar |
-| Cover appearance | `cover-top=20mm,cover-gap=10mm`, `cover-style`, `cover-bottom={...}` |
-| Cover blank faces and last physical side | `blank-verso=true,blank-inside-back=true,back-parity=even`; parity also accepts `odd` or `any` |
-| Navigation tabs | `tabs=true`; dimensions/style keys below, with explicit navigation declarations |
+## Selection, geometry and spacing keys
 
-Font/leading values are numeric points; spacing/dimension values use normal TeX lengths and expressions. Explicit paragraph spacing/indentation keys are reapplied after language and minipage initialization; omitted keys preserve the normal environment defaults. A `...-style` key replaces that role’s declaration hook. To preserve its defaults and change just one property, append a declaration with the already loaded etoolbox interface, for example `\appto\ParallelTitleStyle{\color{red!60!black}}`. Keys are deliberately finite. Standard `\setlist`, `\tikzset`, `\hypersetup`, `\setmainfont`, `\setsansfont`, `\setmathfont`, `\newfontfamily`, `\colorlet`, `\definecolor`, `\fancypagestyle` and LaTeX counters remain the appropriate interfaces for their own domains. A package configuration is not another document language.
+| Key | Accepted value | Default and behavior |
+| --- | --- | --- |
+| `profile` | Declared profile name | No preset. Built-ins: `bound`, `reading`. Native `profile=article` is not defined; JSON `article` means omit a preset. |
+| `geometry` | Braced geometry key list | `a4paper,inner=18mm,outer=18mm,top=17mm,bottom=14mm,headsep=3mm,footskip=7mm`. One/two-sided behavior otherwise comes from the document class. |
+| `mode` | `paired`, `left`, `right` | `paired`; physical side selection, independent of language direction. |
+| `left-language`, `right-language` | Declared Polyglossia name | Both `english`; same state as `\ParallelLanguages`. Do not declare languages or fonts by setting these keys alone. |
+| `single-columns` | `1`, `2` | `1`. `2` starts standard two-column layout at document start and requires left/right mode. |
+| `paragraph-flow` | `keep`, `breakable` | `keep`. Global default for `\ParallelParagraph`; its local flow option can override it. Explicit `\ParallelText`/`\ParallelProse` retain their own behavior. |
+| `body-size` | Positive number in points | `9`; native values are not restricted to JSON's 9–14 range. Does not automatically update leading. |
+| `body-leading` | Number in points, at least body-size | `10.8`. Set both size and leading when changing native body typography. |
+| `column-gap` | Nonnegative TeX length | `6mm`; gap between paired slots, also standard column separation at document start. |
+| `pair-gap` | TeX length | `2.5pt`; extra vertical separation after ordinary paired units. |
+| `paragraph-skip` | TeX length/glue | Package initially sets `\parskip=2pt`; absent override lets normal language/minipage initialization apply. Explicit value is reapplied inside each side. |
+| `paragraph-indent` | TeX length | Package initially sets `\parindent=0pt`; explicit value is reapplied after language/minipage initialization. |
+| `paragraph-emergency-stretch` | Nonnegative TeX length | `\linewidth`; `\ParallelParagraphEmergencyStretch`. Evaluated in the current physical column after selecting the paragraph font. Gives TeX its final line-breaking fallback without changing text, font size or column width. |
+| `minimum-column-width` | TeX length | `20mm`; structural guard, not a readability certificate. |
+| `section-space` | TeX length | `65pt`; minimum reservation before section heading. |
+| `subsection-space` | TeX length | `45pt`; minimum reservation for subsection/entry headings. |
 
-## Geometry and printing
+`\ParallelParagraph[flow=default]{id}{left}{right}` uses the global choice. `flow=keep` forbids a page break inside that paragraph pair, while `flow=breakable` lets each side continue naturally across pages. The next pair starts after both have finished. Keeping an oversized paragraph does not authorize shrinking or truncation: the build fails and the caller must choose another layout policy or supply smaller units.
 
-The divider is centered on the actual text block. At shipout it reads `\oddsidemargin` or `\evensidemargin`, `\hoffset`, `\textwidth`, `\topmargin`, `\headheight`, `\headsep` and `\textheight`. Unequal inner/outer margins and `bindingoffset` therefore move the divider and columns together on both parities. `oneside` keeps the same margins; `twoside` mirrors them as documented by geometry. Do not use geometry's separate `asymmetric` option when you mean ordinary mirrored margins: that option deliberately suppresses their swap.
+Geometry validates actual width/height, not just key syntax. Paired mode cannot run inside standard twocolumn; text height must be at least 30 mm. An atomic pair/group must fit inside the text area, including its safety allowance. A heading stays with the next bounded unit; oversized heading/unit combinations error.
 
-Choose paper sizes through geometry, including `a4paper`, `letterpaper`, `a5paper`, `legalpaper` or `paperwidth`/`paperheight`. Native authoring is not limited to the adapter's paper list. The validator rejects an impossibly narrow column; the minimum is configurable with `minimum-column-width` and is only a structural safeguard, not a readability promise. Changing paper size can still require a different figure or table design.
+Use geometry's `inner`/`outer`/`bindingoffset` for bound work. `twoside` mirrors inner/outer margins; `asymmetric` deliberately suppresses that swap and should not be used as a synonym. Custom `paperwidth`/`paperheight` are supported natively. The divider follows live text-block geometry on each parity, including offset and binding allowance.
 
-The page rule runs along the text block and appears only on paired body pages. `divider-style` is a TikZ path style list, so native authors can use `densely dotted`, `dash pattern=on 2pt off 1pt`, opacity, or other appropriate path options. A shared image masks the rule using `background-color=white`; set this to the actual page background if customizing it.
+## Typography and declaration hooks
 
-A two-column selected-language edition uses the standard LaTeX column mechanism. Bounded blocks fill one column. A `ParallelWideFigure` spans the current text area: in this edition that means one column. For a true page-wide figure, change to `\onecolumn` and restore `\twocolumn` at deliberate page boundaries. Covers do that automatically. Paired mode is not nestable inside `twocolumn`.
+Each style key replaces the corresponding public macro with a declaration list. Sizes below are font size/baseline spacing in pt. Defaults that refer to `\ParallelHeadingFont` keep that hook dynamic.
 
-Folios use the current `\thepage`. `\pagenumbering` retains its standard behavior, including resetting the logical counter. Mirrored layout and outer/inner furniture follow the standard logical page parity; reset numbering at the appropriate recto so that it agrees with physical print order. The back-cover helper separately counts actual shipped PDF pages, so Roman folios or a body-number reset do not break its final physical parity. With both blank switches on, front reverse and inside back are genuinely blank. When deliberately choosing another blank/parity policy, validate that policy rather than using the default `--covers` check.
+| Key | Public hook | Default |
+| --- | --- | --- |
+| `heading-font` | `\ParallelHeadingFont` | `\sffamily\bfseries\hyphenpenalty=10000\exhyphenpenalty=10000` |
+| `title-style` | `\ParallelTitleStyle` | Heading font, theme color, 17/20.4 |
+| `section-style` | `\ParallelSectionStyle` | Heading font, active structure color, 13/15.6 |
+| `subsection-style` | `\ParallelSubsectionStyle` | Heading font, 9.5/11.4; subsection command additionally applies its role color |
+| `caption-style` | `\ParallelCaptionStyle` | Secondary color; body size inherited |
+| `cover-style` | `\ParallelCoverStyle` | Heading font, theme color, 24/30 |
+| `note-style` | `\ParallelNoteStyle` | Secondary color; body size inherited |
+| `entry-style` | `\ParallelEntryStyle` | Heading font, active structure color, 11/13.2 |
+| `diagram-style` | `\ParallelDiagramStyle` | 8/10 |
+| `header-style` | `\ParallelHeaderStyle` | Sans, 7/8 |
+| `footer-style` | `\ParallelFooterStyle` | Sans, 7/8 |
+| `page-number-style` | `\ParallelPageNumberStyle` | `\MarkerFont`, 8/9.6 |
+| `tab-text-style` | `\ParallelTabTextStyle` | Sans bold, 6/7 |
 
-`parallel` is a dedicated fancyhdr style; the package does not redefine `plain` or the user's `fancy` style. Configuration initializes the default style at package load and does not reapply it over later author commands. For a custom header/folio composition use `\fancypagestyle{my-layout}{...}` and `\pagestyle{my-layout}`. Running fields and tab labels use the document’s main Polyglossia language as a stable base context at shipout, independent of the active body language. Override it with `furniture-language` when needed; use explicit `\textarabic{...}`, `\textchinese{...}` or another configured Polyglossia command for other label text. Entry-head helpers select their own headword language. Do not put a long running title and a folio in the same field without designing their spacing. Head/foot rules and header dimensions use ordinary fancyhdr/geometry commands.
-
-A heading stays with the next bounded semantic unit; if it cannot fit, both move together with their labels. A heading plus an atomic unit that exceeds one page is rejected; use a shorter semantic unit or flowing prose. `section-space` and `subsection-space` are minimum reservations, not substitutes for that keep rule.
-
-The nominal text margin is not the printer's safe ink margin. Tabs intentionally occupy the outer margin. Render every page after a style change, inspect both parities, and choose an explicit printer-safe clearance. The QA command accepts `--margin-mm` for a full-page horizontal ink exclusion; use a value consistent with intentional furniture. Never assume a nominal binding margin proves a minimum glyph clearance.
-
-## Optional semantic roles, entries and navigation
-
-A general article needs none of these commands. A learning guide, dictionary or field manual may use them selectively:
+To retain defaults and append one property, use the loaded etoolbox interface:
 
 ```tex
-\ParallelDeclareRole{warning}{parallel.caution}{Caution:}{注意：}
-\ParallelDeclareNavigation{methods}{1}{M}
-\ParallelDeclareNavigation{lookup}{2}{A–Z}
-\ParallelSetup{tabs=true,header-left=\ParallelFirstEntry,
-  header-right=\ParallelLastEntry}
-% In the document:
-\ParallelNavigation{methods}
-\ParallelEntry{entry:method}{Method}{方法}
-\ParallelNote[warning]{note:scope}{State the valid conditions.}{说明适用条件。}
-\ParallelText{explanation}{Explain the method.}{解释方法。}
-\ParallelLookup{alias:method}{entry:method}{Method}{方法}
-\ParallelEndEntry
-\ParallelEndNavigation
+\appto\ParallelTitleStyle{\color{red!60!black}}
+\ParallelSetup{body-size=10,body-leading=12,column-gap=7mm}
 ```
 
-`ParallelDeclareRole{name}{xcolor expression}{left label}{right label}` keeps semantic color and optional wording separate from topic/theme color. Built-in `body`, `concept`, `example`, `caution`, `error` roles have no imposed wording; authors supply accurate labels or declare new ones. `ParallelNote[role]{id}{left}{right}` is an ordinary paired note, not a shaded box. `ParallelRoleText{role}{content}` applies the role color inline. Colors never replace meaningful text.
+Styles execute within the side's language context. Define the relevant roman and sans font families through fontspec/Polyglossia, including bold faces as needed. Default base families are Latin Modern Roman, Latin Modern Sans and Latin Modern Math; `\MarkerFont` is Latin Modern Roman. See [languages.md](languages.md).
 
-`ParallelEntry` prints a non-numbered heading with a stable native label, then tracks that entry until the next entry or `ParallelEndEntry`. First/last headwords and navigation IDs are recorded at actual output positions. Flow start/end records extend the active entry across continuation pages. Headers resolve on subsequent LaTeX runs; use latexmk. Keep headwords short. Entry headwords use the selected side’s language/font mapping, while the configurable header style controls size and family; custom mixed-language running text can use ordinary Polyglossia commands. Native `xr-hyper` with a prefix and `\hyperref`/`\ref`/`\pageref` remains the cross-document reference interface. `ParallelLookup` uses a generated local page; `ParallelLocationRow{title}{location}` also supports a native companion reference and a wrap-safe location column. Its width can be changed with `\renewcommand\ParallelLocationWidth{...}`.
+## Palette and divider
 
-Navigation declarations assign stable slots independently of section numbers or language. An optional xcolor expression, such as `\ParallelDeclareNavigation[blue!60!black]{methods}{1}{M}`, gives that group its own structural accent for section/entry headings and tabs; semantic role colors remain unchanged. `ParallelNavigation{id}` selects a declared ID for following blocks; a page containing two navigation groups receives both tabs. Declare A–Z slots yourself when that ordering suits the source; the package does not invent an index or require Latin letters. Keys: `tab-inset`, `tab-width`, `tab-height`, `tab-top`, `tab-step`, `tab-rotation`, `tab-side=outer|inner|left|right`, `tab-style` (TikZ node options), and `tab-text-style` (font declarations). Positions that extend below the paper are rejected. Check label fit, slot overlap and the intended ink clearance visually.
+| Key | Accepted value | Default |
+| --- | --- | --- |
+| `theme-color` | xcolor expression | `parallel.theme`, HTML `4C6174`; updates that named color |
+| `body-color` | xcolor expression | Body text initially `black`; setting updates body text and `parallel.body` |
+| `secondary-color` | xcolor expression | `parallel.secondary`, HTML `50555A` |
+| `divider` | Boolean | `true`; only rendered on paired body pages |
+| `divider-color` | xcolor expression | `black!35` |
+| `divider-width` | Positive TeX length | `.3pt`; must remain positive even if the divider is disabled |
+| `divider-style` | TikZ path style/options | `solid`; native trusted lists can include dashes, opacity and other path options |
+| `background-color` | xcolor expression | `white`; mask behind shared images, not a whole-page background painter |
 
-For reusable diagrams, `ParallelDiagram` is a TikZ environment with configurable `diagram-style` and optional standard TikZ options. `parallel node`, `parallel fixed`, `parallel variable`, `parallel arrow` and `parallel annotation` are ordinary `\tikzset` styles. `\ParallelLocalize{left text}{right text}` selects labels inside a diagram input reused on both sides. Topology, equations and explanations remain manuscript data; this is not an automatic chart translator.
+Built-in role colors are `parallel.body=161616`, `parallel.concept=0B4F8A`, `parallel.example=006B5B`, `parallel.caution=8A5A00` and `parallel.error=A4262C` (HTML). Role declarations, not theme-color, control role wording/color. `\ParallelStructureColor` initially names `parallel.theme`; an active navigation group replaces its accent until `\ParallelEndNavigation`.
 
-## Optional profiles, not separate templates
+## Running furniture and folios
 
-`profile=bound` adjusts only geometry to a mirrored 24 mm inner / 16 mm outer text margin plus a 3 mm binding allowance. `profile=reading` adjusts only body/paragraph spacing, hides the divider and centers the footer folio. These are examples, not universal print requirements. Apply the profile first, then sparse overrides. Define a project profile with `\ParallelDeclareProfile{name}{key list}` in the preamble.
+| Key | Accepted value | Default and behavior |
+| --- | --- | --- |
+| `furniture-language` | Configured Polyglossia name | `\mainlanguagename`; stable language context at shipout |
+| `entry-header-width` | Native TeX length | `.46\headwidth`; bounded box width for first/last entry headers; public hook `\ParallelEntryHeaderWidth` |
+| `entry-header-max-lines` | Positive integer | `2`; height budget is active baseline spacing × this value + 1 pt; public hook `\ParallelEntryHeaderMaxLines` |
+| `entry-continuation-left` | Trusted native text | Empty; append on later physical pages of a tracked entry in paired/left output; public hook `\ParallelEntryContinuationLeft` |
+| `entry-continuation-right` | Trusted native text | Empty; corresponding cue for right output; public hook `\ParallelEntryContinuationRight` |
+| `running-title` | Trusted native text | Empty; `\ParallelTitle` does not fill it automatically |
+| `header-left` | Trusted native text | `\ParallelRunningTitle` |
+| `header-right` | Trusted native text | Empty |
+| `footer-left`, `footer-right` | Trusted native text | Both empty |
+| `page-style` | Existing native style name | `parallel`; calls `\pagestyle` immediately |
+| `page-number-position` | Position listed below | `footer-outer` |
+| `page-numbering` | `arabic`, `roman`, `Roman`, `alph`, `Alph`, `gobble` | Ordinary class numbering (arabic in the examples). Calls `\pagenumbering`, including its counter reset. |
+| `page-number-format` | Trusted native content | `\thepage`; keep the live page macro rather than a literal number |
+| `page-reference-prefix` | Trusted native text | `p.\,` inside the LTR suffix produced by `\ParallelReference` |
 
-Two directly usable configuration files are bundled: [bound-profile.tex](../assets/bound-profile.tex) and [reading-profile.tex](../assets/reading-profile.tex). Copy either beside an example, add `\input{bound-profile.tex}` or `\input{reading-profile.tex}` after its language settings, rebuild, and review. Both are exercised by the isolated configuration tests. Do not modify a manuscript paragraph to compensate for a global layout choice.
+Position choices are `footer-outer`, `footer-inner`, `footer-left`, `footer-center`, `footer-right`, the corresponding five `header-...` choices, and `none`. Outer/inner follow logical page parity for twoside documents; in oneside, outer is right and inner is left.
 
-## Documented foundations
+All matching public content hooks are named by converting the key to CamelCase with `Parallel` prefix, for example `\ParallelHeaderLeft` and `\ParallelPageNumberFormat`. Font hooks are listed above. `\ParallelFirstEntry`/`\ParallelLastEntry` can be used as header content and select their own headword language.
 
-This design uses the [LaTeX kernel's package/key-value interface](https://www.latex-project.org/help/documentation/clsguide.pdf), [geometry's inner/outer and bindingoffset semantics](https://mirrors.ibiblio.org/CTAN/macros/latex/contrib/geometry/geometry.pdf), [fancyhdr's named page styles](https://mirrors.ibiblio.org/CTAN/macros/latex/contrib/fancyhdr/fancyhdr.pdf), and the existing fontspec/Polyglossia and TikZ interfaces. The JSON adapter supports a deliberately smaller validated data-only subset; it emits these same native settings.
+The package defines a dedicated fancyhdr style `parallel`; it does not redefine `plain` or the user's `fancy` style. Head/foot rules default to zero; headheight starts at 25 pt. Ordinary `\fancypagestyle`, `\pagestyle`, `\thispagestyle`, geometry dimensions and LaTeX counters remain available. The package does not overwrite a later author-selected page style at document start.
+
+Entry header title hooks \ParallelEntryHeaderLeft{full title} and \ParallelEntryHeaderRight{full title} are identity functions by default. Redefine them with \renewcommand when the running head needs different wording. The selected hook is expanded/captured when \ParallelEntry begins; the printed title stays unchanged. Keep captured content expansion-safe/robust. First/last entry headers are ragged-right/ragged-left respectively and use the bounded width/height above. Over-height content errors rather than clipping or truncating; increase geometry/header height coherently or supply a shorter header. Continuation cues use multipass physical entry-page records; include a leading space in the cue if wanted. These are native-only interfaces.
+
+A folio and running text placed in the same field are concatenated; design their spacing explicitly. Use configured `\texthebrew`, `\textarabic` or other language commands for mixed-language furniture. Reset logical numbering at a physical recto when parity should agree with duplex order. Back-cover parity is separately based on physical shipped pages.
+
+## Cover keys
+
+| Key | Value | Default and effect |
+| --- | --- | --- |
+| `cover-top` | TeX length | `20mm` before cover titles |
+| `cover-gap` | TeX length | `10mm` between two cover titles in paired mode |
+| `cover-bottom` | Trusted native content | Empty; printed after flexible vertical space |
+| `blank-verso` | Boolean | `true`; blank reverse after front cover |
+| `blank-inside-back` | Boolean | `true`; blank inside-back face |
+| `back-parity` | `even`, `odd`, `any` | `even`; physical final cover page |
+
+These keys configure cover commands but do not emit covers. Front/back helpers temporarily enter one-column mode and restore it afterward. Their defaults produce genuinely blank inside faces and an even physical final page. When changing blank/parity policy, review that policy explicitly rather than using the default `validate --covers` assumption.
+
+## Navigation tab keys
+
+| Key | Value | Default |
+| --- | --- | --- |
+| `tabs` | Boolean | `false` |
+| `tab-inset` | Nonnegative TeX length | `6mm` from selected paper edge |
+| `tab-width` | Positive TeX length | `5mm` minimum node width |
+| `tab-height` | Positive TeX length | `12mm` minimum node height |
+| `tab-top` | TeX length | `30mm` to slot 1 |
+| `tab-step` | Positive TeX length | `16mm` between slot starts |
+| `tab-style` | TikZ node options | `line width=.5pt,inner sep=.25mm` |
+| `tab-text-style` | Font declarations | Sans bold 6/7 pt |
+| `tab-rotation` | graphicx rotation angle | `0` degrees |
+| `tab-side` | `outer`, `inner`, `left`, `right` | `outer` |
+
+Each tab uses its navigation group's color for outline and an 8% tint for fill before applying tab-style. Start position is tab-top + (slot − 1) × tab-step. A bottom edge below paper height errors. Duplicate slots, top/horizontal overflow, text exceeding minimum node size and overlap are not comprehensively validated; inspect the actual page.
+
+## Profiles and direct hooks
+
+`\ParallelDeclareProfile{name}{key list}` creates a preamble-only sparse preset. Built-ins:
+- `bound`: `geometry={twoside,inner=24mm,outer=16mm,bindingoffset=3mm}`
+- `reading`: `body-size=11,body-leading=14,pair-gap=5pt,paragraph-skip=3pt,divider=false,page-number-position=footer-center`
+
+The bundled [bound-profile.tex](../assets/bound-profile.tex) and [reading-profile.tex](../assets/reading-profile.tex) are richer worked configurations, not byte-for-byte aliases for the built-in profiles. The bound file additionally styles the divider/folio and enables tabs; the reading file additionally selects Letter/oneside geometry, black theme, larger title and a header folio. Copy one beside the manuscript and input it after language setup if those choices fit the requested layout.
+
+Most public storage hooks correspond directly to the listed keys, such as `\ParallelParagraphFlow`, `\ParallelBodySize`, `\ParallelBodyLeading`, `\ParallelColumnGap`, `\ParallelMinimumColumnWidth`, `\ParallelDividerColor`, `\ParallelDividerWidth`, `\ParallelDividerStyle`, `\ParallelBackgroundColor`, `\ParallelSectionSpace`, `\ParallelSubsectionSpace`, `\ParallelCoverTop`, `\ParallelCoverGap`, `\ParallelCoverBottom`, `\ParallelBackParity`, `\ParallelSingleColumns` and the `\ParallelTab...` macros. Prefer setup keys; internal booleans, dimensions and measurement records are not extension APIs.
+
+For completeness, the remaining key-backed storage macros are \ParallelBodyColor, \ParallelFurnitureLanguage, \ParallelHeaderRight, \ParallelFooterLeft, \ParallelFooterRight, \ParallelPageStyle, \ParallelPageNumberPosition, \ParallelPageReferencePrefix, \ParallelTabInset, \ParallelTabWidth, \ParallelTabHeight, \ParallelTabTop, \ParallelTabStep, \ParallelTabStyle, \ParallelTabRotation and \ParallelTabSide. Their accepted values and defaults are the corresponding rows above. \ParallelPageNumberFormat is a formatting hook; changing it is distinct from changing the native page-numbering counter representation.
+
+Additional direct public hooks are `\ParallelLocationWidth` (12 mm printed-location column), `\ParallelStructureColor` (active navigation accent) and `\MarkerFont` (Latin marker family). Standard `\setlist`, `\tikzset`, `\hypersetup`, `\definecolor`/`\colorlet`, fontspec and Polyglossia remain the proper APIs for their own domains. The role/entry/navigation/diagram commands are fully specified in [latex.md](latex.md).
+
+## Print and visual verification
+
+The nominal text margin is not a printer-safe ink margin. Tabs intentionally occupy margins; choose a printer-safe clearance and inspect both parities. A shared image masks the divider using background-color, so coordinate it with any custom page background. In selected two-column output a shared figure fills one column; use deliberate `\onecolumn`/`\twocolumn` page transitions for a page-wide figure.
+
+After global layout changes, render actual pages and check alignment, line/page continuations, glyphs, references, clipping, headers/folios, tab overlap and cover parity. QA `--margin-mm` is a horizontal ink exclusion and must reflect intentional furniture. Keep bounded table rows individually intact; row-by-row pagination does not make one oversized row breakable. Configuration acceptance and compiler success do not replace pixel review.
+## Independent document version and status
+
+Native `document-version` and `document-status` store separate optional token strings in `\ParallelDocumentVersion` and `\ParallelDocumentStatus`. Both default to empty. The package imposes no version format or status vocabulary and does not automatically join or display them. A project can populate them from its build metadata and use a cover/header hook, for example `\ParallelSetup{document-version={1.2},document-status={Review},cover-bottom={\ParallelDocumentVersion\quad\ParallelDocumentStatus}}`. These are presentation metadata, not the PDF file-format version, and they are outside the JSON layout subset.
+
+The divider follows the center of the live text block, not an independently fixed paper coordinate. With symmetric physical margins and no asymmetric binding offset, text-block and paper centers coincide. With asymmetric mirrored binding geometry, the text-block center and divider can shift between odd and even pages. There is no separate paper-center divider mode; choose symmetric paired-page geometry when a fixed physical middle is required.
+
+Emergency stretch is used only when ordinary paragraph line-breaking cannot meet its tolerance. The width-relative default can admit a legal short ragged line even when a CJK paragraph contains a long Latin identifier; it is not a fixed em threshold tied to one paper or binding width. Normal line-breaking passes still run first. It does not split an intrinsically over-wide token, suppress overflow diagnostics or change the acceptance margin. This key is native configuration; structured documents inherit the same canonical default.

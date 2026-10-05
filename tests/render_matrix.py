@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 """Render isolated installed-skill fixtures. Mechanical results are not visual sign-off."""
-import argparse,concurrent.futures,copy,json,shutil,subprocess,sys
+import argparse,copy,json,shutil,sys,hashlib,tempfile,subprocess,os,datetime
+from matrix_support import add_matrix_arguments, initialize_output, execute_matrix, run_command, repeat_text, first_sentence
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);args=p.parse_args()
-work=args.output.resolve()
-if work.exists():raise SystemExit('Choose a new test directory')
-work.mkdir(parents=True)
-for skill in ['bilingual-pdf','course-guide-quick-reference']:
- shutil.copytree(ROOT/'skills'/skill,work/skill,ignore=shutil.ignore_patterns('__pycache__'))
-shutil.copytree(ROOT/'tests/fixtures',work/'fixtures')
+p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);p.add_argument('--reuse-rendered',type=Path,help='Reuse verified compiled inputs only within an unchanged TeX/font installation; engine version is checked, external font/package bytes are not; all assertions rerun');add_matrix_arguments(p);args=p.parse_args()
+work=initialize_output(args.output,args.resume)
+for skill in ['bilingual-pdf']:
+ shutil.copytree(ROOT/'skills'/skill,work/skill,ignore=shutil.ignore_patterns('__pycache__'),dirs_exist_ok=True)
+shutil.copytree(ROOT/'tests/fixtures',work/'fixtures',dirs_exist_ok=True)
 base=json.loads((work/'fixtures/garden-en-fr.json').read_text());base['layout']={'covers':True};cases=[];case_sources={}
-for name in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja']:
+for name in ['en-fr','en-zh-Hans','en-ar','en-he','zh-Hans-ja']:
  for mode in ['bilingual','left','right']:
   source=work/'bilingual-pdf/examples'/name
-  cases.append((name+'-'+mode,json.loads((source/'source.json').read_text()),mode,0));case_sources[name+'-'+mode]=work/'bilingual-pdf/assets'
+  cases.append((name+'-'+mode,json.loads((source/'source.json').read_text()),mode,0));case_sources[name+'-'+mode]=work/'bilingual-pdf/examples/shared'
 rtlrefs=json.loads((work/'fixtures/garden-en-ar.json').read_text());rtlrefs['blocks'] += [{'id':'intro-ref','kind':'reference','target':'check','text':['See the introduction','انظر المقدمة']},{'id':'average-ref','kind':'reference','target':'average','text':['See the average','انظر المتوسط']}]
 for mode in ['bilingual','left','right']:cases.append(('rtl-references-'+mode,rtlrefs,mode,0))
 rev=json.loads((work/'bilingual-pdf/examples/en-ar/source.json').read_text());rev['languages'].reverse();rev['title'].reverse()
@@ -23,7 +22,7 @@ for b in rev['blocks']:
  if isinstance(b.get('image'),list):b['image'].reverse()
  for field in ('headers','rows'):
   if field in b:b[field].reverse()
-cases.append(('ar-en-reversed',rev,'bilingual',0));case_sources['ar-en-reversed']=work/'bilingual-pdf/assets'
+cases.append(('ar-en-reversed',rev,'bilingual',0));case_sources['ar-en-reversed']=work/'bilingual-pdf/examples/shared'
 no=copy.deepcopy(base);no['layout']={'covers':False,'paper':'letter'};cases.append(('letter-no-covers',no,'bilingual',0))
 multi=copy.deepcopy(base);multi['blocks']=[]
 for i in range(70):
@@ -34,27 +33,90 @@ refs=copy.deepcopy(base);refs['blocks'] += [{'id':'list-parent-ref','kind':'refe
 for mode in ['bilingual','left','right']:cases.append(('parent-references-'+mode,refs,mode,0))
 ov=copy.deepcopy(base);ov['blocks']=[{'id':'oversize','text':['A long explanation. '*3000,'Une longue explication. '*3000]}];cases.append(('oversized-block',ov,'bilingual',3))
 glyph=copy.deepcopy(base);glyph['blocks'][0]['text'][0]='Missing glyph 🦄';cases.append(('missing-glyph',glyph,'bilingual',2))
-for name in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja']:
+for name in ['en-fr','en-zh-Hans','en-ar','en-he','zh-Hans-ja']:
  source=work/'bilingual-pdf/examples'/name;article=json.loads((source/'source.json').read_text())
- passage=next(b['text'] for b in article['blocks'] if b['id']=='notebook-prose')
- flow=copy.deepcopy(article);flow['blocks']=[{'id':'long-prose','kind':'paragraph','flow':'breakable','text':[(x+' ')*18 for x in passage]},{'id':'after-flow','text':passage}]
- cases.append(('flow-'+name,flow,'bilingual',0));case_sources['flow-'+name]=work/'bilingual-pdf/assets'
- captions={'en':'Shared photograph.','fr':'Photographie partagée.','zh-Hans':'共用照片。','ar':'صورة مشتركة.','ja':'共有写真。'}
- wide=copy.deepcopy(article);wide['blocks']=[{'id':'photo','kind':'figure','placement':'shared','image':'footpath.png','text':[captions[l] for l in article['languages']]},{'id':'after-photo','text':passage}]
- cases.append(('shared-photo-'+name,wide,'bilingual',0));case_sources['shared-photo-'+name]=work/'bilingual-pdf/assets'
+ passage=next(b['text'] for b in article['blocks'] if b['id']=='continuing-prose')
+ flow=copy.deepcopy(article);flow['blocks']=[{'id':'long-prose','kind':'paragraph','flow':'breakable','text':[repeat_text(x) for x in passage]},{'id':'after-flow','text':[first_sentence(x) for x in passage]}]
+ cases.append(('flow-'+name,flow,'bilingual',0));case_sources['flow-'+name]=work/'bilingual-pdf/examples/shared'
+ captions={'en':'Shared photograph.','fr':'Photographie partagée.','zh-Hans':'共用照片。','ar':'صورة مشتركة.','ja':'共有写真。','he':'תרשים משותף.'}
+ wide=copy.deepcopy(article);wide['blocks']=[{'id':'photo','kind':'figure','placement':'shared','image':'layout-anatomy.png','text':[captions[l] for l in article['languages']]},{'id':'after-photo','text':[first_sentence(x) for x in passage]}]
+ cases.append(('shared-photo-'+name,wide,'bilingual',0));case_sources['shared-photo-'+name]=work/'bilingual-pdf/examples/shared'
 
-def stage_input(name,data,source,collection=False):
- directory=work/'generated-inputs'/name;directory.mkdir(parents=True)
- blocks=data['blocks'] if not collection else [b for t in data['topics'] for b in t['guide_blocks']+t['quick'].get('blocks',[])]
+def stage_input(name,data,source):
+ directory=work/'generated-inputs'/name;directory.mkdir(parents=True,exist_ok=True)
+ blocks=data['blocks']
  for block in blocks:
   if block.get('kind')=='figure':
    for image in (block['image'] if isinstance(block['image'],list) else [block['image']]):
     relative=Path(image);target=directory/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source/relative,target)
  ip=directory/'source.json';ip.write_text(json.dumps(data,ensure_ascii=False));return ip
 
+_CACHE_ENGINE=None
+def reuse_rendered(name,data,mode,ip):
+ global _CACHE_ENGINE
+ if args.reuse_rendered is None:return None
+ previous=args.reuse_rendered.resolve()/name
+ evidence=args.reuse_rendered.resolve()/'case-results'/(name+'.json')
+ previous_input=args.reuse_rendered.resolve()/'generated-inputs'/name/'source.json'
+ if not evidence.is_file() or not previous_input.is_file():return None
+ outcome=json.loads(evidence.read_text())
+ if outcome.get('status')!='passed' or outcome.get('expected_exit')!=0 or outcome.get('passed') is not True:return None
+ if previous_input.read_bytes()!=ip.read_bytes():return None
+ if not all((previous/filename).is_file() for filename in ('result.json','document.pdf','document.aux','document.log')):return None
+ result=json.loads((previous/'result.json').read_text())
+ if not result.get('ok') or result.get('mode')!=mode:return None
+ if _CACHE_ENGINE is None:
+  _CACHE_ENGINE=run_command(['xelatex','--version'],cwd=work,timeout=10).stdout.splitlines()[0]
+ if result.get('environment',{}).get('engine')!=_CACHE_ENGINE:return None
+ digest=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
+ if result.get('renderer_sha256')!=digest(work/'bilingual-pdf/scripts/bilingual_pdf.py'):return None
+ if result.get('sha256')!=digest(previous/'document.pdf'):return None
+ if set(result.get('template_sha256',{}))!={'paralleltext.sty'}:return None
+ for filename,wanted in result['template_sha256'].items():
+  if wanted!=digest(work/'bilingual-pdf/assets'/filename):return None
+ # Re-export all current TeX, language, package, license and image inputs.
+ # Only byte-identical exported source trees can reuse a compiled artifact.
+ sys.path.insert(0,str(work/'bilingual-pdf/scripts'))
+ from bilingual_pdf import validate,export_document,check_pdf
+ with tempfile.TemporaryDirectory(prefix='cache-probe-',dir=work) as temporary:
+  exported=Path(temporary)/'exported'
+  export_document(validate(copy.deepcopy(data)),ip,exported,mode)
+  for path in exported.rglob('*'):
+   if path.is_file():
+    old=previous/path.relative_to(exported)
+    if not old.is_file() or old.read_bytes()!=path.read_bytes():return None
+ if os.environ.get('FORCE_SOURCE_DATE')=='1' and os.environ.get('SOURCE_DATE_EPOCH'):
+  import pymupdf
+  wanted=datetime.datetime.fromtimestamp(int(os.environ['SOURCE_DATE_EPOCH']),datetime.timezone.utc).strftime('D:%Y%m%d%H%M%S')
+  with pymupdf.open(previous/'document.pdf') as pdf:
+   if not pdf.metadata.get('creationDate','').startswith(wanted):return None
+ artifacts={filename:digest(previous/filename) for filename in ('document.pdf','document.aux','document.log','result.json')}
+ shutil.copytree(previous,work/name)
+ if any(digest(work/name/filename)!=wanted for filename,wanted in artifacts.items()):raise AssertionError('Copied cache artifact checksum mismatch')
+ layout=data.get('layout',{})
+ margin=min(layout.get('inner_mm',layout.get('margin_mm',16 if layout.get('profile')=='bound' else 18)),layout.get('outer_mm',layout.get('margin_mm',16 if layout.get('profile')=='bound' else 18)))
+ checked=check_pdf(work/name/'document.pdf',layout.get('covers',False),mode=='bilingual',margin)
+ checked['errors'] += [line for line in (work/name/'document.log').read_text().splitlines() if any(token in line for token in ('Missing character:','Overfull','undefined references','multiply defined','No hyphenation patterns'))]
+ checked['ok']=not checked['errors']
+ result.update(checked,pdf=str(work/name/'document.pdf'),reused_verified_build=True,
+               reuse={'source_directory':str(previous),'source_artifact_sha256':artifacts,
+                      'source_case_sha256':digest(evidence),'input_sha256':digest(ip),
+                      'engine':_CACHE_ENGINE,'current_exported_sources_byte_identical':True,
+                      'aux_log_hashes_captured_at':'reuse validation, not original compilation',
+                      'toolchain_prerequisite':'unchanged TeX and font installation required; engine version checked; external font/package byte identity not independently verified'})
+ (work/name/'result.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+ return subprocess.CompletedProcess([],0 if result['ok'] else 4,json.dumps(result), '')
+
 def run(c):
- name,data,mode,expected=c;ip=stage_input(name,data,case_sources.get(name,work/'fixtures/course-en-fr'))
- proc=subprocess.run([sys.executable,str(work/'bilingual-pdf/scripts/bilingual_pdf.py'),'render',str(ip),'--output',str(work/name),'--mode',mode],cwd=work,capture_output=True,text=True,timeout=240)
+ name,data,mode,expected=c
+ if (work/name).exists():
+  attempts=work/'interrupted-cases';attempts.mkdir(exist_ok=True)
+  index=1
+  while (attempts/(name+'-'+str(index))).exists():index+=1
+  (work/name).rename(attempts/(name+'-'+str(index)))
+ ip=stage_input(name,data,case_sources.get(name,work/'fixtures'))
+ proc=reuse_rendered(name,data,mode,ip) if expected==0 else None
+ if proc is None:proc=run_command([sys.executable,str(work/'bilingual-pdf/scripts/bilingual_pdf.py'),'render',str(ip),'--output',str(work/name),'--mode',mode],cwd=work,capture_output=True,text=True,timeout=105)
  valid_json=True
  try:r=json.loads(proc.stdout)
  except json.JSONDecodeError:r={'error':proc.stdout+proc.stderr};valid_json=False
@@ -69,18 +131,18 @@ def run(c):
    expected_links=4 if mode=='bilingual' else 2
    matches=matches and len(links)==expected_links and all(link.get('page')==labels['steps']-1 for link in links)
   if not matches:r['parent_reference_error']='Parent destinations or first-child page records differ';proc.returncode=4
- if proc.returncode==0 and name in [x+'-bilingual' for x in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja']]:
+ if proc.returncode==0 and name in [x+'-bilingual' for x in ['en-fr','en-zh-Hans','en-ar','en-he','zh-Hans-ja']]:
   from layout_checks import quote_geometry, article_features
   quote=quote_geometry(work/name/'document.pdf',data['languages']);r['quote_geometry']=quote
   features=article_features(work/name/'document.pdf');r['article_features']=features
   if not quote['ok'] or not features['ok']:proc.returncode=4
- if proc.returncode==0 and name in [x+'-'+side for x in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja'] for side in ['left','right']]:
+ if proc.returncode==0 and name in [x+'-'+side for x in ['en-fr','en-zh-Hans','en-ar','en-he','zh-Hans-ja'] for side in ['left','right']]:
   import hashlib,pymupdf
   from PIL import Image
-  route=next(b for b in data['blocks'] if b['id']=='route-image')['image']
+  route=next(b for b in data['blocks'] if b['id']=='localized-pipeline')['image']
   wanted=route[0 if mode=='left' else 1];unwanted=route[1 if mode=='left' else 0]
   def image_digest(filename):
-   with Image.open(work/'bilingual-pdf/assets'/filename) as image:return hashlib.md5(image.convert('RGB').tobytes()).digest()
+   with Image.open(work/'bilingual-pdf/examples/shared'/filename) as image:return hashlib.md5(image.convert('RGB').tobytes()).digest()
   with pymupdf.open(work/name/'document.pdf') as pdf:digests=[image['digest'] for page in pdf for image in page.get_image_info(hashes=True)]
   r['selected_language_uses_its_localized_image']=image_digest(wanted) in digests and image_digest(unwanted) not in digests
   if not r['selected_language_uses_its_localized_image']:proc.returncode=4
@@ -98,29 +160,5 @@ def run(c):
   r['one_full_width_image']=shared
   if not shared:proc.returncode=4
  return {'case':name,'expected_exit':expected,'actual_exit':proc.returncode,'passed':proc.returncode==expected and valid_json and (expected!=0 or r.get('ok') is True),'result':r}
-with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:results=list(pool.map(run,cases))
-course=json.loads((work/'fixtures/course-en-fr/source.json').read_text())
-wrapped=copy.deepcopy(course);wrapped['topics'][0]['title']=['Average speed over a complete trip with measured distance and elapsed time','Vitesse moyenne sur un trajet complet avec une distance et une durée mesurées']
-arabic={'languages':['en','ar'],'guide_title':['Measurements — Guide','دليل القياسات'],'quick_title':['Measurements — Quick Reference','مرجع سريع للقياسات'],'labels':{'meaning':['Meaning','المعنى'],'rule':['Rule','القاعدة'],'checks':['Checks','التحقق'],'guide':['Guide','الدليل'],'see':['See','انظر']},'topics':[{'id':'mean','title':['Mean','المتوسط'],'guide_blocks':[copy.deepcopy(rtlrefs['blocks'][3])],'quick':{'meaning':['The sum divided by the count.','المجموع مقسوما على العدد.'],'rule':['For two values, add them and divide by two.','اجمع القيمتين ثم اقسم المجموع على اثنين.'],'checks':['Use comparable values and consistent units.','استخدم قيما قابلة للمقارنة ووحدات متسقة.']},'aliases':[{'id':'average','title':['Average','المعدل']}]}],'keywords':[{'id':'measurements','title':['Measurements','القياسات'],'targets':['mean']}]}
-flexible=copy.deepcopy(course)
-flexible['topics'][0]['quick']={'blocks':[{'id':'speed.quick-summary','text':course['topics'][0]['quick']['meaning']},{'id':'speed.quick-figure','kind':'figure','image':'trip.png','text':['An original trip diagram.','Un schéma original du trajet.']},{'id':'speed.quick-related','kind':'reference','target':'entry.'+course['topics'][1]['id'],'text':['Another concept','Une autre notion']}]}
-roman=copy.deepcopy(course);roman['layout']={'profile':'bound','page_numbers':{'numbering':'roman','position':'footer-inner'}}
-course_cases=[('roman-bound-course',roman,'bilingual'),('flexible-course-blocks',flexible,'bilingual'),('isolated-course',course,'bilingual'),('wrapped-course-links',wrapped,'bilingual'),('rtl-course',arabic,'bilingual'),('rtl-course-right',arabic,'right'),('relocated-course-dependency',course,'bilingual')]
-relocated_engine=work/'unrelated engines'/'chosen renderer'
-relocated_course=work/'workflows'/'lesson only'
-shutil.copytree(work/'bilingual-pdf',relocated_engine)
-shutil.copytree(work/'course-guide-quick-reference',relocated_course)
-def run_course(case):
- name,data,mode=case;ip=stage_input(name,data,work/'fixtures/course-en-fr',collection=True)
- engine=relocated_engine if name=='relocated-course-dependency' else work/'bilingual-pdf'
- adapter=relocated_course if name=='relocated-course-dependency' else work/'course-guide-quick-reference'
- proc=subprocess.run([sys.executable,str(adapter/'scripts/course_documents.py'),'--bilingual-skill',str(engine),str(ip),'--output',str(work/name),'--mode',mode],cwd=work,capture_output=True,text=True,timeout=240)
- valid_json=True
- try:result=json.loads(proc.stdout)
- except json.JSONDecodeError:result={'error':proc.stdout+proc.stderr};valid_json=False
- return {'case':name,'expected_exit':0,'actual_exit':proc.returncode,'passed':proc.returncode==0 and valid_json and result.get('ok') is True,'result':result}
-with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:results.extend(pool.map(run_course,course_cases))
-report={'ok':all(x['passed'] for x in results),'tests':results,'visual_review':'required','language_review':'required'}
-(work/'matrix.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
-print(json.dumps({'ok':report['ok'],'cases':len(results),'failures':[x for x in results if not x['passed']]},ensure_ascii=False))
-sys.exit(0 if report['ok'] else 1)
+
+raise SystemExit(execute_matrix(cases,run,work,args,'render'))

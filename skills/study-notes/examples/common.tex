@@ -1,0 +1,12 @@
+\usepackage{studytools}
+\input{languages.tex}
+\ParallelSetup{paragraph-flow=breakable}
+\StudySetup{notes-label-left=Notes,notes-label-right=笔记,
+ section-label-left=section,section-label-right=节,
+ page-label-left=p.,page-label-right=页,
+ unknown-label-left={Unknown / insufficient information},unknown-label-right={未知／信息不足},
+ return-label-left={After obtaining the missing information, return to},return-label-right={取得缺失信息后返回},
+ continue-label-left={Required next step},continue-label-right={必须继续的步骤}}
+\IfFileExists{.build-products.tex}{\input{.build-products.tex}}{\newif\ifStudyBuildNotes\StudyBuildNotestrue}
+\renewcommand\StudyLocalReferenceRight[2]{#1（第\textenglish{#2}页）}
+\renewcommand\StudyNotesLocationRight[3]{#1第\textenglish{#2}节，第\textenglish{#3}页}

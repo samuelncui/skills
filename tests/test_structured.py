@@ -6,7 +6,7 @@ from bilingual_pdf import InputError,validate,tex_parts,export_document
 
 class StructuredTests(unittest.TestCase):
  def setUp(self):self.doc=json.loads((ROOT/'skills/bilingual-pdf/examples/en-zh-Hans/source.json').read_text())
- def table(self):return next(x for x in self.doc['blocks'] if x['kind']=='table')
+ def table(self):return next(x for x in self.doc['blocks'] if x.get('kind')=='table')
  def test_native_package_route(self):
   main,locale,body=tex_parts(self.doc,'bilingual')
   self.assertIn(r'\usepackage{paralleltext}',main)
@@ -18,7 +18,7 @@ class StructuredTests(unittest.TestCase):
  def test_table_rows_align_individually(self):
   body=tex_parts(self.doc,'bilingual')[2]
   for i in range(len(self.table()['rows'][0])+1):
-   self.assertIn(r'\ParallelText{notes-table.row-'+str(i)+'}',body)
+   self.assertIn(r'\ParallelText{'+self.table()['id']+'.row-'+str(i)+'}',body)
  def test_table_row_count(self):
   self.table()['rows'][1].pop()
   with self.assertRaises(InputError):validate(self.doc)
@@ -29,7 +29,7 @@ class StructuredTests(unittest.TestCase):
   self.table()['headers'][0][0]={'runs':[{'text':'Header','direction':'ltr'}]}
   with self.assertRaises(InputError):validate(self.doc)
  def test_generated_table_id_collision(self):
-  self.doc['blocks'].append({'id':'notes-table.row-1','text':['a','甲']})
+  self.doc['blocks'].append({'id':self.table()['id']+'.row-1','text':['a','甲']})
   with self.assertRaises(InputError):validate(self.doc)
  def test_reserved_title_id(self):
   self.doc['blocks'][0]['id']='pt-title'

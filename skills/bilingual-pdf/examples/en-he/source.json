@@ -1,0 +1,514 @@
+{
+  "languages": [
+    "en",
+    "he"
+  ],
+  "title": [
+    "Two languages, one readable page",
+    "שתי שפות, עמוד אחד שקל לקרוא"
+  ],
+  "layout": {
+    "covers": false,
+    "font_size": 10,
+    "paragraph_flow": "breakable"
+  },
+  "blocks": [
+    {
+      "id": "choose-route",
+      "kind": "heading",
+      "text": [
+        "Choose a source route",
+        "בחירת צורת המקור"
+      ]
+    },
+    {
+      "id": "opening",
+      "text": [
+        "Bilingual PDF places corresponding content in fixed physical columns. The calling agent supplies the text pairs and the order of the document; the renderer aligns their visible starts. A short translation does not have to be padded to match a longer one. Paragraphs, list items and table rows each have their own alignment boundary. Native LaTeX and structured JSON reach the same package, so changing the source route does not create a different design engine. Work in a new project and keep the original input unchanged. This guide is itself an example of the layout it describes.",
+        {
+          "runs": [
+            {
+              "text": "Bilingual PDF",
+              "direction": "ltr"
+            },
+            {
+              "text": " מציב תוכן מקביל בשתי עמודות שמיקומן הפיזי קבוע. המודל הקורא מספק את זוגות הטקסט ואת סדר המסמך, ומנוע העימוד מיישר את נקודות ההתחלה הנראות שלהם. אין צורך להוסיף מילים לתרגום קצר כדי שיגיע לאורכו של תרגום ארוך. לכל פסקה, פריט ברשימה ושורה בטבלה יש גבול יישור משלו. ",
+              "direction": "rtl"
+            },
+            {
+              "text": "LaTeX",
+              "direction": "ltr"
+            },
+            {
+              "text": " מקורי ו־",
+              "direction": "rtl"
+            },
+            {
+              "text": "JSON",
+              "direction": "ltr"
+            },
+            {
+              "text": " מובנה משתמשים באותה חבילה, ולכן שינוי צורת המקור אינו יוצר מנוע עיצוב אחר. יש לעבוד בפרויקט חדש ולשמור את הקלט המקורי ללא שינוי. המדריך הזה הוא בעצמו דוגמה לעימוד שהוא מתאר.",
+              "direction": "rtl"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "routes-table",
+      "kind": "table",
+      "text": [
+        "Two source routes, one rendering implementation.",
+        "שתי צורות מקור, מימוש עימוד אחד."
+      ],
+      "headers": [
+        [
+          "Route",
+          "Use it when",
+          "Result"
+        ],
+        [
+          "צורה",
+          "מתי להשתמש בה",
+          "תוצאה"
+        ]
+      ],
+      "rows": [
+        [
+          [
+            "Native LaTeX",
+            "You want editable commands, mathematics or standard package hooks.",
+            "Compile the manuscript directly."
+          ],
+          [
+            "Structured JSON",
+            "You already have ordered pairs of text, rows and image paths.",
+            "Export editable LaTeX, or render it immediately."
+          ],
+          [
+            "Selected language",
+            "The reader needs only the physical left or right side.",
+            "Choose left or right mode without rewriting the source."
+          ]
+        ],
+        [
+          [
+            {
+              "runs": [
+                {
+                  "text": "LaTeX",
+                  "direction": "ltr"
+                },
+                {
+                  "text": " מקורי",
+                  "direction": "rtl"
+                }
+              ]
+            },
+            "כשרוצים לערוך ישירות פקודות, נוסחאות או נקודות התאמה של חבילות רגילות.",
+            "מהדרים את כתב היד ישירות."
+          ],
+          [
+            {
+              "runs": [
+                {
+                  "text": "JSON",
+                  "direction": "ltr"
+                },
+                {
+                  "text": " מובנה",
+                  "direction": "rtl"
+                }
+              ]
+            },
+            "כשזוגות הטקסט, השורות ונתיבי התמונות כבר מסודרים.",
+            {
+              "runs": [
+                {
+                  "text": "מייצאים ",
+                  "direction": "rtl"
+                },
+                {
+                  "text": "LaTeX",
+                  "direction": "ltr"
+                },
+                {
+                  "text": " שניתן לעריכה או מפיקים את הקובץ מיד.",
+                  "direction": "rtl"
+                }
+              ]
+            }
+          ],
+          [
+            "שפה נבחרת",
+            "כשהקורא זקוק רק לצד השמאלי או הימני של העמוד.",
+            {
+              "runs": [
+                {
+                  "text": "בוחרים במצב ",
+                  "direction": "rtl"
+                },
+                {
+                  "text": "left",
+                  "direction": "ltr"
+                },
+                {
+                  "text": " או ",
+                  "direction": "rtl"
+                },
+                {
+                  "text": "right",
+                  "direction": "ltr"
+                },
+                {
+                  "text": " בלי לכתוב מחדש את המקור.",
+                  "direction": "rtl"
+                }
+              ]
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "page-flow",
+      "kind": "heading",
+      "text": [
+        "Choose whether paragraphs can cross pages",
+        "בחירה אם פסקאות יכולות לעבור בין עמודים"
+      ]
+    },
+    {
+      "id": "flow-options",
+      "text": [
+        "Set paragraph-flow=breakable in the native preamble to allow ordinary ParallelParagraph content to continue over a page boundary. A paragraph can override that choice with flow=keep. JSON uses layout.paragraph_flow and a paragraph-level flow field. Keep-together content stays on one page; an oversized unit produces an error rather than being truncated or shrunk. ParallelText and ParallelProse remain explicit bounded and flowing alternatives. The following deliberately continuous paragraph demonstrates the flowing route.",
+        {
+          "runs": [
+            {
+              "text": "יש להגדיר ",
+              "direction": "rtl"
+            },
+            {
+              "text": "paragraph-flow=breakable",
+              "direction": "ltr"
+            },
+            {
+              "text": " במבוא של המקור כדי לאפשר לתוכן רגיל של ",
+              "direction": "rtl"
+            },
+            {
+              "text": "ParallelParagraph",
+              "direction": "ltr"
+            },
+            {
+              "text": " להמשיך לעמוד הבא. פסקה מסוימת יכולה לעקוף את הבחירה באמצעות ",
+              "direction": "rtl"
+            },
+            {
+              "text": "flow=keep.",
+              "direction": "ltr"
+            },
+            {
+              "text": " ב־",
+              "direction": "rtl"
+            },
+            {
+              "text": "JSON",
+              "direction": "ltr"
+            },
+            {
+              "text": " משתמשים ב־",
+              "direction": "rtl"
+            },
+            {
+              "text": "layout.paragraph_flow",
+              "direction": "ltr"
+            },
+            {
+              "text": " ובשדה ",
+              "direction": "rtl"
+            },
+            {
+              "text": "flow",
+              "direction": "ltr"
+            },
+            {
+              "text": " של הפסקה. יחידה שנשמרת בשלמותה נשארת בעמוד אחד; יחידה גדולה מדי גורמת לשגיאה במקום להיחתך או להצטמצם. ",
+              "direction": "rtl"
+            },
+            {
+              "text": "ParallelText",
+              "direction": "ltr"
+            },
+            {
+              "text": " ו־",
+              "direction": "rtl"
+            },
+            {
+              "text": "ParallelProse",
+              "direction": "ltr"
+            },
+            {
+              "text": " נשארות חלופות מפורשות ליחידה שלמה ולטקסט זורם. הפסקה הרציפה במכוון שלהלן מדגימה את מסלול הזרימה.",
+              "direction": "rtl"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "continuing-prose",
+      "flow": "breakable",
+      "text": [
+        "A readable parallel document does not require equal line counts. One language may need more words, different punctuation or a different number of lines to express the supplied content. In a flowing paragraph, each physical column continues at its own natural pace, while the package records the shared paragraph boundary and restores alignment before the next pair begins. This means that a reader can follow a long explanation without a page-sized empty hole caused by moving the whole paragraph to the next sheet. It also means that the last lines of the two translations need not sit at exactly the same height. The useful promise is a stable place to begin the next corresponding unit. When choosing the policy, distinguish continuous prose from objects whose pieces should remain together. A short definition, a formula with a short explanation or a compact diagram may be a good bounded unit. A long explanation that would fill several pages is usually a candidate for flowing prose. Do not put a flowing paragraph inside a minipage or another keep-together wrapper, because the enclosing box prevents page breaking. Do not repair a layout problem by removing sentences, inventing extra text, changing the meaning or shrinking a single troublesome block. Instead, use the documented flow option and inspect the actual result. After building, look at the end of the first page, the continuation on the next page and the start of the following paired section. Check that neither column is clipped, that the physical divider follows the live text block and that the next section begins at a corresponding position. Repeat this check with the requested fonts and language direction. A successful compiler exit proves that a file was produced; it does not prove that all visible page details are correct. Keeping source, language configuration and presentation separate makes a later font, paper or binding change easier to test without rewriting the manuscript.",
+        {
+          "runs": [
+            {
+              "text": "מסמך מקביל שקל לקרוא אינו מחייב מספר שורות שווה. שפה אחת עשויה להזדקק ליותר מילים, לפיסוק אחר או למספר שורות שונה כדי להביע את התוכן שסופק. בפסקה זורמת כל עמודה פיזית ממשיכה בקצב הטבעי שלה, והחבילה מתעדת את גבול הפסקה המשותף ומחזירה את היישור לפני תחילת הזוג הבא. כך אפשר לקרוא הסבר ארוך בלי להשאיר חלל גדול משום שכל הפסקה הועברה לדף הבא. גם השורות האחרונות של שני התרגומים אינן חייבות להסתיים בדיוק באותו גובה. ההבטחה המועילה היא נקודת התחלה יציבה ליחידה המקבילה הבאה. בבחירת המדיניות יש להבחין בין טקסט רציף לבין עצמים שחלקיהם צריכים להישאר יחד. הגדרה קצרה, נוסחה עם הסבר קצר או תרשים קומפקטי עשויים להתאים ליחידה שאינה מתפצלת. הסבר ארוך שתופס כמה עמודים מתאים בדרך כלל לטקסט זורם. אין לעטוף פסקה זורמת ב־",
+              "direction": "rtl"
+            },
+            {
+              "text": "minipage",
+              "direction": "ltr"
+            },
+            {
+              "text": " או במסגרת אחרת ששומרת על התוכן כיחידה אחת, מפני שהתיבה החיצונית מונעת מעבר עמוד. אין לתקן בעיית עימוד באמצעות מחיקת משפטים, המצאת טקסט נוסף, שינוי המשמעות או הקטנת הקטע הבעייתי בלבד. במקום זאת יש להשתמש באפשרות הזרימה המתועדת ולבדוק את התוצאה בפועל. לאחר ההפקה יש לבחון את סוף העמוד הראשון, את ההמשך בעמוד הבא ואת תחילת הסעיף המקביל שאחריהם. יש לוודא שאף עמודה אינה חתוכה, שהקו המפריד עוקב אחר אזור הטקסט בפועל ושהסעיף הבא מתחיל במיקומים תואמים. יש לחזור על הבדיקה בגופנים ובכיוון הכתיבה המבוקשים. יציאה מוצלחת של המהדר מוכיחה שנוצר קובץ, אך אינה מוכיחה שכל הפרטים הנראים בעמוד תקינים. הפרדה בין תוכן המקור, הגדרות השפה והעיצוב מקלה על בדיקה של שינוי עתידי בגופן, בנייר או בכריכה בלי לשכתב את כתב היד.",
+              "direction": "rtl"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "figures-and-references",
+      "kind": "heading",
+      "text": [
+        "Use figures, tables and references",
+        "שימוש בתמונות, בטבלאות ובהפניות"
+      ]
+    },
+    {
+      "id": "shared-layout",
+      "kind": "figure",
+      "placement": "shared",
+      "image": "layout-anatomy.png",
+      "text": [
+        "One shared diagram spans the full text width; its captions remain paired.",
+        "תרשים משותף אחד משתרע על כל רוחב הטקסט, והכיתובים נשארים מקבילים."
+      ]
+    },
+    {
+      "id": "localized-pipeline",
+      "kind": "figure",
+      "image": [
+        "pipeline-en.png",
+        "pipeline-he.png"
+      ],
+      "text": [
+        "The same pipeline has labels in each column's own language.",
+        "אותו תהליך מוצג עם תוויות בשפה של כל עמודה."
+      ]
+    },
+    {
+      "id": "quotation",
+      "kind": "quote",
+      "text": [
+        "“Corresponding starts matter more than identical line counts.” This short quotation is original example text; quotation layout does not imply an external source.",
+        "״נקודות התחלה תואמות חשובות יותר ממספר שורות זהה.״ זהו טקסט דוגמה מקורי וקצר; עיצובו כציטוט אינו מצביע על מקור חיצוני."
+      ]
+    },
+    {
+      "id": "column-width",
+      "kind": "equation",
+      "math": "w=\\frac{W-g}{2}",
+      "text": [
+        "For a usable text width W and a gap g, each paired column has width w. If W is 170 mm and g is 6 mm, w is 82 mm.",
+        {
+          "runs": [
+            {
+              "text": "אם רוחב הטקסט הזמין הוא ",
+              "direction": "rtl"
+            },
+            {
+              "text": "W",
+              "direction": "ltr"
+            },
+            {
+              "text": " והרווח הוא ",
+              "direction": "rtl"
+            },
+            {
+              "text": "g",
+              "direction": "ltr"
+            },
+            {
+              "text": ", רוחבה של כל עמודה מקבילה הוא ",
+              "direction": "rtl"
+            },
+            {
+              "text": "w.",
+              "direction": "ltr"
+            },
+            {
+              "text": " כאשר ",
+              "direction": "rtl"
+            },
+            {
+              "text": "W",
+              "direction": "ltr"
+            },
+            {
+              "text": " הוא ",
+              "direction": "rtl"
+            },
+            {
+              "text": "170 mm",
+              "direction": "ltr"
+            },
+            {
+              "text": " ו־",
+              "direction": "rtl"
+            },
+            {
+              "text": "g",
+              "direction": "ltr"
+            },
+            {
+              "text": " הוא ",
+              "direction": "rtl"
+            },
+            {
+              "text": "6 mm",
+              "direction": "ltr"
+            },
+            {
+              "text": ", מתקבל ",
+              "direction": "rtl"
+            },
+            {
+              "text": "w",
+              "direction": "ltr"
+            },
+            {
+              "text": " של ",
+              "direction": "rtl"
+            },
+            {
+              "text": "82 mm",
+              "direction": "ltr"
+            },
+            {
+              "text": ".",
+              "direction": "rtl"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "check-and-deliver",
+      "kind": "heading",
+      "text": [
+        "Check the PDF and deliver the project",
+        "בדיקת הקובץ ומסירת הפרויקט"
+      ]
+    },
+    {
+      "id": "checks",
+      "kind": "list",
+      "text": [
+        [
+          "Inspect actual pages for matching starts, table-row alignment, paragraph continuations, clipping and intended whitespace. A first-page preview cannot show the whole document.",
+          "For RTL and CJK, inspect shaping, punctuation, mixed-script identifiers and physical column order. Language direction does not decide which side a language occupies.",
+          "Follow generated references to their real destinations. Printed folios can differ from physical PDF page numbers. Keep relative cross-document targets beside each other.",
+          "Deliver the PDF and a portable source project with required package, image and license files. Native TeX executes code; disabled shell escape is not a filesystem sandbox."
+        ],
+        [
+          "יש לבדוק עמודים בפועל: נקודות התחלה תואמות, יישור שורות טבלה, המשכי פסקאות, חיתוך ורווחים מכוונים. תצוגה מקדימה של העמוד הראשון אינה מציגה את המסמך כולו.",
+          {
+            "runs": [
+              {
+                "text": "בכתיבה מסוג ",
+                "direction": "rtl"
+              },
+              {
+                "text": "RTL",
+                "direction": "ltr"
+              },
+              {
+                "text": " ו־",
+                "direction": "rtl"
+              },
+              {
+                "text": "CJK",
+                "direction": "ltr"
+              },
+              {
+                "text": " יש לבדוק צורות אותיות, פיסוק, מזהים המשלבים כתבים שונים וסדר פיזי של עמודות. כיוון השפה אינו קובע באיזה צד היא נמצאת.",
+                "direction": "rtl"
+              }
+            ]
+          },
+          {
+            "runs": [
+              {
+                "text": "יש לעקוב אחר ההפניות שנוצרו עד ליעדיהן האמיתיים. מספרי עמודים מודפסים עשויים להיות שונים ממספרי העמודים הפיזיים ב־",
+                "direction": "rtl"
+              },
+              {
+                "text": "PDF.",
+                "direction": "ltr"
+              },
+              {
+                "text": " יש לשמור יחד מסמכים שמפנים זה לזה בנתיבים יחסיים.",
+                "direction": "rtl"
+              }
+            ]
+          },
+          {
+            "runs": [
+              {
+                "text": "יש למסור ",
+                "direction": "rtl"
+              },
+              {
+                "text": "PDF",
+                "direction": "ltr"
+              },
+              {
+                "text": " ופרויקט מקור נייד הכולל את החבילה, התמונות וקובצי הרישיון הדרושים. ",
+                "direction": "rtl"
+              },
+              {
+                "text": "TeX",
+                "direction": "ltr"
+              },
+              {
+                "text": " מקורי יכול להריץ קוד; ביטול ",
+                "direction": "rtl"
+              },
+              {
+                "text": "shell escape",
+                "direction": "ltr"
+              },
+              {
+                "text": " אינו יוצר ארגז חול למערכת הקבצים.",
+                "direction": "rtl"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "id": "back-to-flow",
+      "kind": "reference",
+      "target": "page-flow",
+      "text": [
+        "Return to the page-breaking controls",
+        "חזרה להגדרות מעבר עמוד בתוך פסקה"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+\ParallelTitle{Choose and build useful study forms}{选择并制作有用的学习资料}
+\ParallelParagraph{notes-opening}
+ {A study set should answer a reader's concrete question. An explanation, a compact answer, a pointer and a decision procedure serve different tasks. This original example teaches how to select the forms and uses the native components to demonstrate them.}
+ {学习资料应回答读者的具体问题。解释、简短答案、定位指针与决策步骤服务于不同任务。本原创示例讲解如何选择形式，并用原生组件展示这些形式。}
+
+\ParallelSection{notes}{Explanatory notes}{解释性笔记}
+\ParallelParagraph{notes-purpose}
+ {Use notes when the reader needs to understand what an idea means, when it applies and how to use it. Build a dependency-ordered explanation: establish the needed terms, explain the mechanism and work through a concrete application. Keep the assumptions and units that make each step valid. A worked example should expose its reasoning, not only its final answer. Notes are not required to follow a fixed Meaning/Rule/Checks template.}
+ {读者需要理解概念的含义、适用条件和用法时，应使用笔记。按理解所需的先后关系组织说明：先交代必要术语，再解释机制，并展示具体应用。保留使各步骤成立的假设与单位。算例应展示推理过程，而不只是最终答案。笔记不必遵循固定的“含义／规则／核验”模板。}
+\ParallelSubsection{notes-flow}{Long paragraphs}{长段落}
+\ParallelParagraph{notes-flow-body}
+ {Long explanations may need to cross a page. Set the common paragraph-flow policy to breakable and author them with ParallelParagraph. An individual paragraph can request keep when its content should remain together. The two language columns may finish at different heights; the next corresponding unit starts in alignment after both have finished. This is different from placing the entire paragraph in a minipage and hoping that an outer wrapper will split it. A minipage is already an indivisible box. Remove that enclosing box when adapting an older manuscript to the flowing command. Keep meaningful headings and shorter units explicit, but do not cut sentences merely to force a particular page boundary. Test the actual font, paper size and language direction. If the reader requires a whole unit to stay together and it is taller than a page, report the problem and choose a suitable structure; do not truncate or silently shrink it.}
+ {长篇说明可能需要跨页。将公共段落策略设为 breakable，并用 ParallelParagraph 编写正文；需要保持完整的单个段落可以指定 keep。两种语言可能在不同高度结束，但两边都结束后，下一组对应内容会从对齐的位置开始。这与把整段放入 minipage、再希望外层容器能拆开它不同。minipage 本身就是不可拆分的盒子。将旧文稿接入可跨页命令时，应移除这个外层盒子。明确保留有意义的标题和较短单元，但不要仅为了某个分页位置而截断句子。使用实际字体、纸张尺寸与语言方向进行测试。如果读者要求一个高于整页的单元保持完整，应说明问题并选择合适结构，不能截断或静默缩小。}
+\ParallelSubsection{notes-evidence}{Scope and evidence}{范围与证据}
+\ParallelParagraph{notes-evidence-body}
+ {Read the source itself, including diagrams and worked steps. Preserve the original and record source locator, concept and coverage location. Mark unreadable material, missing assumptions and conflicting claims. Keep source statements, derived explanation and original examples distinguishable. A source map records provenance; it is not another manuscript input. More pages or a successful compile do not prove complete coverage.}
+ {阅读源材料本身，包括图示和推导步骤。保留原件，并记录来源位置、概念及覆盖位置。标明无法辨认的材料、缺失的假设与互相冲突的说法。区分源材料陈述、推导说明和原创例子。来源映射记录出处，并不是另一种文稿输入格式。页数更多或编译成功，都不能证明覆盖完整。}
+
+\ParallelSection{quick}{Unified Quick Reference}{统一速查}
+\ParallelParagraph{quick-purpose}
+ {Use a Quick Reference when a reader remembers a word, abbreviation or task and wants a compact answer. Give each concept one substantive canonical entry. Place aliases and keyword routes among those entries in one sorted headword space. The reader should not have to choose between a keyword section and a separate concept section. A direct route names its target, adds a useful context label and shows its generated page.}
+ {读者记得某个词、缩写或任务，并想找到简明答案时，应使用速查。为每个概念保留一个有实质内容的规范条目。把别名和关键词路径与这些条目一起放入一个排序后的词头空间。读者不应先在关键词区与另一套概念区之间做选择。直接路径应写明目标、提供有用的上下文标签，并显示自动生成的页码。}
+\ParallelParagraph{quick-grouping}
+ {Lookup identity and sorting are separate choices. Records deliberately sharing one headword can be grouped, including a keyword that matches a canonical title. A normalized spelling alone is not permission to merge different senses. Preserve a standalone definition when no equivalent concept exists. A meaningful subentry has its own label and page: a pointer to it must not stop at the first page of its parent concept.}
+ {检索身份与排序是两个不同选择。明确属于同一词头的记录可以合并，包括与规范标题相同的关键词。仅凭规范化后拼写相同，不能合并不同含义。如果没有等价概念，应保留独立定义。有意义的子条目应有自己的标签与页码；指向它的路径不能只停在父概念的第一页。}
+
+\ParallelSection{index}{Optional Keyword Index}{可选关键词索引}
+\ParallelParagraph{index-purpose}
+ {Select a standalone Keyword Index when the reader explicitly wants compact locations rather than the fuller entries of a Quick Reference. Reuse the same registry so route maintenance has one owner. The compact view retains canonical anchors and subentry positions even when companion notes are absent. If the reader wants both explanations and lookup, notes plus the unified Quick Reference are usually enough; an extra keyword booklet is not automatic.}
+ {只有读者明确需要紧凑定位，而不是速查中的较完整条目时，才选择独立关键词索引。复用同一份记录，让检索路径只有一处需要维护。即使没有配套笔记，紧凑视图也保留概念锚点与子条目位置。如果读者同时需要解释和检索，通常“笔记＋统一速查”已经足够，不必自动再加一本关键词册。}
+
+\ParallelSection{tree}{Decision Tree}{决策树}
+\ParallelParagraph{tree-purpose}
+ {Use a Decision Tree when a reader must choose a method from observable information. Ask a natural question, give distinct alternatives and make every target visible by ID and generated page. A method leaf contains instructions, checks or a specific information-gathering action, so the tree remains useful on its own. Ordinary forward edges must terminate; missing targets and accidental cycles are errors.}
+ {读者需要根据可观察的信息选择方法时，应使用决策树。提出自然的问题，给出不同选项，并用编号与自动页码明确每个目标。方法叶节点包含操作步骤、核验或具体的信息收集行动，使决策树单独使用时也有价值。普通向前路径必须能够终止；缺失目标和意外循环属于错误。}
+\ParallelSubsection{tree-clarification}{Unknown information and required continuations}{未知信息与必需的后续步骤}
+\ParallelParagraph{tree-clarification-body}
+ {Every question has a route for unknown or insufficient information. A clarification states what to obtain before returning to a question; that conditional return is distinct from an uncontrolled decision loop. A method may also require a common next step, such as review. Make that continuation explicit instead of presenting the method as a terminal result. A terminal leaf has no required continuation.}
+ {每个问题都有“未知／信息不足”路径。澄清节点说明返回问题之前需要补充什么信息，这种有条件返回与无控制的决策循环不同。方法也可能要求继续执行共同步骤，例如复核。应明确标出后续步骤，而不是将该方法误写成终点。真正的终止叶节点没有必需的后续步骤。}
+
+\ParallelSection{build}{Build a selected set}{构建所选资料}
+\ParallelParagraph{build-body}
+ {The manuscript input is native LaTeX. Discover the installed study-notes and bilingual-pdf directories through the host. The common paralleltext package owns layout; studytools adds learning records and navigation. Choose the requested products in the example Makefile. Build included notes before documents that reference them. Do not import omitted companions. For a portable handoff, include the required packages, configuration, manuscripts, images and licenses. Pin a tested dependency revision in a downstream project rather than maintaining a layout fork.}
+ {文稿输入采用原生 LaTeX。通过宿主发现已安装的 study-notes 与 bilingual-pdf 目录。公共 paralleltext 包负责排版，studytools 增加学习条目和导航。通过示例 Makefile 选择需要的产物。如果包含笔记，应先构建笔记，再构建引用它的文档；不要导入未选择的配套文档。可移植交付应包含必要的包、配置、文稿、图像与许可证。在下游项目中锁定经过测试的依赖版本，不要维护另一套排版实现。}
+
+\ParallelSection{review}{Review and deliver}{复核与交付}
+\ParallelParagraph{review-body}
+ {Review source coverage, explanation quality, lookup usability, decision paths and visual layout separately. Test remembered-word lookups, aliases and exact subentry destinations. Exercise every choice and clarification return. Inspect every final page, including paragraph continuations, glyphs, clipping, figures and references. Deliver only the selected forms, their source map and portable native project. Native TeX can execute code; disabled shell escape is not a filesystem sandbox. Publication and external processing require applicable authorization.}
+ {分别复核来源覆盖、解释质量、检索可用性、决策路径与视觉版面。测试记忆词检索、别名和精确的子条目目标，走通每个选项与澄清返回。检查所有最终页面，包括段落续排、字形、裁切、图示与引用。只交付所选形式、来源映射及可移植原生项目。原生 TeX 可以执行代码，关闭 shell escape 不等于文件系统沙箱。发布与外部处理仍须获得适用授权。}

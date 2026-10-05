@@ -1,80 +1,100 @@
 # Validation and realistic usage tests
 
-The current suites include **94 unit tests**, **38 structured-render cases**, **26 native-LaTeX cases** and **41 configuration cases**. Exact completed results and positive-PDF/page counts are recorded in RESULTS.json. Expected failures are counted as tests, not usable deliverables. Exact case results, source/output hashes and review limits are in [RESULTS.json](RESULTS.json). Remote CI status belongs to the exact commit shown in Actions, not this local record.
+These checks belong to the implementation and run through Python's native unittest runner plus serial integration scripts. [RESULTS.json](RESULTS.json) records the last completed, sanitized acceptance scope; it is evidence for its source hashes, not an automatic claim about later edits. CI status belongs to the exact commit checked by Actions.
 
-## Structured route
+## Setup and fast checks
 
-- One substantial original article in four pairs: English/French, English/Chinese, English/Arabic and Chinese/Japanese; paired and both single-language outputs. Repeated English/Chinese text and semantic block structure must be identical across editions.
-- Reversed Arabic/English physical order; RTL mixed-script runs, bullets and page-reference suffixes.
-- Paired headings, prose, list items, quotation, image/captions, individually aligned table rows and native local references.
-- Letter paper, optional covers/blank parity, a 12-page unequal-length stress fixture and references to expanded parent blocks.
-- Isolated notes/Quick builds, flexible Quick blocks including their own image and cross-concept reference, aliases, secondary keywords and wrapped Guide links.
-- Arabic notes/Quick and Arabic-only output.
-- Real paragraph flow across pages in all four language pairs, with unequal translation lengths and resynchronized following blocks.
-- One full-width shared photograph with paired captions in all four language pairs. These checks also run against each complete curated article, verifying both paragraph continuations and the following section’s resynchronization.
-- Rejection of an oversized atomic semantic unit and a missing glyph.
-
-## Native LaTeX route
-
-- Each checked-in article project builds directly with latexmk in an isolated directory. Its pixels match the equivalent structured-route PDF in the same environment.
-- Minimal native authoring still works without starter trees. Four installed article examples resolve the one skill-level style/image pool directly. The course example and minimal notes/Quick pair use the explicitly selected installed bilingual dependency.
-- Public IDs `foo` and `foo-L` remain distinct; duplicate IDs and the reserved measurement namespace are rejected.
-- Shared equation counters advance once. An RTL numbered-math regression checks actual formula baseline equality, not only block-start markers.
-- Native missing glyphs and oversized units are caught; a selected-language booklet omits the unselected cover language and preserves blank inner faces.
-- Standard `xr-hyper`/`hyperref` named cross-PDF destinations resolve to the actual flat `notes.pdf` target.
-- Direct native prose/shared-photo helper fixtures match their structured equivalents pixel-for-pixel in the same environment.
-
-## Native configuration and lifecycle
-
-The configuration matrix exercises zero-setup defaults and sparse native/package-key overrides; A4, Letter and custom paper; mirrored binding and oneside geometry; actual divider endpoints; high-resolution full-height ink clearance; custom folio notation and positions; standard page styles and manual one/two-column transitions; configurable cover blank/parity rules; semantic roles, diagrams, localized entry heads and navigation tabs; paragraph register propagation; heading attachment; and long paired/selected/Arabic continuation furniture. It rejects unknown keys/roles/navigation, impossible geometry, invalid choices and late setup. Independently authored native and structured configuration fixtures must match pixels. The collection matrix also checks Roman printed folios against physical cross-PDF destinations.
-
-The independent API review reproduced and verified corrections for minipage paragraph resets, selected-flow continuation records, cover column-state restoration, heading orphans, and ambient-language leakage into shipped furniture. These are executable regressions, not manuscript-specific page patches. Configuration styles and built-in profiles are documented at skill level; the two native profile files are optional.
-
-## Realistic skill use
-
-Before this dependency refactor, a fresh learning-skill run received the then-self-contained skill and the small original teaching source. It authored three notes pages, two Quick pages and a 32-record source map. A second review found grouped secondary headwords and English action labels in the Chinese trace. Those were corrected: three alias rows and 23 keyword rows now lead to three canonical concepts, including independently findable Overflow, Queue and Removal order. The corrected bundle passed relocation, page inspection and 63 link-annotation checks. Source uncertainty remains explicit. See [the example review record](../skills/course-guide-quick-reference/examples/coverage-review.md).
-
-The earlier bilingual-skill authoring check built the English/Chinese structured article, copied only six portable source files into a fresh project, and built it directly with latexmk. Its two PDFs were pixel-identical at 1273 × 1800; all four page images were inspected. Input hashes stayed unchanged, package bytes matched, and recorder evidence showed no JSON, Python generation or sibling-skill input in the native build. This tested export followed by native compilation; current minimal authoring and installed-source checks are separate.
-
-Current relocation checks install bilingual independently and exercise course with an explicitly supplied renderer in unrelated paths containing spaces. Missing or incompatible dependencies report actionable errors before output creation. TeX recorder files verify that installed examples consume the selected skill assets rather than source-checkout files. Manifests record portable local source paths and the named renderer/shared-asset hashes.
-
-The [official skill structure](https://developers.openai.com/plugins/build/skills) manifest checks also passed. The important evidence is executable behavior and the reviewed output, not frontmatter validity alone.
-
-## Reproduce
-
-After installing the documented dependencies:
+Use Python 3.11+, Make and the skill's documented XeLaTeX/latexmk/fonts. Python dependencies are isolated:
 
 ```sh
-python3 tools/export_native_examples.py --check
-python3 -m unittest discover -s tests -p 'test_*.py' -v
-python3 tools/check_package.py
-python3 tests/render_matrix.py --output .local/new-structured-matrix
-python3 tests/native_matrix.py --output .local/new-native-matrix --structured-matrix .local/new-structured-matrix
-python3 tests/configuration_matrix.py --output .local/new-configuration-matrix
-python3 tools/collect_example_outputs.py --check --output .
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python tools/export_native_examples.py --check
+.venv/bin/python -m unittest discover -s tests -p 'test_*.py' -v
+.venv/bin/python tools/check_package.py
+.venv/bin/python tools/collect_example_outputs.py --check --output .
 ```
 
-Unit tests cover localized image schemas, bounded asset roots, traversal/symlink escapes, collision-free exported names, renderer API compatibility and literal dependency paths through Make. Matrices copy complete skills into fresh directories. The native tests compile authored `.tex` without using the JSON adapter to generate their bodies. GitHub Actions runs the same checks with public Ubuntu dependencies; it does not deliver example artifacts.
+On Debian/Ubuntu the rendering profile needs latexmk, texlive-xetex, texlive-latex-extra, texlive-science, texlive-lang-arabic, texlive-lang-french, fonts-lmodern, fonts-noto-core, fonts-noto-cjk and fonts-dejavu-core. Do not install unrelated dependencies or modify host security limits to make a check pass.
+
+Fast tests cover schema/runtime agreement, field constraints, explicit RTL text runs, bounded asset paths and symlink/traversal protection, literal installed dependency paths, Make product selection, package ownership, portable manifests, example parity and bounded-runner outcomes. Expected errors are tests, not usable deliverables.
+
+The separate testing-workflow skill also carries its own standard-library regression command:
+
+```sh
+python3 -m unittest discover -s skills/testing-workflow/examples -p 'test_tags.py' -v
+```
+
+## Integration profiles
+
+Run affected cases first, then the broader profiles needed for the changed interfaces. Each command is single-worker; do not add parallel TeX jobs on constrained hosts.
+
+```sh
+export SOURCE_DATE_EPOCH=1767225600 FORCE_SOURCE_DATE=1
+.venv/bin/python tests/render_matrix.py --output .local/structured
+.venv/bin/python tests/native_matrix.py --output .local/native --structured-matrix .local/structured
+.venv/bin/python tests/configuration_matrix.py --output .local/configuration
+.venv/bin/python tests/study_matrix.py --output .local/study
+.venv/bin/python tests/native_regressions.py --output .local/regressions
+```
+
+- **Structured:** the same self-hosted usage guide in English/French, English/Chinese, English/Arabic, English/Hebrew and Chinese/Japanese; paired/selected editions, reversed physical RTL order, explicit mixed-script text and table cells, paragraph flow, figures, references and expected failures.
+- **Native:** directly authored/installed LaTeX, package and image discovery without source-checkout access, native/structured pixel equivalence for matching normalized raster inputs in the same environment, IDs, counters, formulas, covers and direct flowing-prose helpers. Portable comparison fixtures normalize copied PNG metadata because JSON import deliberately flattens/strips image metadata; raw DPI metadata can otherwise cause subpixel dimension rounding. Installed-native example tests retain the original shared assets and independently check layout/ownership. Following paragraphs use the same keep/breakable policy in both compared fixtures.
+- **Configuration:** defaults and sparse overrides; paper/binding parity, divider geometry, clearance, folios, covers, roles, navigation, heading attachment and continuation furniture; invalid/late configuration errors.
+- **Study:** native-only selected products, clean independent installations, one interleaved lookup registry, direct subentry and companion-document targets, aliases and multisense groups, typed decision/clarification/continuation edges and actionable invalid-input errors.
+- **Focused native regressions:** prefix-key ordering; all documented decision-ID punctuation; paragraph/heading lifecycle and starred subentries; short and continued headers; separate version/status values; explicit oversized keep/header failures.
+
+The registry and decision fixtures are original generic examples. Private learning material is not a fixture source. The [self-hosted source review](../skills/study-notes/examples/coverage-review.md) maps selected source sections to the four study forms; automated link checks complement source reading.
+
+### Bounded foreground execution
+
+Every integration script accepts --case, --budget-seconds and --resume. A tool/runtime time limit is an infrastructure boundary, not evidence of a rendering defect. For example:
+
+```sh
+.venv/bin/python tests/render_matrix.py --output .local/structured --budget-seconds 95
+.venv/bin/python tests/render_matrix.py --output .local/structured --resume --budget-seconds 95
+```
+
+The budget is a wall-clock ceiling for the current foreground batch, not a benchmark or a reason to repeat the suite. Pick a ceiling below the host's invocation limit, leaving cleanup time. The runner checkpoints each case, terminates and reaps its own process group on timeout, and resumes pending/infrastructure-blocked work. It never retries an unchanged assertion failure until it happens to pass.
+
+Each directory contains matrix.json and per-case results. Exit 0 means all **requested** cases passed; exit 1 means a real case failed; exit 75 means requested work remains blocked/unrun. Only complete=true means every case in that profile passed. Not-requested cases, expected failures, semantic review and visual review remain explicit. Zero completed cases cannot become a complete pass.
+
+Runtime, fixtures, installed-source inputs and test implementation are fingerprinted. Do not change them during a resumable run. After a fix, choose a new output directory and rerun the affected scope; do not relabel old PDFs as evidence for changed inputs.
+
+The structured profile alone supports optional `--reuse-rendered PRIOR_MATRIX` for unchanged successful positive renders. It freshly exports and byte-compares current native source/package/license/image files, verifies the original PDF checksum, rejects detected engine/fixed-date changes, then reruns canonical QA and every case assertion. Failed, blocked and expected-error cases are not reused. The caller must keep the TeX/font installation unchanged: this feature does not prove external font/package byte identity. Reuse metadata distinguishes original recorded checksums from AUX/LOG hashes captured during verified copying. If any prerequisite is missing or differs, rebuild that case. Reuse is an optimization with explicit provenance, not a way to bypass a failure.
+
+## Regenerate curated examples
+
+Repository-maintainer commands are not dependencies of installed skills. The nine curated PDFs remain beside their sources: five bilingual output.pdf files and the selected study notes.pdf, quick-reference.pdf, keyword-index.pdf and decision-tree.pdf. Actions validates them; it does not generate the deliverable copies.
+
+When tutorial content changes, regenerate the native route and check parity:
+
+```sh
+.venv/bin/python tools/write_tutorial_examples.py
+.venv/bin/python tools/export_native_examples.py
+```
+
+The original native illustrations are shared once under examples/shared. If illustrations.tex changes, compile it into an ignored directory and crop/render its seven pages:
+
+```sh
+mkdir -p .local/illustrations
+cp skills/bilingual-pdf/examples/shared/illustrations.tex .local/illustrations/main.tex
+(cd .local/illustrations && latexmk -norc -xelatex -interaction=nonstopmode -halt-on-error -latexoption=-no-shell-escape main.tex)
+.venv/bin/python tools/export_illustrations.py --pdf .local/illustrations/main.pdf --output skills/bilingual-pdf/examples/shared
+```
+
+Run the current-source structured and study profiles above. For a focused artifact refresh, request all five named *-bilingual cases and study-example-all; other unrequested checks remain explicitly unrun. Then collect only passed, matching-source outputs:
+
+```sh
+.venv/bin/python tools/collect_example_outputs.py --matrix .local/structured --study-matrix .local/study --output .local/curated --previews .local/previews
+```
+
+Inspect every final PDF page and its text, links, fonts and metadata. Copy only the collected skills subtrees into the repository after that review, then rerun the manifest --check command. Sources and shared example images stay adjacent to their owning skill; runtime assets contain only reusable package/profile files. Manifests use portable relative paths and dependency identities, never host paths or build logs. Exact byte reproduction requires matching fonts, engine/packages and fixed time.
 
 ## Review limits
 
-The previous release received contact-sheet inspection but missed a real quote-slot defect; the rebuilt tests now measure actual quote glyph bounds and physical column positions in all four language pairs. See RESULTS.json for the current review coverage. Curated article pages, notes/Quick pages and targeted RTL/reference/equation pages receive readable-resolution inspection before publication. All 12 current article pages and all five learning pages were reviewed; final unchanged pages were compared pixel-for-pixel with their reviewed versions. The four article translations received separate author-level reading and source reconciliation, including corrected Arabic/Japanese nuances. These checks are not external human linguistic certification or universal domain validation. Synchronized column endings and wrapped titles may produce underfull-box warnings; whitespace is reviewed as part of the documented layout contract. No overfull box or missing glyph is accepted.
+Compiler success is not semantic, factual, translation, privacy or visual approval. The calling model owns paired content. Review readable-resolution pixels and the authored source, especially Arabic/Hebrew direction, actual table cells, uneven multi-page paragraphs, next-block resynchronization, subentry page destinations, continued headers and tab clearance. Sparse whitespace or underfull boxes can be valid; clipping, overfull boxes, missing glyphs and unresolved references are not accepted silently.
 
-The stress fixture deliberately repeats text a different number of times in its two columns; it is a placement test, not a translation-quality example. Traditional Chinese, other language combinations, vertical writing, native Windows font discovery, printer-specific production and PDF/UA remain unverified. Native TeX is executable; the checks do not turn it into a sandbox.
+Tests distinguish a bounded JSON table from paragraph continuation: each table row aligns independently, but the complete structured table remains together. Native authors may permit page breaks between bounded rows; row splitting and repeated longtable headers are not implemented.
 
-Working logs and operational evidence stay out of the public repository. Only original inputs, portable example sources, sanitized summaries and six curated PDFs are published.
-
-## Regenerate curated outputs
-
-Repository-only maintenance commands; installed skills do not execute these tools. Use fresh ignored build directories:
-
-```sh
-python3 tools/export_native_examples.py
-export SOURCE_DATE_EPOCH=1767225600 FORCE_SOURCE_DATE=1
-python3 tests/render_matrix.py --output .local/new-structured-matrix
-python3 tests/native_matrix.py --output .local/new-native-matrix --structured-matrix .local/new-structured-matrix
-python3 tests/configuration_matrix.py --output .local/new-configuration-matrix
-python3 tools/collect_example_outputs.py --matrix .local/new-structured-matrix --native-matrix .local/new-native-matrix --output .local/new-pdfs --previews .local/new-previews
-```
-
-Inspect every final page, then overlay the `skills/` subtrees from `.local/new-pdfs/` and `.local/new-previews/` into the repository's `skills/`. Only six PDFs, six first-page previews and the two local manifests are staged. Sources remain beside their outputs; article images live once under the bilingual skill assets. Skill READMEs hold usage guidance, references hold photo attribution, and each skill carries its license. Verify with `python3 tools/collect_example_outputs.py --check --output .`. Example paths are local to their installed examples folder; renderer dependency hashes use paths relative to the named bilingual-pdf skill. Build tools remain repository-only. Exact byte reproduction requires the same TeX engine, packages, fonts and fixed clock.
+Traditional Chinese, arbitrary language combinations, vertical writing, native Windows font discovery, printer-specific production and PDF/UA are outside current acceptance. Native TeX remains executable input; disabling shell escape is not a sandbox. Keep review evidence private and publish only original fixtures, authorized examples and sanitized results. Test elapsed time on a shared machine is not a performance benchmark.

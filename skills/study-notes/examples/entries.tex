@@ -1,0 +1,45 @@
+\StudyDeclareConcept{build}{build and portable delivery}{Build and portable delivery}{构建与可移植交付}{build}{
+ \ParallelParagraph{recall-build}{Select the requested forms with PRODUCTS and point BILINGUAL\_PDF\_SKILL to the installed renderer. Build included notes first so the other forms can import their page links.}{用 PRODUCTS 选择所需形式，并让 BILINGUAL\_PDF\_SKILL 指向已安装的渲染器。若包含笔记，先构建笔记，使其他形式能够导入其页码链接。}
+ \ParallelParagraph{recall-portable}{Deliver editable native sources and the selected PDFs together with their required shared packages, configuration and license files, images and companion targets. Keep relative paths valid after moving the folder; do not rely on the original checkout.}{交付可编辑的原生源码、所选 PDF，以及必需的共享排版包、配置与许可证文件、图片与配套文档目标。移动文件夹后，相对路径仍须有效；不能依赖原来的代码检出目录。}
+}
+\StudyDeclareConcept{tree}{decision tree}{Decision Tree}{决策树}{tree}{
+ \ParallelParagraph{recall-tree}{Choose a method from observable conditions. Questions offer alternatives and an unknown route; leaves provide a usable action or method.}{根据可观察条件选择方法。问题给出选项及未知路径，叶节点提供可用行动或方法。}
+ \StudySubentry{tree-unknown}{\ParallelParagraph{recall-tree-unknown}{A clarification asks for missing information before a conditional return. A required continuation is a separate forward step; an accidental cycle is not valid.}{澄清先询问缺失信息，再有条件地返回。必需的后续步骤是另一条向前路径；意外循环无效。}}
+}
+\StudyDeclareSubentry{tree-unknown}{tree}{Unknown information}{未知信息}{tree-clarification}
+\StudyDeclareConcept{notes}{explanatory notes}{Explanatory notes}{解释性笔记}{notes}{
+ \ParallelParagraph{recall-notes}{Explain meaning, conditions, mechanism and application. Show worked steps and retain the assumptions that make them valid.}{解释含义、条件、机制与应用。展示推导步骤，并保留使步骤成立的假设。}
+ \StudySubentry{notes-flow}{\ParallelParagraph{recall-flow}{Use the common global/per-paragraph flow choice. Breakable prose must not be enclosed in an indivisible private box. Oversized keep units fail; they are not truncated or shrunk.}{使用公共的全局／逐段跨页选项。可跨页正文不能包在私有的不可拆分盒子中。过大的 keep 单元应报错，不能截断或缩小。}}
+ \StudySubentry{evidence}{\ParallelParagraph{recall-evidence}{Preserve source locators and mark gaps, unreadable material and conflicts. A source map records provenance, not a second manuscript format.}{保留来源位置，并标明缺口、无法辨认的材料及冲突。来源映射用于记录出处，不是第二种文稿格式。}}
+}
+\StudyDeclareSubentry{notes-flow}{notes}{Long paragraphs}{长段落}{notes-flow}
+\StudyDeclareSubentry{evidence}{notes}{Scope and evidence}{范围与证据}{notes-evidence}
+\StudyDeclareConcept{index}{keyword index}{Keyword Index}{关键词索引}{index}{
+ \ParallelParagraph{recall-index}{Choose the compact pointer view only when requested. Reuse the unified registry, including direct canonical/subentry targets. It need not accompany every Quick Reference.}{仅在需要时选择紧凑定位视图。复用统一记录，包括直接的概念／子条目目标。不是每份速查都需要另配索引。}
+}
+\StudyDeclareConcept{quick}{quick reference}{Quick Reference}{速查}{quick}{
+ \ParallelParagraph{recall-quick}{Interleave canonical explanations, aliases and keyword routes in one sorted headword space. Do not make the reader choose between separate keyword and concept sections.}{在一个排序后的词头空间中交错放置规范解释、别名与关键词路径。不要让读者先在分离的关键词区与概念区之间选择。}
+ \ParallelParagraph{recall-quick-group}{Explicit lookup identity groups matching headwords; sorting alone does not merge meanings. Preserve substantive definitions and direct subentry pages.}{明确的检索身份用于合并同一词头，不能仅凭排序就合并含义。保留实质定义，以及直接指向子条目页码的路径。}
+}
+\StudyDeclareRoute{aliases}{aliases}{Aliases}{别名}
+\StudyRouteTarget{aliases}{quick}{One direct canonical target}{直接指向规范条目}
+\StudyDeclareAlias{az}{a-z}{A--Z lookup}{A--Z 检索}{quick}
+\StudyDeclareRoute{coverage}{coverage}{Coverage}{覆盖范围}
+\StudyRouteTarget{coverage}{evidence}{Source evidence}{来源证据}
+\StudyDeclareRoute[lookup=tree]{tree-keyword}{decision tree}{Decision Tree}{决策树}
+\StudyRouteTarget{tree-keyword}{tree}{}{}
+\StudyDeclareRoute{find-word}{find a word}{Find a word}{查找词语}
+\StudyRouteTarget{find-word}{quick}{Compact answer}{简明答案}
+\StudyRouteTarget{find-word}{index}{Pointers only}{只要定位}
+\StudyDeclareRoute{missing-information}{missing information}{Missing information}{缺失信息}
+\StudyRouteTarget{missing-information}{tree-unknown}{Clarify before choosing}{选择之前先澄清}
+\StudyDeclareAlias{notes-alias}{notes}{Notes}{笔记}{notes}
+\StudyDeclareRoute{page-breaks}{page breaks}{Page breaks}{分页}
+\StudyRouteTarget{page-breaks}{notes-flow}{Long prose}{长正文}
+\StudyDeclareRoute{portable-project}{portable project}{Portable project}{可移植项目}
+\StudyRouteTarget{portable-project}{build}{Editable delivery}{可编辑交付}
+\StudyDeclareAlias{qr}{qr}{QR}{速查简称}{quick}
+\StudyDeclareRoute{source-map}{source map}{Source map}{来源映射}
+\StudyRouteTarget{source-map}{evidence}{Provenance}{出处}
+\StudyDeclareRoute{unknown}{unknown}{Unknown}{未知}
+\StudyRouteTarget{unknown}{tree-unknown}{Information-gathering route}{信息收集路径}

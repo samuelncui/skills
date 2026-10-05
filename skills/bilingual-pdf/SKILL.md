@@ -1,35 +1,37 @@
 ---
 name: bilingual-pdf
-description: Create or edit same-page bilingual PDFs with aligned source and translation, using authored LaTeX or structured content. Use for articles, reports, instructions, travel writing and other parallel-text documents.
+description: Render or edit side-by-side bilingual PDFs (parallel text) from supplied source and translation pairs, with aligned paragraphs, table rows, lists and figures. Use native LaTeX or structured JSON for articles, reports and handouts, including LTR, RTL and CJK scripts. Not for OCR, automatic translation or preserving an existing PDF layout.
+license: MIT
+compatibility: Requires XeLaTeX, latexmk and document fonts. JSON import and optional PDF checks also need Python packages; see requirements.txt and references/languages.md.
 ---
 
 # Bilingual PDF
 
-Keep source and translation in fixed physical columns, with matching semantic starts and a configurable text-block divider. Language direction is independent of column order. This skill owns the renderer, templates, native package and layout references; the design is topic-neutral.
+This is a layout tool. Accept the text pairs, rows and document structure supplied by the calling agent; render their corresponding units at aligned positions. Content selection, translation and semantic pairing belong to that agent. Do not add an editorial workflow or rewrite text to fit a page.
 
-## Choose the authoring route
+## Select an input route
 
-Resolve paths relative to this installed skill. Read the [human guide and worked examples](README.md) for setup and copy/build commands. Use a fresh working directory and preserve supplied inputs.
+Resolve paths relative to this installed skill and use a fresh working directory. Preserve supplied inputs. Start with the [human guide and dependency checks](README.md#dependencies-checks-and-delivery).
 
-- **Native LaTeX:** adapt a worked project in `examples/`, retaining its shared-assets relationship or making a portable package/image copy. Edit `content.tex` and `languages.tex`; build directly with latexmk, without Python. Read [the native API](references/latex.md), including its minimal document and trust boundary.
-- **Structured content:** read [the input contract](references/input.md). Run `python3 scripts/bilingual_pdf.py export input.json --output new-project`, or `render` to export, compile and mechanically check. Add `--asset-root path/to/assets` when images are not under the input's parent directory. JSON is the implemented reader; explicitly map other formats to its semantic fields.
+- Native LaTeX: read [the native API and minimal build](references/latex.md#project-and-build-contract). Adapt a worked project in `examples/` or use the minimal native document. Build with XeLaTeX/latexmk without Python.
+- Structured JSON: read [the input contract and minimal input](references/input.md#minimal-input) and [JSON Schema](schemas/document.schema.json). Run `python3 scripts/bilingual_pdf.py export input.json --output new-project`, or use `render` to export, compile and mechanically check. Image paths are relative to the input directory unless `--asset-root` is supplied.
 
-Both routes use `assets/paralleltext.sty`. Exported projects are portable and build directly from `document.tex`; helpers refuse existing output directories. Do not create a second renderer or duplicate installed starter projects.
+Both routes use the one canonical `assets/paralleltext.sty`. Export produces an editable, portable native project. Existing output directories are rejected. Do not create another renderer or runtime dependency on repository maintenance tools.
 
-## Author and reconcile
+## Map structure to layout
 
-Establish source rights, audience, languages, physical order and delivery needs. Preserve supplied text and translation; ask before changing intended meaning. Identify newly authored material as original.
+Use `ParallelParagraph` with a global `paragraph-flow=keep|breakable` choice and per-block `[flow=keep|breakable]` override. JSON uses `layout.paragraph_flow` and paragraph `flow`. Explicit `ParallelText` stays bounded; `ParallelProse` permits continuation. The next pair resynchronizes after both sides finish. Table rows and list items align independently. A JSON table stays together as a complete group; native authors can allow breaks between bounded rows. Neither route splits a row automatically.
 
-Align semantic units rather than line counts. Translate naturally, then reconcile names, numbers, qualifiers, omissions and references. Use `ParallelText` for bounded units and `ParallelProse` for continuous prose that must cross pages (`flow: "breakable"` in JSON). Do not split prose arbitrarily, force equal line lengths, shrink type or truncate content. Covers and blank inner faces are optional; ordinary short articles need neither.
+Use `ParallelWideFigure` (`placement: "shared"`) for one shared full-width image with paired captions. Use `ParallelFigure` (JSON `image: [left, right]`) for localized images. Example photographs and diagrams belong to `examples/shared/`; they are not generic runtime assets.
 
-Use ordinary lists, mathematics, bounded tables, quotations and native references within the documented contract. For one identical image, use `ParallelWideFigure` (`placement: "shared"`); for localized versions, use `ParallelFigure` with its optional right image (JSON `image: [left, right]`). Image and quotation rights still apply. Native content may use documented LaTeX beyond the smaller interchange schema.
+Language direction and physical column position are independent. Read [language setup](references/languages.md) when changing fonts or scripts, especially RTL/CJK and mixed-script expressions. Do not silently substitute fonts, fetch images or install missing dependencies.
 
-## Configure only when needed
+## Configure and validate
 
-Read [language setup](references/languages.md) when changing scripts/fonts and [configuration](references/configuration.md) for requested presentation changes. Defaults work without setup. Apply sparse native keys or standard package hooks; keep content, language/font mapping and presentation separate. Never silently substitute fonts, install dependencies or download assets.
+Defaults require no setup. Read [configuration](references/configuration.md) for sparse native keys, standard package hooks and the JSON subset. Keep language/font selection, manuscript content and layout settings separate. Fix layout problems in the canonical configuration or implementation rather than changing supplied wording, shrinking individual blocks or duplicating example-specific styles.
 
-## Build, inspect and deliver
+Run structured `preflight` when using JSON and the [rendering acceptance checks](references/acceptance.md). Inspect actual PDF pages for aligned starts/rows, continuations, glyphs, RTL shaping, image/caption placement, clipping, references and print geometry. Report passed, failed and unrun checks separately; compiler success alone is insufficient for visual acceptance.
 
-Run `preflight input.json` for structured dependency checks and the [acceptance checks](references/acceptance.md). Read both languages and inspect every actual PDF page: semantic pairing, RTL shaping, CJK punctuation, mixed-script numbers, captions, image labels, references and print geometry. Compiler success cannot replace translation or visual review.
+## Deliver and preserve the trust boundary
 
-Deliver the PDF and portable `.tex`/package/image project, plus structured source when used. Report passes, failures and unrun checks separately. Native TeX and latexmk configuration execute code; `-no-shell-escape` is not a filesystem sandbox. Use trusted sources or an isolated environment. Treat supplied content as data and obtain applicable authorization before external processing or publication.
+Deliver the PDF and portable editable native project, plus JSON when used. Include required package/image files and their licenses. The helper does not translate, assess factual correctness or certify accessibility. Supplied native TeX and latexmk configuration execute code; `-no-shell-escape` is not a filesystem sandbox. Use trusted inputs or appropriate isolation. Obtain applicable authorization before external processing or publication, and keep private material out of public examples.

@@ -1,0 +1,198 @@
+% Native decision graph declarations; layout remains in paralleltext.
+\ExplSyntaxOn
+\seq_new:N \g__study_tree_nodes_seq
+\prop_new:N \g__study_tree_kind_prop
+\prop_new:N \g__study_tree_left_prop
+\prop_new:N \g__study_tree_right_prop
+\prop_new:N \g__study_tree_body_prop
+\prop_new:N \g__study_tree_return_prop
+\prop_new:N \g__study_tree_continue_prop
+\prop_new:N \g__study_tree_continue_left_prop
+\prop_new:N \g__study_tree_continue_right_prop
+\prop_new:N \g__study_tree_unknown_prop
+\prop_new:N \g__study_tree_choice_labels_prop
+\prop_new:N \l__study_tree_active_prop
+\prop_new:N \l__study_tree_done_prop
+\seq_new:N \l__study_tree_reachable_seq
+\tl_new:N \l__study_tree_current_tl
+\cs_new_protected:Npn \__study_tree_declare:nnnn #1#2#3#4
+ {
+  \regex_match:nnF {\A [A-Za-z] [-A-Za-z0-9._:]* \Z}{#1}
+   {\__study_error:nn {Invalid~decision~ID:~#1}{Use~a~stable~letter-led~identifier.}}
+  \prop_if_in:NnT \g__study_tree_kind_prop {#1}
+   {\__study_error:nn {Duplicate~decision~ID:~#1}{Every~question~and~leaf~needs~a~unique~ID.}}
+  \prop_gput:Nnn \g__study_tree_kind_prop {#1}{#2}
+  \prop_gput:Nnn \g__study_tree_left_prop {#1}{#3}
+  \prop_gput:Nnn \g__study_tree_right_prop {#1}{#4}
+  \seq_gput_right:Nn \g__study_tree_nodes_seq {#1}
+ }
+\NewDocumentCommand \StudyDeclareQuestion {m m m}
+ {
+  \__study_tree_declare:nnnn {#1}{question}{#2}{#3}
+  \seq_new:c {g__study_tree_choices_#1_seq}
+ }
+\NewDocumentCommand \StudyDeclareLeaf {m m m +m}
+ {
+  \__study_tree_declare:nnnn {#1}{leaf}{#2}{#3}
+  \tl_if_blank:nT{#4}
+   {\__study_error:nn {Decision~leaf~#1~has~no~method}{Supply~a~self-contained~method,~check~or~information-gathering~step.}}
+  \prop_gput:Nnn \g__study_tree_body_prop {#1}{#4}
+ }
+% Clarification returns are conditional edges, distinct from forward decision edges.
+\NewDocumentCommand \StudyDeclareClarification {m m m +m m}
+ {
+  \__study_tree_declare:nnnn {#1}{clarification}{#2}{#3}
+  \tl_if_blank:nT{#4}{\__study_error:nn{Clarification~#1~has~no~action}{State~which~information~to~obtain~before~returning.}}
+  \prop_gput:Nnn \g__study_tree_body_prop {#1}{#4}
+  \prop_gput:Nnn \g__study_tree_return_prop {#1}{#5}
+ }
+\NewDocumentCommand \StudyContinue {m m m m}
+ {
+  \prop_get:NnNTF\g__study_tree_kind_prop{#1}\l_tmpa_tl
+   {\str_if_eq:VnTF\l_tmpa_tl{leaf}
+     {\prop_if_in:NnT\g__study_tree_continue_prop{#1}{\__study_error:nn{Duplicate~continuation~for~#1}{One~required~next~step~per~method~leaf.}}
+      \prop_gput:Nnn\g__study_tree_continue_prop{#1}{#2}
+      \prop_gput:Nnn\g__study_tree_continue_left_prop{#1}{#3}
+      \prop_gput:Nnn\g__study_tree_continue_right_prop{#1}{#4}}
+     {\__study_error:nn{Continuation~owner~#1~is~not~a~method~leaf}{Questions~use~choices;~clarifications~use~conditional~returns.}}}
+   {\__study_error:nn{Unknown~continuation~owner~#1}{Declare~the~leaf~first.}}
+ }
+\cs_new_protected:Npn \__study_tree_choice:nnnnn #1#2#3#4#5
+ {
+  \prop_get:NnNTF \g__study_tree_kind_prop {#1}\l_tmpa_tl
+   {
+    \str_if_eq:VnTF \l_tmpa_tl {question}
+     {
+      \prop_if_in:NnTF \g__study_tree_choice_labels_prop {#1/#2}
+       {\__study_error:nn {Duplicate~choice~#2~for~#1}{Each~question~needs~distinct~choice~labels.}}
+       {
+        \prop_gput:Nnn \g__study_tree_choice_labels_prop {#1/#2}{1}
+        \seq_gput_right:cn {g__study_tree_choices_#1_seq}{{#2}{#3}{#4}{#5}}
+       }
+     }
+     {\__study_error:nn {Decision~#1~is~not~a~question}{Choices~belong~to~questions,~not~method~leaves.}}
+   }
+   {\__study_error:nn {Unknown~question~#1}{Declare~the~question~before~its~choices.}}
+ }
+\NewDocumentCommand \StudyChoice {m m m m m}
+ {
+  \regex_match:nnF {\A [A-Z] \Z}{#2}
+   {\__study_error:nn {Invalid~choice~label~#2}{Use~A/B/C~etc.;~use~StudyUnknown~for~the~unknown~branch.}}
+  \__study_tree_choice:nnnnn {#1}{#2}{#3}{#4}{#5}
+ }
+\NewDocumentCommand \StudyUnknown {m m m m}
+ {
+  \prop_gput:Nnn \g__study_tree_unknown_prop {#1}{#4}
+  \__study_tree_choice:nnnnn {#1}{?}{#2}{#3}{#4}
+ }
+\cs_new_protected:Npn \__study_tree_visit_choice:nnnn #1#2#3#4
+ {\__study_tree_visit:n {#4}}
+\cs_new_protected:Npn \__study_tree_visit:n #1
+ {
+  \prop_if_in:NnF \l__study_tree_done_prop {#1}
+   {
+    \prop_if_in:NnTF \l__study_tree_active_prop {#1}
+     {\__study_error:nn {Decision~cycle~through~#1}{Every~route~must~terminate.~Use~an~information-gathering~leaf~instead~of~an~endless~unknown~loop.}}
+     {
+      \prop_get:NnNTF \g__study_tree_kind_prop {#1}\l_tmpa_tl
+       {
+        \prop_put:Nnn \l__study_tree_active_prop {#1}{1}
+        \seq_put_right:Nn \l__study_tree_reachable_seq {#1}
+        \str_if_eq:VnT \l_tmpa_tl {question}
+         {\seq_map_inline:cn {g__study_tree_choices_#1_seq}{\__study_tree_visit_choice:nnnn ##1}}
+        \prop_get:NnNT\g__study_tree_continue_prop{#1}\l_tmpb_tl
+         {\exp_args:NV\__study_tree_visit:n\l_tmpb_tl}
+        \prop_remove:Nn \l__study_tree_active_prop {#1}
+        \prop_put:Nnn \l__study_tree_done_prop {#1}{1}
+       }
+       {\__study_error:nn {Unknown~decision~target~#1}{Every~choice~must~name~a~declared~question~or~leaf.}}
+     }
+   }
+ }
+\cs_new_protected:Npn \__study_tree_validate:
+ {
+  \seq_map_inline:Nn \g__study_tree_nodes_seq
+   {
+    \prop_get:NnN \g__study_tree_kind_prop {##1}\l_tmpa_tl
+    \str_if_eq:VnT \l_tmpa_tl {question}
+     {
+      \prop_if_in:NnF \g__study_tree_unknown_prop {##1}
+       {\__study_error:nn {Question~##1~has~no~unknown~route}{Add~StudyUnknown~with~a~useful~information-gathering~or~safe~stop~destination.}}
+      \int_compare:nNnT {\seq_count:c{g__study_tree_choices_##1_seq}}<{3}
+       {\__study_error:nn {Question~##1~has~too~few~choices}{Provide~at~least~two~ordinary~choices~and~the~unknown~route.}}
+     }
+   }
+  \prop_map_inline:Nn\g__study_tree_return_prop
+   {\prop_get:NnNTF\g__study_tree_kind_prop{##2}\l_tmpa_tl
+     {\str_if_eq:VnF\l_tmpa_tl{question}{\__study_error:nn{Clarification~##1~returns~to~a~non-question}{Return~to~a~question~after~obtaining~new~information.}}}
+     {\__study_error:nn{Unknown~clarification~return~##2}{Declare~the~target~question.}}}
+  \prop_clear:N \l__study_tree_active_prop
+  \prop_clear:N \l__study_tree_done_prop
+  \seq_clear:N \l__study_tree_reachable_seq
+  \seq_map_inline:Nn \g__study_tree_nodes_seq {\__study_tree_visit:n{##1}}
+ }
+\AtBeginDocument{\__study_tree_validate:}
+\cs_new:Npn \__study_tree_title:nn #1#2
+ {\str_if_eq:nnTF{#2}{left}{\prop_item:Nn\g__study_tree_left_prop{#1}}{\prop_item:Nn\g__study_tree_right_prop{#1}}}
+\NewDocumentCommand \StudyDecisionID {m}{\textenglish{\texttt{\detokenize{#1}}}}
+\cs_new_protected:Npn \__study_tree_link:nn #1#2
+ {
+  \hyperref[decision:#1]
+   {\str_if_eq:nnTF{#2}{left}
+     {\StudyLocalReferenceLeft{\StudyDecisionID{#1}:~\__study_tree_title:nn{#1}{#2}}{\pageref*{decision:#1}}}
+     {\StudyLocalReferenceRight{\StudyDecisionID{#1}:~\__study_tree_title:nn{#1}{#2}}{\pageref*{decision:#1}}}}
+ }
+\NewDocumentCommand \StudyDecisionReference {m}
+ {\ParallelLocalize{\__study_tree_link:nn{#1}{left}}{\__study_tree_link:nn{#1}{right}}}
+\cs_new_protected:Npn \__study_tree_print_choice:nnnn #1#2#3#4
+ {
+  \exp_args:Nx \ParallelText{decision-choice:\tl_use:N \l__study_tree_current_tl :#1}
+   {\textenglish{\textbf{#1.}}~
+    \tl_if_blank:nTF{#2}{\StudyUnknownLabelLeft}{#2}\par
+    \__study_tree_link:nn{#4}{left}}
+   {\textenglish{\textbf{#1.}}~
+    \tl_if_blank:nTF{#3}{\StudyUnknownLabelRight}{#3}\par
+    \__study_tree_link:nn{#4}{right}}
+ }
+\cs_new_protected:Npn \__study_tree_print_node:n #1
+ {
+  \tl_set:Nn \l__study_tree_current_tl {#1}
+  \ParallelEntry{decision:#1}
+   {\StudyDecisionID{#1}:~\__study_tree_title:nn{#1}{left}}
+   {\StudyDecisionID{#1}:~\__study_tree_title:nn{#1}{right}}
+  \prop_get:NnN \g__study_tree_kind_prop {#1}\l_tmpa_tl
+  \str_if_eq:VnTF \l_tmpa_tl {question}
+   {\seq_map_inline:cn {g__study_tree_choices_#1_seq}{\__study_tree_print_choice:nnnn ##1}}
+   {\prop_item:Nn\g__study_tree_body_prop{#1}
+    \prop_get:NnNT\g__study_tree_return_prop{#1}\l_tmpb_tl
+     {\ParallelText{decision-return:#1}
+       {\StudyReturnLabelLeft\space\exp_args:NV\__study_tree_link:nn\l_tmpb_tl{left}}
+       {\StudyReturnLabelRight\space\exp_args:NV\__study_tree_link:nn\l_tmpb_tl{right}}}
+    \prop_get:NnNT\g__study_tree_continue_prop{#1}\l_tmpb_tl
+     {\ParallelText{decision-continue:#1}
+       {\textbf{\StudyContinueLabelLeft}:~\prop_item:Nn\g__study_tree_continue_left_prop{#1}\par\exp_args:NV\__study_tree_link:nn\l_tmpb_tl{left}}
+       {\textbf{\StudyContinueLabelRight}:~\prop_item:Nn\g__study_tree_continue_right_prop{#1}\par\exp_args:NV\__study_tree_link:nn\l_tmpb_tl{right}}}}
+
+ }
+\NewDocumentCommand \StudyPrintDecisionTree {m}
+ {
+  \prop_clear:N \l__study_tree_active_prop
+  \prop_clear:N \l__study_tree_done_prop
+  \seq_clear:N \l__study_tree_reachable_seq
+  \__study_tree_visit:n {#1}
+  \ParallelText{decision-start}
+   {\__study_tree_link:nn{#1}{left}}
+   {\__study_tree_link:nn{#1}{right}}
+  \seq_map_inline:Nn \g__study_tree_nodes_seq
+   {\__study_tree_print_node:n{##1}}
+  \ParallelEndEntry
+ }
+\ExplSyntaxOff
+\makeatletter
+\@onlypreamble\StudyDeclareQuestion
+\@onlypreamble\StudyDeclareLeaf
+\@onlypreamble\StudyDeclareClarification
+\@onlypreamble\StudyContinue
+\@onlypreamble\StudyChoice
+\@onlypreamble\StudyUnknown
+\makeatother

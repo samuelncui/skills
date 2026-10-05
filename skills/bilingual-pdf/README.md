@@ -1,21 +1,39 @@
 # Bilingual PDF
 
-Create same-page parallel-text articles, reports, instructions and travel writing. Source and translation occupy fixed physical columns; language direction is independent of their order. Native LaTeX and JSON use the same `assets/paralleltext.sty` and produce editable source projects.
+[English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-For the agent workflow, read [SKILL.md](SKILL.md). This skill owns the renderer, templates, layout/language references and shared article assets. The separately installed `course-guide-quick-reference` skill uses it for rendering learning documents.
+Put corresponding content where readers can compare it: matching paragraph starts, list items and table rows, with a stable divider between physical columns. Choose whether long paragraphs stay together or continue across pages. Native LaTeX and JSON share one canonical layout package.
 
-## One article, four bilingual editions
+The calling agent supplies the paired content. This skill renders it; it does not choose translations, rewrite prose or decide which statements correspond.
 
-All four projects translate the same complete original article, “A slower walk through a familiar street.” Each demonstrates a full-width shared photograph with paired captions, language-specific route diagrams, a quotation, a table, a cross-reference and a continuous paragraph flowing across pages:
+## What it does
 
-- [English / French](examples/en-fr/): [PDF](examples/en-fr/output.pdf), [JSON](examples/en-fr/source.json)
-- [English / Chinese](examples/en-zh-Hans/): [PDF](examples/en-zh-Hans/output.pdf), [JSON](examples/en-zh-Hans/source.json)
-- [English / Arabic](examples/en-ar/): [PDF](examples/en-ar/output.pdf), [JSON](examples/en-ar/source.json)
-- [Chinese / Japanese](examples/zh-Hans-ja/): [PDF](examples/zh-Hans-ja/output.pdf), [JSON](examples/zh-Hans-ja/source.json)
+- Aligns each paired paragraph, list item and table row independently of translation length
+- Lets a paragraph continue across pages, then resynchronizes the following pair
+- Keeps physical left/right column order separate from LTR/RTL language direction
+- Renders one shared full-width image with paired captions, or two localized images
+- Shares equation/figure counters and generates local page links
+- Supports paired, left-only and right-only editions, configurable paper/binding geometry, covers, folios, semantic styles and navigation
 
-Read `content.tex` beside its PDF before choosing an authoring pattern. The same English and Chinese passages remain text-identical wherever they recur. Natural translation length can change pagination; never cut or pad a translation to force identical page counts. First-page previews are browsing aids, not full-document review evidence.
+[![Paragraph alignment in the English/Chinese usage guide](examples/en-zh-Hans/preview.png)](examples/en-zh-Hans/output.pdf)
 
-Each language-pair folder holds its JSON, editable LaTeX, PDF and preview. Reusable images live once in `assets/`: `footpath.png`, `route-en.png`, `route-fr.png`, `route-zh-Hans.png`, `route-ar.png` and `route-ja.png`. The shared photograph spans both columns; the paired route figure uses the appropriate localized image on each side. The image pool and renderer are not copied into every installed example.
+[![English/Hebrew example](examples/en-he/preview.png)](examples/en-he/output.pdf)
+
+These are actual output previews. Open the PDFs for all pages; a first-page image is a browsing aid, not complete visual evidence.
+
+## Self-hosted examples
+
+Each edition uses the same usage-guide content to demonstrate paragraphs, a table, figures, references and a small formula. Repeated English/Chinese passages are identical across editions.
+
+| Pair | PDF | Structured source | Native project |
+| --- | --- | --- | --- |
+| English / French | [output.pdf](examples/en-fr/output.pdf) | [source.json](examples/en-fr/source.json) | [main.tex](examples/en-fr/main.tex) |
+| English / Chinese | [output.pdf](examples/en-zh-Hans/output.pdf) | [source.json](examples/en-zh-Hans/source.json) | [main.tex](examples/en-zh-Hans/main.tex) |
+| English / Arabic | [output.pdf](examples/en-ar/output.pdf) | [source.json](examples/en-ar/source.json) | [main.tex](examples/en-ar/main.tex) |
+| English / Hebrew | [output.pdf](examples/en-he/output.pdf) | [source.json](examples/en-he/source.json) | [main.tex](examples/en-he/main.tex) |
+| Chinese / Japanese | [output.pdf](examples/zh-Hans-ja/output.pdf) | [source.json](examples/zh-Hans-ja/source.json) | [main.tex](examples/zh-Hans-ja/main.tex) |
+
+Example-only illustrations live once in `examples/shared/`. Runtime `assets/` contains the reusable package and optional profiles. The native examples do not need Python or repository-maintainer tools to compile.
 
 ## Native LaTeX
 
@@ -26,43 +44,45 @@ cd examples/en-fr
 latexmk -xelatex -interaction=nonstopmode -halt-on-error -latexoption=-no-shell-escape -jobname=output main.tex
 ```
 
-The checked-in native project finds the package and images through its relative `../../assets` fallback. It builds without Python or a repository checkout. Choose the nearest language pair, then work in a fresh copy rather than overwriting supplied examples. Either retain the `examples/<pair>/` and `assets/` relationship, or place the needed package and images beside the copied `.tex` files and update explicit image paths if needed. Retain the license and photograph credit with redistributed material.
+For your own work, copy a complete example to a fresh directory. Retain its package/image path relationship, or copy the required package and images into a portable project. Edit `content.tex` and `languages.tex`. The [complete native API](references/latex.md) documents every public command, argument, default and error boundary; it also includes a minimal document.
 
-Edit `content.tex` for meaning and `languages.tex` for fonts/languages. The [native reference](references/latex.md) also supplies a minimal document when a full worked article is unnecessary. Use ordinary LaTeX lists, mathematics, tables, quotations and labels inside the documented paired commands. For handoff, include all required `.tex`, package and image files; no recipient should need your installation paths.
+Set a global paragraph policy in the preamble and override it on individual paragraphs:
 
-## Structured content
-
-Run from this installed skill's directory, selecting a fresh output directory:
-
-```sh
-python3 scripts/bilingual_pdf.py export examples/en-fr/source.json --asset-root assets --output /path/to/new-project
-python3 scripts/bilingual_pdf.py render examples/en-fr/source.json --asset-root assets --output /path/to/new-build
+```tex
+\ParallelSetup{paragraph-flow=breakable}
+\ParallelParagraph{explanation}{Left paragraph.}{Right paragraph.}
+\ParallelParagraph[flow=keep]{short}{Keep this pair together.}{Keep this pair together.}
 ```
 
-`export` creates a self-contained editable project. Build its `document.tex` directly with the native latexmk command, without Python. `render` exports, compiles and mechanically checks it in one step. Existing output directories are never silently overwritten. Add `--mode left` or `--mode right` for a selected-language edition.
+`ParallelText` is always bounded; `ParallelProse` explicitly permits continuation. An oversized keep-together unit fails visibly. The renderer does not shrink or truncate it.
 
-The [input contract](references/input.md) defines semantic fields and validation. JSON is the implemented interchange reader; another format needs an explicit mapping to those fields. Image paths are relative to `--asset-root`, which defaults to the input file's parent directory. Absolute paths, traversal and symlink escapes are rejected. A paired figure accepts one image or `[left, right]` images; a shared figure accepts one image. Export stages the required images into its portable output.
+## Structured JSON
 
-## Adjust the design
+From this installed skill's directory:
 
-No setup is needed for the default style. Add sparse `\ParallelSetup{...}` settings only when requested: geometry and mirrored binding allowance, divider color/dash/width, folio position/format, heading styles, spacing, semantic roles or optional navigation tabs. Ordinary geometry, fontspec, Polyglossia, fancyhdr, enumitem and TikZ commands remain available.
+```sh
+python3 scripts/bilingual_pdf.py export examples/en-fr/source.json --asset-root examples/shared --output /path/to/new-project
+python3 scripts/bilingual_pdf.py render examples/en-fr/source.json --asset-root examples/shared --output /path/to/new-build
+```
 
-The [configuration guide](references/configuration.md) preserves the full native option reference and two optional profile files. The JSON adapter exposes a smaller validated data-only subset of the same settings. Keep content, language mapping and presentation separate; do not edit individual paragraphs to hide a global layout problem.
+`export` creates portable editable LaTeX. `render` also compiles and checks it. Existing output directories are rejected. Add `--mode left` or `--mode right` for a selected-language edition.
 
-Use bounded paired units for headings, lists, quotations and tables that must stay together. Opt-in `ParallelProse` / `flow: "breakable"` allows continuous prose across pages, then resynchronizes the next unit. `ParallelWideFigure` / `placement: "shared"` prints one full-width image above paired captions; `ParallelFigure` supports localized images. Read the [native API and safety contract](references/latex.md) before adapting these features.
+Use the independent [JSON Schema](schemas/document.schema.json) and [field reference](references/input.md). `layout.paragraph_flow` sets `keep` or `breakable`; a paragraph's `flow` overrides it. `atomic` remains a compatibility alias for `keep`. Schema validation is complemented by runtime checks for IDs, dimensions, references, fonts and asset paths.
 
-## Dependencies and limits
+Image paths resolve inside the input directory or explicit `--asset-root`; absolute paths, traversal and symlink escapes are rejected. The adapter never fetches assets or dependencies.
 
-Use a coherent TeX Live or MiKTeX installation with XeLaTeX, latexmk, Polyglossia, paracol and the documented packages. French requires hyphenation patterns; Arabic requires matching bidi support. The examples use Latin Modern Roman/Sans/Math, Noto Serif/Sans CJK and Noto Naskh Arabic. See [language and font prerequisites](references/languages.md), including RTL, mixed-script and CJK requirements.
+## Configure without forking the layout
 
-Structured import needs Python 3.10+ and Pillow. Preflight, rendering and optional PDF QA also use the packages in `requirements.txt`, Fontconfig and `kpsewhich`. Linux is CI-tested; native Windows font discovery is not claimed. Helpers never download fonts, install software, translate through an external service or enable TeX shell escape.
+The [configuration reference](references/configuration.md) covers geometry, binding, divider appearance, folios, spacing, styles, semantic roles, covers and navigation. Defaults work without setup. Use sparse overrides or documented native hooks, keeping content, language/font mapping and presentation separate.
 
-Raw floats, arbitrary verbatim macro arguments, vertical writing and PDF/UA are outside the documented contract. Native TeX and latexmk configuration are executable inputs; disabled shell escape is not a filesystem sandbox. Use trusted sources or an appropriately isolated environment.
+The JSON table aligns rows but keeps the complete table and caption together. Native paired rows can be placed outside `ParallelKeep` to permit breaks between rows. Individual rows are bounded; automatic splitting of a row or repeated longtable headers is not provided.
 
-## Review and delivery
+## Dependencies, checks and delivery
 
-Run the [acceptance checks](references/acceptance.md), read both languages, reconcile claims and inspect every actual PDF page. Check RTL shaping, CJK punctuation, mixed-script numbers, image labels, references and both print parities. Compiler success is not a semantic or visual review.
+Use XeLaTeX, latexmk and the documented TeX packages/fonts. See [language setup](references/languages.md) for French hyphenation, Arabic/Hebrew bidi, CJK fonts and mixed-script runs. Structured import and optional PDF checks use `requirements.txt`, Fontconfig and `kpsewhich`.
 
-Deliver the PDF, portable editable source project and structured source when used. Preserve supplied text and translations; report passed, failed and unrun checks separately. Rendering is local, but any host-agent translation is a separate data-processing step. No private source material or provenance belongs in public examples.
+Follow [rendering acceptance](references/acceptance.md): inspect actual pages for alignment, continuations, glyphs, RTL shaping, clipping, images, references and print geometry. Mechanical checks do not establish semantic correctness. Report passed, failed and unrun checks separately.
 
-The article text and localized diagrams are original [MIT-licensed](LICENSE) material. The shared photograph has one [CC0 attribution](references/photo-credit.md). Retain applicable notices when redistributing a project; fonts, TeX packages and Python libraries retain their own licenses.
+Deliver the PDF, portable native source project and JSON when used. Include required assets/licenses. Native TeX and latexmk configuration execute code; `-no-shell-escape` is not a sandbox. Use trusted source or appropriate isolation. Vertical writing, arbitrary floats/verbatim macro arguments, native Windows font discovery and PDF/UA remain outside the tested contract.
+
+Original code, tutorial text and diagrams use the [MIT license](LICENSE). Third-party dependencies retain their own licenses. No private document content belongs in these public examples.

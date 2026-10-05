@@ -1,0 +1,14 @@
+\documentclass[10pt,twoside]{article}
+\input{common.tex}
+\StudyAlphabetNavigation
+\ParallelSetup{header-left=\ParallelFirstEntry,header-right=\ParallelLastEntry,tabs=true,tab-height=5mm,tab-top=24mm,tab-step=7mm,entry-continuation-left={ (cont.)},entry-continuation-right={（续）}}
+\ifStudyBuildNotes\StudyNotesSource{notes}{notes.pdf}\fi
+\input{entries.tex}
+\hypersetup{pdftitle={Study forms: optional keyword index},pdfauthor={}}
+\begin{document}
+\ParallelTitle{Optional keyword index}{可选关键词索引}
+\ParallelParagraph[flow=keep]{index-intro}
+ {This compact view is selected only when the reader wants pointers. It uses the same registry as the unified Quick Reference. Local targets remain usable when companion notes are omitted.}
+ {只有读者需要定位索引时才选择这个紧凑视图。它与统一速查使用同一份条目记录。即使不生成配套笔记，本册内的目标仍然有效。}
+\StudyPrintKeywordIndex
+\end{document}

@@ -1,0 +1,14 @@
+\documentclass[10pt,twoside]{article}
+\input{common.tex}
+\StudyAlphabetNavigation
+\ParallelSetup{header-left=\ParallelFirstEntry,header-right=\ParallelLastEntry,tabs=true,tab-height=5mm,tab-top=24mm,tab-step=7mm,entry-continuation-left={ (cont.)},entry-continuation-right={（续）}}
+\ifStudyBuildNotes\StudyNotesSource{notes}{notes.pdf}\fi
+\input{entries.tex}
+\hypersetup{pdftitle={Study forms: unified quick reference},pdfauthor={}}
+\begin{document}
+\ParallelTitle{One place to look}{只需在一处查找}
+\ParallelParagraph[flow=keep]{quick-intro}
+ {Find a remembered headword in this single A--Z sequence. Full concepts, aliases and keyword routes share the same space. Follow a direct concept or subentry pointer; pages are generated.}
+ {在这一个 A--Z 序列中查找记得的词头。完整概念、别名与关键词路径放在同一处。沿直接指向概念或子条目的链接查找，页码自动生成。}
+\StudyPrintQuickReference
+\end{document}

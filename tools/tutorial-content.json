@@ -1,0 +1,296 @@
+{
+  "en": {
+    "title": "Two languages, one readable page",
+    "choose": "Choose a source route",
+    "intro": "Bilingual PDF places corresponding content in fixed physical columns. The calling agent supplies the text pairs and the order of the document; the renderer aligns their visible starts. A short translation does not have to be padded to match a longer one. Paragraphs, list items and table rows each have their own alignment boundary. Native LaTeX and structured JSON reach the same package, so changing the source route does not create a different design engine. Work in a new project and keep the original input unchanged. This guide is itself an example of the layout it describes.",
+    "tableCaption": "Two source routes, one rendering implementation.",
+    "headers": [
+      "Route",
+      "Use it when",
+      "Result"
+    ],
+    "rows": [
+      [
+        "Native LaTeX",
+        "You want editable commands, mathematics or standard package hooks.",
+        "Compile the manuscript directly."
+      ],
+      [
+        "Structured JSON",
+        "You already have ordered pairs of text, rows and image paths.",
+        "Export editable LaTeX, or render it immediately."
+      ],
+      [
+        "Selected language",
+        "The reader needs only the physical left or right side.",
+        "Choose left or right mode without rewriting the source."
+      ]
+    ],
+    "flowHeading": "Choose whether paragraphs can cross pages",
+    "flowIntro": "Set paragraph-flow=breakable in the native preamble to allow ordinary ParallelParagraph content to continue over a page boundary. A paragraph can override that choice with flow=keep. JSON uses layout.paragraph_flow and a paragraph-level flow field. Keep-together content stays on one page; an oversized unit produces an error rather than being truncated or shrunk. ParallelText and ParallelProse remain explicit bounded and flowing alternatives. The following deliberately continuous paragraph demonstrates the flowing route.",
+    "long": "A readable parallel document does not require equal line counts. One language may need more words, different punctuation or a different number of lines to express the supplied content. In a flowing paragraph, each physical column continues at its own natural pace, while the package records the shared paragraph boundary and restores alignment before the next pair begins. This means that a reader can follow a long explanation without a page-sized empty hole caused by moving the whole paragraph to the next sheet. It also means that the last lines of the two translations need not sit at exactly the same height. The useful promise is a stable place to begin the next corresponding unit. When choosing the policy, distinguish continuous prose from objects whose pieces should remain together. A short definition, a formula with a short explanation or a compact diagram may be a good bounded unit. A long explanation that would fill several pages is usually a candidate for flowing prose. Do not put a flowing paragraph inside a minipage or another keep-together wrapper, because the enclosing box prevents page breaking. Do not repair a layout problem by removing sentences, inventing extra text, changing the meaning or shrinking a single troublesome block. Instead, use the documented flow option and inspect the actual result. After building, look at the end of the first page, the continuation on the next page and the start of the following paired section. Check that neither column is clipped, that the physical divider follows the live text block and that the next section begins at a corresponding position. Repeat this check with the requested fonts and language direction. A successful compiler exit proves that a file was produced; it does not prove that all visible page details are correct. Keeping source, language configuration and presentation separate makes a later font, paper or binding change easier to test without rewriting the manuscript.",
+    "imagesHeading": "Use figures, tables and references",
+    "wideCaption": "One shared diagram spans the full text width; its captions remain paired.",
+    "localCaption": "The same pipeline has labels in each column's own language.",
+    "quote": "“Corresponding starts matter more than identical line counts.” This short quotation is original example text; quotation layout does not imply an external source.",
+    "equationText": "For a usable text width W and a gap g, each paired column has width w. If W is 170 mm and g is 6 mm, w is 82 mm.",
+    "checkHeading": "Check the PDF and deliver the project",
+    "checks": [
+      "Inspect actual pages for matching starts, table-row alignment, paragraph continuations, clipping and intended whitespace. A first-page preview cannot show the whole document.",
+      "For RTL and CJK, inspect shaping, punctuation, mixed-script identifiers and physical column order. Language direction does not decide which side a language occupies.",
+      "Follow generated references to their real destinations. Printed folios can differ from physical PDF page numbers. Keep relative cross-document targets beside each other.",
+      "Deliver the PDF and a portable source project with required package, image and license files. Native TeX executes code; disabled shell escape is not a filesystem sandbox."
+    ],
+    "back": "Return to the page-breaking controls",
+    "pipeline": [
+      "Paired input",
+      "Layout package",
+      "PDF output"
+    ]
+  },
+  "zh-Hans": {
+    "title": "两种语言，一份易读文档",
+    "choose": "选择源文件形式",
+    "intro": "Bilingual PDF 将对应内容放在固定的左右栏中。调用模型提供成对的文本及文档顺序，排版工具负责对齐它们在页面上的起始位置。较短的译文不需要为了凑齐长度而补充文字。段落、列表项和表格行各有自己的对齐边界。原生 LaTeX 与结构化 JSON 使用同一个排版包，因此更换输入形式不会产生另一套设计引擎。请在新项目中工作，并保留原始输入。本指南本身就是其所介绍排版方式的示例。",
+    "tableCaption": "两种源文件形式，共用一套排版实现。",
+    "headers": [
+      "形式",
+      "适用情形",
+      "结果"
+    ],
+    "rows": [
+      [
+        "原生 LaTeX",
+        "需要直接编辑命令、数学公式或标准包钩子。",
+        "直接编译文稿。"
+      ],
+      [
+        "结构化 JSON",
+        "已有按顺序组织的文本对、表格行和图像路径。",
+        "导出可编辑的 LaTeX，或立即渲染。"
+      ],
+      [
+        "单语输出",
+        "读者只需要物理左栏或右栏的内容。",
+        "选择 left 或 right 模式，无需重写源文件。"
+      ]
+    ],
+    "flowHeading": "选择是否允许段落跨页",
+    "flowIntro": "在原生文稿的导言区设置 paragraph-flow=breakable，即可允许普通 ParallelParagraph 内容跨越分页边界。单个段落可以用 flow=keep 覆盖该设置。JSON 使用 layout.paragraph_flow 和段落级 flow 字段。保持完整的内容单元会留在一页内；若单元过大，工具会报错，不会截断或缩小它。ParallelText 和 ParallelProse 仍分别提供明确的整块和连续排版方式。下面这个有意保持连续的段落展示跨页排版。",
+    "long": "可读的双语对照文档并不要求两栏行数相同。不同语言可能需要更多词语、不同的标点，或者不同数量的行，才能表达所提供的内容。在允许跨页的段落中，每一物理栏都按自身自然长度继续排版，排版包记录共同的段落边界，并在下一对内容开始前恢复对齐。因此，读者可以连续阅读长篇说明，而不会因为整段被搬到下一张纸上而留下大片空白。两种语言的最后几行也不必落在完全相同的高度。真正有用的保证，是下一组对应内容有一个稳定的共同起点。选择策略时，应区分连续正文与需要保持完整的对象。简短定义、带简短说明的公式或紧凑图示，通常适合作为不可拆分的单元；可能占据多页的长篇说明，则通常适合连续正文。不要把可跨页段落放进 minipage 或其他保持整块的容器中，因为外层盒子会阻止分页。也不要通过删除句子、凭空补充文字、改变含义或单独缩小某个难排的区块来修补版面。应使用文档规定的跨页选项，并检查实际结果。构建后，查看前一页末尾、下一页的续文，以及其后成对小节的起点。确认两栏都没有被裁切，物理分隔线随实际正文区域延伸，下一节也从对应位置开始。对所需字体和语言方向重复这些检查。编译器成功退出，只能证明生成了文件，并不能证明页面上的所有细节都正确。将源内容、语言配置与呈现设置分开，能够在以后更换字体、纸张或装订方式时，更容易测试而不必重写文稿。",
+    "imagesHeading": "使用插图、表格与引用",
+    "wideCaption": "同一张示意图横跨整个正文宽度，图注仍然成对对齐。",
+    "localCaption": "同一处理流程在每一栏中使用该栏语言的标签。",
+    "quote": "“对应的起点比相同的行数更重要。”这段短引文是原创示例文本；引文样式不表示它来自外部来源。",
+    "equationText": "设可用正文宽度为 W，栏间距为 g，则每一对照栏的宽度为 w。如果 W 为 170 mm，g 为 6 mm，则 w 为 82 mm。",
+    "checkHeading": "检查 PDF 并交付项目",
+    "checks": [
+      "查看实际页面，检查对应起点、表格行对齐、段落续排、裁切及预期留白。首页预览无法展示整份文档。",
+      "对于 RTL 与 CJK，检查字形连接、标点、混合文字标识符和物理栏顺序。语言书写方向并不决定它位于哪一栏。",
+      "沿自动生成的引用检查真实目标。印刷页码可能不同于 PDF 的物理页号。使用相对跨文档链接的文件应保存在一起。",
+      "交付 PDF 及可移植源项目，包括必要的排版包、图像与许可证文件。原生 TeX 可以执行代码；关闭 shell escape 并不等于文件系统沙箱。"
+    ],
+    "back": "返回段落分页设置",
+    "pipeline": [
+      "成对输入",
+      "排版包",
+      "PDF 输出"
+    ]
+  },
+  "fr": {
+    "title": "Deux langues, une page lisible",
+    "choose": "Choisir une forme de source",
+    "intro": "Bilingual PDF place les contenus correspondants dans des colonnes physiques fixes. L’agent appelant fournit les paires de textes et l’ordre du document ; le moteur aligne leurs débuts visibles. Il n’est pas nécessaire d’allonger une traduction courte pour qu’elle atteigne la longueur de l’autre. Chaque paragraphe, élément de liste et ligne de tableau possède sa propre limite d’alignement. Le LaTeX natif et le JSON structuré utilisent le même paquet : changer de forme de source ne crée donc pas un autre moteur de mise en page. Travaillez dans un nouveau projet et conservez l’entrée originale. Ce guide est lui-même un exemple de la mise en page qu’il décrit.",
+    "tableCaption": "Deux formes de source, une seule implémentation de rendu.",
+    "headers": [
+      "Forme",
+      "Quand l’utiliser",
+      "Résultat"
+    ],
+    "rows": [
+      [
+        "LaTeX natif",
+        "Pour modifier directement les commandes, les mathématiques ou les mécanismes standard des paquets.",
+        "Compiler directement le manuscrit."
+      ],
+      [
+        "JSON structuré",
+        "Lorsque les paires de textes, lignes et chemins d’images sont déjà ordonnées.",
+        "Exporter du LaTeX modifiable ou produire le PDF immédiatement."
+      ],
+      [
+        "Langue sélectionnée",
+        "Lorsque le lecteur ne veut que le côté physique gauche ou droit.",
+        "Choisir le mode left ou right sans réécrire la source."
+      ]
+    ],
+    "flowHeading": "Choisir si les paragraphes peuvent changer de page",
+    "flowIntro": "Définissez paragraph-flow=breakable dans le préambule natif pour permettre au contenu ordinaire de ParallelParagraph de se poursuivre sur une autre page. Un paragraphe peut remplacer ce choix avec flow=keep. En JSON, utilisez layout.paragraph_flow et le champ flow du paragraphe. Une unité à conserver entière reste sur une page ; si elle est trop grande, une erreur est produite au lieu de la tronquer ou de la réduire. ParallelText et ParallelProse restent les variantes explicites, respectivement indivisible et continue. Le paragraphe volontairement continu qui suit illustre cette dernière.",
+    "long": "Un document parallèle lisible n’exige pas un nombre de lignes identique. Une langue peut avoir besoin de davantage de mots, d’une ponctuation différente ou d’un autre nombre de lignes pour exprimer le contenu fourni. Dans un paragraphe continu, chaque colonne physique avance à son rythme naturel, tandis que le paquet enregistre la limite commune du paragraphe et rétablit l’alignement avant la paire suivante. Le lecteur peut ainsi suivre une longue explication sans qu’un grand vide apparaisse parce que le paragraphe entier a été déplacé sur la feuille suivante. Les dernières lignes des deux versions n’ont pas non plus à se trouver exactement à la même hauteur. La garantie utile est un point de départ stable pour l’unité correspondante suivante. Pour choisir une politique, distinguez le texte continu des objets dont les parties doivent rester ensemble. Une courte définition, une formule accompagnée d’une brève explication ou un schéma compact peuvent constituer de bonnes unités indivisibles. Une explication longue de plusieurs pages convient généralement au texte continu. Ne placez pas un paragraphe continu dans une minipage ou une autre enveloppe indivisible, car cette boîte extérieure empêche le changement de page. Ne réparez pas un problème de mise en page en supprimant des phrases, en inventant du texte, en modifiant le sens ou en réduisant seulement le bloc gênant. Utilisez plutôt l’option documentée et inspectez le résultat réel. Après compilation, regardez la fin de la première page, la suite sur la page suivante et le début de la section appariée qui suit. Vérifiez qu’aucune colonne n’est coupée, que le séparateur physique suit la zone réelle de texte et que la section suivante commence à des positions correspondantes. Recommencez avec les polices et le sens d’écriture demandés. La réussite du compilateur prouve qu’un fichier a été produit, pas que tous les détails visibles sont corrects. Séparer le contenu, la configuration linguistique et la présentation facilite le contrôle d’un changement ultérieur de police, de papier ou de reliure sans réécrire le manuscrit.",
+    "imagesHeading": "Utiliser figures, tableaux et références",
+    "wideCaption": "Un même schéma occupe toute la largeur du texte ; ses légendes restent appariées.",
+    "localCaption": "Le même processus porte des libellés dans la langue de chaque colonne.",
+    "quote": "« Des débuts correspondants comptent plus qu’un nombre de lignes identique. » Cette courte citation est un texte original d’exemple ; sa présentation ne suppose aucune source extérieure.",
+    "equationText": "Pour une largeur utile de texte W et un intervalle g, chaque colonne appariée a une largeur w. Si W vaut 170 mm et g vaut 6 mm, w vaut 82 mm.",
+    "checkHeading": "Vérifier le PDF et livrer le projet",
+    "checks": [
+      "Inspectez les pages réelles : débuts correspondants, alignement des lignes de tableaux, paragraphes poursuivis, coupures et blancs prévus. Un aperçu de première page ne montre pas tout le document.",
+      "Pour les écritures RTL et CJK, examinez les formes des caractères, la ponctuation, les identifiants mixtes et l’ordre physique des colonnes. Le sens d’écriture ne détermine pas le côté occupé.",
+      "Suivez les références générées jusqu’à leurs véritables destinations. La pagination imprimée peut différer du numéro physique des pages PDF. Conservez ensemble les fichiers liés par des chemins relatifs.",
+      "Livrez le PDF et un projet source portable avec les paquets, images et licences nécessaires. Le TeX natif exécute du code ; désactiver shell escape ne crée pas de bac à sable pour les fichiers."
+    ],
+    "back": "Revenir aux réglages de changement de page",
+    "pipeline": [
+      "Entrée appariée",
+      "Paquet de mise en page",
+      "Sortie PDF"
+    ]
+  },
+  "ja": {
+    "title": "二つの言語を、読みやすい一つのページに",
+    "choose": "入力形式を選ぶ",
+    "intro": "Bilingual PDF は、対応する内容を物理的に固定された左右の段に配置します。呼び出し側のモデルが文章の組と文書の順序を用意し、描画処理がページ上の開始位置をそろえます。短い訳文を長い訳文に合わせて水増しする必要はありません。段落、箇条書きの項目、表の行には、それぞれ独立した位置合わせの境界があります。ネイティブ LaTeX と構造化 JSON は同じパッケージを使うため、入力形式を変えても別の組版エンジンにはなりません。新しいプロジェクトで作業し、元の入力は保存してください。このガイド自体が、説明しているレイアウトの使用例です。",
+    "tableCaption": "二つの入力形式で、一つの描画実装を共有します。",
+    "headers": [
+      "形式",
+      "適した用途",
+      "結果"
+    ],
+    "rows": [
+      [
+        "ネイティブ LaTeX",
+        "コマンド、数式、標準パッケージのフックを直接編集したい場合。",
+        "原稿を直接コンパイルします。"
+      ],
+      [
+        "構造化 JSON",
+        "文章の組、表の行、画像のパスが順序付きで用意されている場合。",
+        "編集可能な LaTeX を出力するか、直ちに描画します。"
+      ],
+      [
+        "片側の言語",
+        "読者が物理的な左側または右側だけを必要とする場合。",
+        "原稿を書き換えず、left または right モードを選びます。"
+      ]
+    ],
+    "flowHeading": "段落の途中で改ページできるかを選ぶ",
+    "flowIntro": "ネイティブ原稿のプリアンブルで paragraph-flow=breakable を指定すると、通常の ParallelParagraph の内容を次のページに続けられます。各段落では flow=keep によってその設定を上書きできます。JSON では layout.paragraph_flow と段落単位の flow を使います。一体として保持する単位は一ページに収められ、長すぎる場合は切り捨てや縮小ではなくエラーになります。ParallelText と ParallelProse も、それぞれ分割しない場合と続けて流す場合を明示する選択肢です。次の意図的に長い一続きの段落が、後者を示します。",
+    "long": "読みやすい対訳文書に、左右同じ行数は必要ありません。同じ内容を表すために、言語によって語数、句読点、行数が異なることがあります。改ページできる段落では、各段が自然な長さで進み、パッケージが共通の段落境界を記録して、次の組の開始前に位置をそろえ直します。そのため、段落全体を次の用紙へ移動した結果として大きな空白を作らずに、長い説明を読み進められます。二つの言語の最終行が、まったく同じ高さにある必要もありません。役に立つ保証は、次の対応単位に安定した開始位置があることです。方針を選ぶ際には、連続した文章と、構成要素を一緒に保ちたい対象を区別してください。短い定義、短い説明が付いた数式、簡潔な図は、分割しない単位に適している場合があります。数ページに及ぶ長い説明は、通常は連続して流す文章に向いています。改ページできる段落を minipage や別の一体化する囲みの中に入れないでください。外側の箱が改ページを妨げるためです。また、文章を削る、内容を付け足す、意味を変える、問題のある箇所だけを縮小するといった方法で、組版の問題を修正しないでください。文書化された改ページ設定を使い、実際の結果を確認します。作成後は、最初のページの末尾、次のページの続き、その後の対訳節の開始位置を見てください。どちらの段も欠けていないこと、中央の区切り線が実際の本文領域に沿っていること、次の節が対応する位置から始まることを確かめます。指定されたフォントと文字方向でも確認を繰り返してください。コンパイラが正常終了したという事実は、ファイルが生成されたことを示すだけで、ページ上の細部すべてが正しいことを示すわけではありません。原稿、言語設定、表示設定を分けておくと、後でフォント、用紙、製本方法を変える際も、原稿を書き直さずに試験しやすくなります。",
+    "imagesHeading": "図、表、参照を使う",
+    "wideCaption": "共通の図は本文全体の幅に広がり、キャプションは左右で対応します。",
+    "localCaption": "同じ処理の流れを、各段の言語によるラベルで示します。",
+    "quote": "「同じ行数より、対応する開始位置が大切です。」この短い引用文は独自のサンプル文章であり、引用の見た目は外部出典を意味しません。",
+    "equationText": "有効な本文幅を W、段間を g とすると、各対訳段の幅は w です。W が 170 mm、g が 6 mm なら、w は 82 mm になります。",
+    "checkHeading": "PDF を確認し、プロジェクトを渡す",
+    "checks": [
+      "実際のページで、対応する開始位置、表の行の位置、段落の続き、切れ、意図した空白を確認します。最初のページのプレビューでは文書全体を確認できません。",
+      "RTL と CJK では、字形、句読点、混在する文字体系の識別子、物理的な段の順序を確認します。文字方向によって左右の位置が決まるわけではありません。",
+      "生成された参照をたどり、実際の移動先を確認します。印刷用のページ番号と PDF 内の物理的なページ番号は異なる場合があります。相対パスで参照し合う文書は一緒に保管します。",
+      "PDF と、必要なパッケージ、画像、ライセンスを含む持ち運び可能な原稿プロジェクトを渡します。ネイティブ TeX はコードを実行します。shell escape を無効にしても、ファイルシステムのサンドボックスにはなりません。"
+    ],
+    "back": "段落の改ページ設定へ戻る",
+    "pipeline": [
+      "対になる入力",
+      "組版パッケージ",
+      "PDF 出力"
+    ]
+  },
+  "ar": {
+    "title": "لغتان في صفحة واحدة سهلة القراءة",
+    "choose": "اختر شكل المصدر",
+    "intro": "يضع Bilingual PDF المحتوى المتناظر في عمودين ثابتين على الصفحة. يقدّم النموذج المستدعي أزواج النصوص وترتيب الوثيقة، ويضبط محرّك التنسيق مواضع بداياتها المرئية. لا يلزم إطالة الترجمة الأقصر حتى تساوي الأطول. لكل فقرة وبند في قائمة وصف في جدول حدّ محاذاة مستقل. يستخدم LaTeX الأصلي وJSON المنظّم الحزمة نفسها، ولذلك لا يؤدي تغيير شكل المصدر إلى إنشاء محرّك تصميم آخر. اعمل في مشروع جديد واحتفظ بالمدخل الأصلي دون تغيير. وهذا الدليل نفسه مثال على التنسيق الذي يشرحه.",
+    "tableCaption": "شكلان للمصدر وتنفيذ واحد للتنسيق.",
+    "headers": [
+      "الشكل",
+      "متى يُستخدم",
+      "النتيجة"
+    ],
+    "rows": [
+      [
+        "LaTeX الأصلي",
+        "عند الحاجة إلى تعديل الأوامر أو المعادلات أو نقاط التخصيص القياسية مباشرة.",
+        "بناء المخطوط مباشرة."
+      ],
+      [
+        "JSON المنظّم",
+        "عندما تكون أزواج النصوص والصفوف ومسارات الصور مرتّبة مسبقا.",
+        "تصدير LaTeX قابل للتعديل أو إنشاء الملف فورا."
+      ],
+      [
+        "لغة واحدة",
+        "عندما يحتاج القارئ إلى الجانب الأيسر أو الأيمن فقط.",
+        "اختيار وضع left أو right دون إعادة كتابة المصدر."
+      ]
+    ],
+    "flowHeading": "اختر ما إذا كانت الفقرات تستطيع عبور الصفحات",
+    "flowIntro": "اضبط paragraph-flow=breakable في مقدمة المستند الأصلي للسماح لمحتوى ParallelParagraph العادي بالاستمرار في الصفحة التالية. ويمكن لفقرة معينة تجاوز هذا الاختيار باستعمال flow=keep. في JSON يُستخدم layout.paragraph_flow وحقل flow الخاص بالفقرة. تبقى الوحدة غير القابلة للتقسيم في صفحة واحدة، وتنتج الوحدة الأكبر من الصفحة خطأ بدلا من اقتطاعها أو تصغيرها. وتبقى ParallelText وParallelProse بديلين صريحين للمحتوى غير القابل للتقسيم والنص المتدفق. تعرض الفقرة الطويلة المتصلة التالية طريقة التدفق.",
+    "long": "لا تتطلب الوثيقة المتوازية السهلة القراءة عددا متساويا من السطور. فقد تحتاج لغة إلى كلمات أكثر أو علامات ترقيم مختلفة أو عدد آخر من السطور للتعبير عن المحتوى المقدم. في الفقرة المتدفقة يستمر كل عمود بطوله الطبيعي، بينما تسجل الحزمة الحد المشترك للفقرة وتستعيد المحاذاة قبل بدء الزوج التالي. يستطيع القارئ بذلك متابعة شرح طويل دون فراغ كبير سببه نقل الفقرة بكاملها إلى الورقة التالية. وليس من الضروري أيضا أن تقع السطور الأخيرة للترجمتين عند الارتفاع نفسه تماما. الضمان المفيد هو وجود موضع بدء ثابت للوحدة المتناظرة التالية. عند اختيار السياسة، ميّز بين النثر المتصل والعناصر التي ينبغي أن تبقى أجزاؤها معا. قد يصلح تعريف قصير أو معادلة مع شرح وجيز أو رسم مدمج كوحدة غير قابلة للتقسيم. أما الشرح الطويل الذي قد يشغل عدة صفحات، فيناسبه عادة النثر المتدفق. لا تضع فقرة متدفقة داخل minipage أو غلاف آخر يمنع التقسيم، لأن الصندوق الخارجي سيمنع عبور الصفحة. ولا تعالج مشكلة تنسيق بحذف جمل أو اختراع نص إضافي أو تغيير المعنى أو تصغير المقطع المزعج وحده. استخدم خيار التدفق الموثق وافحص النتيجة الفعلية. بعد البناء، انظر إلى نهاية الصفحة الأولى والاستمرار في الصفحة التالية وبداية القسم المتناظر الذي يليهما. تأكد من أن أيا من العمودين لم يُقتطع، وأن الفاصل يتبع منطقة النص الفعلية، وأن القسم التالي يبدأ في موضعين متناظرين. كرر هذا الفحص بالخطوط واتجاه الكتابة المطلوبين. نجاح المترجم يعني أن ملفا أُنتج، لكنه لا يثبت صحة جميع التفاصيل المرئية. ويسهّل فصل المصدر وإعدادات اللغة والعرض اختبار أي تغيير لاحق في الخط أو الورق أو التجليد دون إعادة كتابة المخطوط.",
+    "imagesHeading": "استخدم الصور والجداول والإحالات",
+    "wideCaption": "يمتد رسم مشترك على عرض النص كله، ويبقى التعليقان بلغتيهما متحاذيين.",
+    "localCaption": "تحمل مراحل العملية نفسها تسميات بلغة كل عمود.",
+    "quote": "«البدايات المتناظرة أهم من تساوي عدد السطور». هذا اقتباس قصير أصلي للعرض؛ ولا يعني تنسيقه أنه مأخوذ من مصدر خارجي.",
+    "equationText": "إذا كان عرض النص المتاح W والفاصل g، فإن عرض كل عمود متناظر هو w. عندما يكون W مساويا 170 mm وg مساويا 6 mm، يكون w مساويا 82 mm.",
+    "checkHeading": "افحص الملف وسلّم المشروع",
+    "checks": [
+      "افحص الصفحات الفعلية للتحقق من بدايات متناظرة ومحاذاة صفوف الجداول واستمرار الفقرات وعدم الاقتطاع والمساحات المقصودة. معاينة الصفحة الأولى لا تعرض الوثيقة كلها.",
+      "في نصوص RTL وCJK، افحص تشكيل الحروف والترقيم والمعرّفات المختلطة وترتيب العمودين على الصفحة. لا يحدد اتجاه اللغة أي جانب تشغله.",
+      "اتبع الإحالات المولّدة إلى أهدافها الفعلية. قد تختلف أرقام الصفحات المطبوعة عن ترتيب صفحات PDF. احتفظ بالملفات المرتبطة بمسارات نسبية معا.",
+      "سلّم PDF ومشروع مصدر قابلا للنقل يتضمن الحزمة والصور وملفات الترخيص اللازمة. يستطيع TeX الأصلي تنفيذ الشيفرة؛ وتعطيل shell escape ليس عزلا لنظام الملفات."
+    ],
+    "back": "ارجع إلى إعدادات عبور الفقرات للصفحات",
+    "pipeline": [
+      "مدخلات متناظرة",
+      "حزمة التنسيق",
+      "مخرجات PDF"
+    ]
+  },
+  "he": {
+    "title": "שתי שפות, עמוד אחד שקל לקרוא",
+    "choose": "בחירת צורת המקור",
+    "intro": "Bilingual PDF מציב תוכן מקביל בשתי עמודות שמיקומן הפיזי קבוע. המודל הקורא מספק את זוגות הטקסט ואת סדר המסמך, ומנוע העימוד מיישר את נקודות ההתחלה הנראות שלהם. אין צורך להוסיף מילים לתרגום קצר כדי שיגיע לאורכו של תרגום ארוך. לכל פסקה, פריט ברשימה ושורה בטבלה יש גבול יישור משלו. LaTeX מקורי ו־JSON מובנה משתמשים באותה חבילה, ולכן שינוי צורת המקור אינו יוצר מנוע עיצוב אחר. יש לעבוד בפרויקט חדש ולשמור את הקלט המקורי ללא שינוי. המדריך הזה הוא בעצמו דוגמה לעימוד שהוא מתאר.",
+    "tableCaption": "שתי צורות מקור, מימוש עימוד אחד.",
+    "headers": [
+      "צורה",
+      "מתי להשתמש בה",
+      "תוצאה"
+    ],
+    "rows": [
+      [
+        "LaTeX מקורי",
+        "כשרוצים לערוך ישירות פקודות, נוסחאות או נקודות התאמה של חבילות רגילות.",
+        "מהדרים את כתב היד ישירות."
+      ],
+      [
+        "JSON מובנה",
+        "כשזוגות הטקסט, השורות ונתיבי התמונות כבר מסודרים.",
+        "מייצאים LaTeX שניתן לעריכה או מפיקים את הקובץ מיד."
+      ],
+      [
+        "שפה נבחרת",
+        "כשהקורא זקוק רק לצד השמאלי או הימני של העמוד.",
+        "בוחרים במצב left או right בלי לכתוב מחדש את המקור."
+      ]
+    ],
+    "flowHeading": "בחירה אם פסקאות יכולות לעבור בין עמודים",
+    "flowIntro": "יש להגדיר paragraph-flow=breakable במבוא של המקור כדי לאפשר לתוכן רגיל של ParallelParagraph להמשיך לעמוד הבא. פסקה מסוימת יכולה לעקוף את הבחירה באמצעות flow=keep. ב־JSON משתמשים ב־layout.paragraph_flow ובשדה flow של הפסקה. יחידה שנשמרת בשלמותה נשארת בעמוד אחד; יחידה גדולה מדי גורמת לשגיאה במקום להיחתך או להצטמצם. ParallelText ו־ParallelProse נשארות חלופות מפורשות ליחידה שלמה ולטקסט זורם. הפסקה הרציפה במכוון שלהלן מדגימה את מסלול הזרימה.",
+    "long": "מסמך מקביל שקל לקרוא אינו מחייב מספר שורות שווה. שפה אחת עשויה להזדקק ליותר מילים, לפיסוק אחר או למספר שורות שונה כדי להביע את התוכן שסופק. בפסקה זורמת כל עמודה פיזית ממשיכה בקצב הטבעי שלה, והחבילה מתעדת את גבול הפסקה המשותף ומחזירה את היישור לפני תחילת הזוג הבא. כך אפשר לקרוא הסבר ארוך בלי להשאיר חלל גדול משום שכל הפסקה הועברה לדף הבא. גם השורות האחרונות של שני התרגומים אינן חייבות להסתיים בדיוק באותו גובה. ההבטחה המועילה היא נקודת התחלה יציבה ליחידה המקבילה הבאה. בבחירת המדיניות יש להבחין בין טקסט רציף לבין עצמים שחלקיהם צריכים להישאר יחד. הגדרה קצרה, נוסחה עם הסבר קצר או תרשים קומפקטי עשויים להתאים ליחידה שאינה מתפצלת. הסבר ארוך שתופס כמה עמודים מתאים בדרך כלל לטקסט זורם. אין לעטוף פסקה זורמת ב־minipage או במסגרת אחרת ששומרת על התוכן כיחידה אחת, מפני שהתיבה החיצונית מונעת מעבר עמוד. אין לתקן בעיית עימוד באמצעות מחיקת משפטים, המצאת טקסט נוסף, שינוי המשמעות או הקטנת הקטע הבעייתי בלבד. במקום זאת יש להשתמש באפשרות הזרימה המתועדת ולבדוק את התוצאה בפועל. לאחר ההפקה יש לבחון את סוף העמוד הראשון, את ההמשך בעמוד הבא ואת תחילת הסעיף המקביל שאחריהם. יש לוודא שאף עמודה אינה חתוכה, שהקו המפריד עוקב אחר אזור הטקסט בפועל ושהסעיף הבא מתחיל במיקומים תואמים. יש לחזור על הבדיקה בגופנים ובכיוון הכתיבה המבוקשים. יציאה מוצלחת של המהדר מוכיחה שנוצר קובץ, אך אינה מוכיחה שכל הפרטים הנראים בעמוד תקינים. הפרדה בין תוכן המקור, הגדרות השפה והעיצוב מקלה על בדיקה של שינוי עתידי בגופן, בנייר או בכריכה בלי לשכתב את כתב היד.",
+    "imagesHeading": "שימוש בתמונות, בטבלאות ובהפניות",
+    "wideCaption": "תרשים משותף אחד משתרע על כל רוחב הטקסט, והכיתובים נשארים מקבילים.",
+    "localCaption": "אותו תהליך מוצג עם תוויות בשפה של כל עמודה.",
+    "quote": "״נקודות התחלה תואמות חשובות יותר ממספר שורות זהה.״ זהו טקסט דוגמה מקורי וקצר; עיצובו כציטוט אינו מצביע על מקור חיצוני.",
+    "equationText": "אם רוחב הטקסט הזמין הוא W והרווח הוא g, רוחבה של כל עמודה מקבילה הוא w. כאשר W הוא 170 mm ו־g הוא 6 mm, מתקבל w של 82 mm.",
+    "checkHeading": "בדיקת הקובץ ומסירת הפרויקט",
+    "checks": [
+      "יש לבדוק עמודים בפועל: נקודות התחלה תואמות, יישור שורות טבלה, המשכי פסקאות, חיתוך ורווחים מכוונים. תצוגה מקדימה של העמוד הראשון אינה מציגה את המסמך כולו.",
+      "בכתיבה מסוג RTL ו־CJK יש לבדוק צורות אותיות, פיסוק, מזהים המשלבים כתבים שונים וסדר פיזי של עמודות. כיוון השפה אינו קובע באיזה צד היא נמצאת.",
+      "יש לעקוב אחר ההפניות שנוצרו עד ליעדיהן האמיתיים. מספרי עמודים מודפסים עשויים להיות שונים ממספרי העמודים הפיזיים ב־PDF. יש לשמור יחד מסמכים שמפנים זה לזה בנתיבים יחסיים.",
+      "יש למסור PDF ופרויקט מקור נייד הכולל את החבילה, התמונות וקובצי הרישיון הדרושים. TeX מקורי יכול להריץ קוד; ביטול shell escape אינו יוצר ארגז חול למערכת הקבצים."
+    ],
+    "back": "חזרה להגדרות מעבר עמוד בתוך פסקה",
+    "pipeline": [
+      "קלט מקביל",
+      "חבילת עימוד",
+      "פלט PDF"
+    ]
+  }
+}

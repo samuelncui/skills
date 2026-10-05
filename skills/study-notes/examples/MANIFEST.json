@@ -1,0 +1,66 @@
+{
+  "source_hashes": {
+    "Makefile": "1055e52508805729b39d58e6f43bcecc48a647f413a0862839280b2a056e1118",
+    "common.tex": "d6f85449e2fb086a306f05a60d1dd4e499095386d9fccdde532db8c4dcf28209",
+    "coverage-review.md": "05b9046ffd0f6b659deddc246f059ee5d77125b51483001c2b612706564df00e",
+    "decision-tree.tex": "7133fe8f734aafe2ce26b5f53ed1e0bd8e88d1e5d7f6ca7e9da268d8540bd689",
+    "decisions.tex": "3edeb63fc067141fb30fefa2bf316f1506e55d5d820e45f91a3842e9fbfe7abf",
+    "entries.tex": "8ef786dc4267e459149c39a57a7f29cb28cce0febfb5d198a85073da00dd1f69",
+    "keyword-index.tex": "ee450842945066489ef33acf2dcfc7f357eee0989521a80f6732c5eb768479a1",
+    "languages.tex": "9500e1beef8e6c1e2546fcb440d7173704d9b8f73253b3fb669cdc4397b357ea",
+    "notes-content.tex": "f16565b564660543c3e39d0ee7a96b7cd0b9d941bc3e8a2a4795131520d8cadc",
+    "notes.tex": "b96cc198f9e7eace5ae593bae9178ed530f472e43df7b917e9d6a26fa81e616e",
+    "quick-reference.tex": "61f97cae50f40ede7f5ea30c23188e32d45cbc2f6b1007903a9fd82f60ddb2ad",
+    "source-map.json": "64eb98b267b96341fa0f44b32425c4d007fed63e027a675039c729d0c297421e",
+    "source.md": "8a79dae6772edd2628ea70a810c583857dfa7ba55fd161785f57cdbc4f6a9b9e"
+  },
+  "package_dependencies": {
+    "bilingual-pdf": {
+      "scripts/bilingual_pdf.py": "e0ea4fb490aeb6d689664b28cd27b06bfb6de6b8392a94a26e31b290060b43e2",
+      "assets/paralleltext.sty": "b174567b3c57cdc4079534070c4376685026221596ff7e3ac30b0132604aa0d4",
+      "assets/bound-profile.tex": "87854c291355fc88c3fafcfb16f0f7bdcca951d3db88ad2074cdefe152b80e6c",
+      "assets/reading-profile.tex": "a2b9ee83b843faf289aee5e76c48205f2346aff24b774e48662970ccccc54332"
+    },
+    "study-notes": {
+      "assets/studytools.sty": "522ab282dd910ebf4fd4bd221a54b467700cc98499678ba279b2160e9548a509",
+      "assets/study-tree.tex": "5c5cf84b9411cfe4b368cb7c2f1d0400d21df4c1db9f17b669891f2a129c756c"
+    }
+  },
+  "files": [
+    {
+      "path": "notes.pdf",
+      "sha256": "42364f62cb7c81c3f333df80761cc0f1e10764caee983bdf7327390de1cc7d4d"
+    },
+    {
+      "path": "quick-reference.pdf",
+      "sha256": "5786fd505cff4774a2192590dcb73617881d6cab5e6c8abd57d8cb6cb353a667"
+    },
+    {
+      "path": "keyword-index.pdf",
+      "sha256": "a1804d4c074c7b99d29bbf509417a5404e41d00e3f48a6290a45f2dec2ec0600"
+    },
+    {
+      "path": "decision-tree.pdf",
+      "sha256": "6ecfb96147369399eebbf2f97c158c9bfb2ad49b95e92b7a9393ed79cb1cd99b"
+    }
+  ],
+  "previews": [
+    {
+      "path": "notes-preview.png",
+      "sha256": "0f93453700da5b3aceb66dbf962ba8ea95c0576a370cbc47cbc8c7e85e6dc69a"
+    },
+    {
+      "path": "quick-reference-preview.png",
+      "sha256": "2b9bf547bd25e65324d95e3cb9e6e2ba80379684f799b7f844708475acf9b9ea"
+    },
+    {
+      "path": "keyword-index-preview.png",
+      "sha256": "5a3dc1e0cea4aa369cb275b277d9beff13f0c60e6ced5376fb6b96da8c6d04be"
+    },
+    {
+      "path": "decision-tree-preview.png",
+      "sha256": "41aa72d6b7f297933395a19f2fc5560f87621924f75f43a584518d88938a3c4d"
+    }
+  ],
+  "regeneration": "See tests/README.md. Source paths are relative to this examples directory; package paths are relative to the named installed skill. Exact bytes require the same toolchain and fixed clock."
+}

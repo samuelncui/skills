@@ -1,30 +1,45 @@
-# Skills
+# Agent skills for bilingual PDFs, study notes and testing
 
-Agent skills for aligned, same-page bilingual documents, with native LaTeX and structured content as equal authoring routes.
+[English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-| Skill | Purpose | Dependency |
-| --- | --- | --- |
-| [bilingual-pdf](skills/bilingual-pdf/README.md) | Parallel-text articles, reports, instructions and travel writing | TeX/fonts; Python for structured import and optional QA |
-| [course-guide-quick-reference](skills/course-guide-quick-reference/README.md) | Authorized learning sources → explanatory notes and a keyword/concept Quick Reference | Installed `bilingual-pdf` |
+Skills for bilingual documents, learning material and cost-aware software verification.
 
-Each skill's README is its human use guide; `SKILL.md` is its agent workflow. Worked examples, PDFs and previews live inside the owning skill. `bilingual-pdf` is the sole owner of the renderer, LaTeX package, layout references and reusable article assets. The course skill adds teaching and retrieval authoring, using that installed dependency.
+- [bilingual-pdf](skills/bilingual-pdf/README.md): align paragraph starts, table rows and list items in fixed physical columns. Choose whether long paragraphs can continue across pages; the following pair resynchronizes. Native LaTeX and JSON use one renderer, with LTR, RTL and CJK language profiles.
+- [study-notes](skills/study-notes/README.md): create explanatory notes, one unified quick reference, a keyword index or a decision tree. Select one form or several. Native LaTeX records reuse the installed bilingual renderer.
+- [testing-workflow](skills/testing-workflow/SKILL.md): design and maintain automated tests and benchmarks with the project's native runner. Batch execution and choose evidence proportional to risk and cost.
+
+[![A bilingual usage guide](skills/bilingual-pdf/examples/en-zh-Hans/preview.png)](skills/bilingual-pdf/examples/en-zh-Hans/output.pdf)
+
+The examples explain how to use the skills while demonstrating their output. Source files, PDFs and previews stay together. Human usage guides, native API references, configuration documentation and the JSON Schema remain independent, readable text.
+
+## Start from your task
+
+- Have paired text for a side-by-side bilingual article, report or handout? Use `bilingual-pdf`: [minimal native LaTeX and build command](skills/bilingual-pdf/references/latex.md#project-and-build-contract), or [minimal JSON, preflight and render commands](skills/bilingual-pdf/references/input.md#minimal-input). Both deliver editable source; check the [fonts and language requirements](skills/bilingual-pdf/references/languages.md) first.
+- Need to turn learning sources into explanations or navigable reference material? Start with [study-notes](skills/study-notes/README.md), then use its explicitly installed rendering dependency.
+- Need a test plan, regression tests or benchmarks for software? Start with [testing-workflow](skills/testing-workflow/SKILL.md).
+
+The PDF route lays out supplied text pairs. OCR, extracting existing PDF content, automatic translation and preserving an existing PDF’s original page layout are outside its scope.
 
 ## Install
 
-With the [Skills CLI](https://github.com/vercel-labs/skills) or a compatible Agent Skills installer:
+With the [Skills CLI](https://github.com/vercel-labs/skills) or a compatible installer:
 
 ```sh
 npx skills add samuelncui/skills --skill bilingual-pdf
-# For learning notes and Quick Reference, also install:
-npx skills add samuelncui/skills --skill course-guide-quick-reference
+npx skills add samuelncui/skills --skill study-notes
+npx skills add samuelncui/skills --skill testing-workflow
 ```
 
-Or copy the complete required skill directories to the locations supported by your host. Installing the course skill alone does not install its dependency. Resolve `bilingual-pdf` from the host's installed-skill discovery, then provide its actual directory as `--bilingual-skill` or `BILINGUAL_PDF_SKILL`; do not assume adjacent directories. See the [course dependency and build guide](skills/course-guide-quick-reference/README.md#required-dependency).
+Install only `bilingual-pdf` for ordinary parallel-text documents. `study-notes` requires it. Alternatively, copy the complete required skill directories to locations supported by your host. `testing-workflow` is independent and needs neither PDF skill.
 
-The helpers never download or install missing skills, TeX, fonts or Python packages. Installation does not authorize processing, translating externally or publishing private material.
+Discover the actual installed `bilingual-pdf` directory through the host and supply it as `BILINGUAL_PDF_SKILL` when building study documents. The skills do not assume adjacent installations and never download dependencies automatically. TeX/fonts and optional Python QA dependencies are described in the individual guides.
 
-## Review, maintenance and licensing
+## One implementation, explicit boundaries
 
-See each skill's guide for prerequisites, authoring, examples and review limits. [Tests](tests/README.md) documents validation and curated-output regeneration. Mechanical checks do not replace source, translation and actual-page review. Maintainer tools are repository-only; installed workflows do not import them.
+`bilingual-pdf` owns `paralleltext.sty`, structured import, layout and rendering checks. `study-notes` adds a small native record/navigation layer and a learning authoring workflow; it does not carry a second renderer. Downstream document projects should pin a tested revision and keep their own content/configuration separate.
 
-Original code and teaching content retain the [MIT license](LICENSE). The shared article photograph has [CC0 attribution](skills/bilingual-pdf/references/photo-credit.md); dependencies retain their [own licenses](THIRD_PARTY_NOTICES.md). Rendering is local. Translation accuracy, domain suitability, error-free output and PDF/UA conformance are not guaranteed.
+The calling agent supplies content and semantic pairings. The layout tool controls their rendered positions. Native TeX is executable; disabled shell escape is not a filesystem sandbox. Publication, external processing and source rights remain separate authorization decisions.
+
+See [validation](tests/README.md) for reproducible tests and the distinction between historical and current results. Curated example PDFs are tracked beside their sources; Actions checks the repository rather than serving as the example-delivery channel.
+
+Original code and example content use the [MIT license](LICENSE). Dependencies retain their [own licenses](THIRD_PARTY_NOTICES.md). No universal language, printer or accessibility certification is claimed.

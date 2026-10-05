@@ -1,0 +1,58 @@
+\documentclass{article}
+\usepackage[paperwidth=160mm,paperheight=90mm,margin=5mm]{geometry}
+\usepackage{fontspec,tikz}
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\setotherlanguage{french}\setotherlanguage{chinese}\setotherlanguage{japanese}\setotherlanguage{arabic}\setotherlanguage{hebrew}
+\newfontfamily\englishfont{Latin Modern Sans}\newfontfamily\frenchfont{Latin Modern Sans}
+\newfontfamily\chinesefont{Noto Sans CJK SC}\newfontfamily\japanesefont{Noto Sans CJK JP}
+\newfontfamily\arabicfont[Script=Arabic]{Noto Naskh Arabic}\newfontfamily\hebrewfont[Script=Hebrew]{DejaVu Sans}
+\pagestyle{empty}\setlength\parindent{0pt}
+\begin{document}
+\centering\vspace*{3mm}
+\begin{tikzpicture}[x=1cm,y=1cm,line width=.6pt]
+\draw[gray!60](-.15,0)--(-.15,-5.8);
+\node at(-3.3,.35){L};\node at(3.0,.35){R};
+\foreach\y/\hl/\hr in {0/1.2/.7,-1.7/.7/1.2,-3.4/1.5/1.8}{
+ \draw[fill=blue!8,draw=blue!55!black](-6,\y) rectangle(-.6,\y-\hl);
+ \draw[fill=teal!8,draw=teal!60!black](.3,\y) rectangle(5.7,\y-\hr);
+ \draw[densely dashed,gray!60](-6.3,\y)--(6,\y);
+}
+\end{tikzpicture}
+\newpage\vspace*{5mm}\begin{otherlanguage}{english}\centering
+\begin{tikzpicture}[every node/.style={draw=blue!60!black,fill=blue!6,rounded corners=2mm,minimum width=110mm,minimum height=11mm,font=\fontsize{13}{16}\selectfont,align=center},line width=.7pt]
+\node (n0) at (0,0) {Paired input};
+\node (n1) at (0,-2) {Layout package};
+\node (n2) at (0,-4) {PDF output};
+\draw[->] (n0)--(n1);\draw[->] (n1)--(n2);\end{tikzpicture}\end{otherlanguage}
+\newpage\vspace*{5mm}\begin{otherlanguage}{french}\centering
+\begin{tikzpicture}[every node/.style={draw=blue!60!black,fill=blue!6,rounded corners=2mm,minimum width=110mm,minimum height=11mm,font=\fontsize{13}{16}\selectfont,align=center},line width=.7pt]
+\node (n0) at (0,0) {Entrée appariée};
+\node (n1) at (0,-2) {Paquet de mise en page};
+\node (n2) at (0,-4) {Sortie PDF};
+\draw[->] (n0)--(n1);\draw[->] (n1)--(n2);\end{tikzpicture}\end{otherlanguage}
+\newpage\vspace*{5mm}\begin{otherlanguage}{chinese}\centering
+\begin{tikzpicture}[every node/.style={draw=blue!60!black,fill=blue!6,rounded corners=2mm,minimum width=110mm,minimum height=11mm,font=\fontsize{13}{16}\selectfont,align=center},line width=.7pt]
+\node (n0) at (0,0) {成对输入};
+\node (n1) at (0,-2) {排版包};
+\node (n2) at (0,-4) {PDF 输出};
+\draw[->] (n0)--(n1);\draw[->] (n1)--(n2);\end{tikzpicture}\end{otherlanguage}
+\newpage\vspace*{5mm}\begin{otherlanguage}{japanese}\centering
+\begin{tikzpicture}[every node/.style={draw=blue!60!black,fill=blue!6,rounded corners=2mm,minimum width=110mm,minimum height=11mm,font=\fontsize{13}{16}\selectfont,align=center},line width=.7pt]
+\node (n0) at (0,0) {対になる入力};
+\node (n1) at (0,-2) {組版パッケージ};
+\node (n2) at (0,-4) {PDF 出力};
+\draw[->] (n0)--(n1);\draw[->] (n1)--(n2);\end{tikzpicture}\end{otherlanguage}
+\newpage\vspace*{5mm}\begin{otherlanguage}{arabic}\centering
+\begin{tikzpicture}[every node/.style={draw=blue!60!black,fill=blue!6,rounded corners=2mm,minimum width=110mm,minimum height=11mm,font=\fontsize{13}{16}\selectfont,align=center},line width=.7pt]
+\node (n0) at (0,0) {\textarabic{مدخلات متناظرة}};
+\node (n1) at (0,-2) {\textarabic{حزمة التنسيق}};
+\node (n2) at (0,-4) {\textarabic{مخرجات \textenglish{PDF}}};
+\draw[->] (n0)--(n1);\draw[->] (n1)--(n2);\end{tikzpicture}\end{otherlanguage}
+\newpage\vspace*{5mm}\begin{otherlanguage}{hebrew}\centering
+\begin{tikzpicture}[every node/.style={draw=blue!60!black,fill=blue!6,rounded corners=2mm,minimum width=110mm,minimum height=11mm,font=\fontsize{13}{16}\selectfont,align=center},line width=.7pt]
+\node (n0) at (0,0) {\texthebrew{קלט מקביל}};
+\node (n1) at (0,-2) {\texthebrew{חבילת עימוד}};
+\node (n2) at (0,-4) {\texthebrew{פלט \textenglish{PDF}}};
+\draw[->] (n0)--(n1);\draw[->] (n1)--(n2);\end{tikzpicture}\end{otherlanguage}
+\end{document}

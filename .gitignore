@@ -14,7 +14,7 @@ build/
 dist/
 *.egg-info/
 
-# Transient TeX output; only the six curated example PDFs are tracked.
+# Transient TeX output; only the nine curated example PDFs are tracked.
 *.aux
 *.log
 *.out
@@ -27,5 +27,10 @@ dist/
 *.synctex.gz
 *.pdf
 !/skills/bilingual-pdf/examples/*/output.pdf
-!/skills/course-guide-quick-reference/examples/notes.pdf
-!/skills/course-guide-quick-reference/examples/quick-reference.pdf
+
+# Native study build selection is generated per project.
+.build-products.tex
+!/skills/study-notes/examples/notes.pdf
+!/skills/study-notes/examples/quick-reference.pdf
+!/skills/study-notes/examples/keyword-index.pdf
+!/skills/study-notes/examples/decision-tree.pdf

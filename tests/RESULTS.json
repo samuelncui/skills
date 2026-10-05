@@ -1,2230 +1,314 @@
 {
-  "stage": "locally-validated-shared-renderer-dependency",
-  "date": "2026-10-04",
-  "scope": "One installed bilingual renderer, an explicitly dependent course workflow, shared language-specific assets, native and structured authoring. Not universal language, printer or accessibility certification.",
-  "unit_tests": 94,
-  "render_suites": [
-    {
-      "suite": "structured",
-      "passed": true,
-      "case_count": 38,
-      "cases": [
-        {
-          "case": "en-fr-bilingual",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "article_features": {
-              "ok": true,
-              "both_paragraphs_cross_pages": true,
-              "following_pair_resynchronizes": true,
-              "paired_captions_with_photo": true,
-              "one_full_width_photo": true,
-              "distinct_localized_images_in_aligned_columns": true
-            },
-            "quote_geometry": {
-              "ok": true,
-              "sides": [
-                {
-                  "side": "L",
-                  "language": "en",
-                  "slot_x": 51.02361201646171,
-                  "measured_slot_x": 51.02361201646171,
-                  "quote_start_inset": 24.90638828871407,
-                  "ok": true
-                },
-                {
-                  "side": "R",
-                  "language": "fr",
-                  "slot_x": 306.1461569286075,
-                  "measured_slot_x": 306.1417329058998,
-                  "quote_start_inset": 24.9018472217831,
-                  "ok": true
-                }
-              ]
-            }
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "sha256": "591fc99e6270c6636f582c3c14740bc23f6f1b4b84d0b0eabdb0ae216d312f6e",
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "en-fr-left",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "selected_language_uses_its_localized_image": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "sha256": "cd06935e63b5dbc22f1ef3d8b636691eb9ef99bc1154e93ba47dbea6fb5b6119",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "en-fr-right",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "selected_language_uses_its_localized_image": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "sha256": "7754b58ba587f9f6c5e3c5173272891aa65e654cae08d63abfdb1e4eca80cf5e",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "en-zh-Hans-bilingual",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "article_features": {
-              "ok": true,
-              "both_paragraphs_cross_pages": true,
-              "following_pair_resynchronizes": true,
-              "paired_captions_with_photo": true,
-              "one_full_width_photo": true,
-              "distinct_localized_images_in_aligned_columns": true
-            },
-            "quote_geometry": {
-              "ok": true,
-              "sides": [
-                {
-                  "side": "L",
-                  "language": "en",
-                  "slot_x": 51.02361201646171,
-                  "measured_slot_x": 51.02361201646171,
-                  "quote_start_inset": 24.90638828871407,
-                  "ok": true
-                },
-                {
-                  "side": "R",
-                  "language": "zh-Hans",
-                  "slot_x": 306.1461569286075,
-                  "measured_slot_x": 306.1417329058998,
-                  "quote_start_inset": 24.9018472217831,
-                  "ok": true
-                }
-              ]
-            }
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "sha256": "a0becda8849327427aeaef12323519859e2c3785a116b3b66e4497b4892aa9ab",
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 7,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "en-zh-Hans-left",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "selected_language_uses_its_localized_image": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "sha256": "cd06935e63b5dbc22f1ef3d8b636691eb9ef99bc1154e93ba47dbea6fb5b6119",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "en-zh-Hans-right",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "selected_language_uses_its_localized_image": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "sha256": "c3fceb2790da4f55166ac02c3e52c3408123ab9f74951913e077eb856279af0b",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 7,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "en-ar-bilingual",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "article_features": {
-              "ok": true,
-              "both_paragraphs_cross_pages": true,
-              "following_pair_resynchronizes": true,
-              "paired_captions_with_photo": true,
-              "one_full_width_photo": true,
-              "distinct_localized_images_in_aligned_columns": true
-            },
-            "quote_geometry": {
-              "ok": true,
-              "sides": [
-                {
-                  "side": "L",
-                  "language": "en",
-                  "slot_x": 51.02361201646171,
-                  "measured_slot_x": 51.02361201646171,
-                  "quote_start_inset": 24.90638828871407,
-                  "ok": true
-                },
-                {
-                  "side": "R",
-                  "language": "ar",
-                  "slot_x": 306.1461569286075,
-                  "measured_slot_x": 306.1417329058998,
-                  "quote_start_inset": 24.911568647600802,
-                  "ok": true
-                }
-              ]
-            }
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "sha256": "0f1dc28768b50590fa14057da754736c705d403d76204f74b178a3e608f737fd",
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 6,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "en-ar-left",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "selected_language_uses_its_localized_image": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "sha256": "f47aededb9a3c572963e351e0f39163432797680e2c4efb520542b029b0b08cf",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "en-ar-right",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "selected_language_uses_its_localized_image": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "sha256": "48682d1b9b53702ea603e6c222026792848c58443378f2ab8c7881725814a88d",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 6,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "zh-Hans-ja-bilingual",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "article_features": {
-              "ok": true,
-              "both_paragraphs_cross_pages": true,
-              "following_pair_resynchronizes": true,
-              "paired_captions_with_photo": true,
-              "one_full_width_photo": true,
-              "distinct_localized_images_in_aligned_columns": true
-            },
-            "quote_geometry": {
-              "ok": true,
-              "sides": [
-                {
-                  "side": "L",
-                  "language": "zh-Hans",
-                  "slot_x": 51.02361201646171,
-                  "measured_slot_x": 51.02361201646171,
-                  "quote_start_inset": 24.90638828871407,
-                  "ok": true
-                },
-                {
-                  "side": "R",
-                  "language": "ja",
-                  "slot_x": 306.1461569286075,
-                  "measured_slot_x": 306.1417329058998,
-                  "quote_start_inset": 24.9018472217831,
-                  "ok": true
-                }
-              ]
-            }
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "sha256": "3a52fb32e854f28125082d0e4fdb45a79786d48334c035bd484ded1c219f8940",
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 10,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "zh-Hans-ja-left",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "selected_language_uses_its_localized_image": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "sha256": "c3fceb2790da4f55166ac02c3e52c3408123ab9f74951913e077eb856279af0b",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 7,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "zh-Hans-ja-right",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "selected_language_uses_its_localized_image": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "sha256": "2d0e7b5bf5e2ad5b50ae1058185c2ed36c8243f07b70bf944894bb1399f4b848",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 7,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "rtl-references-bilingual",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "sha256": "7066721f0a974e9b9ebc259de9ce4b128391156fa5cba1842c3f4ba72fc068b5",
-              "paired_blocks_checked": 10,
-              "embedded_fonts_checked": 6,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "rtl-references-left",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "sha256": "861644b965fba877b62fc5cf17b96e2f0e75f658c5e4a22f3ae0c17d3a088c20",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "rtl-references-right",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "sha256": "7618c71e49a41fae4f299ab9101995f87cc95dbd401a66c93fc11c7363a873b6",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 6,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "ar-en-reversed",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "sha256": "28880ee78c2015fab170c7d4cfd2d4f6c5df88321f4c78970aa96e45e50a51b9",
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 6,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "letter-no-covers",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "sha256": "9e7ec46ca82ef07a3521d474f83b142fa797c37ed01d133ea8489f0e43003543",
-              "paired_blocks_checked": 7,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "multipage-uneven",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 12,
-              "sha256": "fddb51784c8022afdaccbbebdfc450ff4e36cd3fa03417f641d33e1f8dadaf10",
-              "paired_blocks_checked": 73,
-              "embedded_fonts_checked": 3,
-              "blank_pages": [
-                2,
-                10,
-                11
-              ]
-            }
-          ]
-        },
-        {
-          "case": "parent-references-bilingual",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 6,
-              "sha256": "43f935cedcbbe9ea4ae2472b21a4732b76e76a1867c6ad180f83b66235caaadd",
-              "paired_blocks_checked": 9,
-              "embedded_fonts_checked": 4,
-              "blank_pages": [
-                2,
-                4,
-                5
-              ]
-            }
-          ]
-        },
-        {
-          "case": "parent-references-left",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 6,
-              "sha256": "61fe209484cb44ca842e01e58becc9f5b5cad422e792c324adca587c745d1d74",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 4,
-              "blank_pages": [
-                2,
-                4,
-                5
-              ]
-            }
-          ]
-        },
-        {
-          "case": "parent-references-right",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 6,
-              "sha256": "125252360ff852fdf189f70a71cd301743c9aae6164591a269f8353a7d04804d",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 4,
-              "blank_pages": [
-                2,
-                4,
-                5
-              ]
-            }
-          ]
-        },
-        {
-          "case": "oversized-block",
-          "passed": true,
-          "expected_exit": 3,
-          "actual_exit": 3,
-          "checks": {
-            "ok": false
-          }
-        },
-        {
-          "case": "missing-glyph",
-          "passed": true,
-          "expected_exit": 2,
-          "actual_exit": 2,
-          "checks": {
-            "ok": false
-          }
-        },
-        {
-          "case": "flow-en-fr",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "both_paragraphs_cross_pages": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "sha256": "cbdde1ffcc8524dc6bd63b3a131ae8f436b844f7059a80df9a336c2ba4882085",
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 3,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "shared-photo-en-fr",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "one_full_width_image": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "sha256": "d4fdf40951049535e95a2ea6ff1af2561872734998bd5e252ed4bdb56d6329c2",
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "flow-en-zh-Hans",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "both_paragraphs_cross_pages": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "sha256": "e3027c6666db46f68fc035fb19b183fd41b93e3d138cff9a4dcdb5ed12d7372e",
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 5,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "shared-photo-en-zh-Hans",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "one_full_width_image": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "sha256": "0983cd5832bd03202db9a5e69bdd07228d98720c2a91e8058c74a91d18ee1b0e",
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 7,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "flow-en-ar",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "both_paragraphs_cross_pages": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "sha256": "ba874e6afd28ef76576d83cf7f2fba2aadbca865a7b32a9e18b6811bdbecc279",
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 5,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "shared-photo-en-ar",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "one_full_width_image": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "sha256": "312478d90260008bb325f14386ef7415077e551e22945f736ad8b2d52e83b580",
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 6,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "flow-zh-Hans-ja",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "both_paragraphs_cross_pages": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "sha256": "a7ddf97b4843b55cef16c27033e9dd55840779c75702fa53cd387562ba882bbe",
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 5,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "shared-photo-zh-Hans-ja",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true,
-            "one_full_width_image": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "sha256": "dd8f0bb4004cbf63c33b7b5e9f3a5a0959fdd7fcbcabc9dcec7c293404c3af94",
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 8,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "roman-bound-course",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "guide",
-              "pages": 2,
-              "sha256": "6ecdd933285763c1d91ca9bd3027dac6b299e8c7131a0b47c505d92e873c139f",
-              "paired_blocks_checked": 20,
-              "embedded_fonts_checked": 5
-            },
-            {
-              "part": "quick",
-              "pages": 1,
-              "sha256": "f0281c1ae1a37faea2e71d3825d521d2a68ec5368efd62bea3dbcf7595d24fe2",
-              "paired_blocks_checked": 27,
-              "embedded_fonts_checked": 3
-            }
-          ]
-        },
-        {
-          "case": "flexible-course-blocks",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "guide",
-              "pages": 2,
-              "sha256": "3be9635978efe72dfc83eb04e5e3b4d06f7077f52c28116e8d3c4a8121d85703",
-              "paired_blocks_checked": 20,
-              "embedded_fonts_checked": 5
-            },
-            {
-              "part": "quick",
-              "pages": 1,
-              "sha256": "8e695a5bf2319c3169c1440eaa4b5c08de6e39a0515b01e47d15bc2ca23b3c07",
-              "paired_blocks_checked": 27,
-              "embedded_fonts_checked": 4
-            }
-          ]
-        },
-        {
-          "case": "isolated-course",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "guide",
-              "pages": 2,
-              "sha256": "3be9635978efe72dfc83eb04e5e3b4d06f7077f52c28116e8d3c4a8121d85703",
-              "paired_blocks_checked": 20,
-              "embedded_fonts_checked": 5
-            },
-            {
-              "part": "quick",
-              "pages": 1,
-              "sha256": "c34f45634b3a45d11cdca7c9631fac624252dea29cffa5dc7ccfd17b80251dae",
-              "paired_blocks_checked": 27,
-              "embedded_fonts_checked": 3
-            }
-          ]
-        },
-        {
-          "case": "wrapped-course-links",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "guide",
-              "pages": 2,
-              "sha256": "821fffe19336e5034e86f607d4c05fb65cc2324a24e5cb6fa14cacb67601b039",
-              "paired_blocks_checked": 20,
-              "embedded_fonts_checked": 5
-            },
-            {
-              "part": "quick",
-              "pages": 1,
-              "sha256": "3ea5ee4ae2abf1cc2bcab062c78f10e1d60ce8a2bf33a7a52e843b04b1368cee",
-              "paired_blocks_checked": 27,
-              "embedded_fonts_checked": 3
-            }
-          ]
-        },
-        {
-          "case": "rtl-course",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "guide",
-              "pages": 1,
-              "sha256": "113c65b70b80050d443a245fbb4326ed82dcb09dc19dd4832021c9bdef153b38",
-              "paired_blocks_checked": 4,
-              "embedded_fonts_checked": 6
-            },
-            {
-              "part": "quick",
-              "pages": 1,
-              "sha256": "bafba3c75cc5fb5ff1b052ca7766d5c11bcc0966c40dee888dc1c964d0dc879a",
-              "paired_blocks_checked": 10,
-              "embedded_fonts_checked": 5
-            }
-          ]
-        },
-        {
-          "case": "rtl-course-right",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "guide",
-              "pages": 1,
-              "sha256": "15ea6f3ff574468624285e4da13af90866a22b5a711d17a85c7903827dd498d1",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 5
-            },
-            {
-              "part": "quick",
-              "pages": 1,
-              "sha256": "dcc2fd7ce6bcbd7ad28fceafb3ca51a7a1dd45c03c12b02a8592b3a69b25e0c8",
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 5
-            }
-          ]
-        },
-        {
-          "case": "relocated-course-dependency",
-          "passed": true,
-          "expected_exit": 0,
-          "actual_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "guide",
-              "pages": 2,
-              "sha256": "3be9635978efe72dfc83eb04e5e3b4d06f7077f52c28116e8d3c4a8121d85703",
-              "paired_blocks_checked": 20,
-              "embedded_fonts_checked": 5
-            },
-            {
-              "part": "quick",
-              "pages": 1,
-              "sha256": "c34f45634b3a45d11cdca7c9631fac624252dea29cffa5dc7ccfd17b80251dae",
-              "paired_blocks_checked": 27,
-              "embedded_fonts_checked": 3
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "suite": "native",
-      "passed": true,
-      "case_count": 26,
-      "cases": [
-        {
-          "case": "installed-en-fr",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "installed_skill_assets_without_example_copies": true,
-            "no_source_checkout_inputs": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "article-en-fr",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "native_and_structured_pixels_identical": true,
-            "article_features": {
-              "ok": true,
-              "both_paragraphs_cross_pages": true,
-              "following_pair_resynchronizes": true,
-              "paired_captions_with_photo": true,
-              "one_full_width_photo": true,
-              "distinct_localized_images_in_aligned_columns": true
-            },
-            "quote_geometry": {
-              "ok": true,
-              "sides": [
-                {
-                  "side": "L",
-                  "language": "en",
-                  "slot_x": 51.02361201646171,
-                  "measured_slot_x": 51.02361201646171,
-                  "quote_start_inset": 24.90638828871407,
-                  "ok": true
-                },
-                {
-                  "side": "R",
-                  "language": "fr",
-                  "slot_x": 306.1461569286075,
-                  "measured_slot_x": 306.1417329058998,
-                  "quote_start_inset": 24.9018472217831,
-                  "ok": true
-                }
-              ]
-            }
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "installed-en-zh-Hans",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "installed_skill_assets_without_example_copies": true,
-            "no_source_checkout_inputs": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 7,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "article-en-zh-Hans",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "native_and_structured_pixels_identical": true,
-            "article_features": {
-              "ok": true,
-              "both_paragraphs_cross_pages": true,
-              "following_pair_resynchronizes": true,
-              "paired_captions_with_photo": true,
-              "one_full_width_photo": true,
-              "distinct_localized_images_in_aligned_columns": true
-            },
-            "quote_geometry": {
-              "ok": true,
-              "sides": [
-                {
-                  "side": "L",
-                  "language": "en",
-                  "slot_x": 51.02361201646171,
-                  "measured_slot_x": 51.02361201646171,
-                  "quote_start_inset": 24.90638828871407,
-                  "ok": true
-                },
-                {
-                  "side": "R",
-                  "language": "zh-Hans",
-                  "slot_x": 306.1461569286075,
-                  "measured_slot_x": 306.1417329058998,
-                  "quote_start_inset": 24.9018472217831,
-                  "ok": true
-                }
-              ]
-            }
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 7,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "installed-en-ar",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "installed_skill_assets_without_example_copies": true,
-            "no_source_checkout_inputs": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 6,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "article-en-ar",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "native_and_structured_pixels_identical": true,
-            "article_features": {
-              "ok": true,
-              "both_paragraphs_cross_pages": true,
-              "following_pair_resynchronizes": true,
-              "paired_captions_with_photo": true,
-              "one_full_width_photo": true,
-              "distinct_localized_images_in_aligned_columns": true
-            },
-            "quote_geometry": {
-              "ok": true,
-              "sides": [
-                {
-                  "side": "L",
-                  "language": "en",
-                  "slot_x": 51.02361201646171,
-                  "measured_slot_x": 51.02361201646171,
-                  "quote_start_inset": 24.90638828871407,
-                  "ok": true
-                },
-                {
-                  "side": "R",
-                  "language": "ar",
-                  "slot_x": 306.1461569286075,
-                  "measured_slot_x": 306.1417329058998,
-                  "quote_start_inset": 24.911568647600802,
-                  "ok": true
-                }
-              ]
-            }
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 6,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "installed-zh-Hans-ja",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "installed_skill_assets_without_example_copies": true,
-            "no_source_checkout_inputs": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 10,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "article-zh-Hans-ja",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "native_and_structured_pixels_identical": true,
-            "article_features": {
-              "ok": true,
-              "both_paragraphs_cross_pages": true,
-              "following_pair_resynchronizes": true,
-              "paired_captions_with_photo": true,
-              "one_full_width_photo": true,
-              "distinct_localized_images_in_aligned_columns": true
-            },
-            "quote_geometry": {
-              "ok": true,
-              "sides": [
-                {
-                  "side": "L",
-                  "language": "zh-Hans",
-                  "slot_x": 51.02361201646171,
-                  "measured_slot_x": 51.02361201646171,
-                  "quote_start_inset": 24.90638828871407,
-                  "ok": true
-                },
-                {
-                  "side": "R",
-                  "language": "ja",
-                  "slot_x": 306.1461569286075,
-                  "measured_slot_x": 306.1417329058998,
-                  "quote_start_inset": 24.9018472217831,
-                  "ok": true
-                }
-              ]
-            }
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 10,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "flow-en-fr",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "both_paragraphs_cross_pages": true,
-            "native_and_structured_pixels_identical": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 3,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "shared-photo-en-fr",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "native_and_structured_pixels_identical": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "flow-en-zh-Hans",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "both_paragraphs_cross_pages": true,
-            "native_and_structured_pixels_identical": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 5,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "shared-photo-en-zh-Hans",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "native_and_structured_pixels_identical": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 7,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "flow-en-ar",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "both_paragraphs_cross_pages": true,
-            "native_and_structured_pixels_identical": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 5,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "shared-photo-en-ar",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "native_and_structured_pixels_identical": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 6,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "flow-zh-Hans-ja",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "both_paragraphs_cross_pages": true,
-            "native_and_structured_pixels_identical": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 5,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "shared-photo-zh-Hans-ja",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "native_and_structured_pixels_identical": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 8,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "minimal-authoring",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "paired_blocks_checked": 1,
-              "embedded_fonts_checked": 3,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "labels-and-equations",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "single_equation_counter_steps": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "paired_blocks_checked": 5,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "duplicate-id",
-          "passed": true,
-          "compile_exit": 12
-        },
-        {
-          "case": "reserved-id",
-          "passed": true,
-          "compile_exit": 12
-        },
-        {
-          "case": "oversize-native",
-          "passed": true,
-          "compile_exit": 12
-        },
-        {
-          "case": "missing-glyph-native",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 4,
-          "checks": {
-            "ok": false
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "paired_blocks_checked": 1,
-              "embedded_fonts_checked": 3,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "right-booklet",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "unselected_cover_language_absent": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 6,
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 3,
-              "blank_pages": [
-                2,
-                4,
-                5
-              ]
-            }
-          ]
-        },
-        {
-          "case": "arabic-equations",
-          "passed": true,
-          "compile_exit": 0,
-          "qa_exit": 0,
-          "checks": {
-            "ok": true,
-            "shared_equation_baselines_aligned": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "native-learning-minimal",
-          "passed": true,
-          "compile_exit": 0,
-          "explicit_external_renderer_used": true,
-          "documents": [
-            {
-              "part": "notes",
-              "pages": 1,
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 6
-            },
-            {
-              "part": "quick-reference",
-              "pages": 1,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 6
-            }
-          ]
-        },
-        {
-          "case": "native-course-example",
-          "passed": true,
-          "compile_exit": 0,
-          "explicit_external_renderer_used": true,
-          "documents": [
-            {
-              "part": "notes",
-              "pages": 3,
-              "paired_blocks_checked": 39,
-              "embedded_fonts_checked": 11
-            },
-            {
-              "part": "quick-reference",
-              "pages": 2,
-              "paired_blocks_checked": 45,
-              "embedded_fonts_checked": 10
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "suite": "configuration",
-      "passed": true,
-      "case_count": 41,
-      "cases": [
-        {
-          "case": "zero-configuration",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 2,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "mirrored-binding",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "odd_even_margins_mirror": true,
-            "full_height_binding_ink_at_8x": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 2,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "standard-geometry",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "odd_even_margins_mirror": true,
-            "full_height_binding_ink_at_8x": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 2,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "oneside-binding",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "oneside_margins_unchanged": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 2,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "custom-paper",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 2,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "package-options",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 2,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "bound-profile",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "odd_even_margins_mirror": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 2,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "reading-profile",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "divider_disabled": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 2,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "standard-page-style",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "author_page_style_preserved": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 1,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "roman-folio",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "roman_folios_in_alternating_inner_header": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 2,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "selected-two-columns",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 2,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "booklet-1-body-pages",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 6,
-              "paired_blocks_checked": 1,
-              "embedded_fonts_checked": 3,
-              "blank_pages": [
-                2,
-                4,
-                5
-              ]
-            }
-          ]
-        },
-        {
-          "case": "booklet-2-body-pages",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 6,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 3,
-              "blank_pages": [
-                2,
-                5
-              ]
-            }
-          ]
-        },
-        {
-          "case": "custom-page-style-with-covers",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "author_page_style_preserved": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 6,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 2,
-              "blank_pages": [
-                2,
-                5
-              ]
-            }
-          ]
-        },
-        {
-          "case": "custom-cover-policy",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "custom_physical_parity": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 1,
-              "embedded_fonts_checked": 3,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "semantic-navigation",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "actual_entry_headers": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 7,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "flow-navigation",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "continuation_pages_keep_entry_heads": true,
-            "continuation_pages_keep_tabs": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 7,
-              "paired_blocks_checked": 4,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "arabic-entry-headers",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 3,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "paragraph-settings",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "paragraph_settings_reach_both_bodies": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 1,
-              "paired_blocks_checked": 1,
-              "embedded_fonts_checked": 2,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "selected-flow-navigation",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "continuation_pages_keep_entry_heads": true,
-            "continuation_pages_keep_tabs": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "native-twocolumn-cover",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "actual_author_column_state_restored": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 4,
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 3,
-              "blank_pages": [
-                2
-              ]
-            }
-          ]
-        },
-        {
-          "case": "native-onecolumn-cover",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "actual_author_column_state_restored": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 4,
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 3,
-              "blank_pages": [
-                2
-              ]
-            }
-          ]
-        },
-        {
-          "case": "rtl-prose-navigation",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "furniture_font_context_stable_on_rtl_continuations": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 0,
-              "embedded_fonts_checked": 5,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "public-end-suffix",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "public_id_not_overwritten_by_flow_end": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 4,
-              "paired_blocks_checked": 2,
-              "embedded_fonts_checked": 2,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "unknown-key",
-          "passed": true,
-          "compile_exit": 12,
-          "expected_error": "unknown"
-        },
-        {
-          "case": "invalid-position",
-          "passed": true,
-          "compile_exit": 12,
-          "expected_error": "accepts only"
-        },
-        {
-          "case": "negative-gap",
-          "passed": true,
-          "compile_exit": 12,
-          "expected_error": "Column gap must not be negative"
-        },
-        {
-          "case": "negative-divider",
-          "passed": true,
-          "compile_exit": 12,
-          "expected_error": "Divider width must be positive"
-        },
-        {
-          "case": "impossible-columns",
-          "passed": true,
-          "compile_exit": 12,
-          "expected_error": "Content columns too narrow"
-        },
-        {
-          "case": "paired-two-columns",
-          "passed": true,
-          "compile_exit": 12,
-          "expected_error": "single-columns=2 requires one selected language"
-        },
-        {
-          "case": "late-setup",
-          "passed": true,
-          "compile_exit": 12,
-          "expected_error": "Can be used only in preamble"
-        },
-        {
-          "case": "unknown-role",
-          "passed": true,
-          "compile_exit": 12,
-          "expected_error": "Unknown semantic role"
-        },
-        {
-          "case": "unknown-navigation",
-          "passed": true,
-          "compile_exit": 12,
-          "expected_error": "Unknown navigation ID"
-        },
-        {
-          "case": "overflow-tab",
-          "passed": true,
-          "compile_exit": 12,
-          "expected_error": "Navigation tab outside page"
-        },
-        {
-          "case": "bound-en-fr",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "headings_keep_their_following_unit": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 4,
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 4,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "bound-en-zh-Hans",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "headings_keep_their_following_unit": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 7,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "bound-en-ar",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "headings_keep_their_following_unit": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 6,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "bound-zh-Hans-ja",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true,
-            "headings_keep_their_following_unit": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 3,
-              "paired_blocks_checked": 24,
-              "embedded_fonts_checked": 10,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "structured-equivalent",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 3,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "native-equivalent",
-          "passed": true,
-          "compile_exit": 0,
-          "checks": {
-            "ok": true,
-            "divider_aligned_with_live_textblock": true
-          },
-          "documents": [
-            {
-              "part": "document",
-              "pages": 2,
-              "paired_blocks_checked": 3,
-              "embedded_fonts_checked": 3,
-              "blank_pages": []
-            }
-          ]
-        },
-        {
-          "case": "native-structured-configuration-equivalence",
-          "passed": true
-        }
-      ]
-    }
-  ],
-  "toolchain": {
-    "python": "3.12.14",
-    "PyMuPDF": "1.26.6",
-    "Pillow": "12.3.0",
-    "fonttools": "4.61.1",
-    "xetex": "XeTeX 3.141592653-2.6-0.999996 (TeX Live 2025/dev/Debian)",
-    "language_packages": "Official Debian texlive-lang-arabic and texlive-lang-french 2024.20250309-1; isolated format includes English, nohyphenation, French and Arabic.",
-    "source_date_epoch": 1767225600
+  "schema_version": 2,
+  "completed_at_utc": "2026-10-05T10:19:27.578927+00:00",
+  "status": "passed",
+  "baseline_public_commit": "e9b47b68d41434842f67259c4ea0a5217d53db2a",
+  "implementation_and_fixture_sha256": "5d59c8c0b36b9519b2b7471271b598d3af67458708351893d1e08dfbf03c8279",
+  "evidence_policy": "Original runner reports are preserved. Mixed source snapshots are explicit; only unaffected behavior with verified staged inputs/dependencies is carried. Full profile coverage is the union of new and qualified carried cases, not a rewritten historical run. Expected errors are tests, not deliverables.",
+  "fast_checks": {
+    "repository_unittest_methods": 92,
+    "testing_workflow_example_methods": 3,
+    "status": "passed"
   },
-  "review": {
-    "article_pages_inspected": 12,
-    "course_pages_inspected": 5,
-    "localized_image_languages": [
-      "en",
-      "fr",
-      "zh-Hans",
-      "ar",
-      "ja"
-    ],
-    "shared_photo_identical_to_previous": true,
-    "article_text_unchanged": true,
-    "course_pixels_unchanged_at_72dpi": true,
-    "independent_code_review": "Completed; collision-free image names, safe dependency paths, compatible renderer API and CI dependencies verified.",
-    "limits": "Author-level language reconciliation and actual-page inspection; no external human linguistic certification. First-page previews are browsing aids. Fonts/TeX packages remain external dependencies."
+  "integration_cases": 143,
+  "profiles": {
+    "structured": {
+      "cases": 36,
+      "passed": 36,
+      "report_sha256": "37f651c7c3745e41791fb03bc34f7511e6d993f5ab9e5fd8b5c71e9e9c50f806",
+      "run_snapshot": "51eff6f741d28e3c394b1cb8ffcbe49bdad3583aaf7c125f081d8a18200527cb",
+      "case_names": [
+        "en-fr-bilingual",
+        "en-fr-left",
+        "en-fr-right",
+        "en-zh-Hans-bilingual",
+        "en-zh-Hans-left",
+        "en-zh-Hans-right",
+        "en-ar-bilingual",
+        "en-ar-left",
+        "en-ar-right",
+        "en-he-bilingual",
+        "en-he-left",
+        "en-he-right",
+        "zh-Hans-ja-bilingual",
+        "zh-Hans-ja-left",
+        "zh-Hans-ja-right",
+        "rtl-references-bilingual",
+        "rtl-references-left",
+        "rtl-references-right",
+        "ar-en-reversed",
+        "letter-no-covers",
+        "multipage-uneven",
+        "parent-references-bilingual",
+        "parent-references-left",
+        "parent-references-right",
+        "oversized-block",
+        "missing-glyph",
+        "flow-en-fr",
+        "shared-photo-en-fr",
+        "flow-en-zh-Hans",
+        "shared-photo-en-zh-Hans",
+        "flow-en-ar",
+        "shared-photo-en-ar",
+        "flow-en-he",
+        "shared-photo-en-he",
+        "flow-zh-Hans-ja",
+        "shared-photo-zh-Hans-ja"
+      ],
+      "reuse_note": "Subsequent changes affected native comparison fixtures only; bilingual runtime, authored inputs and reviewed artifact hashes are unchanged."
+    },
+    "configuration": {
+      "cases": 44,
+      "passed": 44,
+      "newly_executed": 41,
+      "dependency_verified_carried": 3,
+      "report_sha256": "d24bcd6644252b51af2dc91b3975d0f0f7429ab0dd1cfb68b40ec513e711f31b",
+      "reuse_proof_sha256": "7701e7d694f4c1608c9468cbd82ef59ee5ddc8ec1e6766ce77704a499969b213",
+      "case_names": [
+        "zero-configuration",
+        "mirrored-binding",
+        "standard-geometry",
+        "oneside-binding",
+        "custom-paper",
+        "package-options",
+        "bound-profile",
+        "reading-profile",
+        "standard-page-style",
+        "roman-folio",
+        "selected-two-columns",
+        "booklet-1-body-pages",
+        "booklet-2-body-pages",
+        "custom-page-style-with-covers",
+        "custom-cover-policy",
+        "semantic-navigation",
+        "flow-navigation",
+        "arabic-entry-headers",
+        "cjk-native-identifiers",
+        "paragraph-settings",
+        "selected-flow-navigation",
+        "native-twocolumn-cover",
+        "native-onecolumn-cover",
+        "rtl-prose-navigation",
+        "public-end-suffix",
+        "unknown-key",
+        "invalid-position",
+        "negative-paragraph-emergency",
+        "negative-gap",
+        "negative-divider",
+        "impossible-columns",
+        "paired-two-columns",
+        "late-setup",
+        "unknown-role",
+        "unknown-navigation",
+        "overflow-tab",
+        "bound-en-fr",
+        "bound-en-zh-Hans",
+        "bound-en-ar",
+        "bound-en-he",
+        "bound-zh-Hans-ja",
+        "structured-equivalent",
+        "native-equivalent",
+        "native-structured-configuration-equivalence"
+      ]
+    },
+    "native": {
+      "cases": 28,
+      "passed": 28,
+      "newly_executed": 26,
+      "dependency_verified_carried": 2,
+      "report_sha256": "b1b59880092736aaf31f027761670d2863e9935d7a15ebe0c6a53c6f67c70f8d",
+      "reuse_proof_sha256": "0ecad5a5f8d5c399e78f3a59c085fcdf55871bcfe67e81bd595602e047f91bec",
+      "case_names": [
+        "installed-en-fr",
+        "article-en-fr",
+        "installed-en-zh-Hans",
+        "article-en-zh-Hans",
+        "installed-en-ar",
+        "article-en-ar",
+        "installed-en-he",
+        "article-en-he",
+        "installed-zh-Hans-ja",
+        "article-zh-Hans-ja",
+        "flow-en-fr",
+        "shared-photo-en-fr",
+        "flow-en-zh-Hans",
+        "shared-photo-en-zh-Hans",
+        "flow-en-ar",
+        "shared-photo-en-ar",
+        "flow-en-he",
+        "shared-photo-en-he",
+        "flow-zh-Hans-ja",
+        "shared-photo-zh-Hans-ja",
+        "minimal-authoring",
+        "labels-and-equations",
+        "duplicate-id",
+        "reserved-id",
+        "oversize-native",
+        "missing-glyph-native",
+        "right-booklet",
+        "arabic-equations"
+      ]
+    },
+    "study": {
+      "cases": 29,
+      "passed": 29,
+      "newly_executed": 27,
+      "dependency_verified_carried": 2,
+      "report_sha256": "b565840fcfb38a6ca58fc93fc2b27cd94aa192e559be01dc0105df54e5702500",
+      "reuse_proof_sha256": "8617056fec26aebf1edb3ad79441e478aba771e6787fbc1023598e87400baa04",
+      "case_names": [
+        "study-example-default",
+        "study-standalone-notes",
+        "study-standalone-quick-reference",
+        "study-standalone-keyword-index",
+        "study-standalone-decision-tree",
+        "study-example-all",
+        "missing-dependency",
+        "unknown-product",
+        "empty-products",
+        "native-registry-quick",
+        "native-registry-index",
+        "native-decision-types",
+        "missing-declared-companion",
+        "incompatible-dependency",
+        "duplicate-study-id",
+        "empty-sort-key",
+        "invalid-study-id",
+        "unknown-target",
+        "alias-chain",
+        "empty-route",
+        "different-group-sort",
+        "missing-sense-context",
+        "unknown-subentry-parent",
+        "missing-unknown-route",
+        "duplicate-choice",
+        "forward-cycle",
+        "invalid-return-target",
+        "empty-method",
+        "unknown-decision-target"
+      ]
+    },
+    "focused_native_regressions": {
+      "cases": 6,
+      "passed": 6,
+      "run_snapshot": "f0b3d679d83f2807a2ec3ed541e31261b7ada265bc981afe62108beb32916b24",
+      "report_sha256": "474d07e371925aecd504214671b8a9946b4eb3423ba73c252446178af9f6c343",
+      "reuse_proof_sha256": "c3537c878a1f40f9f16f33981cc89ee0bd956a770b1662e082b4d35f151b9c55",
+      "case_names": [
+        "lookup-prefix-order",
+        "decision-id-punctuation",
+        "paragraph-heading-lifecycle",
+        "short-header-continuation",
+        "oversized-header-rejected",
+        "oversized-keep-rejected"
+      ],
+      "reuse_note": "Final width-relative layout and all six generated fixtures are byte-identical. The only later study runtime change adds clarification-return spacing; these fixtures do not execute that branch, which has a separate before/after PDF-text regression and updated page review."
+    }
+  },
+  "native_parity": {
+    "normalized_raster_pixel_comparisons": 15,
+    "untouched_installed_native_examples": 5,
+    "status": "passed",
+    "boundary": "Strict parity uses identical normalized raster metadata and paragraph policy. Original installed-native assets retain separate layout and ownership validation."
   },
   "curated_outputs": [
     {
       "path": "skills/bilingual-pdf/examples/en-ar/output.pdf",
       "pages": 3,
-      "sha256": "0f1dc28768b50590fa14057da754736c705d403d76204f74b178a3e608f737fd"
+      "sha256": "dd4aff21867c0122f880bb23545659c4494df9a4fde7c8fefb42832ceb396474"
     },
     {
       "path": "skills/bilingual-pdf/examples/en-fr/output.pdf",
       "pages": 3,
-      "sha256": "591fc99e6270c6636f582c3c14740bc23f6f1b4b84d0b0eabdb0ae216d312f6e"
+      "sha256": "6d6e38abef38ed44f2ba2d6dc8b3f4d8389131a94809c3d49db66cf1f3c21781"
+    },
+    {
+      "path": "skills/bilingual-pdf/examples/en-he/output.pdf",
+      "pages": 3,
+      "sha256": "adf7b3073181bbc4ace290186f76c75fc8b42ddc820af3b387caba1ed44001ad"
     },
     {
       "path": "skills/bilingual-pdf/examples/en-zh-Hans/output.pdf",
       "pages": 3,
-      "sha256": "a0becda8849327427aeaef12323519859e2c3785a116b3b66e4497b4892aa9ab"
+      "sha256": "07da5fcf800d353ec7c57c6cf2bb9e8eff78803b2f3249a79359c8dacbf70af1"
     },
     {
       "path": "skills/bilingual-pdf/examples/zh-Hans-ja/output.pdf",
       "pages": 3,
-      "sha256": "3a52fb32e854f28125082d0e4fdb45a79786d48334c035bd484ded1c219f8940"
+      "sha256": "d5d26a1b086203f49672fdaf4d903a369a0672a80d54e1c79e5801184e8211a6"
     },
     {
-      "path": "skills/course-guide-quick-reference/examples/notes.pdf",
-      "pages": 3,
-      "sha256": "b34b3032200fd1bdac8b166b3ebc3beeaf063c35c6561125d75a5b986570bfb5"
-    },
-    {
-      "path": "skills/course-guide-quick-reference/examples/quick-reference.pdf",
+      "path": "skills/study-notes/examples/decision-tree.pdf",
       "pages": 2,
-      "sha256": "28bee5635ac220de3f21ea2f977c9d70c51f9e250af981f6e999ead3d3030ea3"
+      "sha256": "6ecfb96147369399eebbf2f97c158c9bfb2ad49b95e92b7a9393ed79cb1cd99b"
+    },
+    {
+      "path": "skills/study-notes/examples/keyword-index.pdf",
+      "pages": 2,
+      "sha256": "a1804d4c074c7b99d29bbf509417a5404e41d00e3f48a6290a45f2dec2ec0600"
+    },
+    {
+      "path": "skills/study-notes/examples/notes.pdf",
+      "pages": 3,
+      "sha256": "42364f62cb7c81c3f333df80761cc0f1e10764caee983bdf7327390de1cc7d4d"
+    },
+    {
+      "path": "skills/study-notes/examples/quick-reference.pdf",
+      "pages": 2,
+      "sha256": "5786fd505cff4774a2192590dcb73617881d6cab5e6c8abd57d8cb6cb353a667"
     }
   ],
-  "source_hashes": {
-    "skills/bilingual-pdf/assets/bound-profile.tex": "87854c291355fc88c3fafcfb16f0f7bdcca951d3db88ad2074cdefe152b80e6c",
-    "skills/bilingual-pdf/assets/paralleltext.sty": "2d7f23fc9f499d1cc94b9bb51c5502f95d3e9974377144a1867786e809eb949d",
-    "skills/bilingual-pdf/assets/reading-profile.tex": "a2b9ee83b843faf289aee5e76c48205f2346aff24b774e48662970ccccc54332",
-    "skills/bilingual-pdf/examples/en-ar/content.tex": "623616764c62082ead06176546e890d694a829e6653697fdc0506ebb14e09b5c",
-    "skills/bilingual-pdf/examples/en-ar/languages.tex": "dcb8d583ed1204a8a5892a6f21ea7b182316a3cd5b696146f90447c479fb2c85",
-    "skills/bilingual-pdf/examples/en-ar/main.tex": "7bbd69766caf17da9d32d3ba1c9582eceb3e067c3d70c51be8a1182ea6f4a23a",
-    "skills/bilingual-pdf/examples/en-ar/source.json": "e3560945b50eddef10b8271701ac604cda1d8c33fcbe0d34349303943edb7595",
-    "skills/bilingual-pdf/examples/en-fr/content.tex": "57b868902912bf9629d74587986e2972aa07bce935547e1f30841a7cc501dafa",
-    "skills/bilingual-pdf/examples/en-fr/languages.tex": "ad93c3cd9feb213490ebb141670878306d0b028b861851da7494a0456f1c8f53",
-    "skills/bilingual-pdf/examples/en-fr/main.tex": "7bbd69766caf17da9d32d3ba1c9582eceb3e067c3d70c51be8a1182ea6f4a23a",
-    "skills/bilingual-pdf/examples/en-fr/source.json": "510b2f29551c37e12cb2255ac4746f9cc78d25979623dc72964c22dee2230a10",
-    "skills/bilingual-pdf/examples/en-zh-Hans/content.tex": "8e8e6467800e15ccec3575ab69af66292b89e8a2a579eb88559de50b75784c3f",
-    "skills/bilingual-pdf/examples/en-zh-Hans/languages.tex": "88a98765ccee16b529549e34d32e036bc67c51cf2133a360eee1840f1dba379d",
-    "skills/bilingual-pdf/examples/en-zh-Hans/main.tex": "7bbd69766caf17da9d32d3ba1c9582eceb3e067c3d70c51be8a1182ea6f4a23a",
-    "skills/bilingual-pdf/examples/en-zh-Hans/source.json": "6cc116c79835310b477b164ae9ac2229193b6492b1dd61e47aaedab6b17d6ab9",
-    "skills/bilingual-pdf/examples/zh-Hans-ja/content.tex": "5212e708d20727f2c3f3b6f40750bd58a02de3445ba5ba7e636b2e9014f4c450",
-    "skills/bilingual-pdf/examples/zh-Hans-ja/languages.tex": "8914c2edd9372cdce368afda98587e9290c2d4364cc17cc568a47aba873d9e2f",
-    "skills/bilingual-pdf/examples/zh-Hans-ja/main.tex": "7bbd69766caf17da9d32d3ba1c9582eceb3e067c3d70c51be8a1182ea6f4a23a",
-    "skills/bilingual-pdf/examples/zh-Hans-ja/source.json": "3ebf7df290af6112afb5e483814f407aa5401cc2a22f2ea3b43bb78cbb0fef42",
-    "skills/bilingual-pdf/scripts/bilingual_pdf.py": "23401470dbb1636a8a7a7b3f11cdfb13e6d7f67d3cb525233d32b97b575a3bb4",
-    "skills/course-guide-quick-reference/examples/languages.tex": "9500e1beef8e6c1e2546fcb440d7173704d9b8f73253b3fb669cdc4397b357ea",
-    "skills/course-guide-quick-reference/examples/notes-content.tex": "67c71c47b64c1472a07b1e5c850d1cf01893c3fc8a22dffe2efbac5996a3af6f",
-    "skills/course-guide-quick-reference/examples/notes.tex": "6e1f95efea3db08c3ecce0ccb805e8fabbeefb049f8f4ce9348f9e445ce1f8d4",
-    "skills/course-guide-quick-reference/examples/quick-content.tex": "d319985e6c71866573b0076594b09266326c81d69691380f46c2e5b516fb2524",
-    "skills/course-guide-quick-reference/examples/quick-reference.tex": "725d675ee0239cbf1c1b598a83405df0dd2a78eb6f7fb4f2dcf868aabee768bc",
-    "skills/course-guide-quick-reference/examples/source-map.json": "272e87f081959c2db6402b5d11f019a6b85071341b19d7e9912d39ab5034b575",
-    "skills/course-guide-quick-reference/scripts/course_documents.py": "56125d678baab3afdc13d1db77e838dd366dd6faad392fd614e40db432479f32"
-  }
+  "visual_review": {
+    "pages": 24,
+    "status": "reviewed",
+    "method": "Assistant inspected readable-resolution rendered pages; unchanged final pages were confirmed pixel-identical to inspected pages. All changed pages, including the corrected clarification return, were re-inspected.",
+    "not_certification": true
+  },
+  "content_review": {
+    "bilingual_field_comparisons": 160,
+    "recurring_languages_identical": true,
+    "study_source_sections": 7,
+    "source": "Original self-hosted usage content",
+    "limits": "Assistant source/language review, not external human linguistic or domain certification."
+  },
+  "package_checks": {
+    "skills": [
+      "bilingual-pdf",
+      "study-notes",
+      "testing-workflow"
+    ],
+    "package_links_and_ownership": "passed",
+    "native_export_current": "passed",
+    "curated_manifests": "passed",
+    "curated_pdfs": 9,
+    "curated_previews": 9,
+    "staged_whitespace": "passed"
+  },
+  "privacy_review": {
+    "source_and_paths": "No private learning content, personal contact details or machine-specific payload observed. Generic path-rejection fixtures are synthetic.",
+    "images_and_pdf_pages": "Original public examples reviewed; no private content observed.",
+    "pdf_author_metadata": "empty"
+  },
+  "toolchain": {
+    "python": "3.13.5",
+    "PyMuPDF": "1.28.2",
+    "Pillow": "12.3.0",
+    "fonttools": "4.66.1",
+    "jsonschema": "4.26.0",
+    "XeTeX": "3.141592653-2.6-0.999996 (TeX Live 2025/dev/Debian)",
+    "latexmk": "4.86",
+    "SOURCE_DATE_EPOCH": "1767225600"
+  },
+  "limits": [
+    "Native TeX executes code; disabled shell escape is not a filesystem sandbox.",
+    "Structured tables are bounded as whole groups; native rows may break between rows, but row splitting and automatic repeated headers are not implemented.",
+    "Divider follows the live text-block center; asymmetric binding can shift it by page parity.",
+    "Traditional Chinese, arbitrary language pairs, vertical text, native Windows font discovery, printer-specific production and PDF/UA remain outside this acceptance scope.",
+    "Reuse requires the unchanged approved TeX/font environment; external font/package byte identity was not separately recorded at original compilation."
+  ],
+  "benchmarks": {
+    "status": "not_requested",
+    "note": "Correctness/layout verification; elapsed test time is not a performance benchmark."
+  },
+  "ci_at_record_creation": "Local pre-publication acceptance only. Verify GitHub Actions against the eventual exact commit."
 }

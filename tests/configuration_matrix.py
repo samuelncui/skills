@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
 """Native configuration regressions in isolated installed projects."""
-import argparse, concurrent.futures, json, re, shutil, subprocess, sys
+import argparse, json, re, shutil, sys
+from matrix_support import add_matrix_arguments, initialize_output, execute_matrix, run_command, BlockedCase
 from pathlib import Path
 import pymupdf
 ROOT=Path(__file__).resolve().parents[1]
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--case',action='append',help='Run only named cases (repeatable)');a=p.parse_args()
-work=a.output.resolve()
-if work.exists():raise SystemExit('Choose a fresh output directory')
-work.mkdir(parents=True)
-shutil.copytree(ROOT/'skills/bilingual-pdf',work/'installed')
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);add_matrix_arguments(p);a=p.parse_args()
+work=initialize_output(a.output,a.resume)
+shutil.copytree(ROOT/'skills/bilingual-pdf',work/'installed',dirs_exist_ok=True)
 sys.path.insert(0,str(work/'installed/scripts'))
-from bilingual_pdf import validate,export_document,check_pdf
+from bilingual_pdf import validate,export_document,check_pdf,language_text
 BUILD=['latexmk','-norc','-xelatex','-interaction=nonstopmode','-halt-on-error','-latexoption=-no-shell-escape']
 SCALE=72/(72.27*65536)
 body=r'\ParallelText{one}{First page.}{A corresponding sentence.}\clearpage\ParallelText{two}{Second page.}{Another corresponding sentence.}'
 cases=[]
 def add(name,setup='',content=body,options='',classopts='10pt,twoside',error=None,paired=True,covers=False,margin=5):
- d=work/name;d.mkdir();shutil.copyfile(work/'installed/assets/paralleltext.sty',d/'paralleltext.sty')
+ d=work/name;d.mkdir(exist_ok=True);shutil.copyfile(work/'installed/assets/paralleltext.sty',d/'paralleltext.sty')
  for profile in ['bound','reading']:shutil.copyfile(work/f'installed/assets/{profile}-profile.tex',d/f'{profile}-profile.tex')
  (d/'main.tex').write_text('\\documentclass['+classopts+']{article}\n\\usepackage['+options+']{paralleltext}\n'+setup+'\n\\begin{document}\n'+content+'\n\\end{document}\n')
  cases.append(dict(name=name,project=d,error=error,paired=paired,covers=covers,margin=margin))
@@ -51,6 +50,11 @@ flowbody=r'\ParallelNavigation{a}\ParallelEntry{alpha}{Alpha}{Alpha}\ParallelPro
 add('flow-navigation',nav,flowbody)
 arlocale=(work/'installed/examples/en-ar/languages.tex').read_text()
 add('arabic-entry-headers',arlocale+r'\ParallelSetup{mode=right,header-left=\ParallelFirstEntry,header-right=\ParallelLastEntry}',r'\ParallelEntry{one}{One}{الأول}\ParallelText{body}{Text.}{نص قصير.}\clearpage\ParallelText{continued}{More.}{متابعة.}',paired=False)
+# Exact tutorial sentence formerly overflowed despite a valid CJK/Latin break.
+cjk_data=json.loads((work/'installed/examples/en-zh-Hans/source.json').read_text())
+cjk_text=next(block['text'] for block in cjk_data['blocks'] if block['id']=='flow-options')
+cjk_body=r'\ParallelParagraph{cjk-identifiers}{'+language_text(cjk_text[0],'en')+'}{'+language_text(cjk_text[1],'zh-Hans')+'}'
+add('cjk-native-identifiers',(work/'installed/examples/en-zh-Hans/languages.tex').read_text(),cjk_body,margin=12)
 add('paragraph-settings',r'\ParallelSetup{paragraph-skip=7pt,paragraph-indent=6pt}',r'\ParallelText{paragraphs}{\typeout{PT-PARAGRAPH-LEFT skip=\the\parskip;indent=\the\parindent}First paragraph.\par Second paragraph.}{\typeout{PT-PARAGRAPH-RIGHT skip=\the\parskip;indent=\the\parindent}First paragraph.\par Second paragraph.}')
 add('selected-flow-navigation',nav+r'\ParallelSetup{mode=left}',flowbody,paired=False)
 columnprobe=r'\makeatletter\if@twocolumn\typeout{PT-COLUMN-STATE=2}\else\typeout{PT-COLUMN-STATE=1}\fi\makeatother'
@@ -61,6 +65,7 @@ add('public-end-suffix',r'\ParallelSetup{profile=bound}',r'\ParallelText{flow.fi
 for name,setup,content,diagnostic in [
  ('unknown-key',r'\ParallelSetup{not-a-key=1}',body,'unknown'),
  ('invalid-position',r'\ParallelSetup{page-number-position=elsewhere}',body,'accepts only'),
+ ('negative-paragraph-emergency',r'\ParallelSetup{paragraph-emergency-stretch=-1pt}',body,'emergency stretch must not be negative'),
  ('negative-gap',r'\ParallelSetup{column-gap=-1mm}',body,'Column gap must not be negative'),
  ('negative-divider',r'\ParallelSetup{divider-width=-1pt}',body,'Divider width must be positive'),
  ('impossible-columns',r'\ParallelSetup{geometry={inner=95mm,outer=95mm}}',body,'Content columns too narrow'),
@@ -71,18 +76,20 @@ for name,setup,content,diagnostic in [
  ('overflow-tab',r'\ParallelSetup{tabs=true,tab-top=290mm,tab-height=20mm}\ParallelDeclareNavigation{x}{1}{X}',r'\ParallelNavigation{x}'+body,'Navigation tab outside page')]:
  add(name,setup,content,error=diagnostic)
 # Full manuscript regressions preserve scripts and flow under asymmetric geometry.
-for pair in ['en-fr','en-zh-Hans','en-ar','zh-Hans-ja']:
- d=work/('bound-'+pair);shutil.copytree(work/'installed/examples'/pair,d,ignore=shutil.ignore_patterns('*.pdf','preview.png'))
+for pair in ['en-fr','en-zh-Hans','en-ar','en-he','zh-Hans-ja']:
+ d=work/('bound-'+pair);shutil.copytree(work/'installed/examples'/pair,d,ignore=shutil.ignore_patterns('*.pdf','preview.png'),dirs_exist_ok=True)
  for asset in (work/'installed/assets').iterdir():
-  if asset.suffix in ('.sty','.png'):shutil.copyfile(asset,d/asset.name)
- main=d/'main.tex';main.write_text(main.read_text().replace(r'\begin{document}',r'\ParallelSetup{profile=bound,divider-style={dash pattern=on 2pt off 1pt,line cap=round}}'+'\n'+r'\begin{document}'))
+  if asset.suffix in ('.sty','.tex'):shutil.copyfile(asset,d/asset.name)
+ for asset in (work/'installed/examples/shared').glob('*.png'):shutil.copyfile(asset,d/asset.name)
+ main=d/'main.tex';main.write_text(main.read_text().replace(r'\graphicspath{{../shared/}}',r'\graphicspath{{./}}').replace(r'\begin{document}',r'\ParallelSetup{profile=bound,divider-style={dash pattern=on 2pt off 1pt,line cap=round}}'+'\n'+r'\begin{document}'))
  cases.append(dict(name='bound-'+pair,project=d,error=None,paired=True,covers=False,margin=15))
 
 # Two independently written documents use the same settings API through different routes.
 layout={'paper':'letter','twoside':True,'inner_mm':25,'outer_mm':15,'binding_mm':2,'gap_mm':7,'font_size':10,'leading':12,'divider':{'color':'315A71','width_pt':.5,'style':'dashed'},'page_numbers':{'position':'footer-inner','numbering':'roman','prefix':'[','suffix':']'}}
 data={'languages':['en','en'],'title':['A small example','A small example'],'layout':layout,'blocks':[{'id':'one','text':['First page.','A corresponding sentence.']},{'id':'two','break_before':True,'text':['Second page.','Another corresponding sentence.']}]}
-export_document(validate(data),work/'source.json',work/'structured-equivalent','bilingual')
-(work/'structured-equivalent/document.tex').rename(work/'structured-equivalent/main.tex')
+if not (work/'structured-equivalent/main.tex').exists():
+ export_document(validate(data),work/'source.json',work/'structured-equivalent','bilingual')
+ (work/'structured-equivalent/document.tex').rename(work/'structured-equivalent/main.tex')
 cases.append(dict(name='structured-equivalent',project=work/'structured-equivalent',error=None,paired=True,covers=False,margin=5))
 setup=r'''\newfontfamily\englishfont{Latin Modern Roman}\newfontfamily\englishfontsf{Latin Modern Sans}
 \ParallelLanguages{english}{english}\definecolor{parallel.adapter.divider}{HTML}{315A71}
@@ -101,7 +108,7 @@ def geometry_check(pdf,aux):
  return records,checks
 
 def run(c):
- d=c['project'];proc=subprocess.run(BUILD+['main.tex'],cwd=d,capture_output=True,text=True,timeout=240)
+ d=c['project'];proc=run_command(BUILD+['main.tex'],cwd=d,capture_output=True,text=True,timeout=105)
  (d/'build.stdout').write_text(proc.stdout+proc.stderr)
  result={'case':c['name'],'compile_exit':proc.returncode}
  if c['error']:
@@ -125,6 +132,16 @@ def run(c):
     left,top,width,height,gap=records[i+1]
     safe.append(box is not None and box[0]/8>=left-.5*72/25.4 and (pix.width-box[2])/8>=page.rect.width-left-width-.5*72/25.4)
    report['full_height_binding_ink_at_8x']=all(safe)
+  if c['name']=='cjk-native-identifiers':
+   from PIL import Image, ImageChops
+   bounds=[]
+   for i,page in enumerate(pdf):
+    pix=page.get_pixmap(matrix=pymupdf.Matrix(4,4),alpha=False)
+    im=Image.frombytes('RGB',(pix.width,pix.height),pix.samples)
+    box=ImageChops.difference(im,Image.new('RGB',im.size,'white')).getbbox()
+    left,top,width,height,gap=records[i+1]
+    bounds.append(box is not None and box[0]/4>=left-.5 and box[2]/4<=left+width+.5)
+   report['mixed_script_ink_within_actual_body_edges']=bool(bounds) and all(bounds)
   if c['name']=='roman-folio':
    valid=[]
    for i,page in enumerate(pdf):
@@ -144,7 +161,7 @@ def run(c):
    report['actual_author_column_state_restored']=('PT-COLUMN-STATE='+('2' if c['name']=='native-twocolumn-cover' else '1')) in (d/'main.log').read_text()
   if c['name']=='rtl-prose-navigation':
    report['furniture_font_context_stable_on_rtl_continuations']=len(pdf)>2 and all('Field notes' in page.get_text() and 'Archive' in page.get_text() and any(w[4]=='A' for w in page.get_text('words')) for page in pdf)
-  if c['name'] in ('bound-en-fr','bound-en-zh-Hans','bound-en-ar','bound-zh-Hans-ja'):
+  if c['name'] in ('bound-en-fr','bound-en-zh-Hans','bound-en-ar','bound-en-he','bound-zh-Hans-ja'):
    source=json.loads((d/'source.json').read_text())
    physical={m[1]:int(m[2]) for m in re.finditer(r'\\PTPairPage\{([^{}]+)\}\{(\d+)\}',(d/'main.aux').read_text())}
    attached=[]
@@ -164,17 +181,13 @@ def run(c):
   if c['name'] in ('standard-page-style','custom-page-style-with-covers'):report['author_page_style_preserved']=all(not re.search(r'^(?:X?[12])$',p.get_text(),re.M) for p in pdf)
  report['ok']=not report['errors'] and all(v for k,v in report.items() if isinstance(v,bool))
  result.update(passed=report['ok'],result=report);return result
-if a.case:
- selected=set(a.case)
- unknown=selected-{c['name'] for c in cases}
- if unknown:raise SystemExit('Unknown cases: '+', '.join(sorted(unknown)))
- cases=[c for c in cases if c['name'] in selected]
-with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:results=list(pool.map(run,cases))
-if {'structured-equivalent','native-equivalent'} <= {c['name'] for c in cases}:
- with pymupdf.open(work/'structured-equivalent/main.pdf') as x,pymupdf.open(work/'native-equivalent/main.pdf') as y:
-  equal=len(x)==len(y) and all(x[i].get_pixmap().samples==y[i].get_pixmap().samples for i in range(len(x)))
- results.append({'case':'native-structured-configuration-equivalence','passed':equal})
-report={'ok':all(x['passed'] for x in results),'tests':results,'visual_review':'required'}
-(work/'matrix.json').write_text(json.dumps(report,indent=2)+'\n')
-print(json.dumps({'ok':report['ok'],'cases':len(results),'failures':[x for x in results if not x['passed']]}))
-raise SystemExit(not report['ok'])
+def execute(case):
+ if case['name']=='native-structured-configuration-equivalence':
+  missing=[part for part in ('structured-equivalent','native-equivalent') if not (work/part/'main.pdf').exists()]
+  if missing:raise BlockedCase('Build prerequisite cases first: '+', '.join(missing))
+  with pymupdf.open(work/'structured-equivalent/main.pdf') as x,pymupdf.open(work/'native-equivalent/main.pdf') as y:
+   equal=len(x)==len(y) and all(x[i].get_pixmap().samples==y[i].get_pixmap().samples for i in range(len(x)))
+  return {'case':case['name'],'passed':equal}
+ return run(case)
+cases.append({'name':'native-structured-configuration-equivalence'})
+raise SystemExit(execute_matrix(cases,execute,work,a,'configuration',name=lambda case:case['name']))

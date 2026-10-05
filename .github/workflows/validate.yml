@@ -17,6 +17,7 @@ jobs:
         run: |
           .venv/bin/python tools/export_native_examples.py --check
           .venv/bin/python -m unittest discover -s tests -p 'test_*.py' -v
+          .venv/bin/python -m unittest discover -s skills/testing-workflow/examples -p 'test_tags.py' -v
           .venv/bin/python tools/check_package.py
           .venv/bin/python tools/collect_example_outputs.py --check --output .
   render:
@@ -27,11 +28,13 @@ jobs:
       - name: Install public rendering dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends python3-venv latexmk texlive-xetex texlive-latex-extra texlive-science texlive-lang-arabic texlive-lang-french fonts-lmodern fonts-noto-core fonts-noto-cjk
+          sudo apt-get install -y --no-install-recommends python3-venv latexmk texlive-xetex texlive-latex-extra texlive-science texlive-lang-arabic texlive-lang-french fonts-lmodern fonts-noto-core fonts-noto-cjk fonts-dejavu-core
           python3 -m venv .venv
           .venv/bin/pip install -r requirements.txt
-      - name: Render isolated multilingual and course fixtures
+      - name: Render isolated multilingual and native study fixtures
         run: |
           .venv/bin/python tests/render_matrix.py --output .local/ci-matrix
           .venv/bin/python tests/native_matrix.py --output .local/ci-native --structured-matrix .local/ci-matrix
           .venv/bin/python tests/configuration_matrix.py --output .local/ci-configuration
+          .venv/bin/python tests/study_matrix.py --output .local/ci-study
+          .venv/bin/python tests/native_regressions.py --output .local/ci-regressions

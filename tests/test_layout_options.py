@@ -9,10 +9,10 @@ class LayoutOptionTests(unittest.TestCase):
   self.doc={'languages':['en','fr'],'title':['Example','Exemple'],'blocks':[{'id':'paragraph','kind':'paragraph','text':['Text.','Texte.']}]}
  def test_breakable_uses_canonical_flow(self):
   self.doc['blocks'][0]['flow']='breakable'
-  self.assertIn(r'\ParallelProse{paragraph}',tex_parts(validate(self.doc),'bilingual')[2])
+  self.assertIn(r'\ParallelParagraph[flow=breakable]{paragraph}',tex_parts(validate(self.doc),'bilingual')[2])
  def test_atomic_remains_bounded(self):
   self.doc['blocks'][0]['flow']='atomic'
-  self.assertIn(r'\ParallelText{paragraph}',tex_parts(validate(self.doc),'bilingual')[2])
+  self.assertIn(r'\ParallelParagraph[flow=keep]{paragraph}',tex_parts(validate(self.doc),'bilingual')[2])
  def test_bad_flow_is_rejected(self):
   for value in ['auto',True,{},None]:
    self.doc['blocks'][0]['flow']=value

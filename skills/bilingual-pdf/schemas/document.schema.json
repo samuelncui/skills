@@ -1,0 +1,1126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/samuelncui/skills/main/skills/bilingual-pdf/schemas/document.schema.json",
+  "title": "Bilingual PDF structured document",
+  "description": "Topic-neutral paired-content input for scripts/bilingual_pdf.py. The calling agent supplies ordered texts and structure; this schema describes layout data, not translation or editorial requirements. Validate this schema plus the renderer's semantic, asset, font, compilation and layout checks. Defaults are annotations, not automatic insertion. Root/block extension fields remain permitted because the runtime ignores them.",
+  "type": "object",
+  "required": [
+    "languages",
+    "title",
+    "blocks"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": {
+      "description": "Optional editor schema association. The renderer ignores this extension field; its type is intentionally not constrained here.",
+      "examples": [
+        "../../schemas/document.schema.json"
+      ]
+    },
+    "languages": {
+      "type": "array",
+      "description": "Two supported profile IDs in physical left/right order. The same ID may be used twice. The zh-Hans/zh-Hant mixed pair is rejected because both map to one native language.",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "$ref": "#/$defs/language"
+      }
+    },
+    "title": {
+      "type": "array",
+      "description": "Two nonempty plain-text document titles in side order. No rich runs. The left title is the PDF title in bilingual/left mode, and the right title in right mode.",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "$ref": "#/$defs/plainText"
+      }
+    },
+    "layout": {
+      "$ref": "#/$defs/layout"
+    },
+    "blocks": {
+      "type": "array",
+      "description": "Nonempty ordered sequence of paired units. Order is preserved. No default.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/block"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "not": {
+        "properties": {
+          "languages": {
+            "items": {
+              "enum": [
+                "zh-Hans",
+                "zh-Hant"
+              ]
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "languages": {
+            "prefixItems": [
+              {
+                "not": {
+                  "enum": [
+                    "ar",
+                    "he"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "blocks": {
+            "items": {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "list"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "text": {
+                    "prefixItems": [
+                      {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/$defs/plainText"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "text": {
+                    "prefixItems": [
+                      {
+                        "$ref": "#/$defs/plainText"
+                      }
+                    ]
+                  }
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "kind": {
+                        "const": "table"
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "headers": {
+                        "prefixItems": [
+                          {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/plainText"
+                            }
+                          }
+                        ]
+                      },
+                      "rows": {
+                        "prefixItems": [
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/$defs/plainText"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "languages": {
+            "prefixItems": [
+              {},
+              {
+                "not": {
+                  "enum": [
+                    "ar",
+                    "he"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "blocks": {
+            "items": {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "list"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "text": {
+                    "prefixItems": [
+                      {},
+                      {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/$defs/plainText"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "text": {
+                    "prefixItems": [
+                      {},
+                      {
+                        "$ref": "#/$defs/plainText"
+                      }
+                    ]
+                  }
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "kind": {
+                        "const": "table"
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "headers": {
+                        "prefixItems": [
+                          {},
+                          {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/plainText"
+                            }
+                          }
+                        ]
+                      },
+                      "rows": {
+                        "prefixItems": [
+                          {},
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/$defs/plainText"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "language": {
+      "type": "string",
+      "description": "Built-in language/font profile ID. The ordered pair defines physical left and right sides, independent of writing direction. he selects Hebrew; see references/languages.md. No default.",
+      "enum": [
+        "en",
+        "fr",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ar",
+        "he"
+      ],
+      "examples": [
+        "en",
+        "he"
+      ]
+    },
+    "identifier": {
+      "type": "string",
+      "description": "Stable block/link identifier; 1–80 characters, ASCII lowercase initial letter followed by lowercase letters, digits, dots or hyphens. No default.",
+      "pattern": "^[a-z][a-z0-9.-]{0,79}(?![\\s\\S])",
+      "examples": [
+        "opening",
+        "route-1"
+      ]
+    },
+    "plainText": {
+      "type": "string",
+      "description": "Logical Unicode text containing at least one non-whitespace character. No default. Ordinary TeX metacharacters are escaped; newline and tab are permitted, but other C0 controls and U+202A–U+202E/U+2066–U+2069 bidi controls are forbidden. Supply separate blocks when starts must align independently.",
+      "pattern": "[^\\u0009-\\u000D\\u001C-\\u0020\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]",
+      "not": {
+        "pattern": "[\\u0000-\\u0008\\u000B-\\u001F\\u202A-\\u202E\\u2066-\\u2069]"
+      },
+      "examples": [
+        "Observe the path.",
+        "שימו לב לשביל."
+      ]
+    },
+    "directionalRun": {
+      "type": "object",
+      "description": "One explicit direction run inside an RTL side. ltr is wrapped in native textenglish; rtl remains in the enclosing RTL language. Both fields are required and neither has a default.",
+      "required": [
+        "text",
+        "direction"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "$ref": "#/$defs/plainText",
+          "description": "Nonempty literal text for this run; no raw TeX and no embedded bidi controls.",
+          "examples": [
+            "09:30"
+          ]
+        },
+        "direction": {
+          "type": "string",
+          "description": "Direction boundary for this run. ltr isolates Latin letters, dates and numbers; rtl uses the enclosing side's RTL context.",
+          "enum": [
+            "ltr",
+            "rtl"
+          ],
+          "examples": [
+            "ltr"
+          ]
+        }
+      }
+    },
+    "richText": {
+      "type": "object",
+      "description": "Explicit mixed-direction text for a side whose language profile is RTL (ar or he). Valid in a block caption, heading, paragraph, quote, reference, equation explanation, list item, or table header/body cell. Not valid in document titles. This object has no default.",
+      "required": [
+        "runs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "runs": {
+          "type": "array",
+          "description": "Nonempty ordered run sequence; concatenated without invented spacing, so include spaces in run text where needed.",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/directionalRun"
+          },
+          "examples": [
+            [
+              {
+                "text": "בשעה: ",
+                "direction": "rtl"
+              },
+              {
+                "text": "09:30",
+                "direction": "ltr"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "textValue": {
+      "description": "One side's literal content. A string is always allowed; explicit directional runs are allowed only when this side uses an RTL profile.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/plainText"
+        },
+        {
+          "$ref": "#/$defs/richText"
+        }
+      ]
+    },
+    "imagePath": {
+      "type": "string",
+      "description": "Case-sensitive relative local PNG/JPEG path under --asset-root, or the input file's parent when that option is absent. Starts with an ASCII letter/digit; extension is lowercase png/jpg/jpeg. No '..' path component, absolute path, URL, space or backslash. Existence, decoding and symlink containment are checked at export. No default.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_./-]*\\.(?:png|jpg|jpeg)(?![\\s\\S])",
+      "not": {
+        "pattern": "(?:^|/)\\.\\.(?:/|$)"
+      },
+      "examples": [
+        "layout-anatomy.png",
+        "diagrams/pipeline-en.png"
+      ]
+    },
+    "image": {
+      "description": "One image path reused on both paired sides, or exactly two paths [left,right] for localized images. placement=shared requires a scalar. No default.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/imagePath"
+        },
+        {
+          "type": "array",
+          "description": "Localized image paths in physical left/right order.",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/imagePath"
+          }
+        }
+      ]
+    },
+    "math": {
+      "$ref": "#/$defs/plainText",
+      "description": "Shared, unnumbered LaTeX math expression, maximum 1,000 characters. Allowed commands: frac, sqrt, sum, prod, int, infty, alpha, beta, gamma, theta, sigma, mu, pi, Delta, times, cdot, pm, leq, geq, neq, approx, log, ln, exp, sin, cos, left, right, mathrm, mathbf, text, quad, qquad, overline, hat, bar. Only the documented ASCII math alphabet is accepted; no ^^ character-code escapes or backslash control symbols. No default. The validator is an allowlist, not a TeX syntax parser; compilation still checks syntax.",
+      "maxLength": 1000,
+      "allOf": [
+        {
+          "pattern": "^[A-Za-z0-9\\\\{}^_+*/=()., :<>|!\\[\\]-]*(?![\\s\\S])"
+        },
+        {
+          "not": {
+            "pattern": "\\^\\^"
+          }
+        },
+        {
+          "not": {
+            "pattern": "\\\\[^A-Za-z]"
+          }
+        },
+        {
+          "not": {
+            "pattern": "\\\\(?!(?:frac|sqrt|sum|prod|int|infty|alpha|beta|gamma|theta|sigma|mu|pi|Delta|times|cdot|pm|leq|geq|neq|approx|log|ln|exp|sin|cos|left|right|mathrm|mathbf|text|quad|qquad|overline|hat|bar)(?![A-Za-z]))[A-Za-z]"
+          }
+        }
+      ],
+      "examples": [
+        "\\frac{a+b}{2}",
+        "x^2 + y^2 = z^2"
+      ]
+    },
+    "tableHeader": {
+      "type": "array",
+      "description": "One side's nonempty header row, with 1–5 plain or explicitly directional cells. Rich directional cells require an RTL side. Its width must equal the other header and every body row.",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "$ref": "#/$defs/textValue"
+      }
+    },
+    "tableRows": {
+      "type": "array",
+      "description": "One side's nonempty body rows. Cells may use explicit directional runs on an RTL side. Both sides need equal row counts and each row must match the header width.",
+      "minItems": 1,
+      "items": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 5,
+        "items": {
+          "$ref": "#/$defs/textValue"
+        }
+      }
+    },
+    "divider": {
+      "type": "object",
+      "description": "Sparse central-rule overrides. Omitted members keep profile/package settings. Unknown keys are rejected.",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Show the divider on paired body pages. Package default true; reading profile sets false. It is absent in selected-language output.",
+          "examples": [
+            false
+          ]
+        },
+        "color": {
+          "type": "string",
+          "description": "Six HTML hexadecimal digits, without #, used to define the native divider color. Omitted value remains native black!35; not an equivalent fixed RGB default.",
+          "pattern": "^[0-9A-Fa-f]{6}(?![\\s\\S])",
+          "examples": [
+            "708090"
+          ]
+        },
+        "width_pt": {
+          "type": "number",
+          "description": "Positive rule thickness in points, at most 3. Package default 0.3 pt; ignored visually when divider is disabled.",
+          "exclusiveMinimum": 0,
+          "maximum": 3,
+          "default": 0.3,
+          "examples": [
+            0.4
+          ]
+        },
+        "style": {
+          "type": "string",
+          "description": "One safe TikZ line-style name. Native TeX allows wider trusted styling, but JSON does not.",
+          "enum": [
+            "solid",
+            "dashed",
+            "dotted",
+            "densely dashed",
+            "densely dotted"
+          ],
+          "default": "solid",
+          "examples": [
+            "dotted"
+          ]
+        }
+      }
+    },
+    "pageNumbers": {
+      "type": "object",
+      "description": "Sparse folio overrides. A missing object preserves package/profile settings. Prefix and suffix are literal text, not TeX.",
+      "additionalProperties": false,
+      "properties": {
+        "position": {
+          "type": "string",
+          "description": "Named header/footer position or none. Outer/inner follow logical page parity in twoside layout. Package default footer-outer; reading profile footer-center.",
+          "enum": [
+            "none",
+            "header-outer",
+            "header-inner",
+            "header-left",
+            "header-center",
+            "header-right",
+            "footer-outer",
+            "footer-inner",
+            "footer-left",
+            "footer-center",
+            "footer-right"
+          ],
+          "examples": [
+            "footer-center"
+          ]
+        },
+        "numbering": {
+          "type": "string",
+          "description": "Native page counter format; changing it uses pagenumbering and resets the logical page counter. gobble makes the printed number empty.",
+          "enum": [
+            "arabic",
+            "roman",
+            "Roman",
+            "alph",
+            "Alph",
+            "gobble"
+          ],
+          "default": "arabic",
+          "examples": [
+            "roman"
+          ]
+        },
+        "prefix": {
+          "type": "string",
+          "description": "Literal text before the live page number. Empty by default; at most 80 Unicode characters and no C0 controls. Unlike content text, it may be blank and currently does not reject bidi-control characters.",
+          "maxLength": 80,
+          "not": {
+            "pattern": "[\\u0000-\\u001F]"
+          },
+          "default": "",
+          "examples": [
+            "Page "
+          ]
+        },
+        "suffix": {
+          "type": "string",
+          "description": "Literal text after the live page number. Empty by default; at most 80 Unicode characters and no C0 controls. It may be blank.",
+          "maxLength": 80,
+          "not": {
+            "pattern": "[\\u0000-\\u001F]"
+          },
+          "default": "",
+          "examples": [
+            " ·"
+          ]
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "description": "Optional data-only presentation overrides, applied after the selected profile. Omitted members retain package/profile values; schema default annotations do not insert values. Unknown keys are rejected.",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "type": "string",
+          "description": "Initial presentation preset. article means no preset, not a native profile named article. bound changes only mirrored inner/outer/binding geometry; reading changes spacing, rule and folio. Explicit fields then override it.",
+          "enum": [
+            "article",
+            "bound",
+            "reading"
+          ],
+          "default": "article",
+          "examples": [
+            "bound"
+          ]
+        },
+        "paper": {
+          "type": "string",
+          "description": "Paper size passed to geometry. Native TeX can additionally use custom dimensions.",
+          "enum": [
+            "a4",
+            "letter",
+            "a5",
+            "legal"
+          ],
+          "default": "a4",
+          "examples": [
+            "letter"
+          ]
+        },
+        "twoside": {
+          "type": "boolean",
+          "description": "Mirror inner/outer geometry and outer/inner furniture on alternating logical page numbers. Generated document defaults to twoside=true; this does not select languages or writing direction.",
+          "default": true,
+          "examples": [
+            false
+          ]
+        },
+        "font_size": {
+          "type": "number",
+          "description": "Body font size in points. Package default 9; reading profile default 11. When explicitly set without leading, export also sets leading to round(font_size × 1.2, 2).",
+          "minimum": 9,
+          "maximum": 14,
+          "examples": [
+            10
+          ]
+        },
+        "leading": {
+          "type": "number",
+          "description": "Body baseline spacing in points. Must be at least effective font_size. Package default 10.8, reading profile 14; explicit font_size without leading instead supplies 1.2 × that size. The schema cannot compare these values.",
+          "minimum": 9,
+          "maximum": 24,
+          "examples": [
+            12
+          ]
+        },
+        "margin_mm": {
+          "type": "number",
+          "description": "Set both inner and outer margins in mm; explicit inner_mm/outer_mm subsequently override the corresponding side. Omitted package default is 18 each; bound uses 24 inner/16 outer.",
+          "minimum": 8,
+          "maximum": 45,
+          "examples": [
+            20
+          ]
+        },
+        "inner_mm": {
+          "type": "number",
+          "description": "Inside text margin in mm before the additional binding offset. Overrides margin_mm on the inner side. Defaults: article/reading 18, bound 24.",
+          "minimum": 8,
+          "maximum": 45,
+          "examples": [
+            24
+          ]
+        },
+        "outer_mm": {
+          "type": "number",
+          "description": "Outside text margin in mm. Overrides margin_mm on the outer side. Defaults: article/reading 18, bound 16.",
+          "minimum": 8,
+          "maximum": 45,
+          "examples": [
+            16
+          ]
+        },
+        "binding_mm": {
+          "type": "number",
+          "description": "Additional binding allowance in mm passed as geometry bindingoffset. Defaults: article/reading 0, bound 3.",
+          "minimum": 0,
+          "maximum": 20,
+          "examples": [
+            3
+          ]
+        },
+        "top_mm": {
+          "type": "number",
+          "description": "Top text margin in mm, passed to geometry. Header placement also follows native head dimensions.",
+          "minimum": 10,
+          "maximum": 40,
+          "default": 17,
+          "examples": [
+            20
+          ]
+        },
+        "bottom_mm": {
+          "type": "number",
+          "description": "Bottom text margin in mm, passed to geometry. Footer clearance also depends on native footskip.",
+          "minimum": 10,
+          "maximum": 40,
+          "default": 14,
+          "examples": [
+            18
+          ]
+        },
+        "gap_mm": {
+          "type": "number",
+          "description": "Physical gap between equal paired columns in mm. Also configures selected-language standard column separation where applicable.",
+          "minimum": 4,
+          "maximum": 16,
+          "default": 6,
+          "examples": [
+            7
+          ]
+        },
+        "covers": {
+          "type": "boolean",
+          "description": "Emit front and back cover helpers around the body. Defaults false. With native defaults they include a blank front verso and inside-back face and end on an even physical page.",
+          "default": false,
+          "examples": [
+            true
+          ]
+        },
+        "divider": {
+          "$ref": "#/$defs/divider"
+        },
+        "page_numbers": {
+          "$ref": "#/$defs/pageNumbers"
+        },
+        "paragraph_flow": {
+          "type": "string",
+          "enum": [
+            "keep",
+            "breakable"
+          ],
+          "default": "keep",
+          "description": "Global paragraph pagination policy. keep uses bounded paired paragraphs; breakable uses flowing paragraphs that may cross pages. A paragraph block's flow overrides this. Lists/tables/figures remain governed by their own bounded-unit behavior.",
+          "examples": [
+            "breakable"
+          ]
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "description": "One caller-supplied layout unit. id and text are required; omitted kind means paragraph. The runtime accepts and ignores unrecognized block fields, and kind-specific fields outside their kind; this schema intentionally preserves that compatibility. Prefer documented fields only. Cross-block ID/reference checks remain runtime checks.",
+      "required": [
+        "id",
+        "text"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier",
+          "description": "Unique stable ID for this block and its anchor. pt-title is reserved; generated child IDs must not collide with any explicit ID.",
+          "not": {
+            "const": "pt-title"
+          }
+        },
+        "kind": {
+          "type": "string",
+          "description": "Layout operation for the unit. No content is generated or translated by selecting a kind.",
+          "enum": [
+            "paragraph",
+            "heading",
+            "list",
+            "equation",
+            "reference",
+            "figure",
+            "quote",
+            "table"
+          ],
+          "default": "paragraph",
+          "examples": [
+            "figure"
+          ]
+        },
+        "text": {
+          "description": "Exactly two ordered sides. Non-list kinds use text values; list uses two nonempty item arrays of equal length. For tables/figures this is the caption; for equation it is the explanation; for reference it is link wording.",
+          "examples": [
+            [
+              "A short observation.",
+              "תצפית קצרה."
+            ]
+          ]
+        },
+        "break_before": {
+          "type": "boolean",
+          "description": "Emit clearpage before this unit. Omitted false. Applies to every kind; it is an explicit pagination request.",
+          "default": false,
+          "examples": [
+            true
+          ]
+        },
+        "flow": {
+          "type": "string",
+          "enum": [
+            "atomic",
+            "keep",
+            "breakable"
+          ],
+          "description": "Paragraph-only pagination override. keep is bounded; breakable flows across pages; atomic is a compatibility alias for keep. Omitted inherits layout.paragraph_flow (default keep), so no unconditional field default is inserted. Presence on non-paragraph kinds is rejected.",
+          "examples": [
+            "keep",
+            "breakable"
+          ]
+        },
+        "placement": {
+          "type": "string",
+          "description": "Figure-only placement. paired places one image per column; shared prints a scalar image once across the text area with paired captions. Presence on any non-figure kind is rejected.",
+          "enum": [
+            "paired",
+            "shared"
+          ],
+          "default": "paired",
+          "examples": [
+            "shared"
+          ]
+        },
+        "image": {
+          "description": "Required for figure; see image definition. Ignored on other kinds. No default."
+        },
+        "headers": {
+          "description": "Required for table; two matching 1–5-cell plain-text header arrays. Ignored on other kinds. No default.",
+          "examples": [
+            [
+              [
+                "Place",
+                "Detail"
+              ],
+              [
+                "מקום",
+                "פרט"
+              ]
+            ]
+          ]
+        },
+        "rows": {
+          "description": "Required for table; two nonempty row arrays with equal counts and matching header widths. Ignored on other kinds. No default.",
+          "examples": [
+            [
+              [
+                [
+                  "Path",
+                  "Bench"
+                ]
+              ],
+              [
+                [
+                  "שביל",
+                  "ספסל"
+                ]
+              ]
+            ]
+          ]
+        },
+        "math": {
+          "description": "Required for equation; a limited shared math expression. Ignored on other kinds. No default."
+        },
+        "target": {
+          "description": "Required for reference; a stable identifier. Local references must name an explicit block ID. A reference with file retains a syntactically valid target but links using page. Ignored on other kinds."
+        },
+        "file": {
+          "description": "Optional for reference: relative PDF path selecting a companion document. Allowed grammar permits at most one leading ../, then lowercase initial letter and lowercase letters/digits/slashes/underscores/hyphens, ending .pdf. No default; absent means local reference. Ignored on other kinds."
+        },
+        "page": {
+          "description": "Required positive physical PDF page number when a reference includes file (1-based). The renderer uses it for the external link. Ignored without reference.file. Python additionally requires an actual int, not bool or float."
+        },
+        "page_label": {
+          "description": "Optional nonempty plain printed folio for an external reference, e.g. iii. Defaults to the decimal page number for display; ignored without reference.file. Does not change the link destination."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "list"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "text": {
+                "type": "array",
+                "description": "Exactly two nonempty item arrays; lengths must match (runtime semantic check).",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/textValue"
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "text": {
+                "type": "array",
+                "description": "Exactly two content values in left/right order.",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "$ref": "#/$defs/textValue"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "flow"
+            ]
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "paragraph"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "placement"
+            ]
+          },
+          "then": {
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "const": "figure"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "figure"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "image"
+            ],
+            "properties": {
+              "image": {
+                "$ref": "#/$defs/image"
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "placement": {
+                      "const": "shared"
+                    }
+                  },
+                  "required": [
+                    "placement"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "image": {
+                      "$ref": "#/$defs/imagePath"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "equation"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "math"
+            ],
+            "properties": {
+              "math": {
+                "$ref": "#/$defs/math"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "table"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "headers",
+              "rows"
+            ],
+            "properties": {
+              "headers": {
+                "type": "array",
+                "description": "Two plain-text header arrays in side order.",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "$ref": "#/$defs/tableHeader"
+                }
+              },
+              "rows": {
+                "type": "array",
+                "description": "Two nonempty row collections in side order.",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "$ref": "#/$defs/tableRows"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "reference"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "target"
+            ],
+            "properties": {
+              "target": {
+                "$ref": "#/$defs/identifier"
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "required": [
+                    "file"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "page"
+                  ],
+                  "properties": {
+                    "file": {
+                      "type": "string",
+                      "description": "Relative companion-PDF path; a syntactic path restriction, not proof that the companion exists or is authorized.",
+                      "pattern": "^(?:\\.\\./)?[a-z][a-z0-9/_-]*\\.pdf(?![\\s\\S])",
+                      "examples": [
+                        "notes.pdf",
+                        "../notes/notes.pdf"
+                      ]
+                    },
+                    "page": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "1-based physical PDF destination, not a printed folio.",
+                      "examples": [
+                        7
+                      ]
+                    },
+                    "page_label": {
+                      "$ref": "#/$defs/plainText",
+                      "examples": [
+                        "iii",
+                        "12"
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "examples": [
+    {
+      "languages": [
+        "en",
+        "he"
+      ],
+      "title": [
+        "A familiar street",
+        "רחוב מוכר"
+      ],
+      "blocks": [
+        {
+          "id": "opening",
+          "text": [
+            "Observe the path.",
+            "שימו לב לשביל."
+          ]
+        }
+      ],
+      "layout": {
+        "paragraph_flow": "breakable"
+      }
+    }
+  ]
+}

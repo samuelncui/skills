@@ -1,0 +1,14 @@
+\documentclass[10pt,twoside]{article}
+\input{common.tex}
+\ParallelSetup{header-left=\ParallelFirstEntry,header-right=\ParallelLastEntry}
+\ifStudyBuildNotes\StudyNotesSource{notes}{notes.pdf}\fi
+\input{entries.tex}
+\input{decisions.tex}
+\hypersetup{pdftitle={Study forms: question to method},pdfauthor={}}
+\begin{document}
+\ParallelTitle{Which study form should I build?}{应当制作哪种学习资料？}
+\ParallelParagraph[flow=keep]{tree-intro}
+ {Start with the reader's task. Follow a choice by its ID and generated page. Unknown routes ask for missing information before a conditional return; method leaves can require a shared review step.}
+ {从读者的任务出发，按选项中的编号与自动页码继续。未知路径先询问缺失信息，再有条件地返回；方法叶节点可以要求继续执行共同的复核步骤。}
+\StudyPrintDecisionTree{choose-goal}
+\end{document}
