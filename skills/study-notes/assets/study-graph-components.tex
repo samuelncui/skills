@@ -1,0 +1,210 @@
+% Generic native decision-graph components. Graph semantics stay in the source validator.
+% Typography, color implementation and page layout belong to paralleltext.
+\ExplSyntaxOn
+\prop_new:N \g__study_graph_number_prop
+\prop_new:N \g__study_graph_kind_prop
+\prop_new:N \g__study_graph_function_prop
+\prop_new:N \g__study_graph_left_prop
+\prop_new:N \g__study_graph_right_prop
+\prop_new:N \g__study_graph_number_owner_prop
+\prop_new:N \g__study_graph_label_left_prop
+\prop_new:N \g__study_graph_label_right_prop
+\bool_new:N \g__study_graph_reader_bool
+\tl_new:N \g__study_graph_current_tl
+\cs_new_protected:Npn \__study_graph_label:nn #1#2 {
+ \prop_gput:Nnn \g__study_graph_label_left_prop {#1}{#2}
+ \prop_gput:Nnn \g__study_graph_label_right_prop {#1}{#2}}
+\__study_graph_label:nn {question}{Question}
+\__study_graph_label:nn {action}{Action}
+\__study_graph_label:nn {check}{Check}
+\__study_graph_label:nn {warning}{Warning}
+\__study_graph_label:nn {result}{Result}
+\__study_graph_label:nn {input}{Inputs}
+\__study_graph_label:nn {operation}{Use}
+\__study_graph_label:nn {limits}{Limits}
+\__study_graph_label:nn {context}{Context}
+\__study_graph_label:nn {related}{Related}
+\__study_graph_label:nn {explanation}{Explanation}
+\__study_graph_label:nn {support}{Supporting~explanation}
+\__study_graph_label:nn {output}{Outputs}
+\__study_graph_label:nn {step}{Action}
+\__study_graph_label:nn {fallback}{Fallback}
+\__study_graph_label:nn {combined-fallback}{Unclear~or~otherwise}
+\__study_graph_label:nn {if-unsure}{If~unsure}
+\__study_graph_label:nn {uncertainty}{Before~the~choices}
+\__study_graph_label:nn {needed-facts}{Facts~to~clarify}
+\__study_graph_label:nn {invariant}{Invariant~result~rule}
+\__study_graph_label:nn {call}{Call}
+\__study_graph_label:nn {when}{When}
+\__study_graph_label:nn {returned-outputs}{Return~these~outputs}
+\__study_graph_label:nn {resume}{Then~resume}
+\__study_graph_label:nn {completion-check}{Completion~check}
+\__study_graph_label:nn {next}{Next}
+\__study_graph_label:nn {carried-results}{Carry~back}
+\__study_graph_label:nn {progress}{Changed~facts~or~progress}
+\__study_graph_label:nn {continue-when}{Continue~when}
+\__study_graph_label:nn {exit-when}{Exit~when}
+\__study_graph_label:nn {first-match}{Apply~the~stated~uncertainty~rule~first.~Then~test~A,~B,~C~in~order:~follow~the~first~true~condition~and~stop.~Use~the~last~fallback~only~when~no~earlier~condition~applies.}
+\NewDocumentCommand \StudyGraphLabels {m +m +m}{
+ \prop_if_in:NnF \g__study_graph_label_left_prop {#1}
+  {\__study_error:nn{Unknown~graph~label~#1}{Use~a~documented~semantic~label~key.}}
+ \prop_gput:Nnn \g__study_graph_label_left_prop {#1}{#2}
+ \prop_gput:Nnn \g__study_graph_label_right_prop {#1}{#3}}
+\cs_new:Npn \__study_graph_label:n #1
+ {\ParallelLocalize{\prop_item:Nn\g__study_graph_label_left_prop{#1}}{\prop_item:Nn\g__study_graph_label_right_prop{#1}}}
+\cs_new:Npn \__study_graph_role:n #1 {
+ \exp_args:Ne\str_case:nnF{#1}{
+ {question}{concept}{action}{example}{check}{concept}{warning}{caution}
+ {result}{example}{input}{concept}{output}{example}
+ {operation}{example}{limits}{caution}{context}{concept}{related}{concept}{explanation}{body}{support}{concept}}
+ {body}}
+\cs_new_protected:Npn \__study_graph_positive:n #1 {
+ \regex_match:nnF{\A[1-9][0-9]*\Z}{#1}
+ {\__study_error:nn{Graph~ordinal~must~be~a~positive~integer:~#1}{Supply~an~unformatted~one-based~position.}}}
+\cs_new_protected:Npn \__study_graph_exists:n #1 {
+ \prop_if_in:NnF\g__study_graph_kind_prop{#1}
+ {\__study_error:nn{Unknown~graph~key~#1}{Declare~every~graph~node~or~terminal~before~the~document.}}}
+\cs_new_protected:Npn \__study_graph_register:nnnnnn #1#2#3#4#5#6 {
+ \regex_match:nnF{\A[a-z][a-z0-9-]*\Z}{#1}
+ {\__study_error:nn{Invalid~graph~key~#1}{Use~a~stable~lowercase~ASCII~semantic~key.}}
+ \prop_if_in:NnT\g__study_graph_kind_prop{#1}
+ {\__study_error:nn{Duplicate~graph~key~#1}{A~semantic~node~has~one~identity.}}
+ \tl_if_blank:nF{#2}{
+  \__study_graph_positive:n{#2}
+  \prop_if_in:NnT\g__study_graph_number_owner_prop{#2}
+   {\__study_error:nn{Duplicate~graph~display~number~#2}{Generate~numbers~from~one~explicit~display~order.}}
+  \prop_gput:Nnn\g__study_graph_number_owner_prop{#2}{#1}}
+ \prop_gput:Nnn\g__study_graph_number_prop{#1}{#2}
+ \prop_gput:Nnn\g__study_graph_kind_prop{#1}{#3}
+ \prop_gput:Nnn\g__study_graph_function_prop{#1}{#4}
+ \prop_gput:Nnn\g__study_graph_left_prop{#1}{#5}
+ \prop_gput:Nnn\g__study_graph_right_prop{#1}{#6}}
+\NewDocumentCommand \StudyDeclareGraphNode {m m m m m m}{
+ \str_case:nnF{#3}{{decision}{}{procedure}{}}
+ {\__study_error:nn{Unknown~graph~node~kind~#3}{Use~decision~or~procedure.}}
+ \str_case:nnF{#4}{{question}{}{action}{}{check}{}{warning}{}{result}{}}
+ {\__study_error:nn{Unknown~graph~function~#4}{Use~question,~action,~check,~warning~or~result.}}
+ \__study_graph_register:nnnnnn{#1}{#2}{#3}{#4}{#5}{#6}}
+\NewDocumentCommand \StudyDeclareGraphTerminal {m m m}
+ {\__study_graph_register:nnnnnn{#1}{}{terminal}{result}{#2}{#3}}
+\cs_new:Npn \__study_graph_title:nn #1#2
+ {\str_if_eq:nnTF{#2}{left}{\prop_item:Nn\g__study_graph_left_prop{#1}}{\prop_item:Nn\g__study_graph_right_prop{#1}}}
+\cs_new:Npn \__study_graph_caption:n #1 {
+ \tl_if_blank:eF{\prop_item:Nn\g__study_graph_number_prop{#1}}
+ {\prop_item:Nn\g__study_graph_number_prop{#1}\space·\space}
+ \exp_args:Ne\__study_graph_label:n{\prop_item:Nn\g__study_graph_function_prop{#1}}}
+\cs_new_protected:Npn \__study_graph_heading:nn #1#2 {
+ \bool_if:NTF \g__study_graph_reader_bool
+ {\exp_args:Ne\ParallelSemanticLabel
+  {\__study_graph_role:n{\prop_item:Nn\g__study_graph_function_prop{#1}}}
+  {\tl_if_blank:eF{\prop_item:Nn\g__study_graph_number_prop{#1}}
+   {\prop_item:Nn\g__study_graph_number_prop{#1}\space·\space}
+   \__study_graph_title:nn{#1}{#2}}}
+ {\exp_args:Ne\ParallelSemanticHeading
+  {\__study_graph_role:n{\prop_item:Nn\g__study_graph_function_prop{#1}}}
+  {\__study_graph_caption:n{#1}}{\__study_graph_title:nn{#1}{#2}}}}
+\NewDocumentCommand \StudyGraphNode {m}{
+ \__study_graph_exists:n{#1}\tl_gset:Nn\g__study_graph_current_tl{#1}
+ \ParallelEntry{graph:#1}{\__study_graph_heading:nn{#1}{left}}{\__study_graph_heading:nn{#1}{right}}
+ \str_if_eq:eeT{\prop_item:Nn\g__study_graph_kind_prop{#1}}{decision}
+ {\ParallelParagraph[flow=keep]{graph:#1:first-match}{\StudyGraphFirstMatch}{\StudyGraphFirstMatch}}}
+\cs_new_protected:Npn \__study_graph_reference:n #1 {
+ \__study_graph_exists:n{#1}
+ \ParallelReference{graph:#1}{
+  \exp_args:Ne\ParallelRoleText{\__study_graph_role:n{\prop_item:Nn\g__study_graph_function_prop{#1}}}{
+   \tl_if_blank:eF{\prop_item:Nn\g__study_graph_number_prop{#1}}
+    {\prop_item:Nn\g__study_graph_number_prop{#1}:\space}
+   \ParallelLocalize{\__study_graph_title:nn{#1}{left}}{\__study_graph_title:nn{#1}{right}}}}}
+\NewDocumentCommand \StudyGraphReference {m}{\__study_graph_reference:n{#1}}
+\NewDocumentCommand \StudyGraphInstruction {+m}{#1\par}
+\NewDocumentCommand \StudyGraphReaderProfile {}{
+ \bool_gset_true:N \g__study_graph_reader_bool
+ \StudyGraphLabels{action}{Solution}{Solution}
+ \StudyGraphLabels{step}{Step}{Step}
+ \StudyGraphLabels{output}{Answer}{Answer}
+ \StudyGraphLabels{completion-check}{Remember}{Remember}
+ \StudyGraphLabels{fallback}{Otherwise}{Otherwise}
+ \StudyGraphLabels{first-match}{Read~A,~B,~C~in~order.~Take~the~first~match.~If~an~earlier~choice~cannot~be~decided,~use~the~unclear/otherwise~route~before~trying~later~choices.}{Read~A,~B,~C~in~order.~Take~the~first~match.~If~an~earlier~choice~cannot~be~decided,~use~the~unclear/otherwise~route~before~trying~later~choices.}
+}
+\NewDocumentCommand \StudyGraphFirstMatch {}
+ {\ParallelSemanticField{concept}{\__study_graph_label:n{check}}{\__study_graph_label:n{first-match}}}
+\NewDocumentCommand \StudyGraphChoice {m +m m}{
+ \__study_graph_positive:n{#1}
+ \ParallelSemanticChoice{concept}{\int_to_Alph:n{#1}}{#2}{\StudyGraphReference{#3}}}
+\NewDocumentCommand \StudyGraphFallback {m +m m}{
+ \__study_graph_positive:n{#1}
+ \ParallelSemanticChoice{caution}{\int_to_Alph:n{#1}}
+ {\ParallelSemanticLabel{caution}{\__study_graph_label:n{fallback}}:\space #2}
+ {\StudyGraphReference{#3}}}
+% The generator may use this only when uncertainty and final fallback share a target.
+\NewDocumentCommand \StudyGraphCombinedFallback {m +m +m +m m +m}{
+ \__study_graph_positive:n{#1}
+ \ParallelSemanticChoice{caution}{\int_to_Alph:n{#1}}
+ {\ParallelSemanticLabel{caution}{\__study_graph_label:n{combined-fallback}}:\space #2\space #3\space #4\space #6}
+ {\StudyGraphReference{#5}}}
+\NewDocumentCommand \StudyGraphLegendItem {m +m}{
+ \str_case:nnF{#1}{{question}{}{action}{}{check}{}{warning}{}{result}{}}
+ {\__study_error:nn{Unknown~graph~legend~function~#1}{Use~a~documented~graph~function.}}
+ \exp_args:Ne\ParallelSemanticField{\__study_graph_role:n{#1}}{\__study_graph_label:n{#1}}{#2}}
+\NewDocumentCommand \StudyGraphField {m +m}{
+ \str_case:nnF{#1}{{input}{}{output}{}{check}{}{warning}{}{result}{}{operation}{}{limits}{}{context}{}{related}{}{explanation}{}{support}{}}
+ {\__study_error:nn{Unknown~graph~field~#1}{Use~a~documented~semantic~field~key.}}
+ \exp_args:Ne\ParallelSemanticField{\__study_graph_role:n{#1}}{\__study_graph_label:n{#1}}{#2}}
+\cs_new_protected:Npn \__study_graph_anchor:n #1 {
+ \tl_if_blank:VT\g__study_graph_current_tl
+ {\__study_error:nn{Graph~step~has~no~current~node}{Render~StudyGraphNode~first.}}
+ \ifdefstring{\ParallelMode}{paired}
+  {\ParallelLocalize{\phantomsection\exp_args:Nx\label{graph:\tl_use:N \g__study_graph_current_tl :#1}}{}}
+  {\phantomsection\exp_args:Nx\label{graph:\tl_use:N \g__study_graph_current_tl :#1}}}
+\NewDocumentCommand \StudyGraphStep {m +m}{
+ \__study_graph_positive:n{#1}\__study_graph_anchor:n{step:#1}
+ \bool_if:NTF \g__study_graph_reader_bool
+ {\ParallelSemanticField{example}{\int_eval:n{#1}}{#2}}
+ {\ParallelSemanticField{example}{\__study_graph_label:n{step}\space\int_eval:n{#1}}{#2}}}
+\NewDocumentCommand \StudyGraphCompletionCheck {+m}{
+ \__study_graph_anchor:n{completion-check}
+ \ParallelSemanticField{concept}{\__study_graph_label:n{completion-check}}{#1}}
+\NewDocumentCommand \StudyGraphUncertainty {+m +m m +m}{
+ \bool_if:NTF \g__study_graph_reader_bool
+ {\ParallelSemanticField{caution}{\__study_graph_label:n{if-unsure}}{#1\space #2\space \StudyGraphReference{#3}.\space #4}}
+ {
+ \ParallelSemanticField{caution}{\__study_graph_label:n{uncertainty}}{#1}\par
+ \ParallelSemanticField{concept}{\__study_graph_label:n{needed-facts}}{#2}\par
+ \StudyGraphReference{#3}\par
+ \ParallelSemanticField{concept}{\__study_graph_label:n{invariant}}{#4}}}
+\NewDocumentCommand \StudyGraphResumeReference {m m}{
+ \__study_graph_exists:n{#1}
+ \str_if_eq:nnTF{#2}{completion_check}
+  {\ParallelReference{graph:#1:completion-check}{\__study_graph_label:n{completion-check}}}
+  {\__study_graph_positive:n{#2}\ParallelReference{graph:#1:step:#2}{\__study_graph_label:n{step}\space #2}}
+ \space(\StudyGraphReference{#1})}
+\NewDocumentCommand \StudyGraphOperationChoice {m +m m m}{
+ \__study_graph_positive:n{#1}
+ \ParallelSemanticChoice{concept}{\int_to_Alph:n{#1}}{#2}{\StudyGraphResumeReference{#3}{#4}}}
+\NewDocumentCommand \StudyGraphCall {m +m +m m m}{
+ \__study_graph_exists:n{#1}
+ \str_if_eq:eeF{\prop_item:Nn\g__study_graph_kind_prop{#1}}{procedure}
+ {\__study_error:nn{Graph~call~target~must~be~a~procedure}{Use~an~ordinary~jump~for~a~decision.}}
+ \ParallelSemanticField{example}{\__study_graph_label:n{call}}{\StudyGraphReference{#1}}\par
+ \ParallelSemanticField{caution}{\__study_graph_label:n{when}}{#2}\par
+ \ParallelSemanticField{example}{\__study_graph_label:n{returned-outputs}}{#3}\par
+ \ParallelSemanticField{concept}{\__study_graph_label:n{resume}}{\StudyGraphResumeReference{#4}{#5}}}
+\__study_graph_label:nn {called-exit}{When~called}
+\__study_graph_label:nn {called-exit-rule}{Supply~the~active~call's~declared~return~outputs,~then~return~to~its~stated~resume~node~and~action~or~completion~check.~Do~not~follow~the~ordinary~next~link~in~call~mode.}
+\__study_graph_label:nn {ordinary-next}{Otherwise,~ordinary~next}
+\NewDocumentCommand \StudyGraphCalleeExit {m}{
+ \ParallelSemanticField{example}{\__study_graph_label:n{called-exit}}{\__study_graph_label:n{called-exit-rule}}
+ \ParallelSemanticField{concept}{\__study_graph_label:n{ordinary-next}}{\StudyGraphReference{#1}}}
+\NewDocumentCommand \StudyGraphJump {m}
+ {\ParallelSemanticField{concept}{\__study_graph_label:n{next}}{\StudyGraphReference{#1}}}
+\NewDocumentCommand \StudyGraphLoop {+m +m +m +m}{
+ \ParallelSemanticField{example}{\__study_graph_label:n{carried-results}}{#1}\par
+ \ParallelSemanticField{concept}{\__study_graph_label:n{progress}}{#2}\par
+ \ParallelSemanticField{concept}{\__study_graph_label:n{continue-when}}{#3}\par
+ \ParallelSemanticField{concept}{\__study_graph_label:n{exit-when}}{#4}}
+\ExplSyntaxOff
+\makeatletter
+\@onlypreamble\StudyDeclareGraphNode
+\@onlypreamble\StudyDeclareGraphTerminal
+\@onlypreamble\StudyGraphLabels
+\makeatother

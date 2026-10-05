@@ -52,6 +52,7 @@ jobs:
           .venv/bin/pip install -r requirements.txt
       - name: Render isolated multilingual and native study fixtures
         run: |
+          .venv/bin/python tests/study_graph_components.py --output .local/ci-graph-components
           .venv/bin/python tests/study_matrix.py --output .local/ci-study
           .venv/bin/python tests/render_matrix.py --output .local/ci-matrix
           .venv/bin/python tests/native_matrix.py --output .local/ci-native --structured-matrix .local/ci-matrix

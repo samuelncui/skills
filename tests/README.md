@@ -37,6 +37,7 @@ export SOURCE_DATE_EPOCH=1767225600 FORCE_SOURCE_DATE=1
 .venv/bin/python tests/native_matrix.py --output .local/native --structured-matrix .local/structured
 .venv/bin/python tests/configuration_matrix.py --output .local/configuration
 .venv/bin/python tests/study_matrix.py --output .local/study
+.venv/bin/python tests/study_graph_components.py --output .local/graph-components
 .venv/bin/python tests/native_regressions.py --output .local/regressions
 ```
 
@@ -44,6 +45,7 @@ export SOURCE_DATE_EPOCH=1767225600 FORCE_SOURCE_DATE=1
 - **Native:** directly authored/installed LaTeX, package and image discovery without source-checkout access, native/structured pixel equivalence for matching normalized raster inputs in the same environment, IDs, counters, formulas, covers and direct flowing-prose helpers. Portable comparison fixtures normalize copied PNG metadata because JSON import deliberately flattens/strips image metadata; raw DPI metadata can otherwise cause subpixel dimension rounding. Installed-native example tests retain the original shared assets and independently check layout/ownership. Following paragraphs use the same keep/breakable policy in both compared fixtures.
 - **Configuration:** defaults and sparse overrides; paper/binding parity, divider geometry, clearance, folios, covers, roles, navigation, heading attachment and continuation furniture; invalid/late configuration errors.
 - **Study:** native-only selected products, clean independent installations, one interleaved lookup registry, direct subentry and companion-document targets, deferred references that survive language/formatting hooks, aliases and multisense groups, typed decision/clarification/continuation edges and actionable invalid-input errors.
+- **Graph components:** neutral English/paired graph rendering, compact reader profile, combined uncertainty/fallback wording, configurable style hooks, stable references and rejected invalid API inputs.
 - **Focused native regressions:** prefix-key ordering; all documented decision-ID punctuation; paragraph/heading lifecycle and starred subentries; short and continued headers; separate version/status values; explicit oversized keep/header failures.
 
 The registry and decision fixtures are original generic examples. Private learning material is not a fixture source. The [self-hosted source review](../skills/study-notes/examples/coverage-review.md) maps selected source sections to the four study forms; automated link checks complement source reading.

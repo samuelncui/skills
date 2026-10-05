@@ -159,3 +159,7 @@ Supply appropriate language/font declarations for a non-English pair. A fresh ex
 The build must fail on structural errors; acceptance also checks actual links, fonts, glyphs, aligned positions, printable insets and intended blank pages. Tabs intentionally occupy part of the body margin: validate their configured minimum physical inset as well as the live body-column geometry, rather than disabling margin checks. The example's tabs are inset 6 mm and its minimum ink check is 5 mm; body columns retain their separately recorded geometry.
 
 Read the [build guide](rendering.md) and [review checklist](review-release.md). Native declarations do not establish source rights, source coverage, semantic equivalence, factual correctness, universal language support or accessibility conformance. Keep these judgments separate from executable package checks.
+
+## Validated decision graphs
+
+For structured decision graphs with convergence, reuse and progress-bearing cycles, use the [native graph component API](graph-components.md). Its compact reader profile keeps semantic identity, first-match choices and references separate from physical presentation. Downstream adapters own source/schema validation; these components do not replace semantic review.

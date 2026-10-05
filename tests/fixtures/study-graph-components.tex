@@ -1,0 +1,41 @@
+\documentclass[10pt,twoside]{article}
+\usepackage{studytools}
+\ifdefined\GraphFixturePaired\ParallelSelect{paired}\else\ParallelSelect{left}\fi
+\ParallelSetup{body-size=9,body-leading=10.8,single-columns=2,geometry={a4paper,inner=18.5mm,outer=12mm,top=17mm,bottom=14mm},column-gap=6mm,paragraph-flow=keep}
+\ifdefined\GraphFixturePaired\ParallelSetup{single-columns=1}\fi
+\newcommand\GraphPair[2]{\ParallelParagraph{#1}{#2}{#2}}
+\StudyDeclareGraphNode{choose-task}{1}{decision}{question}{Choose the task}{Select the task}
+\StudyDeclareGraphNode{get-value}{2}{procedure}{warning}{Obtain the missing value}{Find the absent value}
+\StudyDeclareGraphNode{compute-value}{3}{procedure}{action}{Compute the value}{Calculate the value}
+\StudyDeclareGraphNode{check-value}{4}{decision}{check}{Check the result}{Verify the result}
+\StudyDeclareGraphNode{report-value}{5}{procedure}{result}{Report the result}{State the result}
+\StudyDeclareGraphTerminal{finish}{Finish}{Done}
+\ifdefined\GraphFixtureReader\StudyGraphReaderProfile\fi
+\begin{document}
+\GraphPair{legend}{\StudyGraphLegendItem{question}{Choose from the stated conditions.}\StudyGraphLegendItem{action}{Perform the stated solution steps.}\StudyGraphLegendItem{warning}{Resolve missing information before proceeding.}}
+\StudyGraphNode{choose-task}
+\GraphPair{u}{\StudyGraphUncertainty{A required value is unknown.}{The missing value.}{get-value}{Report a value only if all unresolved cases give the same result.}}
+\GraphPair{a}{\StudyGraphChoice{1}{Both values are given.}{compute-value}}
+\GraphPair{b}{\StudyGraphChoice{2}{A checked total is supplied.}{check-value}}
+\ifdefined\GraphFixtureReader
+\GraphPair{c}{\StudyGraphCombinedFallback{3}{No earlier condition applies.}{An earlier choice is undecidable.}{Obtain the missing value.}{get-value}{Report only an invariant result.}}
+\else
+\GraphPair{c}{\StudyGraphFallback{3}{No earlier condition applies.}{get-value}}
+\fi
+\StudyGraphNode{get-value}
+\GraphPair{g1}{\StudyGraphStep{1}{Obtain just the missing value.}}
+\GraphPair{gc}{\StudyGraphCompletionCheck{The missing value has been supplied.}}
+\GraphPair{gl}{\StudyGraphLoop{The newly obtained value.}{At least one missing fact is now known.}{New facts permit another check.}{Stop if no new fact can be obtained.}\StudyGraphJump{choose-task}}
+\StudyGraphNode{compute-value}
+\GraphPair{s1}{\StudyGraphStep{1}{Record the two values.}}
+\GraphPair{call}{\StudyGraphCall{get-value}{A required value is absent.}{The missing value.}{compute-value}{2}}
+\GraphPair{s2}{\StudyGraphStep{2}{Add the two values.}}
+\GraphPair{cc}{\StudyGraphCompletionCheck{The total uses both values.}\StudyGraphJump{check-value}}
+\StudyGraphNode{check-value}
+\GraphPair{check-a}{\StudyGraphChoice{1}{The arithmetic is consistent.}{report-value}}
+\GraphPair{check-b}{\StudyGraphFallback{2}{A specific error needs repair.}{compute-value}}
+\StudyGraphNode{report-value}
+\GraphPair{r1}{\StudyGraphStep{1}{State the result with its units.}\StudyGraphField{result}{The verified result.}\StudyGraphJump{finish}}
+\StudyGraphNode{finish}
+\GraphPair{end}{The current task is complete.}
+\end{document}

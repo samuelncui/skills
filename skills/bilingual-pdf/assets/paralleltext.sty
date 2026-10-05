@@ -71,6 +71,11 @@
 \newcommand\ParallelCoverStyle{\ParallelHeadingFont\color{parallel.theme}\fontsize{24}{30}\selectfont}
 \newcommand\ParallelNoteStyle{\color{parallel.secondary}}
 \newcommand\ParallelEntryStyle{\ParallelHeadingFont\color{\ParallelStructureColor}\fontsize{11}{13.2}\selectfont}
+% Generic semantic-cell styles. Domain packages choose roles, never fonts or colors.
+\newcommand\ParallelSemanticMarkerStyle{\ParallelHeadingFont}
+\newcommand\ParallelSemanticTitleStyle{\normalfont\bfseries\color{parallel.body}}
+\newcommand\ParallelSemanticDestinationPrefix{\ensuremath{\rightarrow}\space}
+\newcommand\ParallelSemanticDestinationIndent{1em}
 \newcommand\ParallelDiagramStyle{\fontsize{8}{10}\selectfont}
 \newcommand\ParallelHeaderStyle{\sffamily\fontsize{7}{8}\selectfont}
 \newcommand\ParallelEntryHeaderLeft[1]{#1}
@@ -192,6 +197,10 @@
  cover-style.store = \ParallelCoverStyle,
  note-style.store = \ParallelNoteStyle,
  entry-style.store = \ParallelEntryStyle,
+ semantic-marker-style.store = \ParallelSemanticMarkerStyle,
+ semantic-title-style.store = \ParallelSemanticTitleStyle,
+ semantic-destination-prefix.store = \ParallelSemanticDestinationPrefix,
+ semantic-destination-indent.store = \ParallelSemanticDestinationIndent,
  diagram-style.store = \ParallelDiagramStyle,
  section-space.store = \ParallelSectionSpace,
  subsection-space.store = \ParallelSubsectionSpace,
@@ -454,6 +463,13 @@
 \NewDocumentCommand\ParallelRoleText{m +m}{%
  \ifcsname pt@rolecolor@#1\endcsname{\color{\csname pt@rolecolor@#1\endcsname}#2}%
  \else\PackageError{paralleltext}{Unknown semantic role #1}{Declare it with ParallelDeclareRole.}\fi}
+% These are cell contents: use the ordinary public paragraph/entry lifecycle.
+\NewDocumentCommand\ParallelSemanticLabel{m +m}{\ParallelRoleText{#1}{{\ParallelSemanticMarkerStyle\relax #2}}}
+\NewDocumentCommand\ParallelSemanticHeading{m m +m}{\ParallelSemanticLabel{#1}{#2}\newline{\ParallelSemanticTitleStyle #3}}
+\NewDocumentCommand\ParallelSemanticChoice{m m +m +m}{%
+ \ParallelSemanticLabel{#1}{#2.}\space #3\par
+ \hspace*{\ParallelSemanticDestinationIndent}\ParallelSemanticDestinationPrefix #4\par}
+\NewDocumentCommand\ParallelSemanticField{m m +m}{\ParallelSemanticLabel{#1}{#2}:\space #3\par}
 \newcommand\PTCurrentEntryId{}\newcommand\PTCurrentEntryText{}
 \newcommand\PTCurrentNavigation{}
 \newcommand\PTPreviousEntry{}\newcommand\PTPreviousEntryPage{0}

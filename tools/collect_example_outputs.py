@@ -23,7 +23,7 @@ PREVIEWS = {**{f'{ARTICLE_ROOT}/{pair}/preview.png': (f'{pair}-bilingual/documen
 PACKAGE_INPUTS = {
     'bilingual-pdf': ('scripts/bilingual_pdf.py', 'assets/paralleltext.sty',
                       'assets/bound-profile.tex', 'assets/reading-profile.tex'),
-    'study-notes': ('assets/studytools.sty', 'assets/study-tree.tex'),
+    'study-notes': ('assets/studytools.sty', 'assets/study-tree.tex', 'assets/study-graph-components.tex'),
 }
 SHARED_IMAGES = ('layout-anatomy.png',)+tuple('pipeline-'+language+'.png'
                                             for language in ('en', 'fr', 'zh-Hans', 'ar', 'he', 'ja'))

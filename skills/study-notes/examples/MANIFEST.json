@@ -17,13 +17,14 @@
   "package_dependencies": {
     "bilingual-pdf": {
       "scripts/bilingual_pdf.py": "e0ea4fb490aeb6d689664b28cd27b06bfb6de6b8392a94a26e31b290060b43e2",
-      "assets/paralleltext.sty": "b174567b3c57cdc4079534070c4376685026221596ff7e3ac30b0132604aa0d4",
+      "assets/paralleltext.sty": "0fbba1b9f9daa3bd910dfa7261f2f6da9104d19423ef63b0462db5e00c2c58ee",
       "assets/bound-profile.tex": "87854c291355fc88c3fafcfb16f0f7bdcca951d3db88ad2074cdefe152b80e6c",
       "assets/reading-profile.tex": "a2b9ee83b843faf289aee5e76c48205f2346aff24b774e48662970ccccc54332"
     },
     "study-notes": {
-      "assets/studytools.sty": "b2a75579fd2b4145c06a8596dd7a3bebce00e49937bd6f4d99473b0df77dd703",
-      "assets/study-tree.tex": "5c5cf84b9411cfe4b368cb7c2f1d0400d21df4c1db9f17b669891f2a129c756c"
+      "assets/studytools.sty": "dfaab82dc8a12157ab59f2bdd57b7f3deb43b0af612eacd7264b734eb58bd2ad",
+      "assets/study-tree.tex": "5c5cf84b9411cfe4b368cb7c2f1d0400d21df4c1db9f17b669891f2a129c756c",
+      "assets/study-graph-components.tex": "d7adc19a4ea898bfe9cb337f0178d01cfa15fa4153ef55f148f1a8905c914e31"
     }
   },
   "files": [

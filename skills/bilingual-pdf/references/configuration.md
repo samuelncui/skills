@@ -47,6 +47,10 @@ Each style key replaces the corresponding public macro with a declaration list. 
 | `cover-style` | `\ParallelCoverStyle` | Heading font, theme color, 24/30 |
 | `note-style` | `\ParallelNoteStyle` | Secondary color; body size inherited |
 | `entry-style` | `\ParallelEntryStyle` | Heading font, active structure color, 11/13.2 |
+| `semantic-marker-style` | `\ParallelSemanticMarkerStyle` | Heading font for semantic labels |
+| `semantic-title-style` | `\ParallelSemanticTitleStyle` | Bold body-colored semantic titles |
+| `semantic-destination-prefix` | `\ParallelSemanticDestinationPrefix` | Arrow and space before a choice destination |
+| `semantic-destination-indent` | `\ParallelSemanticDestinationIndent` | `1em` choice-destination inset |
 | `diagram-style` | `\ParallelDiagramStyle` | 8/10 |
 | `header-style` | `\ParallelHeaderStyle` | Sans, 7/8 |
 | `footer-style` | `\ParallelFooterStyle` | Sans, 7/8 |
@@ -162,3 +166,5 @@ Native `document-version` and `document-status` store separate optional token st
 The divider follows the center of the live text block, not an independently fixed paper coordinate. With symmetric physical margins and no asymmetric binding offset, text-block and paper centers coincide. With asymmetric mirrored binding geometry, the text-block center and divider can shift between odd and even pages. There is no separate paper-center divider mode; choose symmetric paired-page geometry when a fixed physical middle is required.
 
 Emergency stretch is used only when ordinary paragraph line-breaking cannot meet its tolerance. The width-relative default can admit a legal short ragged line even when a CJK paragraph contains a long Latin identifier; it is not a fixed em threshold tied to one paper or binding width. Normal line-breaking passes still run first. It does not split an intrinsically over-wide token, suppress overflow diagnostics or change the acceptance margin. This key is native configuration; structured documents inherit the same canonical default.
+
+Native cell-content helpers `\ParallelSemanticLabel{role}{label}`, `\ParallelSemanticHeading{role}{label}{title}`, `\ParallelSemanticChoice{role}{ordinal}{condition}{destination}` and `\ParallelSemanticField{role}{label}{text}` use declared semantic roles and these hooks. Place them inside the ordinary paragraph/entry lifecycle; they do not establish layout or graph validity.
