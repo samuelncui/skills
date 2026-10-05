@@ -10,6 +10,12 @@
 \prop_new:N \g__study_graph_label_left_prop
 \prop_new:N \g__study_graph_label_right_prop
 \bool_new:N \g__study_graph_reader_bool
+\bool_new:N \g__study_graph_intro_rules_bool
+\NewDocumentCommand \StudyGraphRulePlacement {m}{
+ \str_case:nnF{#1}{
+  {intro}{\bool_gset_true:N\g__study_graph_intro_rules_bool}
+  {node}{\bool_gset_false:N\g__study_graph_intro_rules_bool}}
+ {\__study_error:nn{Unknown~graph~rule~placement~#1}{Use~intro~or~node~in~the~preamble.}}}
 \tl_new:N \g__study_graph_current_tl
 \cs_new_protected:Npn \__study_graph_label:nn #1#2 {
  \prop_gput:Nnn \g__study_graph_label_left_prop {#1}{#2}
@@ -107,7 +113,7 @@
  \__study_graph_exists:n{#1}\tl_gset:Nn\g__study_graph_current_tl{#1}
  \ParallelEntry{graph:#1}{\__study_graph_heading:nn{#1}{left}}{\__study_graph_heading:nn{#1}{right}}
  \str_if_eq:eeT{\prop_item:Nn\g__study_graph_kind_prop{#1}}{decision}
- {\ParallelParagraph[flow=keep]{graph:#1:first-match}{\StudyGraphFirstMatch}{\StudyGraphFirstMatch}}}
+ {\bool_if:NF\g__study_graph_intro_rules_bool{\ParallelParagraph[flow=keep]{graph:#1:first-match}{\StudyGraphFirstMatch}{\StudyGraphFirstMatch}}}}
 \cs_new_protected:Npn \__study_graph_reference:n #1 {
  \__study_graph_exists:n{#1}
  \ParallelReference{graph:#1}{
@@ -127,7 +133,7 @@
  \StudyGraphLabels{first-match}{Read~A,~B,~C~in~order.~Take~the~first~match.~If~an~earlier~choice~cannot~be~decided,~use~the~unclear/otherwise~route~before~trying~later~choices.}{Read~A,~B,~C~in~order.~Take~the~first~match.~If~an~earlier~choice~cannot~be~decided,~use~the~unclear/otherwise~route~before~trying~later~choices.}
 }
 \NewDocumentCommand \StudyGraphFirstMatch {}
- {\ParallelSemanticField{concept}{\__study_graph_label:n{check}}{\__study_graph_label:n{first-match}}}
+ {\bool_if:NF\g__study_graph_intro_rules_bool{\ParallelSemanticField{concept}{\__study_graph_label:n{check}}{\__study_graph_label:n{first-match}}}}
 \NewDocumentCommand \StudyGraphChoice {m +m m}{
  \__study_graph_positive:n{#1}
  \ParallelSemanticChoice{concept}{\int_to_Alph:n{#1}}{#2}{\StudyGraphReference{#3}}}
@@ -207,4 +213,5 @@
 \@onlypreamble\StudyDeclareGraphNode
 \@onlypreamble\StudyDeclareGraphTerminal
 \@onlypreamble\StudyGraphLabels
+\@onlypreamble\StudyGraphRulePlacement
 \makeatother

@@ -9,6 +9,11 @@ def cases():
  return [
  ('english','',None),
  ('reader-profile',r'\def\GraphFixtureReader{}',None),
+ ('intro-rules',r'\def\GraphFixtureIntro{}\def\GraphFixtureReader{}\def\GraphFixtureRulePlacement{\StudyGraphRulePlacement{intro}}',None),
+ ('intro-rules-paired',r'\def\GraphFixtureIntro{}\def\GraphFixtureReader{}\def\GraphFixturePaired{}\def\GraphFixtureRulePlacement{\StudyGraphRulePlacement{intro}}',None),
+ ('node-rules',r'\def\GraphFixtureRulePlacement{\StudyGraphRulePlacement{intro}\StudyGraphRulePlacement{node}}',None),
+ ('invalid-placement',r'\def\GraphFixtureRulePlacement{\StudyGraphRulePlacement{other}}','Unknown graph rule placement'),
+ ('late-placement',r'\def\GraphFixtureBody{\StudyGraphRulePlacement{intro}}','Can be used only in preamble'),
  ('paired',r'\def\GraphFixturePaired{}',None),
  ('sparse-style',r'\AtBeginDocument{\renewcommand\ParallelSemanticMarkerStyle{\normalfont\bfseries}}',None),
  ('invalid-legend',r'\AtBeginDocument{\StudyGraphLegendItem{unknown}{Invalid}}','Unknown graph legend function'),
@@ -28,11 +33,18 @@ def run_case(case,work):
  if error:return {'case':name,'passed':False,'errors':['Expected rejection did not occur']}
  errors=[];d=fitz.open(p/'main.pdf');text='\n'.join(x.get_text() for x in d);text=' '.join(re.sub(r'(?<=\w)-\n(?=\w)', '', text).split());aux=(p/'main.aux').read_text()
  if re.search(r'Overfull \\[hv]box|Missing character:|undefined references',log):errors.append('Layout, glyph or reference diagnostic')
- headings = [(1,'Choose the task'),(2,'Obtain the missing value'),(3,'Compute the value'),(4,'Check the result'),(5,'Report the result')] if name=='reader-profile' else [(1,'Question'),(2,'Warning'),(3,'Action'),(4,'Check'),(5,'Result')]
+ headings = [(1,'Choose the task'),(2,'Obtain the missing value'),(3,'Compute the value'),(4,'Check the result'),(5,'Report the result')] if name in ('reader-profile','intro-rules','intro-rules-paired') else [(1,'Question'),(2,'Warning'),(3,'Action'),(4,'Check'),(5,'Result')]
  for n,label in headings:
   if not re.search(str(n)+r'\s*·\s*'+label,text):errors.append('Missing numbered heading '+str(n))
  values=['Choose from the stated conditions.','Perform the stated solution steps.','Resolve missing information before proceeding.','A.','B.','C.','Then resume','Carry back','Exit when']
- values += ['1:','2:','first match','Unclear or otherwise','An earlier choice is undecidable.','Report only an invariant result.'] if name=='reader-profile' else ['Action 1','Action 2','first true condition']
+ values += ['1:','2:','first match','Unclear or otherwise','An earlier choice is undecidable.','Report only an invariant result.'] if name in ('reader-profile','intro-rules','intro-rules-paired') else ['Action 1','Action 2','first true condition']
+ if name.startswith('intro-rules'):
+  values.remove('first match')
+  values += ['Intro priority rule:', 'A required value is unknown.', 'Both values are given.', 'An earlier choice is undecidable.', 'Stop if no new fact can be obtained.']
+  if 'first-match' in aux:errors.append('Automatic rule paragraph remains in intro mode')
+  if 'Read A, B, C in order.' in text:errors.append('Explicit or automatic first-match output remains')
+ else:
+  if r'\newlabel{graph:choose-task:first-match}' not in aux:errors.append('Default node rule paragraph missing')
  for value in values:
   if value not in text:errors.append('Missing semantic text '+value)
  for label in ['graph:compute-value:step:2','graph:get-value:completion-check','graph:finish']:

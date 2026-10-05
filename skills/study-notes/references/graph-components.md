@@ -19,6 +19,10 @@ Use `\StudyGraphLegendItem{question|action|check|warning|result}{description}` i
 
 Keys are stable lowercase ASCII words separated by hyphens. Numbers are positive, unique and derived by the adapter from one explicit display order. The terminal has no artificial node number. Node labels are `graph:<key>`; step labels `graph:<key>:step:<n>`; completion labels `graph:<key>:completion-check`. Resolve actual PDF destinations from the AUX rather than guessing hyperref target names. Reference rendering never changes the current node.
 
+## Rule placement
+
+Call `\StudyGraphRulePlacement{node|intro}` in the preamble. The default `node` preserves automatic first-match paragraphs after decision headings and explicit `\StudyGraphFirstMatch` output. Choose `intro` when the document already provides the full priority/uncertainty rule once in its introductory guide: automatic rule paragraphs are omitted entirely, and explicit `\StudyGraphFirstMatch` calls produce no output. The caller owns that introductory rule; this option does not generate it. It leaves local choices, uncertainty conditions, required facts, warnings and fallback/invariant rules unchanged. Unknown values and document-body changes are errors.
+
 ## Choices and uncertainty
 
 - `\StudyGraphInstruction{reader-instruction}`

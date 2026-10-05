@@ -11,7 +11,12 @@
 \StudyDeclareGraphNode{report-value}{5}{procedure}{result}{Report the result}{State the result}
 \StudyDeclareGraphTerminal{finish}{Finish}{Done}
 \ifdefined\GraphFixtureReader\StudyGraphReaderProfile\fi
+\ifdefined\GraphFixtureRulePlacement\GraphFixtureRulePlacement\fi
 \begin{document}
+\ifdefined\GraphFixtureBody\GraphFixtureBody\fi
+\ifdefined\GraphFixtureIntro
+\GraphPair{reader-guide}{Intro priority rule: inspect choices in order, stop at the first match, and clarify an undecidable earlier choice.\StudyGraphFirstMatch}
+\fi
 \GraphPair{legend}{\StudyGraphLegendItem{question}{Choose from the stated conditions.}\StudyGraphLegendItem{action}{Perform the stated solution steps.}\StudyGraphLegendItem{warning}{Resolve missing information before proceeding.}}
 \StudyGraphNode{choose-task}
 \GraphPair{u}{\StudyGraphUncertainty{A required value is unknown.}{The missing value.}{get-value}{Report a value only if all unresolved cases give the same result.}}
