@@ -6,7 +6,7 @@ Skills for bilingual documents, learning material and cost-aware software verifi
 
 - [bilingual-pdf](skills/bilingual-pdf/README.md): Render side-by-side bilingual articles, reports and handouts from paired text.
 - [study-notes](skills/study-notes/README.md): Turn learning sources into explanatory notes, quick references, keyword indexes or decision trees.
-- [testing-workflow](skills/testing-workflow/SKILL.md): Design and run cost-aware automated tests and benchmarks for software changes.
+- [testing-workflow](skills/testing-workflow/README.md): Design and run cost-aware automated tests and benchmarks for software changes.
 - [write-if-statements](skills/write-if-statements/README.md): Write and review readable if statements, and refactor conditional logic without changing behavior.
 
 ## Install

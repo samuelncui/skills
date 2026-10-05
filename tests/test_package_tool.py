@@ -15,11 +15,34 @@ class PackageToolTests(unittest.TestCase):
         (self.skill/'assets/paralleltext.sty').write_text('')
         (self.skill/'scripts/bilingual_pdf.py').write_text('')
         (self.skill/'SKILL.md').write_text('---\nname: bilingual-pdf\ndescription: A valid isolated package.\n---\n\n# Example\n')
+        self.add_guides(self.skill)
+    def add_guides(self, skill):
+        for filename in ('LICENSE', 'README.md', 'README.zh-CN.md', 'README.ja.md', 'README.fr.md', 'README.de.md'):
+            (skill/filename).write_text('Fixture content\n')
+    def new_skill(self):
+        skill=self.root/'skills/new-unlisted-skill';skill.mkdir()
+        (skill/'SKILL.md').write_text('---\nname: new-unlisted-skill\ndescription: A new package.\n---\n')
+        self.add_guides(skill)
+        return skill
     def check(self):
         result=subprocess.run([sys.executable,str(self.root/'tools/check_package.py')],capture_output=True,text=True)
         return result.returncode,json.loads(result.stdout)
     def test_valid_frontmatter_passes(self):
         code,result=self.check();self.assertEqual(code,0,result);self.assertTrue(result['ok'])
+    def test_new_skill_complete_package_passes(self):
+        self.new_skill()
+        code,result=self.check();self.assertEqual(code,0,result)
+        self.assertIn('new-unlisted-skill',result['skills'])
+    def test_new_skill_missing_required_files_fail(self):
+        skill=self.new_skill()
+        for filename in ('LICENSE','README.md','README.zh-CN.md','README.ja.md','README.fr.md','README.de.md'):
+            with self.subTest(filename=filename):
+                path=skill/filename;content=path.read_text();path.unlink()
+                try:
+                    code,result=self.check()
+                    self.assertNotEqual(code,0,result)
+                    self.assertIn('new-unlisted-skill: missing required file '+filename,result['errors'])
+                finally:path.write_text(content)
     def test_mismatched_name_fails(self):
         p=self.skill/'SKILL.md';p.write_text(p.read_text().replace('name: bilingual-pdf','name: other'))
         code,result=self.check();self.assertNotEqual(code,0);self.assertTrue(any('name/description' in x for x in result['errors']))

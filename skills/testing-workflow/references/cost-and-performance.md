@@ -20,6 +20,8 @@ Examples:
 - Shared storage or concurrency change: failure/rollback, isolation, and relevant concurrent behavior, with wider checks proportional to blast radius.
 - Text-only documentation change: appropriate link/example checks; no automatic unrelated performance experiment.
 
+For a small modification, map the affected behavior and callers before selecting checks. Do not automatically run the full regression suite or unrelated performance benchmarks. State approximate cost and any concrete reason for broader scope; uncertain impact may justify widening checks. Repeat only for a changed state or a specific unresolved question, preserving earlier evidence.
+
 Retain repository-required release gates. Document excluded or blocked evidence and what would trigger broader checks. Maintain an explicit map of coverage boundaries. Remove obsolete cases and consolidate duplicates only when they test the same contract; fill real gaps. Fewer tests are not inherently better. For UI changes, test existing user interactions, list behavior, and virtualization when affected, rather than inventing unrelated workflows.
 
 ## Improve a slow verification loop

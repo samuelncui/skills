@@ -9,6 +9,8 @@ for filename,expected in [('paralleltext.sty','skills/bilingual-pdf/assets/paral
  if found!=[expected]:errors.append('Renderer must have one owner: '+filename)
 for skill in sorted((ROOT/'skills').iterdir()):
  if not skill.is_dir():continue
+ for required in ('LICENSE','README.md','README.zh-CN.md','README.ja.md','README.fr.md','README.de.md'):
+  if not (skill/required).is_file():errors.append(skill.name+': missing required file '+required)
  main=skill/'SKILL.md'
  if not main.exists():errors.append(str(skill.relative_to(ROOT))+': missing SKILL.md');continue
  text=main.read_text();parts=text.split('---',2)

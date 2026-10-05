@@ -65,7 +65,6 @@ def root_contract(root, filename):
     errors = []
     if not skills:
         return ['empty-skill-catalog']
-    locale = filename[len('README'):-len('.md')]
     destinations, fences = markdown_structure((root / filename).read_text(encoding='utf-8'))
     seen = Counter()
     for destination in destinations:
@@ -86,9 +85,8 @@ def root_contract(root, filename):
                 continue
             skill = parts[1]
             guide = root / 'skills' / skill / filename
-            expected = 'skills/' + skill + '/' + (filename if guide.is_file() else 'SKILL.md')
-            # If a human guide exists, translations cannot silently fall back to English.
-            if (root / 'skills' / skill / 'README.md').is_file() and not guide.is_file():
+            expected = 'skills/' + skill + '/' + filename
+            if not guide.is_file():
                 errors.append('missing-localized-guide')
             if path != expected or url.fragment or url.query:
                 errors.append('skill-entry-boundary')
@@ -123,11 +121,12 @@ class DocumentationBoundaryTests(unittest.TestCase):
             directory = root / 'skills' / skill
             directory.mkdir(parents=True, exist_ok=True)
             (directory / 'SKILL.md').write_text('# Agent workflow\n')
-        for suffix in LOCALES:
-            (root / 'skills/alpha' / ('README' + suffix + '.md')).write_text('# Guide\n')
+        for skill in ('alpha', 'beta'):
+            for suffix in LOCALES:
+                (root / 'skills' / skill / ('README' + suffix + '.md')).write_text('# Guide\n')
         text = ('# Any translated heading\n\n'
                 '- [alpha](skills/alpha/' + filename + '): LaTeX and JSON documents.\n'
-                '- [beta](skills/beta/SKILL.md): Software tests.\n'
+                '- [beta](skills/beta/' + filename + '): Software tests.\n'
                 '[Checks](tests/README.md) [License](LICENSE)\n'
                 '```sh\nnpx skills add samuelncui/skills --skill alpha\n```\n')
         (root / filename).write_text(text)
@@ -187,7 +186,7 @@ class DocumentationBoundaryTests(unittest.TestCase):
                 if mode == 'missing':
                     text = '\n'.join(line for line in text.splitlines() if not line.startswith('- [beta]'))
                 elif mode == 'duplicate':
-                    text += '\n[beta](skills/beta/SKILL.md)\n'
+                    text += '\n[beta](skills/beta/' + filename + ')\n'
                 elif mode == 'wrong-locale':
                     text = text.replace('skills/alpha/README.fr.md', 'skills/alpha/README.md')
                 else:
@@ -217,8 +216,25 @@ class DocumentationBoundaryTests(unittest.TestCase):
             filename, text = self.fixture(root)
             (root / 'skills/gamma').mkdir()
             (root / 'skills/gamma/SKILL.md').write_text('# New workflow\n')
-            (root / filename).write_text(text + '\n[gamma](skills/gamma/SKILL.md)\n```bash\nnpx skills add samuelncui/skills --skill gamma\n```\n')
+            (root / 'skills/gamma' / filename).write_text('# New guide\n')
+            (root / filename).write_text(text + '\n[gamma](skills/gamma/' + filename + ')\n```bash\nnpx skills add samuelncui/skills --skill gamma\n```\n')
             self.assertEqual(root_contract(root, filename), [])
+
+    def test_new_skill_cannot_use_agent_entry_as_missing_guide_fallback(self):
+        for suffix in LOCALES:
+            with self.subTest(locale=suffix), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                filename, text = self.fixture(root, suffix)
+                (root / 'skills/gamma').mkdir()
+                (root / 'skills/gamma/SKILL.md').write_text('# New workflow\n')
+                (root / filename).write_text(text + '\n[gamma](skills/gamma/SKILL.md)\n')
+                errors = root_contract(root, filename)
+                self.assertIn('missing-localized-guide', errors)
+                self.assertIn('skill-entry-boundary', errors)
+                (root / filename).write_text(text + '\n[gamma](skills/gamma/' + filename + ')\n')
+                self.assertIn('missing-entry-target', root_contract(root, filename))
+                (root / 'skills/gamma' / filename).write_text('# Human guide\n')
+                self.assertEqual(root_contract(root, filename), [])
 
     def test_owning_guide_remains_free_to_document_usage(self):
         with tempfile.TemporaryDirectory() as directory:

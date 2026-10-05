@@ -6,7 +6,7 @@
 
 - [bilingual-pdf](skills/bilingual-pdf/README.ja.md): 対応する文章から、左右対照の二言語記事・レポート・配布資料を作成します。
 - [study-notes](skills/study-notes/README.ja.md): 学習資料から解説ノート、クイックリファレンス、キーワード索引、決定木を作成します。
-- [testing-workflow](skills/testing-workflow/SKILL.md): ソフトウェアの変更に対し、コストとリスクを考慮した自動テストとベンチマークを設計・実行します。
+- [testing-workflow](skills/testing-workflow/README.ja.md): ソフトウェアの変更に対し、コストとリスクを考慮した自動テストとベンチマークを設計・実行します。
 - [write-if-statements](skills/write-if-statements/README.ja.md)：読みやすい if 文の作成・レビューと、動作を保った条件分岐のリファクタリング。
 
 ## インストール

@@ -27,6 +27,8 @@ python3 -m unittest discover -s skills/testing-workflow/examples -p 'test_tags.p
 
 ## Integration profiles
 
+CI always keeps the fast validation job. The PDF render job is skipped only when every changed path is classified as documentation or an explicitly independent skill/check by `tools/classify_ci_changes.py`. Unknown paths, missing/empty diffs, render inputs/code/dependencies, and classifier/workflow changes retain full rendering. Tag pushes and **Run workflow** (`workflow_dispatch`) force full validation. A failed scope job also retains the render gate. Adding or changing the classifier itself therefore requires a full CI integration run; ordinary later documentation changes do not.
+
 Run affected cases first, then the broader profiles needed for the changed interfaces. Each command is single-worker; do not add parallel TeX jobs on constrained hosts.
 
 ```sh

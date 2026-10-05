@@ -14,6 +14,8 @@ Optimize useful evidence per unit of total verification cost, not merely test co
 3. Select checks that address those failures. Start with affected fast tests; add boundary, integration, or end-to-end evidence where lower-level checks cannot establish the contract. Broaden for shared interfaces, migrations, concurrency, or other wide effects. Use full suites for integration or required release gates, not automatically after every edit. Stop when the selected scope has sufficient evidence; do not expand it without a concrete gap. Neither a universal full-suite rule nor a universal coverage target is appropriate.
 4. State scope, approximate cost, required services, and remaining uncertainty briefly. Include setup, execution, flakiness/diagnosis, maintenance, resource/service use, and agent/tool-call overhead. Read [cost and performance guidance](references/cost-and-performance.md) when choosing between expensive checks, changing a suite, or making performance claims.
 
+Default for a small change: assess affected behavior and callers, state the selected checks and approximate cost, then run only the smallest sufficient affected unit/integration checks. Run performance regressions only for relevant performance paths. A full suite needs a concrete broad-impact, uncertain-impact, or release-gate reason; do not repeat a full run without a new change or unresolved evidence question.
+
 A routine small change needs a short decision, not a testing-plan document. Honor explicit required checks even if expensive; report or resolve blockers rather than silently omitting them.
 
 ## Maintain executable tests with the change
