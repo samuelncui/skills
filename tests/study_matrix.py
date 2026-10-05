@@ -20,6 +20,11 @@ BUILD = ['latexmk', '-norc', '-xelatex', '-interaction=nonstopmode', '-halt-on-e
          '-latexoption=-no-shell-escape']
 FORMS = ('notes', 'quick-reference', 'keyword-index', 'decision-tree')
 
+def undefined_reference_diagnostics(log):
+    """Preserve wrapped warning labels, not only LaTeX's final summary."""
+    warnings = re.findall(r'(?:LaTeX|Package [^\n]+) Warning:[\s\S]*?(?=\n\s*\n|\Z)', log)
+    return [warning for warning in warnings if 'undefined' in warning.lower()]
+
 def pdf_links(pdf, project):
     """Inspect PDF actions: PyMuPDF may expose named links as LAUNCH/NAMED."""
     records = []
@@ -67,6 +72,7 @@ def main():
                     ('Overfull', 'Missing character:', 'undefined references', 'multiply defined',
                      'No hyphenation patterns'))]
         report['errors'] += warnings
+        report['undefined_reference_details'] = undefined_reference_diagnostics(log)
         recorder = (project/(name+'.fls')).read_text()
         inputs = [(project/line[6:]).resolve() for line in recorder.splitlines() if line.startswith('INPUT ')]
         report['explicit_installed_packages_used'] = (renderer/'assets/paralleltext.sty').resolve() in inputs

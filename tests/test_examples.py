@@ -10,6 +10,7 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.collect_example_outputs import (ARTICLES, FORMS, INPUTS, PDFS, PREVIEWS, SHARED_IMAGES,
                                            collect_examples, check_examples)
+from study_matrix import undefined_reference_diagnostics
 from matrix_support import execute_matrix, implementation_fingerprint, BlockedCase, InfrastructureTimeout, run_command, repeat_text
 
 class ExampleTests(unittest.TestCase):
@@ -183,6 +184,17 @@ class MatrixRunnerTests(unittest.TestCase):
             self.assertFalse(diagnostic['checks']['companion_target_resolves'])
             self.assertEqual(diagnostic['documents']['quick']['errors'], ['Missing named target'])
             self.assertEqual(diagnostic, json.loads((root/'case-results/one.json').read_text()))
+
+    def test_wrapped_reference_warning_preserves_missing_label(self):
+        log = ("Package other Warning: harmless.\n\n"
+               "LaTeX Warning: Reference `external-precise-label' on page 2\n"
+               "               undefined on input line 42.\n\n"
+               "LaTeX Warning: There were undefined references.\n\n")
+        warnings = undefined_reference_diagnostics(log)
+        self.assertEqual(len(warnings), 2)
+        self.assertIn("external-precise-label", warnings[0])
+        self.assertIn("input line 42", warnings[0])
+        self.assertNotIn("harmless", "\n".join(warnings))
 
     def test_blocked_case_can_resume_with_preserved_attempt(self):
         with tempfile.TemporaryDirectory() as directory:
