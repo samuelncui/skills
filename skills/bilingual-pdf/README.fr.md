@@ -6,6 +6,8 @@ Placez les contenus correspondants là où le lecteur peut les comparer : début
 
 L’agent appelant fournit les contenus appariés. Cette compétence les met en page ; elle ne choisit pas les traductions, ne réécrit pas le texte et ne décide pas quelles affirmations se correspondent.
 
+Cette compétence met en page les textes appariés fournis. Elle ne couvre pas l’OCR, l’extraction du contenu d’un PDF existant, la traduction automatique ni la conservation de sa mise en page d’origine.
+
 ## Fonctionnalités
 
 - Aligne séparément chaque paire de paragraphes, d’éléments de liste et de lignes de tableau, quelle que soit la longueur de la traduction

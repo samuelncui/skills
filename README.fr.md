@@ -4,21 +4,9 @@
 
 Des compétences pour les documents bilingues, les supports d’apprentissage et la vérification logicielle attentive aux coûts.
 
-- [bilingual-pdf](skills/bilingual-pdf/README.fr.md) : aligne les débuts de paragraphes, les lignes de tableau et les éléments de liste dans des colonnes physiques fixes. Les longs paragraphes peuvent se poursuivre sur plusieurs pages ; la paire suivante se réaligne. LaTeX natif et JSON partagent un moteur de rendu, avec des profils de langues LTR, RTL et CJK.
-- [study-notes](skills/study-notes/README.fr.md) : produit des notes explicatives, un aide-mémoire unifié, un index de mots-clés ou un arbre de décision. Choisissez une forme ou plusieurs. Les enregistrements LaTeX natifs réutilisent le moteur bilingue installé.
-- [testing-workflow](skills/testing-workflow/SKILL.md) : conçoit et maintient les tests automatisés et les benchmarks avec les outils natifs du projet. Regroupe les vérifications et choisit des preuves proportionnées au risque et au coût.
-
-[![Un guide d’utilisation bilingue](skills/bilingual-pdf/examples/en-zh-Hans/preview.png)](skills/bilingual-pdf/examples/en-zh-Hans/output.pdf)
-
-Les exemples expliquent comment utiliser les compétences tout en montrant leur résultat. Sources, PDF et aperçus restent ensemble. Les guides d’utilisation, références de l’API native, documents de configuration et JSON Schema restent des textes lisibles et indépendants.
-
-## Partir de votre tâche
-
-- Vous avez des textes appariés pour un article, un rapport ou un support bilingue côte à côte ? Utilisez `bilingual-pdf` : [LaTeX minimal et compilation](skills/bilingual-pdf/references/latex.md#project-and-build-contract), ou [JSON minimal, vérification préalable et rendu](skills/bilingual-pdf/references/input.md#minimal-input). Les deux produisent des sources modifiables ; vérifiez d’abord les [polices et prérequis linguistiques](skills/bilingual-pdf/references/languages.md).
-- Pour transformer des sources pédagogiques en explications ou références navigables, commencez par [study-notes](skills/study-notes/README.fr.md) et installez explicitement sa dépendance de rendu.
-- Pour un plan de test, des tests de régression ou des benchmarks logiciels, commencez par [testing-workflow](skills/testing-workflow/SKILL.md).
-
-Le parcours PDF met en page les textes appariés fournis. Il ne couvre pas l’OCR, l’extraction du contenu d’un PDF existant, la traduction automatique ni la conservation de sa mise en page d’origine.
+- [bilingual-pdf](skills/bilingual-pdf/README.fr.md): Met en page des articles, rapports et supports bilingues côte à côte à partir de textes appariés.
+- [study-notes](skills/study-notes/README.fr.md): Transforme des sources pédagogiques en notes explicatives, aide-mémoire, index de mots-clés ou arbres de décision.
+- [testing-workflow](skills/testing-workflow/SKILL.md): Conçoit et exécute des tests automatisés et des benchmarks adaptés au coût et au risque des changements logiciels.
 
 ## Installation
 
@@ -30,16 +18,12 @@ npx skills add samuelncui/skills --skill study-notes
 npx skills add samuelncui/skills --skill testing-workflow
 ```
 
-Pour les documents ordinaires en regard, installez uniquement `bilingual-pdf`. `study-notes` en dépend. Vous pouvez aussi copier les répertoires complets des compétences nécessaires vers les emplacements pris en charge par votre hôte. `testing-workflow` est indépendant et ne nécessite aucune des deux compétences PDF.
+Installez les répertoires complets des compétences nécessaires avec les commandes ci-dessus ou la méthode prise en charge par votre hôte. `study-notes` nécessite aussi `bilingual-pdf` ; `testing-workflow` est indépendant. Les guides liés ci-dessus décrivent la configuration, l’utilisation et les exemples de chaque compétence.
 
-Recherchez le répertoire d’installation réel de `bilingual-pdf` via l’hôte, puis fournissez-le comme `BILINGUAL_PDF_SKILL` lors de la compilation des documents d’apprentissage. Les compétences ne supposent pas des installations voisines et ne téléchargent jamais automatiquement leurs dépendances. Chaque guide précise les dépendances TeX, les polices et les outils Python facultatifs de contrôle qualité.
+## Conventions du dépôt
 
-## Une seule implémentation, des responsabilités explicites
+Chaque compétence gère son implémentation et sa documentation. Les guides d’utilisation résident dans ses README ; les procédures destinées aux agents, dans SKILL.md. Chaque implémentation partagée a un seul propriétaire. Les dépendances installées sont localisées via l’hôte, sans supposer des répertoires voisins. Les projets utilisateurs doivent fixer une révision testée.
 
-`bilingual-pdf` gère `paralleltext.sty`, l’import structuré, la mise en page et les contrôles de rendu. `study-notes` ajoute une petite couche native d’enregistrements et de navigation ainsi qu’un processus de rédaction pédagogique ; il n’embarque pas de second moteur. Les projets documentaires qui les utilisent doivent fixer une révision testée et séparer leur propre contenu de leur configuration.
+Consultez le [guide de validation](tests/README.md) pour les vérifications reproductibles du dépôt et la distinction entre résultats historiques et actuels. Les exemples sélectionnés restent dans la compétence qui les gère. Excluez tout contenu privé de ce dépôt public ; le traitement externe et la publication nécessitent les autorisations applicables.
 
-L’agent appelant fournit le contenu et les correspondances sémantiques. L’outil de mise en page contrôle leur position dans le document. Le TeX natif peut exécuter du code ; désactiver shell escape ne crée pas de bac à sable pour le système de fichiers. La publication, le traitement externe et les droits sur les sources demandent des autorisations distinctes.
-
-Consultez le [guide de validation](tests/README.md) pour les tests reproductibles et la distinction entre résultats historiques et actuels. Les PDF d’exemple sélectionnés sont versionnés à côté de leurs sources ; Actions vérifie le dépôt et ne sert pas de canal de livraison des exemples.
-
-Le code original et le contenu des exemples sont sous [licence MIT](LICENSE). Les dépendances conservent [leurs propres licences](THIRD_PARTY_NOTICES.md). Aucune certification universelle de prise en charge des langues, des imprimantes ou de l’accessibilité n’est revendiquée.
+Le code original et le contenu des exemples sont sous [licence MIT](LICENSE). Les dépendances conservent [leurs propres licences](THIRD_PARTY_NOTICES.md).

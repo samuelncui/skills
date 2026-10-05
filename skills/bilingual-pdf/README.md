@@ -6,6 +6,8 @@ Put corresponding content where readers can compare it: matching paragraph start
 
 The calling agent supplies the paired content. This skill renders it; it does not choose translations, rewrite prose or decide which statements correspond.
 
+This skill lays out supplied text pairs. OCR, extracting existing PDF content, automatic translation and preserving an existing PDF’s original page layout are outside its scope.
+
 ## What it does
 
 - Aligns each paired paragraph, list item and table row independently of translation length

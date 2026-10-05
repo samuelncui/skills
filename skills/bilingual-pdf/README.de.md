@@ -6,6 +6,8 @@ Platzieren Sie zusammengehörige Inhalte so, dass sie sich gut vergleichen lasse
 
 Der aufrufende Agent liefert die zugeordneten Inhalte. Dieser Skill rendert sie; er wählt keine Übersetzungen aus, schreibt keine Texte um und entscheidet nicht, welche Aussagen einander entsprechen.
 
+Dieser Skill setzt bereitgestellte Textpaare. OCR, das Extrahieren vorhandener PDF-Inhalte, automatische Übersetzung und die Beibehaltung des ursprünglichen PDF-Seitenlayouts gehören nicht zu seinem Umfang.
+
 ## Funktionen
 
 - Richtet jedes Absatzpaar, jeden Listeneintrag und jede Tabellenzeile unabhängig von der Übersetzungslänge aus
