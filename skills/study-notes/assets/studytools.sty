@@ -50,6 +50,7 @@
 \prop_new:N \g__study_group_sort_prop
 \tl_new:N \l__study_notes_source_tl
 \tl_new:N \l__study_doc_tl
+\tl_new:N \l__study_notes_reference_tl
 \tl_new:N \l__study_group_tl
 \tl_new:N \l__study_short_left_tl
 \tl_new:N \l__study_short_right_tl
@@ -245,10 +246,13 @@
        {
         \tl_if_blank:VF \l_tmpa_tl
          {
-          \hyperref[study-notes-\l__study_doc_tl-\l_tmpa_tl]
+          % Formatting/language hooks may overwrite expl3 scratch variables.
+          % Freeze the identity before deferred section/page fields are expanded.
+          \tl_set:Nx \l__study_notes_reference_tl {study-notes-\l__study_doc_tl-\l_tmpa_tl}
+          \hyperref[\l__study_notes_reference_tl]
            {\str_if_eq:nnTF{#2}{left}
-             {\StudyNotesLocationLeft{\prop_item:NV\g__study_docs_left_prop\l__study_doc_tl}{\ref*{study-notes-\l__study_doc_tl-\l_tmpa_tl}}{\pageref*{study-notes-\l__study_doc_tl-\l_tmpa_tl}}}
-             {\StudyNotesLocationRight{\prop_item:NV\g__study_docs_right_prop\l__study_doc_tl}{\ref*{study-notes-\l__study_doc_tl-\l_tmpa_tl}}{\pageref*{study-notes-\l__study_doc_tl-\l_tmpa_tl}}}}
+             {\StudyNotesLocationLeft{\prop_item:NV\g__study_docs_left_prop\l__study_doc_tl}{\ref*{\l__study_notes_reference_tl}}{\pageref*{\l__study_notes_reference_tl}}}
+             {\StudyNotesLocationRight{\prop_item:NV\g__study_docs_right_prop\l__study_doc_tl}{\ref*{\l__study_notes_reference_tl}}{\pageref*{\l__study_notes_reference_tl}}}}
          }
        }
      }{}

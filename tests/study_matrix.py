@@ -160,6 +160,17 @@ def main():
             if case.get('companions'):
                 preamble += r'\StudyDeclareNotesSource{first}{First notes}{First notes}{companion-one}{companion-one.pdf}'
                 preamble += r'\StudyDeclareNotesSource{second}{Second notes}{Second notes}{companion-two}{companion-two.pdf}'
+        if case.get('format_scratch'):
+            # Language/formatting hooks may use documented expl3 scratch storage.
+            # Reference identity must survive until both deferred numeric fields expand.
+            preamble += r'''
+\ExplSyntaxOn
+\RenewDocumentCommand\StudyNotesLocationLeft{m m m}
+ {\tl_set:Nn\l_tmpa_tl{LR}#1~section~#2,~p.~#3}
+\RenewDocumentCommand\StudyNotesLocationRight{m m m}
+ {\tl_set:Nn\l_tmpa_tl{LR}#1~section~#2,~p.~#3}
+\ExplSyntaxOff
+'''
         project = write_project(ident, preamble, body)
         if case.get('companions'):
             for name, content in (
@@ -229,6 +240,8 @@ def main():
               {'name': 'unknown-product', 'products': 'unknown', 'error': 'Unknown product'},
               {'name': 'empty-products', 'products': '', 'error': 'Select at least one product'},
               {'name': 'native-registry-quick', 'native': True, 'registry': True, 'companions': True,
+               'preamble': '', 'body': r'\StudyPrintQuickReference'},
+              {'name': 'native-notes-format-hook', 'native': True, 'registry': True, 'companions': True, 'format_scratch': True,
                'preamble': '', 'body': r'\StudyPrintQuickReference'},
               {'name': 'native-registry-index', 'native': True, 'registry': True,
                'preamble': '', 'body': r'\StudyPrintKeywordIndex'},
