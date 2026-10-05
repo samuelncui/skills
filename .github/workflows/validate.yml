@@ -66,6 +66,8 @@ jobs:
           path: |
             .local/ci-*/matrix.json
             .local/ci-*/case-results/*.json
+            .local/ci-matrix/flow-en-he/document.pdf
+            .local/ci-native/flow-en-he/main.pdf
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7

@@ -192,7 +192,9 @@
  \space(\StudyGraphReference{#1})}
 \NewDocumentCommand \StudyGraphOperationChoice {m +m m m}{
  \__study_graph_positive:n{#1}
- \ParallelSemanticChoice{concept}{\int_to_Alph:n{#1}}{#2}{\StudyGraphResumeReference{#3}{#4}}}
+ \tl_if_blank:nTF{#4}
+ {\__study_graph_exists:n{#3}\ParallelSemanticLabel{concept}{\int_to_Alph:n{#1}.}\space #2\par}
+ {\ParallelSemanticChoice{concept}{\int_to_Alph:n{#1}}{#2}{\StudyGraphResumeReference{#3}{#4}}}}
 \NewDocumentCommand \StudyGraphCall {m +m +m m m}{
  \__study_graph_exists:n{#1}
  \str_if_eq:eeF{\prop_item:Nn\g__study_graph_kind_prop{#1}}{procedure}

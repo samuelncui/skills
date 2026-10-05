@@ -19,6 +19,10 @@ def cases():
  ('link-terminal',r'\def\GraphFixtureTerminal{}\def\GraphFixtureRulePlacement{\StudyGraphTerminalMode{local}\StudyGraphTerminalMode{link}}',None),
  ('invalid-terminal-mode',r'\def\GraphFixtureRulePlacement{\StudyGraphTerminalMode{other}}','Unknown graph terminal mode'),
  ('late-terminal-mode',r'\def\GraphFixtureBody{\StudyGraphTerminalMode{local}}','Can be used only in preamble'),
+ ('operation-scope',r'\def\GraphFixtureOperation{\StudyGraphOperationChoice{1}{Apply the stated local scope.}{compute-value}{}}',None),
+ ('operation-step',r'\def\GraphFixtureOperation{\StudyGraphOperationChoice{1}{Apply the stated local scope.}{compute-value}{2}}',None),
+ ('operation-invalid-step',r'\def\GraphFixtureOperation{\StudyGraphOperationChoice{1}{Invalid}{compute-value}{0}}','Graph ordinal must be a positive integer'),
+ ('operation-unknown-owner',r'\def\GraphFixtureOperation{\StudyGraphOperationChoice{1}{Invalid}{missing}{}}','Unknown graph key'),
  ('paired',r'\def\GraphFixturePaired{}',None),
  ('sparse-style',r'\AtBeginDocument{\renewcommand\ParallelSemanticMarkerStyle{\normalfont\bfseries}}',None),
  ('invalid-legend',r'\AtBeginDocument{\StudyGraphLegendItem{unknown}{Invalid}}','Unknown graph legend function'),
@@ -52,6 +56,11 @@ def run_case(case,work):
   if r'\newlabel{graph:choose-task:first-match}' not in aux:errors.append('Default node rule paragraph missing')
  for value in values:
   if value not in text:errors.append('Missing semantic text '+value)
+ if name in ('operation-scope','operation-step'):
+  segment=text.split('A. Apply the stated local scope.',1)[-1].split('Use: Execution scope',1)[0]
+  if 'A. Apply the stated local scope.' not in text:errors.append('Local operation condition missing')
+  if name=='operation-scope' and segment.strip():errors.append('Unspecified operation gained a destination')
+  if name=='operation-step' and 'Action 2 (p. 1)' not in segment:errors.append('Explicit operation step link changed')
  if 'terminal' in name:
   values=['When called:', 'stated resume node', 'Action 2 (p. 1)']
   if any(value not in text for value in values):errors.append('Call-return instruction or real resume reference changed')

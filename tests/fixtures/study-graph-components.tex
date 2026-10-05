@@ -32,6 +32,9 @@
 \GraphPair{gc}{\StudyGraphCompletionCheck{The missing value has been supplied.}}
 \GraphPair{gl}{\StudyGraphLoop{The newly obtained value.}{At least one missing fact is now known.}{New facts permit another check.}{Stop if no new fact can be obtained.}\StudyGraphJump{choose-task}}
 \StudyGraphNode{compute-value}
+\ifdefined\GraphFixtureOperation
+\GraphPair{operation-scope}{\GraphFixtureOperation\StudyGraphField{operation}{Execution scope follows the stated local condition.}}
+\fi
 \GraphPair{s1}{\StudyGraphStep{1}{Record the two values.}}
 \GraphPair{call}{\StudyGraphCall{get-value}{A required value is absent.}{The missing value.}{compute-value}{2}}
 \GraphPair{s2}{\StudyGraphStep{2}{Add the two values.}}

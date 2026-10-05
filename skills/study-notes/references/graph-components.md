@@ -36,7 +36,7 @@ Ordinals generate A/B/C in order. First-match means stop at the first true condi
 
 ## Procedures and fields
 
-- `\StudyGraphOperationChoice{ordinal}{condition}{owner-key}{first-step}` points to the local step, not back to the node heading.
+- `\StudyGraphOperationChoice{ordinal}{condition}{owner-key}{first-step}` points to the explicit local step, not back to the node heading. An empty fourth argument renders only the lettered condition, without a destination line or arrow; follow it with the source-defined local execution scope. Do not invent a first step. The owner must still be declared. Nonempty steps retain ordinary positive-integer/target validation.
 - `\StudyGraphStep{one-based-step}{text}`
 - `\StudyGraphCompletionCheck{text}`
 - `\StudyGraphField{field-key}{text}`
