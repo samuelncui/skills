@@ -16,6 +16,12 @@
   {intro}{\bool_gset_true:N\g__study_graph_intro_rules_bool}
   {node}{\bool_gset_false:N\g__study_graph_intro_rules_bool}}
  {\__study_error:nn{Unknown~graph~rule~placement~#1}{Use~intro~or~node~in~the~preamble.}}}
+\bool_new:N \g__study_graph_local_terminal_bool
+\NewDocumentCommand \StudyGraphTerminalMode {m}{
+ \str_case:nnF{#1}{
+  {local}{\bool_gset_true:N\g__study_graph_local_terminal_bool}
+  {link}{\bool_gset_false:N\g__study_graph_local_terminal_bool}}
+ {\__study_error:nn{Unknown~graph~terminal~mode~#1}{Use~local~or~link~in~the~preamble.}}}
 \tl_new:N \g__study_graph_current_tl
 \cs_new_protected:Npn \__study_graph_label:nn #1#2 {
  \prop_gput:Nnn \g__study_graph_label_left_prop {#1}{#2}
@@ -198,11 +204,18 @@
 \__study_graph_label:nn {called-exit}{When~called}
 \__study_graph_label:nn {called-exit-rule}{Supply~the~active~call's~declared~return~outputs,~then~return~to~its~stated~resume~node~and~action~or~completion~check.~Do~not~follow~the~ordinary~next~link~in~call~mode.}
 \__study_graph_label:nn {ordinary-next}{Otherwise,~ordinary~next}
+\cs_new_protected:Npn \__study_graph_next:nn #1#2 {
+ \__study_graph_exists:n{#2}
+ \bool_if:nTF{\g__study_graph_local_terminal_bool &&
+  \str_if_eq_p:ee{\prop_item:Nn\g__study_graph_kind_prop{#2}}{terminal}}
+ {\ParallelSemanticField{example}{\__study_graph_label:n{result}}{
+  \ParallelLocalize{\__study_graph_title:nn{#2}{left}}{\__study_graph_title:nn{#2}{right}}}}
+ {\ParallelSemanticField{concept}{\__study_graph_label:n{#1}}{\StudyGraphReference{#2}}}}
 \NewDocumentCommand \StudyGraphCalleeExit {m}{
  \ParallelSemanticField{example}{\__study_graph_label:n{called-exit}}{\__study_graph_label:n{called-exit-rule}}
- \ParallelSemanticField{concept}{\__study_graph_label:n{ordinary-next}}{\StudyGraphReference{#1}}}
+ \__study_graph_next:nn{ordinary-next}{#1}}
 \NewDocumentCommand \StudyGraphJump {m}
- {\ParallelSemanticField{concept}{\__study_graph_label:n{next}}{\StudyGraphReference{#1}}}
+ {\__study_graph_next:nn{next}{#1}}
 \NewDocumentCommand \StudyGraphLoop {+m +m +m +m}{
  \ParallelSemanticField{example}{\__study_graph_label:n{carried-results}}{#1}\par
  \ParallelSemanticField{concept}{\__study_graph_label:n{progress}}{#2}\par
@@ -214,4 +227,5 @@
 \@onlypreamble\StudyDeclareGraphTerminal
 \@onlypreamble\StudyGraphLabels
 \@onlypreamble\StudyGraphRulePlacement
+\@onlypreamble\StudyGraphTerminalMode
 \makeatother

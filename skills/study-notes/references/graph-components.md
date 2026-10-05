@@ -53,6 +53,10 @@ Field keys: input, output, check, warning, result, operation, limits, context, r
 
 Emit a reuse instruction immediately after its owning step. The callee must be a procedure. A requested return takes precedence over that procedure's ordinary next link; an ordinary jump does not create a return obligation. Reader labels should say what to use, what result to bring back and where to continue, rather than exposing execution-mode jargon. Cycles need a source-validated progress/exit rule; typesetting is not a termination proof.
 
+## Terminal presentation
+
+Call `\StudyGraphTerminalMode{link|local}` in the preamble. Default `link` preserves the terminal destination and page reference. In `local` mode, `\StudyGraphJump` and the ordinary-next branch of `\StudyGraphCalleeExit` render a terminal target as a local result field with its registered current-language title, without a destination link or page. Nonterminal jumps and genuine call-return/resume references are unchanged. Register an actionable completion title; this setting does not validate or rewrite terminal content. Unknown values and body-time changes are errors.
+
 ## Verification
 
 Use `tests/study_graph_components.py` for scoped English, paired, style-hook and negative API cases. The neutral fixture contains no private course data. Separately test adapter field coverage, source bindings and actual PDF targets. Inspect current-hash-bound raster pages: passing compilation cannot establish reader usability, semantic correctness or absence of clipped content. Preserve delivered artifacts when producing comparison candidates.

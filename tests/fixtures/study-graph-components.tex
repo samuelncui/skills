@@ -41,6 +41,9 @@
 \GraphPair{check-b}{\StudyGraphFallback{2}{A specific error needs repair.}{compute-value}}
 \StudyGraphNode{report-value}
 \GraphPair{r1}{\StudyGraphStep{1}{State the result with its units.}\StudyGraphField{result}{The verified result.}\StudyGraphJump{finish}}
+\ifdefined\GraphFixtureTerminal
+\GraphPair{callee-end}{\StudyGraphCalleeExit{finish}}
+\fi
 \StudyGraphNode{finish}
 \GraphPair{end}{The current task is complete.}
 \end{document}

@@ -14,6 +14,11 @@ def cases():
  ('node-rules',r'\def\GraphFixtureRulePlacement{\StudyGraphRulePlacement{intro}\StudyGraphRulePlacement{node}}',None),
  ('invalid-placement',r'\def\GraphFixtureRulePlacement{\StudyGraphRulePlacement{other}}','Unknown graph rule placement'),
  ('late-placement',r'\def\GraphFixtureBody{\StudyGraphRulePlacement{intro}}','Can be used only in preamble'),
+ ('local-terminal',r'\def\GraphFixtureTerminal{}\def\GraphFixtureRulePlacement{\StudyGraphTerminalMode{local}}',None),
+ ('local-terminal-paired',r'\def\GraphFixtureTerminal{}\def\GraphFixturePaired{}\def\GraphFixtureRulePlacement{\StudyGraphTerminalMode{local}}',None),
+ ('link-terminal',r'\def\GraphFixtureTerminal{}\def\GraphFixtureRulePlacement{\StudyGraphTerminalMode{local}\StudyGraphTerminalMode{link}}',None),
+ ('invalid-terminal-mode',r'\def\GraphFixtureRulePlacement{\StudyGraphTerminalMode{other}}','Unknown graph terminal mode'),
+ ('late-terminal-mode',r'\def\GraphFixtureBody{\StudyGraphTerminalMode{local}}','Can be used only in preamble'),
  ('paired',r'\def\GraphFixturePaired{}',None),
  ('sparse-style',r'\AtBeginDocument{\renewcommand\ParallelSemanticMarkerStyle{\normalfont\bfseries}}',None),
  ('invalid-legend',r'\AtBeginDocument{\StudyGraphLegendItem{unknown}{Invalid}}','Unknown graph legend function'),
@@ -47,6 +52,14 @@ def run_case(case,work):
   if r'\newlabel{graph:choose-task:first-match}' not in aux:errors.append('Default node rule paragraph missing')
  for value in values:
   if value not in text:errors.append('Missing semantic text '+value)
+ if 'terminal' in name:
+  values=['When called:', 'stated resume node', 'Action 2 (p. 1)']
+  if any(value not in text for value in values):errors.append('Call-return instruction or real resume reference changed')
+  if name.startswith('local-terminal'):
+   if re.search(r'(Finish|Done)\s*\(p\.',text):errors.append('Local terminal still has a page reference')
+   if 'Result: Finish' not in text:errors.append('Local terminal completion missing')
+   if name.endswith('paired') and 'Result: Done' not in text:errors.append('Localized terminal completion missing')
+  elif 'Finish (p. 1)' not in text:errors.append('Default linked terminal changed')
  for label in ['graph:compute-value:step:2','graph:get-value:completion-check','graph:finish']:
   if r'\newlabel{'+label+'}' not in aux:errors.append('Missing stable anchor '+label)
  if name=='paired' and not all(x in text for x in ['Choose the task','Select the task','Compute the value','Calculate the value']):errors.append('Selected-language registry title not used')
