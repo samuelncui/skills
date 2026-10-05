@@ -148,7 +148,11 @@ def execute_matrix(cases, run, work, args, suite, name=lambda case: case[0]):
         results[ident] = result
         _write_json(checkpoint/(ident+'.json'), result)
         executed += 1
-        print(json.dumps({'case': ident, 'status': result['status']}, ensure_ascii=False), flush=True)
+        # CI logs must retain the failing assertions even when its workspace expires.
+        console = {'case': ident, 'status': result['status']}
+        if result['status'] != 'passed':
+            console['diagnostics'] = result
+        print(json.dumps(console, ensure_ascii=False), flush=True)
         if isinstance(result.get('error'), str) and result['status'] == 'blocked':
             break
     pending = [ident for ident in identities if ident in selected and

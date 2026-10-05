@@ -33,8 +33,19 @@ jobs:
           .venv/bin/pip install -r requirements.txt
       - name: Render isolated multilingual and native study fixtures
         run: |
+          .venv/bin/python tests/study_matrix.py --output .local/ci-study
           .venv/bin/python tests/render_matrix.py --output .local/ci-matrix
           .venv/bin/python tests/native_matrix.py --output .local/ci-native --structured-matrix .local/ci-matrix
           .venv/bin/python tests/configuration_matrix.py --output .local/ci-configuration
-          .venv/bin/python tests/study_matrix.py --output .local/ci-study
           .venv/bin/python tests/native_regressions.py --output .local/ci-regressions
+      - name: Preserve synthetic matrix diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: synthetic-matrix-diagnostics
+          path: |
+            .local/ci-*/matrix.json
+            .local/ci-*/case-results/*.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7

@@ -48,6 +48,8 @@ The registry and decision fixtures are original generic examples. Private learni
 
 ### Bounded foreground execution
 
+Failed or blocked cases print their full structured diagnostic record, including failed checks and document errors, while successful cases stay concise. CI retains only synthetic matrix and per-case JSON reports for seven days with an always-run artifact step; it does not publish generated deliverable PDFs, raw environment variables or credentials.
+
 Every integration script accepts --case, --budget-seconds and --resume. A tool/runtime time limit is an infrastructure boundary, not evidence of a rendering defect. For example:
 
 ```sh

@@ -167,6 +167,23 @@ class MatrixRunnerTests(unittest.TestCase):
             self.run_cases(root, run)
             self.assertEqual(calls, ['one', 'two'])
 
+    def test_failed_assertions_are_visible_in_console_and_checkpoint(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            args = argparse.Namespace(case=None, budget_seconds=0)
+            output = io.StringIO()
+            def fail(case):
+                return {'case': case[0], 'passed': False,
+                        'checks': {'companion_target_resolves': False},
+                        'documents': {'quick': {'errors': ['Missing named target']}}}
+            with patch('matrix_support.implementation_fingerprint', return_value='unchanged'), contextlib.redirect_stdout(output):
+                code = execute_matrix([('one',)], fail, root, args, 'diagnostic')
+            self.assertEqual(code, 1)
+            diagnostic = json.loads(output.getvalue().splitlines()[0])['diagnostics']
+            self.assertFalse(diagnostic['checks']['companion_target_resolves'])
+            self.assertEqual(diagnostic['documents']['quick']['errors'], ['Missing named target'])
+            self.assertEqual(diagnostic, json.loads((root/'case-results/one.json').read_text()))
+
     def test_blocked_case_can_resume_with_preserved_attempt(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
