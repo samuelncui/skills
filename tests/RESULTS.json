@@ -310,5 +310,42 @@
     "status": "not_requested",
     "note": "Correctness/layout verification; elapsed test time is not a performance benchmark."
   },
-  "ci_at_record_creation": "Local pre-publication acceptance only. Verify GitHub Actions against the eventual exact commit."
+  "ci_at_record_creation": "Local pre-publication acceptance only. Verify GitHub Actions against the eventual exact commit.",
+  "compatibility_follow_up": {
+    "recorded_at_utc": "2026-10-05T12:49:23.434062+00:00",
+    "scope": "Companion reference identity survives language and public formatting hooks; root guide ownership and actionable CI diagnostics.",
+    "implementation_and_fixture_sha256": "40223cb842ffcde868ca0a7737f0d74554abb8f1a7688bb49cd76a9ad5171ff2",
+    "original_ci_failure": "https://github.com/samuelncui/skills/actions/runs/37310511072",
+    "before_regression": {
+      "case": "native-notes-format-hook",
+      "status": "failed_as_expected_before_repair",
+      "report_sha256": "2b3af586c5857619a931c1bc9c2e2e69305a4453d04ec055120c8c9f45b33c4d"
+    },
+    "affected_cases": [
+      {
+        "case": "native-notes-format-hook",
+        "status": "passed",
+        "report_sha256": "34aaeb66d7f95c465ce156ef5e984b5343a1207dc216a7523fb6a02f6f004409"
+      },
+      {
+        "case": "study-example-default",
+        "status": "passed",
+        "report_sha256": "772cd7d02bbc9c8728964f5ea7fde315e8a2930cdf0a1ac3ed626522a39b6e90"
+      },
+      {
+        "case": "study-example-all",
+        "status": "passed",
+        "report_sha256": "6a6af2a6a2639e2dc940d45086b59bbfc5c109561741cd4c0e02444026183918"
+      },
+      {
+        "case": "missing-declared-companion",
+        "status": "passed",
+        "report_sha256": "3e33c62b2a7fbfab50271df461526e6d5f5f4b68cedf21239890afbd41ca0601"
+      }
+    ],
+    "repository_unittest_methods": 103,
+    "curated_study_pdfs_byte_identical": true,
+    "curated_comparison_sha256": "ae32cb45daf90f3771dabbf8f2441e0f2da49f6c3708f73ceabcecf64185374b",
+    "full_ci_at_record_creation": "Pending for the ensuing compatibility-fix commit. Earlier full NAS acceptance remains historical and unchanged above."
+  }
 }
