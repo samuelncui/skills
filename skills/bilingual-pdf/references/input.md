@@ -83,13 +83,15 @@ An RTL-side text value may instead be:
 
 The object has exactly one key, runs, with a nonempty array. Every run has exactly text (nonempty plain string) and direction (ltr or rtl); neither has a default. Runs concatenate without invented spaces. LTR uses native \textenglish; RTL inherits the enclosing Arabic/Hebrew language. Runs are permitted in paired block text, list items, table headers and table body cells, but only on an Arabic/Hebrew (RTL-profile) side. Non-RTL sides require plain strings in all these positions; document titles require plain strings on both sides. More complex per-run language/font control belongs in trusted native TeX.
 
+A table without a supplied caption omits `text`; no caption or caption spacing is generated. If a caption is supplied, both sides must remain nonempty. Other block kinds still require `text`.
+
 ## Common block fields
 
 | Field | Constraint | Meaning |
 | --- | --- | --- |
 | id | Required; [a-z][a-z0-9.-]{0,79} | Unique stable ID/link target. pt-title is reserved. IDs are not page numbers. |
 | kind | Optional enumerated string | Default paragraph; kinds below determine shape/operation. |
-| text | Required; exactly two sides | For lists, two nonempty equal-length item arrays. For other kinds, two text values. |
+| text | Required except for uncaptioned tables; exactly two sides when provided | For lists, two nonempty equal-length item arrays. For other kinds, two text values. |
 | break_before | Optional boolean | Default false; emits \clearpage before this unit. |
 | flow | Optional, paragraph only | keep, breakable, or atomic (compatibility alias for keep). Omitted inherits layout.paragraph_flow, default keep. |
 | placement | Optional, figure only | paired (default) or shared. |

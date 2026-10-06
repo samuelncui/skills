@@ -14,6 +14,13 @@ for name in ['en-fr','en-zh-Hans','en-ar','en-he','zh-Hans-ja']:
  for mode in ['bilingual','left','right']:
   source=work/'bilingual-pdf/examples'/name
   cases.append((name+'-'+mode,json.loads((source/'source.json').read_text()),mode,0));case_sources[name+'-'+mode]=work/'bilingual-pdf/examples/shared'
+for pair in ('en-fr','en-ar'):
+ source=json.loads((work/'bilingual-pdf/examples'/pair/'source.json').read_text())
+ table=copy.deepcopy(next(b for b in source['blocks'] if b.get('kind')=='table'))
+ del table['text']
+ source['blocks']=[table,{'id':'table-reference','kind':'reference','target':table['id'],'text':['See table','Voir le tableau' if pair=='en-fr' else 'انظر الجدول']}]
+ source['layout']={'covers':False}
+ cases.append(('uncaptioned-table-'+pair,source,'bilingual',0))
 rtlrefs=json.loads((work/'fixtures/garden-en-ar.json').read_text());rtlrefs['blocks'] += [{'id':'intro-ref','kind':'reference','target':'check','text':['See the introduction','انظر المقدمة']},{'id':'average-ref','kind':'reference','target':'average','text':['See the average','انظر المتوسط']}]
 for mode in ['bilingual','left','right']:cases.append(('rtl-references-'+mode,rtlrefs,mode,0))
 rev=json.loads((work/'bilingual-pdf/examples/en-ar/source.json').read_text());rev['languages'].reverse();rev['title'].reverse()

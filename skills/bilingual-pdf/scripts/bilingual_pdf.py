@@ -86,8 +86,9 @@ def validate(data):
         if not isinstance(kind,str) or kind not in {'paragraph','heading','list','equation','reference','figure','quote','table'}:raise InputError('Unsupported block kind: '+str(kind))
         if 'flow' in b and (kind!='paragraph' or b['flow'] not in ('atomic','keep','breakable')):raise InputError('flow is keep, breakable or atomic (keep alias), for paragraph blocks only')
         if 'placement' in b and (kind!='figure' or b['placement'] not in ('paired','shared')):raise InputError('placement is paired or shared, for figures only')
-        pair=b.get('text')
-        if not isinstance(pair,list) or len(pair)!=2:raise InputError('Each block needs exactly two paired texts')
+        pair=b.get('text',[]) if kind=='table' else b.get('text')
+        if kind=='table' and 'text' not in b:pass
+        elif not isinstance(pair,list) or len(pair)!=2:raise InputError('Each block needs exactly two paired texts')
         if kind=='list':
             if any(not isinstance(x,list) or not x for x in pair):raise InputError('List block needs two nonempty lists')
             if len(pair[0])!=len(pair[1]):raise InputError('List items must be aligned')
@@ -135,7 +136,9 @@ def validate(data):
     for b in blocks:
         if b.get('kind')=='equation':generated.append(b['id']+'.formula')
         if b.get('kind')=='figure' and b.get('placement')=='shared':generated.append(b['id']+'.caption')
-        if b.get('kind')=='table':generated.extend([b['id']+'.row-'+str(i) for i in range(len(b['rows'][0])+1)]+[b['id']+'.caption'])
+        if b.get('kind')=='table':
+            generated.extend(b['id']+'.row-'+str(i) for i in range(len(b['rows'][0])+1))
+            if 'text' in b:generated.append(b['id']+'.caption')
         if b.get('kind')=='list':generated.extend(b['id']+'.item-'+str(i+1) for i in range(len(b['text'][0])))
     if any(x in ids for x in generated) or len(generated)!=len(set(generated)):raise InputError('Generated list IDs collide with explicit block IDs')
     settings=data.get('layout',{})
@@ -202,11 +205,11 @@ def preflight(data):
                 if isinstance(value,dict):return ''.join(run['text'] for run in value['runs'] if (run['direction']=='ltr')==latin)
                 if isinstance(value,list):return ''.join(chars(x,latin) for x in value)
                 return '' if latin else value
-            if language=='marker':sample='•'+''.join(chars(v,True) for b in data['blocks'] for v in b['text'])+''.join(chars(b[field],True) for b in data['blocks'] if b.get('kind')=='table' for field in ('headers','rows'))
+            if language=='marker':sample='•'+''.join(chars(v,True) for b in data['blocks'] for v in b.get('text',[]))+''.join(chars(b[field],True) for b in data['blocks'] if b.get('kind')=='table' for field in ('headers','rows'))
             else:
                 def block_chars(b,i):
                     if ':headings' in language:return chars(b['text'][i]) if b.get('kind')=='heading' else ''
-                    value=chars(b['text'][i])
+                    value=chars(b['text'][i]) if 'text' in b else ''
                     if b.get('kind')=='table':value+=chars(b['headers'][i])+chars(b['rows'][i])
                     return value
                 sample=''.join(data['title'][i]+''.join(block_chars(b,i) for b in data['blocks']) for i in indices)
@@ -223,6 +226,7 @@ def language_text(text,language,prefix='',suffix=''):
     return prefix+value+suffix
 
 def content(b,index,language):
+    if b.get('kind')=='table' and 'text' not in b:return ''
     value=b['text'][index];kind=b.get('kind','paragraph')
     if kind=='list':
         return r'\begin{itemize}'+''.join(r'\item '+language_text(x,language) for x in value)+r'\end{itemize}'
@@ -314,7 +318,8 @@ def tex_parts(data,mode,*,stem="document",image_names=None):
                         table=(anchor if side==0 else r'\ifdefstring{\ParallelMode}{right}{'+anchor+'}{}')+table
                     cells.append(table)
                 body.append(r'\ParallelText{'+ident+'.row-'+str(row_index)+'}{'+cells[0]+'}{'+cells[1]+'}')
-            body.append(r'\ParallelText{'+ident+'.caption}{'+pair[0]+'}{'+pair[1]+r'}\end{ParallelKeep}')
+            caption=r'\ParallelText{'+ident+'.caption}{'+pair[0]+'}{'+pair[1]+'}' if 'text' in b else ''
+            body.append(caption+r'\end{ParallelKeep}')
         else:
             if kind=='paragraph':
                 flow=b.get('flow','default')

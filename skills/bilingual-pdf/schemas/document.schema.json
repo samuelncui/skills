@@ -730,10 +730,9 @@
     },
     "block": {
       "type": "object",
-      "description": "One caller-supplied layout unit. id and text are required; omitted kind means paragraph. The runtime accepts and ignores unrecognized block fields, and kind-specific fields outside their kind; this schema intentionally preserves that compatibility. Prefer documented fields only. Cross-block ID/reference checks remain runtime checks.",
+      "description": "One caller-supplied layout unit. id is required; text is required except for an uncaptioned table; omitted kind means paragraph. The runtime accepts and ignores unrecognized block fields, and kind-specific fields outside their kind; this schema intentionally preserves that compatibility. Prefer documented fields only. Cross-block ID/reference checks remain runtime checks.",
       "required": [
-        "id",
-        "text"
+        "id"
       ],
       "additionalProperties": true,
       "properties": {
@@ -763,7 +762,7 @@
           ]
         },
         "text": {
-          "description": "Exactly two ordered sides. Non-list kinds use text values; list uses two nonempty item arrays of equal length. For tables/figures this is the caption; for equation it is the explanation; for reference it is link wording.",
+          "description": "Exactly two ordered sides. Non-list kinds use text values; list uses two nonempty item arrays of equal length. For tables/figures this is the caption; omit text for an uncaptioned table (provided captions remain nonempty); for equation it is the explanation; for reference it is link wording.",
           "examples": [
             [
               "A short observation.",
@@ -858,6 +857,23 @@
         }
       },
       "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "table"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "else": {
+            "required": [
+              "text"
+            ]
+          }
+        },
         {
           "if": {
             "properties": {

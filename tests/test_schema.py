@@ -62,6 +62,27 @@ class SchemaTests(unittest.TestCase):
                     body=tex_parts(validate(doc),'bilingual')[2]
                     self.assertIn(r'\textenglish{JSON}',body)
                     self.assertNotIn(r'\input{',body)
+    def test_table_caption_is_optional_without_inventing_content(self):
+        doc=copy.deepcopy(BASE)
+        doc['blocks']=[{'id':'table','kind':'table','headers':[['Crop'],['Culture']],
+                        'rows':[[['Bean']],[['Haricot']]]}]
+        original=copy.deepcopy(doc)
+        self.agrees(doc,True)
+        body=tex_parts(validate(doc),'bilingual')[2]
+        self.assertEqual(doc,original)
+        self.assertIn(r'\ParallelText{table.row-0}',body)
+        self.assertNotIn('table.caption',body)
+        for bad in (None,[],['',''],['Caption'],['Caption',' ']):
+            with self.subTest(caption=bad):
+                value=copy.deepcopy(doc);value['blocks'][0]['text']=bad
+                self.agrees(value,False)
+        doc['blocks'][0]['text']=['Record','Relevé']
+        self.agrees(doc,True)
+        self.assertIn(r'\ParallelText{table.caption}{Record}{Relevé}',tex_parts(validate(doc),'bilingual')[2])
+        for kind in ('paragraph','heading','list','figure','equation','quote','reference'):
+            value=copy.deepcopy(BASE);value['blocks'][0]['kind']=kind;del value['blocks'][0]['text']
+            with self.subTest(kind=kind):self.agrees(value,False)
+
     def test_unknown_root_and_block_extensions_are_preserved_but_layout_is_closed(self):
         doc=copy.deepcopy(BASE);doc['extension']={'x':1};doc['blocks'][0]['unused']={'x':2};self.agrees(doc,True)
         doc['layout']={'unexpected':True};self.agrees(doc,False)
