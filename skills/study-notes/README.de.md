@@ -55,7 +55,7 @@ make PRODUCTS='notes quick-reference keyword-index decision-tree' BILINGUAL_PDF_
 
 Der erste Befehl wählt Notizen und Kurzreferenz aus. Erstellen Sie ausgewählte begleitende Notizen vor den Dokumenten, die darauf verweisen. Nicht ausgewählte Begleitdokumente dürfen keine ungültigen externen Links hinterlassen. Halten Sie PDFs zusammen, wenn sie relative dokumentübergreifende Links verwenden; die Unterstützung dafür unterscheidet sich zwischen PDF-Anzeigeprogrammen.
 
-Für eine portable native Übergabe fügen Sie die benötigten Dateien `paralleltext.sty`, `studytools.sty`, `study-tree.tex`, Manuskript- und Konfigurationsdateien sowie Lizenzen bei. Eine Auslieferungskopie ist etwas anderes als die Pflege eines weiteren installierten Renderers. Die [Build-Anleitung](references/rendering.md) enthält direkte latexmk-Befehle und Abhängigkeitsprüfungen.
+Für eine portable native Übergabe fügen Sie die benötigten Dateien `paralleltext.sty`, `studytools.sty`, `study-tree.tex`, `study-graph-components.tex`, Manuskript- und Konfigurationsdateien sowie Lizenzen bei. Eine Auslieferungskopie ist etwas anderes als die Pflege eines weiteren installierten Renderers. Die [Build-Anleitung](references/rendering.md) enthält direkte latexmk-Befehle und Abhängigkeitsprüfungen.
 
 ## Ein gemeinsames Nachschlageregister
 

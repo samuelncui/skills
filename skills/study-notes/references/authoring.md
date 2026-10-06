@@ -21,19 +21,19 @@ Keep provenance in the working project and publish it only when authorized and a
 
 ## Teach with notes
 
-Use the structure the concept needs. A definition may need a contrast and example; a procedure may need inputs, preconditions, steps and failure cases; a mathematical result may need notation, assumptions, derivation and a worked calculation. Do not force these into identical fields.
+Use the structure the concept needs. A definition may need a contrast and example; a procedure may need inputs, preconditions, steps and failure cases; a mathematical result may need notation, assumptions, derivation and a worked calculation. Choose the relevant elements for that concept and arrange them in the order a reader needs to understand or apply it.
 
 Explain why the idea matters and what the reader can do after the section. Explain causes, not merely outcomes. Define notation before use and retain the conditions that make each application valid. Work through soundly derivable intermediate steps and identify them as explanation. Check arithmetic and dimensions. Keep source-specific administrative instructions separate from general learning principles.
 
 Make examples self-contained: state inputs, units, assumptions, diagrams and the reasoning needed for the result. Every referenced figure must appear or have an accurate locator in the delivered bundle. Explain what to read in it. An original diagram may replace an authorized source figure only without silently changing its relationships, scale or labels; inspect actual pixels.
 
-Author prose with the common renderer's `ParallelParagraph`. Select its global or per-paragraph flow policy: breakable prose can cross pages, while a kept unit must fit. Do not enclose flowing prose in an indivisible box, truncate it or silently shrink it. The common renderer owns this behavior; the study layer must not fork it.
+Author prose with the common renderer's `ParallelParagraph`. Select its global or per-paragraph flow policy: breakable prose can cross pages, while a kept unit must fit. Place flowing prose outside bounded containers. If a kept unit overflows, choose breakable prose or divide it at meaningful corresponding boundaries while preserving content. The common renderer owns this behavior; the study layer must not fork it.
 
 ## Build one unified lookup
 
 Declare one substantive canonical entry per concept with a stable ID. Include only what answers the reader's recall question: meaning, a rule with conditions, a discriminating example, a procedure or an important limitation. Meaningful subentries have their own IDs and generated local pages.
 
-Declare aliases and keyword routes in the same registry as canonical concepts. Every route goes directly to a concept or subentry, never through another alias. A task keyword may have several direct targets with context labels. Include remembered terms, abbreviations and useful localized variants at their own sort positions. Do not hide a useful secondary term inside another headword's title.
+Declare aliases and keyword routes in the same registry as canonical concepts. Every route goes directly to a concept or subentry, never through another alias. A task keyword may have several direct targets with context labels. Include remembered terms, abbreviations and useful localized variants at their own sort positions. Give a useful secondary term its own route and sort key, pointing directly to the canonical entry or subentry.
 
 Choose ordering deliberately. Explicit lookup-group identity controls which records share a headword; a separate sort key controls position. Equal sort keys do not merge records. A keyword that deliberately shares an existing canonical headword belongs in that group, while different senses retain distinct concept IDs and paired sense labels. Do not discard an independent definition merely because a related concept exists. The example uses literal English A–Z keys, not automatic multilingual collation.
 

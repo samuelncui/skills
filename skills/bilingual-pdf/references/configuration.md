@@ -13,7 +13,7 @@ Keep language/font choices in `languages.tex`, optional presentation in `layout.
 | `profile` | Declared profile name | No preset. Built-ins: `bound`, `reading`. Native `profile=article` is not defined; JSON `article` means omit a preset. |
 | `geometry` | Braced geometry key list | `a4paper,inner=18mm,outer=18mm,top=17mm,bottom=14mm,headsep=3mm,footskip=7mm`. One/two-sided behavior otherwise comes from the document class. |
 | `mode` | `paired`, `left`, `right` | `paired`; physical side selection, independent of language direction. |
-| `left-language`, `right-language` | Declared Polyglossia name | Both `english`; same state as `\ParallelLanguages`. Do not declare languages or fonts by setting these keys alone. |
+| `left-language`, `right-language` | Declared Polyglossia name | Both `english`; same state as `\ParallelLanguages`. Declare each language and its font families first, then use these keys to select the physical sides; see [language setup](languages.md#native-setup). |
 | `single-columns` | `1`, `2` | `1`. `2` starts standard two-column layout at document start and requires left/right mode. |
 | `paragraph-flow` | `keep`, `breakable` | `keep`. Global default for `\ParallelParagraph`; its local flow option can override it. Explicit `\ParallelText`/`\ParallelProse` retain their own behavior. |
 | `body-size` | Positive number in points | `9`; native values are not restricted to JSON's 9–14 range. Does not automatically update leading. |

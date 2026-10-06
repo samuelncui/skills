@@ -55,7 +55,7 @@ make PRODUCTS='notes quick-reference keyword-index decision-tree' BILINGUAL_PDF_
 
 第一条命令选择笔记和速查手册。如果某份文档引用配套笔记，应先构建已选的笔记。未选择的配套文档不得导致失效的外部链接。使用相对路径跨文档链接时，请将 PDF 放在一起；各阅读器对此类链接的支持程度不同。
 
-移交可独立使用的原生项目时，包含所需的 `paralleltext.sty`、`studytools.sty`、`study-tree.tex`、稿件／配置文件及许可证。交付时复制必要文件不等于另外维护一套已安装的渲染器。[构建指南](references/rendering.md) 提供直接使用 latexmk 的命令和依赖检查方法。
+移交可独立使用的原生项目时，包含所需的 `paralleltext.sty`、`studytools.sty`、`study-tree.tex`、`study-graph-components.tex`、稿件／配置文件及许可证。交付时复制必要文件不等于另外维护一套已安装的渲染器。[构建指南](references/rendering.md) 提供直接使用 latexmk 的命令和依赖检查方法。
 
 ## 一个查询注册表
 

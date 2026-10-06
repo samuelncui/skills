@@ -55,7 +55,7 @@ make PRODUCTS='notes quick-reference keyword-index decision-tree' BILINGUAL_PDF_
 
 最初のコマンドはノートとクイックリファレンスを選択します。選択した関連ノートを参照する文書は、そのノートを先にビルドしてください。省いた関連文書への壊れた外部リンクを残してはいけません。相対パスの文書間リンクを使う PDF は一緒に置いてください。この種のリンクへの対応はビューアーによって異なります。
 
-持ち運べるネイティブプロジェクトとして渡す場合は、必要な `paralleltext.sty`、`studytools.sty`、`study-tree.tex`、原稿と設定ファイル、ライセンスを含めてください。納品用のコピーを作ることと、別のインストール済みレンダラーを保守することは異なります。[ビルドガイド](references/rendering.md)には、latexmk を直接使うコマンドと依存関係の確認方法があります。
+持ち運べるネイティブプロジェクトとして渡す場合は、必要な `paralleltext.sty`、`studytools.sty`、`study-tree.tex`、`study-graph-components.tex`、原稿と設定ファイル、ライセンスを含めてください。納品用のコピーを作ることと、別のインストール済みレンダラーを保守することは異なります。[ビルドガイド](references/rendering.md)には、latexmk を直接使うコマンドと依存関係の確認方法があります。
 
 ## 単一の検索レジストリ
 

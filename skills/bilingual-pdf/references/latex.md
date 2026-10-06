@@ -67,7 +67,7 @@ Atomic pairs and kept groups exceeding `\textheight-8mm` fail rather than shrink
 
 Plain paragraphs, emphasis, inline citations, `quote`, `itemize`, `enumerate`, unnumbered displays and `tabular`/`tabularx` can be placed in a bounded side. Each list item or table row needs its own paired unit if its start must align separately. Prefer `booktabs` rules to vertical rules. Use ordinary paragraph breaks within a side only when no independent cross-side alignment is needed.
 
-Do not duplicate a numbered environment, identical `label`, counter mutation, float or other global side effect in both bodies. A pair is not a float; place figures through the helpers below. Footnotes and other page-insertion behavior need deliberate native design and actual rendered testing.
+Put shared numbering and anchors in one owning command: use `ParallelEquation` for a shared numbered formula and the figure helpers below for numbered images with paired captions. Keep side bodies for their localized text and unnumbered content. Duplicating a numbered environment, identical `label`, counter mutation, float or other global side effect in both bodies can execute it twice and corrupt references. Footnotes and other page-insertion behavior need deliberate native design and actual rendered testing.
 
 ## Figures, mathematics and references
 

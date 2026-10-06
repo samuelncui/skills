@@ -12,7 +12,7 @@ Include:
 - Feedback overhead: agent/tool round trips, log volume, and time to a diagnosable result.
 - Repeat costs: flakiness, investigation, fixture drift, and maintenance when behavior changes.
 
-Measure only when the choice depends on it. Use observed runner timings and representative runs; distinguish cold setup from warm execution. Do not invent precise estimates, probabilities, or a universal cost equation. A short note such as “affected unit tests first; one real boundary check because serialization changed; broader suite deferred with explicit uncertainty” is often enough.
+Measure only when the choice depends on it. Use observed runner timings and representative runs; distinguish cold setup from warm execution. When measurements are unavailable, give a qualitative cost estimate and identify the uncertainty that could change the plan. A short note such as “affected unit tests first; one real boundary check because serialization changed; broader suite deferred with explicit uncertainty” is often enough.
 
 Examples:
 - Pure parser fix: parameterized valid/invalid/boundary cases and a reproducing regression, plus affected callers.

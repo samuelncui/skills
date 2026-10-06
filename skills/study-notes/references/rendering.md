@@ -60,7 +60,7 @@ Compiler exit alone is not acceptance. Validate local/named external links, gene
 
 ## Portable delivery and pinned consumers
 
-Include manuscripts, language/configuration files, source map, necessary images, `paralleltext.sty`, `studytools.sty`, `study-tree.tex` and applicable licenses. This portable copy does not transfer canonical implementation ownership to the downstream project.
+Include manuscripts, language/configuration files, source map, necessary images, `paralleltext.sty`, `studytools.sty`, `study-tree.tex`, `study-graph-components.tex` and applicable licenses. Include the graph file even when the manuscript selects only lookup/tree forms, because `studytools.sty` loads it. This portable copy does not transfer canonical implementation ownership to the downstream project.
 
 A long-lived consumer records the exact tested public revision and package hashes in its own dependency manifest. Its private content, document identities, publication metadata and compatibility adapters stay downstream. Generic capability fixes belong in the public package and must be tested there before updating the pin. The divider follows the live text-block center: use symmetric paired-page margins for a fixed physical paper center. Asymmetric mirrored binding can shift that center by page parity; selected-language pages can use their own geometry without a second renderer.
 

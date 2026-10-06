@@ -12,7 +12,7 @@ The example's overlapping thresholds use ordered callables to illustrate this di
 
 ## Selecting work must not execute all work
 
-Store handlers, not handler results. `handlers.get(key, fallback())` executes the fallback before the lookup even when the key exists. Prefer selecting a callable and then invoking it. An unknown key that previously returned a default must not start raising `KeyError`; conversely, do not silently invent a fallback for an error contract.
+Store handlers, not handler results. `handlers.get(key, fallback())` executes the fallback before the lookup even when the key exists. Prefer selecting a callable and then invoking it. Match the existing unknown-key contract explicitly: select the default handler when a default is intended, or preserve the specified exception when an unknown key is an error. Test a known key and a missing key, including whether fallback work is skipped.
 
 Keep input validation and key normalization at their original point unless the contract permits moving them. Equality chains can accept unhashable inputs or compare differently from dictionary keys; a map is not automatically a drop-in replacement for arbitrary values.
 

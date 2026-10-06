@@ -5,7 +5,7 @@ This checklist concerns layout and output integrity. The caller supplies paired 
 ## Before compiling
 
 - Preserve the supplied input. Work in a fresh output directory.
-- For JSON, validate against `schemas/document.schema.json`, then run `scripts/bilingual_pdf.py preflight`. The Python validator also checks cross-field relationships, IDs, targets, assets and supported fonts.
+- For JSON, validate against `schemas/document.schema.json`, then run `scripts/bilingual_pdf.py preflight`. Preflight also checks cross-field relationships, IDs, targets, tools and supported fonts/glyphs. Then export or render the document to resolve, decode and stage figure assets; preflight alone does not check their contents.
 - For native LaTeX, resolve the installed package, declare languages/fonts and choose the paragraph-flow policy. Native TeX is executable; use trusted source or appropriate isolation.
 - Verify that referenced images are authorized and available. Do not substitute fonts or download resources silently.
 

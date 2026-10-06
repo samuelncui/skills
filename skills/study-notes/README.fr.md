@@ -55,7 +55,7 @@ make PRODUCTS='notes quick-reference keyword-index decision-tree' BILINGUAL_PDF_
 
 La première commande sélectionne les notes et l’aide-mémoire. Compilez les notes associées sélectionnées avant les documents qui y font référence. L’omission d’un document associé ne doit pas laisser de liens externes cassés. Conservez les PDF ensemble s’ils utilisent des liens relatifs entre documents ; leur prise en charge varie selon le lecteur PDF.
 
-Pour transmettre un projet natif portable, incluez les fichiers nécessaires `paralleltext.sty`, `studytools.sty`, `study-tree.tex`, les manuscrits, les fichiers de configuration et les licences. Une copie de livraison est distincte de la maintenance d’un autre moteur installé. Le [guide de compilation](references/rendering.md) donne les commandes latexmk directes et les contrôles des dépendances.
+Pour transmettre un projet natif portable, incluez les fichiers nécessaires `paralleltext.sty`, `studytools.sty`, `study-tree.tex`, `study-graph-components.tex`, les manuscrits, les fichiers de configuration et les licences. Une copie de livraison est distincte de la maintenance d’un autre moteur installé. Le [guide de compilation](references/rendering.md) donne les commandes latexmk directes et les contrôles des dépendances.
 
 ## Un registre de recherche unique
 

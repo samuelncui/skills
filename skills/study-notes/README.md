@@ -55,7 +55,7 @@ make PRODUCTS='notes quick-reference keyword-index decision-tree' BILINGUAL_PDF_
 
 The first command selects notes and Quick Reference. Build selected companion notes before documents that refer to them. Omitted companions must not leave broken external links. Keep PDFs together when they use relative cross-document links; viewer support for those links varies.
 
-For a portable native handoff, include the required `paralleltext.sty`, `studytools.sty`, `study-tree.tex`, manuscript/configuration files and licenses. A delivery copy is distinct from maintaining another installed renderer. The [build guide](references/rendering.md) gives direct latexmk commands and dependency checks.
+For a portable native handoff, include the required `paralleltext.sty`, `studytools.sty`, `study-tree.tex`, `study-graph-components.tex`, manuscript/configuration files and licenses. A delivery copy is distinct from maintaining another installed renderer. The [build guide](references/rendering.md) gives direct latexmk commands and dependency checks.
 
 ## One lookup registry
 

@@ -22,18 +22,20 @@ The machine-readable contract is [document.schema.json](../schemas/document.sche
 }
 ~~~
 
-Adjust the optional $schema reference to the input's actual location. Editors/validators can use it; the renderer ignores it. Schema defaults are annotations, not mutations of input. Do not have a validator insert all defaults: sparse overrides deliberately inherit profile values.
+Adjust the optional $schema reference to the input's actual location. Editors/validators can use it; the renderer ignores it. Use schema validation in read-only mode: defaults are annotations, and omitted layout fields inherit profile values. Preserve those omissions when converting or validating input.
 
 ## CLI
 
-Run from the installed bilingual skill, using a fresh output directory:
+Run from the installed bilingual skill. For an editable export, compile the generated `document.tex` before validating its PDF:
 
 ~~~sh
 python3 scripts/bilingual_pdf.py preflight input.json
 python3 scripts/bilingual_pdf.py export input.json --output new-project
-python3 scripts/bilingual_pdf.py render input.json --output another-project
+(cd new-project && latexmk -norc -xelatex -interaction=nonstopmode -halt-on-error -latexoption=-no-shell-escape document.tex)
 python3 scripts/bilingual_pdf.py validate new-project/document.pdf --paired
 ~~~
+
+Alternatively, `python3 scripts/bilingual_pdf.py render input.json --output another-project` performs export, compilation and mechanical validation together. Choose one route and a fresh output directory; both produce editable native sources.
 
 | Command | Input and behavior |
 | --- | --- |
