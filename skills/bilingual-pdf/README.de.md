@@ -92,3 +92,5 @@ Originalcode, Tutorialtexte und Diagramme stehen unter der [MIT-Lizenz](LICENSE)
 ## Von der Übersetzung zum Layout
 
 Für die Übersetzung einer Quelle erstellt der separat installierte Skill bilingual-translation ein einziges geprüftes zweisprachiges Manuskript. Vorhandene Textpaare können weiterhin direkt gesetzt werden. Die [Übergabeanleitung](references/translation.md) erklärt die Ermittlung installierter Skills, getestete Revisionen und den optionalen v1-Import. Natives TeX bleibt gleichberechtigt verfügbar.
+
+Vertrauenswürdige native Adapter können Formeln und Verweise über die [quelltextgebundene API](references/bound-text.md) in exakt zugeordnete Textbereiche einfügen.

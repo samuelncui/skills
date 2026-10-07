@@ -54,6 +54,7 @@ jobs:
         run: |
           .venv/bin/python tests/study_graph_components.py --output .local/ci-graph-components
           .venv/bin/python tests/structured_graph_render.py --output .local/ci-structured-graph
+          .venv/bin/python tests/graph_emission_render.py --output .local/ci-graph-emission
           .venv/bin/python tests/study_matrix.py --output .local/ci-study
           .venv/bin/python tests/render_matrix.py --output .local/ci-matrix
           .venv/bin/python tests/native_matrix.py --output .local/ci-native --structured-matrix .local/ci-matrix

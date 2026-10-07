@@ -22,6 +22,8 @@ One form or a combination is valid. Discover `bilingual-pdf` through the host's 
 
 When the input is structured graph data, use the single primary [graph-v1 import workflow](references/structured-graph.md): validate the standard schema and semantics, retain supplied language pairs, generate deterministic Nx order and existing native fragments, then compile with the discovered bilingual-pdf dependency and the trusted native layout. Read that reference before adapting data; unknown fields fail instead of being discarded. Keep one authoritative JSON graph, with source-bound rich fields and explicit helper calls where needed. Do not create a parallel reader graph or make uncertainty/inspection routes mandatory. Native graph authoring remains compatible. The importer requires Python 3.10+, its owned requirements and bilingual-pdf renderer API 1; native-only authoring remains Python-free.
 
+For trusted native adapters, use the [native emission helpers](references/native-emission.md) for localized inline call sentences, precise references and source-field survival checks. These additive helpers preserve authored routes; the structured importer retains its own graph-v1 limits.
+
 ## Map the source and author the selected forms
 
 Read the actual source, including diagrams and worked steps. Preserve originals. Record source locator → concept → notes/lookup/tree coverage and mark unreadable, missing or conflicting material. Keep source claims, derived explanation and original examples distinguishable. Use verified page/section identifiers; mark unavailable locators as unknown. Retain useful existing organization and add the context or coverage that the selected form needs.

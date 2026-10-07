@@ -92,3 +92,5 @@ Le code original, le texte du tutoriel et les schémas sont sous [licence MIT](L
 ## De la traduction à la mise en page
 
 Pour traduire une source, utilisez bilingual-translation, installé séparément, afin de préparer un manuscrit bilingue unique et relu. Les paires déjà fournies restent directement utilisables. Le [guide de transmission](references/translation.md) décrit la découverte de la dépendance, les révisions testées et l’import facultatif du format v1. La voie TeX native reste pleinement disponible.
+
+Les adaptateurs natifs de confiance peuvent intégrer les formules et les références liées au texte exact avec [cette API](references/bound-text.md).

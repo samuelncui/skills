@@ -32,6 +32,8 @@ Use `ParallelWideFigure` (`placement: "shared"`) for one shared full-width image
 
 Language direction and physical column position are independent. Read [language setup](references/languages.md) when changing fonts or scripts, especially RTL/CJK and mixed-script expressions. If a font, image or tool is missing, report its exact name/path and the blocked stage; use the authorized environment workflow to install/retrieve it, or ask the caller to approve an alternative if none is already authorized, then resume that stage.
 
+Trusted native adapters can use the [source-bound text API](references/bound-text.md) to merge exact-source mathematical spans and resolved references with canonical escaping. Keep source review and native trust explicit.
+
 ## Configure and validate
 
 Defaults require no setup. Read [configuration](references/configuration.md) for sparse native keys, standard package hooks and the JSON subset. Keep language/font selection, manuscript content and layout settings separate. Fix layout problems in the canonical configuration or implementation rather than changing supplied wording, shrinking individual blocks or duplicating example-specific styles.

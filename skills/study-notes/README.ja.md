@@ -86,3 +86,5 @@ make PRODUCTS='notes quick-reference keyword-index decision-tree' BILINGUAL_PDF_
 ## 構造化された判断グラフ
 
 ノートと検索用資料には引き続きネイティブ LaTeX を使います。構造化された判断グラフには [graph-v1 の手順](references/structured-graph.md) と[対訳の例](examples/structured-graph.json)を使ってください。バージョン付きの一つの JSON が内容と接続の唯一の元データです。インポーターは検証と決定的な N 番号の生成を行い、既存のネイティブ意味コンポーネントを出力します。対訳が揃っていれば翻訳用の依存関係は不要です。組版はインストール済みの bilingual-pdf が担当します。
+
+信頼できるネイティブアダプター向けの[出力ヘルパー](references/native-emission.md)で、翻訳済みの呼び出し文、正確な参照、原文フィールドの保持確認を扱えます。graph-v1 の制約は変わりません。

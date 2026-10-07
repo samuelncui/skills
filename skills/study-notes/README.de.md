@@ -86,3 +86,5 @@ Natives TeX und latexmk-Konfigurationen führen Code aus. Deaktiviertes Shell-Es
 ## Strukturierte Entscheidungsgraphen
 
 Notizen und Nachschlagewerke bleiben natives LaTeX. Für strukturierte Entscheidungsgraphen verwenden Sie den [graph-v1-Ablauf](references/structured-graph.md) und das [zweisprachige Beispiel](examples/structured-graph.json). Eine einzige versionierte JSON-Datei legt Inhalte und Übergänge fest. Der Importer prüft die Daten, erzeugt deterministische N-Kennungen und gibt die vorhandenen nativen semantischen Komponenten aus. Bereits vorliegende Sprachpaare benötigen keine Übersetzungsabhängigkeit. Den Satz übernimmt weiterhin die installierte Fertigkeit bilingual-pdf.
+
+Die [nativen Ausgabehelfer](references/native-emission.md) unterstützen lokalisierte Aufruftexte, genaue Verweise und Prüfungen auf erhaltene Quellfelder. Die Grenzen von graph-v1 bleiben unverändert.

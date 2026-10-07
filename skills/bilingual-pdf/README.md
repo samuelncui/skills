@@ -92,3 +92,5 @@ Original code, tutorial text and diagrams use the [MIT license](LICENSE). Third-
 ## Translation before layout
 
 For raw-source translation, use the separately installed bilingual-translation skill to prepare one reviewed paired manuscript. Supplied pairs still render directly. See [translation handoff](references/translation.md) for installed-skill discovery, version pinning and optional exchange-v1 import; native TeX remains equally supported.
+
+Trusted native adapters can merge exact-source math and references with the [source-bound text API](references/bound-text.md).

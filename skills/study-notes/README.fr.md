@@ -86,3 +86,5 @@ Le TeX natif et la configuration latexmk exécutent du code. Désactiver shell e
 ## Graphes de décision structurés
 
 Les notes et les outils de consultation restent en LaTeX natif. Pour un graphe structuré, suivez le [parcours graph-v1](references/structured-graph.md) et l’[exemple bilingue](examples/structured-graph.json). Un seul fichier JSON versionné définit le contenu et les transitions. L’importateur valide les données, attribue des identifiants N déterministes et produit les composants sémantiques natifs existants. Les paires déjà fournies ne nécessitent aucune dépendance de traduction. La composition reste assurée par la compétence bilingual-pdf installée.
+
+Les [outils d’émission natifs](references/native-emission.md) composent les appels localisés, les références précises et vérifient la conservation des champs sources. Les limites de graph-v1 restent inchangées.

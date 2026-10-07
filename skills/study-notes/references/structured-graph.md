@@ -105,6 +105,10 @@ Entry is fixed first. At or below `exact_limit`, enumerate every remaining-node 
 
 The report records algorithm/API/schema versions, effective settings, seed/baseline/final order, exact edges, scores, evaluations, certification flag, source/output hashes and key-number-anchor crosswalk. Hashes use UTF-8 canonical JSON (sorted keys, compact separators, Unicode preserved) for structured values and exact UTF-8 bytes for output files. The report does not independently certify its own optimality claim; maintained independent tiny-graph oracle tests check the exact algorithm.
 
+## Native adapters outside graph-v1
+
+The additive [native emission helpers](native-emission.md) support already-authored native call prose and source survival checks without widening this schema or validator. Use this importer for graph-v1 inputs; choose a reviewed native adapter for contracts outside its stated limits.
+
 ## Maintainer verification
 
 From a clean checkout, install root requirements and run `python -m unittest discover -s tests -p 'test_*graph*.py' -v`. These maintained tests include independent small-graph optimum checks, deterministic bounded larger cases, invalid graph/text/math/path data, complete field coverage, native-command equivalence and separately installed dependencies. Run the scoped native helper/component and structured-import render profiles documented in the repository test guide. Inspect current generated PDF pixels, visible Nx identities, links and source-defined reader paths before publishing. Do not publish private inputs, machine paths or migration receipts.

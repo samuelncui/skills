@@ -86,3 +86,5 @@ make PRODUCTS='notes quick-reference keyword-index decision-tree' BILINGUAL_PDF_
 ## 结构化决策图输入
 
 笔记与速查继续使用原生 LaTeX。结构化决策图请使用 [graph-v1 工作流](references/structured-graph.md) 和[双语示例](examples/structured-graph.json)。唯一的版本化 JSON 源定义内容与连线；导入器验证数据、生成确定性的 N 编号，并输出已有的原生语义组件。已有的双语文本不需要翻译依赖；排版仍由安装的 bilingual-pdf 技能负责。
+
+可信的原生适配器可使用[输出辅助工具](references/native-emission.md)组合本地化调用说明、精确引用并检查源字段是否保留；graph-v1 的限制不变。

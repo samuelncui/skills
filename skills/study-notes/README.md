@@ -86,3 +86,5 @@ Native TeX and latexmk configuration execute code. Disabled shell escape does no
 ## Structured graph input
 
 Notes and lookup forms stay native LaTeX. For a structured decision graph, follow the [graph-v1 workflow](references/structured-graph.md) and the [paired example](examples/structured-graph.json). One versioned JSON source defines content and edges; the importer validates it, generates deterministic N identities and emits the existing native semantic components. Supplied language pairs need no translation dependency. Rendering and typography remain owned by the installed bilingual-pdf skill.
+
+Trusted native adapters can use [emission helpers](references/native-emission.md) for localized call prose, precise references and source-field survival checks; graph-v1 limits remain unchanged.

@@ -232,6 +232,107 @@ def language_text(text,language,prefix='',suffix=''):
     else:value=escape(text).replace('\n',' ')
     return prefix+value+suffix
 
+
+
+# Additive Python API for explicitly source-bound native authoring. This does not
+# change the article JSON schema or the study graph-v1 rich-run contract.
+BOUND_TEXT_API_VERSION = 1
+_SCIENTIFIC_SYMBOLS = {
+    '←': r'\ensuremath{\leftarrow}\allowbreak{}',
+    '→': r'\ensuremath{\rightarrow}\allowbreak{}',
+    '∂': r'\ensuremath{\partial}', '∝': r'\ensuremath{\propto}',
+    '≈': r'\ensuremath{\approx}', '⊙': r'\ensuremath{\odot}',
+    '≤': r'\ensuremath{\leq}', '≥': r'\ensuremath{\geq}',
+    '≠': r'\ensuremath{\ne}',
+}
+
+
+def render_bound_text(text, *, runs=None, references=(), language='en',
+                      text_policy='literal', source_sha256=None,
+                      trusted_native=False):
+    """Render exact-source text/math spans and pre-resolved native references.
+
+    Runs reconstruct the whole text: {kind: text, source: ...} or
+    {kind: math, source: ..., tex: ...}. References contain start/end/text/tex.
+    Offsets count Unicode code points. Native reference fragments and unrestricted
+    math require explicit trusted_native=True AND a matching source_sha256.
+    Hash binding detects drift; it does not make native TeX safe.
+    """
+    if not isinstance(text, str):
+        raise InputError('Bound source must be a string')
+    text_value('text' + text)  # Permit empty/whitespace-only source spans.
+    if language not in PROFILES:
+        raise InputError('Unsupported bound-text language')
+    if text_policy not in ('literal', 'scientific-breaks'):
+        raise InputError('Unknown bound-text policy')
+    digest = hashlib.sha256(text.encode()).hexdigest()
+    if source_sha256 is not None and source_sha256 != digest:
+        raise InputError('Bound source hash drift')
+    if trusted_native and source_sha256 != digest:
+        raise InputError('Trusted native fragments require an exact source hash')
+    if not isinstance(references, (list, tuple)):
+        raise InputError('References must be an ordered sequence')
+    events = []
+    if runs is not None:
+        if not isinstance(runs, list):
+            raise InputError('Bound runs must be a list')
+        offset = 0
+        for run in runs:
+            if not isinstance(run, dict) or run.get('kind') not in ('text', 'math'):
+                raise InputError('Unknown bound run kind')
+            fields = {'kind', 'source', 'tex'} if run['kind'] == 'math' else {'kind', 'source'}
+            if set(run) != fields or not isinstance(run['source'], str) or not run['source']:
+                raise InputError('Invalid bound run fields')
+            end = offset + len(run['source'])
+            if text[offset:end] != run['source']:
+                raise InputError('Bound runs do not reconstruct source')
+            if run['kind'] == 'math':
+                tex = run['tex']
+                if not isinstance(tex, str) or not tex:
+                    raise InputError('Bound mathematics must be nonempty TeX')
+                if not trusted_native:
+                    validate({'languages': ['en', 'en'], 'title': ['Math', 'Math'],
+                              'blocks': [{'id': 'formula', 'kind': 'equation',
+                                          'text': ['Formula', 'Formula'], 'math': tex}]})
+                    depth = 0
+                    for char in tex:
+                        depth += (char == '{') - (char == '}')
+                        if depth < 0:
+                            raise InputError('Unbalanced math braces')
+                    if depth:
+                        raise InputError('Unbalanced math braces')
+                events.append((offset, end, r'\(' + tex + r'\)'))
+            offset = end
+        if offset != len(text):
+            raise InputError('Bound runs do not reconstruct source')
+    for reference in references:
+        if not trusted_native:
+            raise InputError('Resolved reference TeX requires trusted_native and source hash')
+        if not isinstance(reference, dict) or set(reference) != {'start', 'end', 'text', 'tex'}:
+            raise InputError('Invalid bound reference fields')
+        start, end = reference['start'], reference['end']
+        if (type(start) is not int or type(end) is not int or
+                not 0 <= start < end <= len(text) or text[start:end] != reference['text']):
+            raise InputError('Bound reference span drift')
+        if not isinstance(reference['tex'], str) or not reference['tex']:
+            raise InputError('Resolved reference must be nonempty native TeX')
+        events.append((start, end, reference['tex']))
+    events.sort(key=lambda event: (event[0], event[1]))
+    if any(left[1] > right[0] for left, right in zip(events, events[1:])):
+        raise InputError('Bound reference/mathematical spans overlap')
+    def literal(value):
+        if text_policy == 'literal':
+            return language_text(value, language)
+        return ''.join(_SCIENTIFIC_SYMBOLS.get(char, escape(char)) +
+                       (r'\allowbreak{}' if char in '/,;' else '') for char in value)
+    output, offset = [], 0
+    for start, end, tex in events:
+        output.extend((literal(text[offset:start]), tex))
+        offset = end
+    output.append(literal(text[offset:]))
+    return ''.join(output)
+
+
 def content(b,index,language):
     if b.get('kind')=='table' and 'text' not in b:return ''
     value=b['text'][index];kind=b.get('kind','paragraph')

@@ -178,3 +178,13 @@ Install root requirements, then run the affected maintained checks:
 The unit suite covers the standard schema and semantic validator, strict source parsing, escaped text/restricted math/trusted-native boundaries, source bindings, image containment, call-context regressions, field coverage, a tiny independent ordering oracle and deterministic bounded larger graphs. The render profile uses separately installed skills for paired/left/right editions of the neutral parcel graph, checks Nx identities and actual helper/resume destinations, and compares a separately handwritten native manuscript's visible language columns and semantic AUX labels/pages against the importer. Source-level string equivalence alone is insufficient to establish native API correctness. Existing `study_graph_components.py` retains native compatibility and helper negative cases. Use the existing matrix `--case`, `--budget-seconds`, and `--resume` options for affected reruns; preserve failed evidence.
 
 For practical cold-context validation, give a fresh worker an ordinary graph-authoring task, separately installed skills and available toolchain paths. It should use only owned SKILL.md/references/examples, author neutral source material, preserve one authoritative graph and inspect generated PDF pixels and reader paths. Retain the original failed attempt when updating a candidate, then restage changed skills and retry the unchanged authored graph. Record source/install/output identities privately. This tests authoring usability separately from automated conformance; it does not certify every language or private downstream adapter.
+
+## Bound native emission
+
+Run the test_graph_emission.py unittest profile for exact-source binding,
+native trust, call composition and field/unit survival.
+Run .venv/bin/python tests/graph_emission_render.py --output .local/graph-emission-render
+for one installed native PDF case covering same-step resumes, ordered independent
+calls, caller-qualified exits, ordinary continuation, actual destinations and
+clickable links. Inspect its generated page image separately; these neutral
+checks do not certify a downstream shell migration.
