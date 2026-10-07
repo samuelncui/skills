@@ -41,7 +41,7 @@ export STUDY_NOTES_SKILL="/path/reported/by/host/study-notes"
 
 `bilingual-pdf/assets/paralleltext.sty` owns geometry, fonts, paragraph alignment, continuation, figures, roles, covers and rendering checks. This skill's `studytools.sty` adds native records and navigation. It never downloads dependencies or carries a second renderer.
 
-Use the bilingual skill's independent native/language/configuration references for the common layout API. Native builds require XeLaTeX, latexmk and the documented fonts/packages. Python is optional for repository/PDF QA; there is no JSON manuscript adapter in this skill.
+Use the bilingual skill's independent native/language/configuration references for the common layout API. Native builds require XeLaTeX, latexmk and the documented fonts/packages. Python is optional for native-manuscript QA and required for the optional structured decision-graph importer. Notes and lookup forms remain native.
 
 ## Build only the forms you want
 
@@ -82,3 +82,7 @@ Downstream projects should pin a tested skill revision and keep private content,
 Check source coverage, explanation quality, realistic lookup routes, decision paths, links and actual PDF pages separately. Do not claim completeness or an independent audit without evidence. Deliver the selected PDFs, source map and portable editable project; report passed, failed and unrun checks.
 
 Native TeX and latexmk configuration execute code. Disabled shell escape does not isolate file access. Keep private sources, names, identifiers and provenance out of public examples, and obtain applicable authorization before external processing or publication. Original code/content use the [MIT license](LICENSE); dependencies retain their own licenses.
+
+## Structured graph input
+
+Notes and lookup forms stay native LaTeX. For a structured decision graph, follow the [graph-v1 workflow](references/structured-graph.md) and the [paired example](examples/structured-graph.json). One versioned JSON source defines content and edges; the importer validates it, generates deterministic N identities and emits the existing native semantic components. Supplied language pairs need no translation dependency. Rendering and typography remain owned by the installed bilingual-pdf skill.

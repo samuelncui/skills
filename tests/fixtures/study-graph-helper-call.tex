@@ -1,0 +1,31 @@
+\documentclass[10pt,twoside]{article}
+\usepackage{studytools}
+\ifdefined\GraphFixturePaired\ParallelSelect{paired}\else\ParallelSelect{left}\fi
+\ParallelSetup{body-size=9,body-leading=10.8,single-columns=1,geometry={a4paper,margin=18mm},paragraph-flow=keep}
+\StudyGraphReaderProfile
+\StudyGraphLabels{returned-outputs}{Return these outputs}{Bring back}
+\StudyGraphLabels{called-exit}{When called}{On return}
+\newcommand\GraphPair[2]{\ParallelParagraph{#1}{#2}{#2}}
+\StudyDeclareGraphNodeAuto{report-value}{procedure}{action}{Report the value}{State the value}
+\StudyDeclareGraphNodeAuto{choose-input}{decision}{question}{Choose the value}{Select the value}
+\StudyDeclareGraphNodeAuto{capture-value}{procedure}{action}{Read the given value}{Read the supplied value}
+\StudyDeclareGraphNodeAuto{zero-value}{procedure}{result}{Use the stated zero}{Use the supplied zero}
+\StudyDeclareGraphTerminal{finish}{Finished}{Complete}
+\providecommand\GraphFixtureCall{\StudyGraphHelperCall{choose-input}{A value must be resolved.}{The resolved value.}{report-value}{2}}
+\begin{document}
+\StudyGraphNode{report-value}
+\GraphPair{start}{\StudyGraphStep{1}{Inspect whether a value or a zero instruction is supplied.}}
+\GraphPair{call}{\GraphFixtureCall}
+\GraphPair{resume}{\StudyGraphStep{2}{State the resolved value with its units.}}
+\GraphPair{complete}{\StudyGraphCompletionCheck{The result matches the supplied instruction.}\StudyGraphJump{finish}}
+\StudyGraphNode{choose-input}
+\GraphPair{inspect}{Inspect the supplied record for a stated value; otherwise it supplies a zero instruction.}
+\GraphPair{given}{\StudyGraphChoice{1}{A value is stated.}{capture-value}}
+\GraphPair{zero}{\StudyGraphFallback{2}{A zero instruction is supplied.}{zero-value}}
+\StudyGraphNode{capture-value}
+\GraphPair{capture}{\StudyGraphStep{1}{Read the value and its units.}\StudyGraphField{output}{The resolved value.}\StudyGraphReturnExit}
+\StudyGraphNode{zero-value}
+\GraphPair{return-zero}{\StudyGraphStep{1}{Use zero with the supplied units.}\StudyGraphField{output}{The resolved value.}\StudyGraphReturnExit}
+\StudyGraphNode{finish}
+\GraphPair{done}{The requested value has been reported.}
+\end{document}

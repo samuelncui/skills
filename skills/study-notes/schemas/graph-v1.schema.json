@@ -1,0 +1,473 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://samuelncui.github.io/skills/study-notes/graph-v1.schema.json",
+  "title": "Study Notes structured graph v1",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "title": {
+      "$ref": "#/$defs/plainpair"
+    },
+    "entry": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])",
+      "maxLength": 80
+    },
+    "seed_order": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])",
+        "maxLength": 80
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "ordering": {
+      "type": "object",
+      "properties": {
+        "exact_limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9
+        },
+        "budget": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])",
+            "maxLength": 80
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+          },
+          "title": {
+            "$ref": "#/$defs/plainpair"
+          }
+        },
+        "required": [
+          "key",
+          "sha256",
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])",
+            "maxLength": 80
+          },
+          "kind": {
+            "enum": [
+              "decision",
+              "procedure"
+            ]
+          },
+          "function": {
+            "enum": [
+              "question",
+              "action",
+              "check",
+              "warning",
+              "result"
+            ]
+          },
+          "title": {
+            "$ref": "#/$defs/plainpair"
+          },
+          "prerequisites": {
+            "$ref": "#/$defs/pair"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])",
+                  "maxLength": 80
+                },
+                "role": {
+                  "enum": [
+                    "input",
+                    "output",
+                    "check",
+                    "warning",
+                    "result",
+                    "operation",
+                    "limits",
+                    "context",
+                    "related",
+                    "explanation",
+                    "support"
+                  ]
+                },
+                "text": {
+                  "$ref": "#/$defs/pair"
+                }
+              },
+              "required": [
+                "key",
+                "role",
+                "text"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "$ref": "#/$defs/pair"
+                },
+                "call": {
+                  "type": "object",
+                  "properties": {
+                    "target": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])",
+                      "maxLength": 80
+                    },
+                    "when": {
+                      "$ref": "#/$defs/pair"
+                    },
+                    "outputs": {
+                      "$ref": "#/$defs/pair"
+                    },
+                    "resume": {
+                      "type": "object",
+                      "properties": {
+                        "node": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])",
+                          "maxLength": 80
+                        },
+                        "step": {
+                          "oneOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            {
+                              "const": "completion_check"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "node",
+                        "step"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "return_exits": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])",
+                        "maxLength": 80
+                      },
+                      "minItems": 1,
+                      "uniqueItems": true
+                    }
+                  },
+                  "required": [
+                    "target",
+                    "when",
+                    "outputs",
+                    "resume",
+                    "return_exits"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "text"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "condition": {
+                  "$ref": "#/$defs/pair"
+                },
+                "target": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])",
+                  "maxLength": 80
+                }
+              },
+              "required": [
+                "condition",
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "completion_check": {
+            "$ref": "#/$defs/pair"
+          },
+          "next": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])",
+            "maxLength": 80
+          },
+          "stop": {
+            "$ref": "#/$defs/pair"
+          },
+          "loop": {
+            "type": "object",
+            "properties": {
+              "carried": {
+                "$ref": "#/$defs/pair"
+              },
+              "progress": {
+                "$ref": "#/$defs/pair"
+              },
+              "continue_when": {
+                "$ref": "#/$defs/pair"
+              },
+              "exit_when": {
+                "$ref": "#/$defs/pair"
+              }
+            },
+            "required": [
+              "carried",
+              "progress",
+              "continue_when",
+              "exit_when"
+            ],
+            "additionalProperties": false
+          },
+          "figures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100000
+                },
+                "caption": {
+                  "$ref": "#/$defs/pair"
+                }
+              },
+              "required": [
+                "path",
+                "caption"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "key",
+          "kind",
+          "function",
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 2000
+    }
+  },
+  "required": [
+    "schema_version",
+    "languages",
+    "title",
+    "entry",
+    "seed_order",
+    "nodes"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "field": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100000
+        },
+        {
+          "type": "object",
+          "properties": {
+            "runs": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "text"
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100000
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "text"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "math"
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100000
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "text"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "native"
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100000
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "text"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "reference"
+                      },
+                      "source": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])",
+                        "maxLength": 80
+                      },
+                      "sha256": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+                      },
+                      "locator": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100000
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "source",
+                      "sha256",
+                      "locator"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "node"
+                      },
+                      "target": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])",
+                        "maxLength": 80
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "target"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "runs"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "pair": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/field"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "plainpair": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100000
+      },
+      "minItems": 2,
+      "maxItems": 2
+    }
+  }
+}

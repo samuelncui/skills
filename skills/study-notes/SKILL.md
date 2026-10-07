@@ -1,11 +1,11 @@
 ---
 name: study-notes
-description: Create explanatory study notes, a unified quick reference, a keyword index or a decision tree from authorized learning sources. Use native LaTeX for one or several selected forms. Requires the installed bilingual-pdf skill for rendering.
+description: Create explanatory study notes, a unified quick reference, a keyword index or a decision tree from authorized learning sources. Use native LaTeX for selected forms or import a structured decision graph. Requires the installed bilingual-pdf skill for rendering.
 ---
 
 # Study Notes
 
-Turn authorized learning sources into the forms the reader needs. Native LaTeX is the only manuscript input. This skill owns source-to-notes authoring and native lookup/decision components; the installed `bilingual-pdf` skill owns all typography, paired layout and PDF rendering.
+Turn authorized learning sources into the forms the reader needs. Use native LaTeX for notes, quick references and indexes. Decision graphs may also use the optional versioned structured import route. This skill owns source-to-notes authoring and native lookup/decision components; the installed `bilingual-pdf` skill owns all typography, paired layout and PDF rendering.
 
 ## Select forms and resolve the dependency
 
@@ -17,6 +17,10 @@ Offer the relevant forms without requiring the whole set:
 - Decision Tree asks natural questions, tests A/B/C choices in first-match order and leads by generated reader number/page to a usable answer approach.
 
 One form or a combination is valid. Discover `bilingual-pdf` through the host's installed-skill listing and read its `SKILL.md`; never assume a sibling installation or download a dependency automatically. Use the discovered directory as `BILINGUAL_PDF_SKILL`. If discovery finds no compatible installation, report the required dependency/version and continue source mapping while its installation is resolved through the authorized host workflow. Read [the human guide](README.md) for build commands, [native study API](references/native-api.md) for declarations and [rendering](references/rendering.md) for independent/combined builds. Canonical layout, language and flow references belong to the installed bilingual skill.
+
+## Import a structured decision graph
+
+When the input is structured graph data, use the single primary [graph-v1 import workflow](references/structured-graph.md): validate the standard schema and semantics, retain supplied language pairs, generate deterministic Nx order and existing native fragments, then compile with the discovered bilingual-pdf dependency and the trusted native layout. Read that reference before adapting data; unknown fields fail instead of being discarded. Keep one authoritative JSON graph, with source-bound rich fields and explicit helper calls where needed. Do not create a parallel reader graph or make uncertainty/inspection routes mandatory. Native graph authoring remains compatible. The importer requires Python 3.10+, its owned requirements and bilingual-pdf renderer API 1; native-only authoring remains Python-free.
 
 ## Map the source and author the selected forms
 
@@ -34,6 +38,6 @@ Adapt the self-hosted example project in `examples/`; it teaches how to choose a
 
 The native `studytools.sty` layer uses the installed `paralleltext.sty`. Do not copy or fork its renderer, geometry, language handling or QA. Downstream projects should pin the tested skill revision and use thin private manuscript/configuration adapters. Keep private names, source text, identifiers and provenance downstream.
 
-Run the [review and delivery checks](references/review-release.md), inspect every final page and exercise actual keyword, alias, subentry and tree lookups. Check coverage separately from layout; disclose unreviewed content and unrun checks. Keep selected PDFs together when they use relative cross-document links. Deliver the selected PDFs, portable native sources and source map. No JSON manuscript adapter is provided.
+Run the [review and delivery checks](references/review-release.md), inspect every final page and exercise actual keyword, alias, subentry and tree lookups. Check coverage separately from layout; disclose unreviewed content and unrun checks. Keep selected PDFs together when they use relative cross-document links. Deliver the selected PDFs, portable native sources and source map. For imported decision graphs, keep the versioned JSON as the sole content/edge source and regenerate derived TeX.
 
 Native TeX and latexmk configuration execute code; disabled shell escape is not a sandbox. Use trusted inputs or appropriate isolation. Obtain applicable permission for external processing/publication and preserve licenses. Never move personal or private learning material into public examples.

@@ -41,7 +41,7 @@ export STUDY_NOTES_SKILL="/path/reported/by/host/study-notes"
 
 `bilingual-pdf/assets/paralleltext.sty` 负责页面尺寸、字体、段落对齐、跨页延续、插图、语义角色、封面和渲染检查。本技能的 `studytools.sty` 添加原生记录与导航功能，不会下载依赖，也不携带第二套渲染器。
 
-共用版式 API 请参阅双语技能独立的原生、语言和配置参考。原生构建需要 XeLaTeX、latexmk 以及文档列出的字体和包。Python 仅用于可选的仓库／PDF 质量检查；此技能不提供 JSON 稿件适配器。
+共用版式 API 请参阅双语技能独立的原生、语言和配置参考。原生构建需要 XeLaTeX、latexmk 以及文档列出的字体和包。原生稿件的质量检查可选用 Python；结构化决策图导入器需要 Python。笔记与速查仍使用原生稿件。
 
 ## 只构建需要的形式
 
@@ -82,3 +82,7 @@ make PRODUCTS='notes quick-reference keyword-index decision-tree' BILINGUAL_PDF_
 分别检查来源覆盖、讲解质量、真实查询路线、决策路径、链接和实际 PDF 页面。没有证据时，不要声称内容完整或已经过独立审计。交付选定的 PDF、来源映射和可移交、可编辑的项目，并报告通过、失败和未执行的检查。
 
 原生 TeX 和 latexmk 配置可以执行代码。禁用 shell escape 不能隔离文件访问。私有源材料、姓名、标识符和来源记录不得进入公开示例；外部处理或发布前需取得适用授权。原创代码与内容采用 [MIT 许可证](LICENSE)，依赖保留各自的许可证。
+
+## 结构化决策图输入
+
+笔记与速查继续使用原生 LaTeX。结构化决策图请使用 [graph-v1 工作流](references/structured-graph.md) 和[双语示例](examples/structured-graph.json)。唯一的版本化 JSON 源定义内容与连线；导入器验证数据、生成确定性的 N 编号，并输出已有的原生语义组件。已有的双语文本不需要翻译依赖；排版仍由安装的 bilingual-pdf 技能负责。

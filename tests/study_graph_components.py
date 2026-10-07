@@ -37,17 +37,28 @@ def cases():
  ('zero-choice',r'\AtBeginDocument{\StudyGraphChoice{0}{Invalid}{finish}}','Graph ordinal must be a positive integer'),
  ('unknown-target',r'\AtBeginDocument{\StudyGraphReference{not-declared}}','Unknown graph key'),
  ('invalid-call',r'\AtBeginDocument{\StudyGraphCall{choose-task}{Always}{A value}{compute-value}{2}}','Graph call target must be a procedure'),
+ ('helper-call-decision','',None),
+ ('helper-call-procedure',r'\def\GraphFixtureCall{\StudyGraphHelperCall{capture-value}{A value must be resolved.}{The resolved value.}{report-value}{2}}',None),
+ ('helper-call-completion',r'\def\GraphFixtureCall{\StudyGraphHelperCall{choose-input}{A value must be resolved.}{The resolved value.}{report-value}{completion_check}}',None),
+ ('helper-call-paired',r'\def\GraphFixturePaired{}',None),
+ ('helper-call-unknown',r'\def\GraphFixtureCall{\StudyGraphHelperCall{missing}{Always}{A value}{report-value}{2}}','Unknown graph key missing'),
+ ('helper-call-terminal',r'\def\GraphFixtureCall{\StudyGraphHelperCall{finish}{Always}{A value}{report-value}{2}}','Graph helper call target must be a decision'),
+ ('helper-call-unknown-resume',r'\def\GraphFixtureCall{\StudyGraphHelperCall{choose-input}{Always}{A value}{missing}{2}}','Unknown graph key missing'),
+ ('helper-call-invalid-resume',r'\def\GraphFixtureCall{\StudyGraphHelperCall{choose-input}{Always}{A value}{report-value}{0}}','Graph ordinal must be a positive integer'),
+
  ]
 def run_case(case,work):
  name,prefix,error=case;p=work/name;p.mkdir(exist_ok=True)
  hierarchy=name.startswith('hierarchy')
  reader=name in ('native-auto','reader-profile','intro-rules','intro-rules-paired') or (hierarchy and name!='hierarchy-only')
- source=prefix+'\n'+(ROOT/'tests/fixtures/study-graph-components.tex').read_text()
+ helper=name.startswith('helper-call-')
+ fixture='study-graph-helper-call.tex' if helper else 'study-graph-components.tex'
+ source=prefix+'\n'+(ROOT/'tests/fixtures'/fixture).read_text()
  if name=='native-auto':
   source=re.sub(r'\\StudyDeclareGraphNode\{([^}]+)\}\{[1-5]\}',r'\\StudyDeclareGraphNodeAuto{\1}',source)
  (p/'main.tex').write_text(source)
  env={**os.environ,'TEXINPUTS':str(ROOT/'skills/study-notes/assets')+'//:'+str(ROOT/'skills/bilingual-pdf/assets')+'//:'+os.environ.get('TEXINPUTS','')+':'}
- if hierarchy or name=='native-auto':
+ if hierarchy or name=='native-auto' or helper:
   # The installed skills deliberately have unrelated, separately discovered paths.
   study=p/'installed-learning';render=p/'dependencies'/'rendering'
   shutil.copytree(ROOT/'skills/study-notes/assets',study,dirs_exist_ok=True)
@@ -61,6 +72,44 @@ def run_case(case,work):
  if error:return {'case':name,'passed':False,'errors':['Expected rejection did not occur']}
  errors=[];d=fitz.open(p/'main.pdf');text='\n'.join(x.get_text() for x in d);text=' '.join(re.sub(r'(?<=\w)-\n(?=\w)', '', text).split());aux=(p/'main.aux').read_text()
  if re.search(r'Overfull \\[hv]box|Missing character:|undefined references',log):errors.append('Layout, glyph or reference diagnostic')
+ if helper:
+  text=text.replace('’', "'")
+  values=['A value must be resolved.', 'Return these outputs: The resolved value.',
+          'Then resume:', 'State the resolved value with its units.',
+          'Supply the active call\'s declared return outputs',
+          'stated resume node and action or completion check']
+  if name=='helper-call-completion':values.append('Then resume: Remember (p.')
+  else:values.append('Then resume: Step 2 (p.')
+  callee='capture-value' if name=='helper-call-procedure' else 'choose-input'
+  title='Read the given value' if name=='helper-call-procedure' else 'Choose the value'
+  if not re.search(r'Call: N[23]: '+title+r' \(p\.',text):errors.append('Helper call entry link changed')
+  if text.count('When called:')!=2:errors.append('Return-only exits missing or duplicated')
+  if 'Otherwise, ordinary next:' in text:errors.append('Return-only exit invented an ordinary-next route')
+  if name=='helper-call-paired':
+   values+=['Bring back: The resolved value.', 'Select the value', 'On return:']
+   if text.count('On return:')!=2:errors.append('Localized return-only exit missing')
+  for value in values:
+   if value not in text:errors.append('Missing helper semantic text '+value)
+  # Resolve AUX destinations and verify real links, not guessed hyperref names.
+  names=d.resolve_names()
+  links=[link for page in d for link in page.get_links()]
+  for label in ('graph:'+callee,'graph:report-value:step:2','graph:report-value:completion-check'):
+   match=re.search(r'\\newlabel\{'+re.escape(label)+r'\}\{\{.*?\}\{.*?\}\{.*?\}\{([^}]+)\}',aux)
+   if not match or match[1] not in names:errors.append('Missing helper PDF destination '+label)
+  resume='completion-check' if name=='helper-call-completion' else 'step:2'
+  match=re.search(r'\\newlabel\{graph:report-value:'+resume+r'\}\{\{.*?\}\{.*?\}\{.*?\}\{([^}]+)\}',aux)
+  if match and match[1] in names:
+   target=names[match[1]]
+   if not any(link.get('nameddest')==match[1] or
+              (link.get('kind')==fitz.LINK_GOTO and link.get('page')==target.get('page') and
+               abs(link.get('to',fitz.Point(-1000,-1000)).y-target['to'][1])<1)
+              for link in links):
+    errors.append('Helper resume destination has no clickable link')
+  if any(key in text for key in ('report-value','choose-input','capture-value','zero-value')):
+   errors.append('Helper graph key leaked into reader text')
+  for i,page in enumerate(d):page.get_pixmap(matrix=fitz.Matrix(1.3,1.3)).save(p/f'page-{i+1}.png')
+  return {'case':name,'passed':not errors,'errors':errors,'pages':len(d)}
+
  headings = [(1,'Choose the task'),(2,'Obtain the missing value'),(3,'Compute the value'),(4,'Check the result'),(5,'Report the result')] if reader or hierarchy else [(1,'Question'),(2,'Warning'),(3,'Action'),(4,'Check'),(5,'Result')]
  for n,label in headings:
   if not re.search(('N' if reader else '')+str(n)+(r'\s+' if hierarchy else r'\s*·\s*')+label,text):errors.append('Missing numbered heading '+str(n))

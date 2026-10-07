@@ -1,6 +1,6 @@
 # Native study API
 
-This is the independent reference for `assets/studytools.sty` and its native graph components. Manuscripts are native LaTeX, not a JSON collection. Rendering is owned by the explicitly installed `bilingual-pdf` dependency.
+This is the independent reference for `assets/studytools.sty` and its native graph components. This API supports native authoring and derived fragments from the optional [structured graph importer](structured-graph.md). Notes and lookup manuscripts remain native LaTeX. Rendering is owned by the explicitly installed `bilingual-pdf` dependency.
 
 ## Contents
 

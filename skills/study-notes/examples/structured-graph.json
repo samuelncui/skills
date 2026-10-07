@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "title": [
+    "Prepare a small parcel",
+    "Préparez un petit colis"
+  ],
+  "entry": "choose-wrap",
+  "seed_order": [
+    "choose-wrap",
+    "pack-parcel",
+    "choose-material",
+    "use-paper",
+    "use-padding",
+    "label-parcel"
+  ],
+  "nodes": [
+    {
+      "key": "choose-wrap",
+      "kind": "decision",
+      "function": "question",
+      "title": [
+        "Does the parcel need cushioning?",
+        "Le colis nécessite-t-il un rembourrage ?"
+      ],
+      "prerequisites": [
+        "Inspect the contents before choosing. Test choices in order.",
+        "Examinez le contenu avant de choisir. Testez les choix dans l’ordre."
+      ],
+      "choices": [
+        {
+          "condition": [
+            "The contents are fragile.",
+            "Le contenu est fragile."
+          ],
+          "target": "pack-parcel"
+        },
+        {
+          "condition": [
+            "Otherwise.",
+            "Sinon."
+          ],
+          "target": "label-parcel"
+        }
+      ]
+    },
+    {
+      "key": "pack-parcel",
+      "kind": "procedure",
+      "function": "action",
+      "title": [
+        "Pack the parcel",
+        "Emballez le colis"
+      ],
+      "steps": [
+        {
+          "text": [
+            "Select cushioning for the parcel.",
+            "Choisissez le rembourrage du colis."
+          ],
+          "call": {
+            "target": "choose-material",
+            "when": [
+              "Before closing the box.",
+              "Avant de fermer la boîte."
+            ],
+            "outputs": [
+              "The selected cushioning material.",
+              "Le matériau de rembourrage choisi."
+            ],
+            "resume": {
+              "node": "pack-parcel",
+              "step": 2
+            },
+            "return_exits": [
+              "use-paper",
+              "use-padding"
+            ]
+          }
+        },
+        {
+          "text": [
+            "Place the material around the contents and close the box.",
+            "Placez le matériau autour du contenu et fermez la boîte."
+          ]
+        }
+      ],
+      "completion_check": [
+        "The contents do not move when the box is gently tilted.",
+        "Le contenu ne bouge pas lorsque la boîte est légèrement inclinée."
+      ],
+      "next": "label-parcel"
+    },
+    {
+      "key": "choose-material",
+      "kind": "decision",
+      "function": "question",
+      "title": [
+        "Is clean packing paper available?",
+        "Du papier d’emballage propre est-il disponible ?"
+      ],
+      "choices": [
+        {
+          "condition": [
+            "Clean packing paper is available.",
+            "Du papier d’emballage propre est disponible."
+          ],
+          "target": "use-paper"
+        },
+        {
+          "condition": [
+            "Otherwise, use the supplied padding.",
+            "Sinon, utilisez le rembourrage fourni."
+          ],
+          "target": "use-padding"
+        }
+      ]
+    },
+    {
+      "key": "use-paper",
+      "kind": "procedure",
+      "function": "result",
+      "title": [
+        "Use packing paper",
+        "Utilisez du papier d’emballage"
+      ],
+      "steps": [
+        {
+          "text": [
+            "Crumple enough paper to fill the gaps.",
+            "Froissez assez de papier pour combler les espaces."
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "key": "selected-material",
+          "role": "output",
+          "text": [
+            "Packing paper.",
+            "Papier d’emballage."
+          ]
+        }
+      ]
+    },
+    {
+      "key": "use-padding",
+      "kind": "procedure",
+      "function": "result",
+      "title": [
+        "Use supplied padding",
+        "Utilisez le rembourrage fourni"
+      ],
+      "steps": [
+        {
+          "text": [
+            "Choose enough padding to fill the gaps.",
+            "Choisissez assez de rembourrage pour combler les espaces."
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "key": "selected-material",
+          "role": "output",
+          "text": [
+            "Supplied padding.",
+            "Rembourrage fourni."
+          ]
+        }
+      ]
+    },
+    {
+      "key": "label-parcel",
+      "kind": "procedure",
+      "function": "result",
+      "title": [
+        "Label the parcel",
+        "Étiquetez le colis"
+      ],
+      "steps": [
+        {
+          "text": [
+            "Attach the prepared label to the closed parcel.",
+            "Fixez l’étiquette préparée sur le colis fermé."
+          ]
+        }
+      ],
+      "stop": [
+        "The parcel is ready for the next handling step.",
+        "Le colis est prêt pour la prochaine étape de manutention."
+      ]
+    }
+  ]
+}

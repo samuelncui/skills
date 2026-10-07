@@ -223,14 +223,24 @@
  \tl_if_blank:nTF{#4}
  {\__study_graph_exists:n{#3}\ParallelSemanticLabel{concept}{\int_to_Alph:n{#1}.}\space #2\par}
  {\ParallelSemanticChoice{concept}{\int_to_Alph:n{#1}}{#2}{\StudyGraphResumeReference{#3}{#4}}}}
-\NewDocumentCommand \StudyGraphCall {m +m +m m m}{
- \__study_graph_exists:n{#1}
- \str_if_eq:eeF{\prop_item:Nn\g__study_graph_kind_prop{#1}}{procedure}
- {\__study_error:nn{Graph~call~target~must~be~a~procedure}{Use~an~ordinary~jump~for~a~decision.}}
+% Calls share semantic rendering; their public entry contracts stay distinct.
+\cs_new_protected:Npn \__study_graph_call:nnnnn #1#2#3#4#5 {
  \__study_graph_field:nnn{example}{\__study_graph_label:n{call}}{\StudyGraphReference{#1}}\par
  \__study_graph_field:nnn{caution}{\__study_graph_label:n{when}}{#2}\par
  \__study_graph_field:nnn{example}{\__study_graph_label:n{returned-outputs}}{#3}\par
  \__study_graph_field:nnn{concept}{\__study_graph_label:n{resume}}{\StudyGraphResumeReference{#4}{#5}}}
+\NewDocumentCommand \StudyGraphCall {m +m +m m m}{
+ \__study_graph_exists:n{#1}
+ \str_if_eq:eeF{\prop_item:Nn\g__study_graph_kind_prop{#1}}{procedure}
+ {\__study_error:nn{Graph~call~target~must~be~a~procedure}{Use~an~ordinary~jump~for~a~decision.}}
+ \__study_graph_call:nnnnn{#1}{#2}{#3}{#4}{#5}}
+% Optional source-validated structured helper entry, not a topology validator.
+\NewDocumentCommand \StudyGraphHelperCall {m +m +m m m}{
+ \__study_graph_exists:n{#1}
+ \exp_args:Ne\str_case:nnF{\prop_item:Nn\g__study_graph_kind_prop{#1}}
+ {{decision}{}{procedure}{}}
+ {\__study_error:nn{Graph~helper~call~target~must~be~a~decision~or~procedure}{Use~a~source-validated~helper~entry~with~declared~outputs~and~a~resume~point.}}
+ \__study_graph_call:nnnnn{#1}{#2}{#3}{#4}{#5}}
 \__study_graph_label:nn {called-exit}{When~called}
 \__study_graph_label:nn {called-exit-rule}{Supply~the~active~call's~declared~return~outputs,~then~return~to~its~stated~resume~node~and~action~or~completion~check.~Do~not~follow~the~ordinary~next~link~in~call~mode.}
 \__study_graph_label:nn {ordinary-next}{Otherwise,~ordinary~next}
@@ -241,8 +251,10 @@
  {\__study_graph_field:nnn{example}{\__study_graph_label:n{result}}{
   \ParallelLocalize{\__study_graph_title:nn{#2}{left}}{\__study_graph_title:nn{#2}{right}}}}
  {\__study_graph_field:nnn{concept}{\__study_graph_label:n{#1}}{\StudyGraphReference{#2}}}}
+\NewDocumentCommand \StudyGraphReturnExit {}{
+ \__study_graph_field:nnn{example}{\__study_graph_label:n{called-exit}}{\__study_graph_label:n{called-exit-rule}}}
 \NewDocumentCommand \StudyGraphCalleeExit {m}{
- \__study_graph_field:nnn{example}{\__study_graph_label:n{called-exit}}{\__study_graph_label:n{called-exit-rule}}
+ \StudyGraphReturnExit
  \__study_graph_next:nn{ordinary-next}{#1}}
 \NewDocumentCommand \StudyGraphJump {m}
  {\__study_graph_next:nn{next}{#1}}

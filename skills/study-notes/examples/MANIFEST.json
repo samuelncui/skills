@@ -12,7 +12,9 @@
     "notes.tex": "b96cc198f9e7eace5ae593bae9178ed530f472e43df7b917e9d6a26fa81e616e",
     "quick-reference.tex": "61f97cae50f40ede7f5ea30c23188e32d45cbc2f6b1007903a9fd82f60ddb2ad",
     "source-map.json": "b77c12a62b8082d0f709a157e29a21df9105fafdd39a1532da34980be42b1d71",
-    "source.md": "bd3850d931f1515bef208e3534f3970f3822e83568578261c0004af107d75d49"
+    "source.md": "bd3850d931f1515bef208e3534f3970f3822e83568578261c0004af107d75d49",
+    "structured-graph.json": "e98f40e80b553bba95ed3b91f7a03502c2d5cf495829e280b414006d97de56df",
+    "structured-graph.tex": "35fdfda33a4dbb3783e1fdd59a734f71a45feaaf66f54cc2939c2148b1e95ddf"
   },
   "package_dependencies": {
     "bilingual-pdf": {
@@ -24,7 +26,7 @@
     "study-notes": {
       "assets/studytools.sty": "dfaab82dc8a12157ab59f2bdd57b7f3deb43b0af612eacd7264b734eb58bd2ad",
       "assets/study-tree.tex": "5c5cf84b9411cfe4b368cb7c2f1d0400d21df4c1db9f17b669891f2a129c756c",
-      "assets/study-graph-components.tex": "751852eacdf5e58c715246f1680736c8a2ceca2d8bd629ef7e7217828263c311"
+      "assets/study-graph-components.tex": "b6acd914f9e56367d19b0760e3aff23c3fce029c9c5da23359d6080846ec61fa"
     }
   },
   "files": [

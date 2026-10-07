@@ -41,7 +41,7 @@ export STUDY_NOTES_SKILL="/path/reported/by/host/study-notes"
 
 `bilingual-pdf/assets/paralleltext.sty` verwaltet Geometrie, Schriftarten, Absatzausrichtung, Fortsetzungen, Abbildungen, Rollen, Titelseiten und Rendering-Prüfungen. Die Datei `studytools.sty` dieses Skills ergänzt native Datensätze und Navigation. Sie lädt keine Abhängigkeiten herunter und enthält keinen zweiten Renderer.
 
-Die gemeinsamen Layout-APIs sind in den eigenständigen nativen, Sprach- und Konfigurationsreferenzen des zweisprachigen Skills beschrieben. Native Builds benötigen XeLaTeX, latexmk sowie die dokumentierten Schriftarten und Pakete. Python ist für Repository-/PDF-Qualitätsprüfungen optional; dieser Skill bietet keinen JSON-Manuskriptadapter.
+Die gemeinsamen Layout-APIs sind in den eigenständigen nativen, Sprach- und Konfigurationsreferenzen des zweisprachigen Skills beschrieben. Native Builds benötigen XeLaTeX, latexmk sowie die dokumentierten Schriftarten und Pakete. Python ist für die Prüfung nativer Manuskripte optional und für den optionalen Import strukturierter Entscheidungsgraphen erforderlich. Notizen und Nachschlagewerke bleiben nativ.
 
 ## Nur die gewünschten Formen erstellen
 
@@ -82,3 +82,7 @@ Nachgelagerte Projekte sollten eine getestete Skill-Revision festschreiben und p
 Prüfen Sie Quellenabdeckung, Erklärungsqualität, realistische Nachschlagewege, Entscheidungspfade, Links und tatsächliche PDF-Seiten getrennt. Behaupten Sie ohne Belege weder Vollständigkeit noch eine unabhängige Prüfung. Übergeben Sie die ausgewählten PDFs, die Quellenzuordnung und das portable bearbeitbare Projekt; berichten Sie bestandene, fehlgeschlagene und nicht ausgeführte Prüfungen.
 
 Natives TeX und latexmk-Konfigurationen führen Code aus. Deaktiviertes Shell-Escape isoliert den Dateizugriff nicht. Halten Sie private Quellen, Namen, Kennungen und Herkunftsangaben aus öffentlichen Beispielen heraus und holen Sie vor externer Verarbeitung oder Veröffentlichung die erforderliche Autorisierung ein. Originalcode und Inhalte stehen unter der [MIT-Lizenz](LICENSE); Abhängigkeiten behalten ihre eigenen Lizenzen.
+
+## Strukturierte Entscheidungsgraphen
+
+Notizen und Nachschlagewerke bleiben natives LaTeX. Für strukturierte Entscheidungsgraphen verwenden Sie den [graph-v1-Ablauf](references/structured-graph.md) und das [zweisprachige Beispiel](examples/structured-graph.json). Eine einzige versionierte JSON-Datei legt Inhalte und Übergänge fest. Der Importer prüft die Daten, erzeugt deterministische N-Kennungen und gibt die vorhandenen nativen semantischen Komponenten aus. Bereits vorliegende Sprachpaare benötigen keine Übersetzungsabhängigkeit. Den Satz übernimmt weiterhin die installierte Fertigkeit bilingual-pdf.

@@ -1,0 +1,47 @@
+% Trusted native driver for the English/French structured graph example.
+% Copy into the newly generated directory as main.tex. Assets resolve there.
+\documentclass[10pt,twoside]{article}
+\usepackage{studytools}
+\setotherlanguage{french}
+\ParallelLanguages{english}{french}
+\ParallelSelect{paired}
+\ParallelSetup{single-columns=1,paragraph-flow=breakable}
+\StudyGraphReaderProfile
+\StudyGraphLabels{check}{Check}{Vérifier}
+\StudyGraphLabels{question}{Question}{Question}
+\StudyGraphLabels{action}{Solution}{Solution}
+\StudyGraphLabels{warning}{Warning}{Attention}
+\StudyGraphLabels{input}{Inputs}{Données nécessaires}
+\StudyGraphLabels{operation}{Use}{Utiliser}
+\StudyGraphLabels{limits}{Limits}{Limites}
+\StudyGraphLabels{related}{Related}{Voir aussi}
+\StudyGraphLabels{explanation}{Explanation}{Explication}
+\StudyGraphLabels{support}{Supporting explanation}{Explication complémentaire}
+\StudyGraphLabels{fallback}{Otherwise}{Sinon}
+\StudyGraphLabels{combined-fallback}{Unclear or otherwise}{En cas d’incertitude ou sinon}
+\StudyGraphLabels{if-unsure}{If unsure}{En cas de doute}
+\StudyGraphLabels{uncertainty}{Before the choices}{Avant les choix}
+\StudyGraphLabels{needed-facts}{Facts to clarify}{Faits à clarifier}
+\StudyGraphLabels{invariant}{Invariant result rule}{Règle de résultat invariant}
+\StudyGraphLabels{carried-results}{Carry back}{Résultats à conserver}
+\StudyGraphLabels{progress}{Changed facts or progress}{Faits nouveaux ou progression}
+\StudyGraphLabels{continue-when}{Continue when}{Continuer lorsque}
+\StudyGraphLabels{exit-when}{Exit when}{Terminer lorsque}
+\StudyGraphLabels{ordinary-next}{Otherwise, ordinary next}{Sinon, suite normale}
+\StudyGraphLabels{context}{Context}{Contexte}
+\StudyGraphLabels{output}{Answer}{Réponse}
+\StudyGraphLabels{completion-check}{Remember}{Vérification finale}
+\StudyGraphLabels{result}{Result}{Résultat}
+\StudyGraphLabels{first-match}{Read A, B, C in order. Take the first match. Resolve any missing fact that could change an earlier choice before trying later choices.}{Lisez A, B, C dans l’ordre. Suivez le premier choix applicable. Clarifiez tout fait manquant susceptible de modifier un choix antérieur avant d’essayer les suivants.}
+\StudyGraphLabels{step}{Step}{Étape}
+\StudyGraphLabels{next}{Next}{Suite}
+\StudyGraphLabels{call}{Use}{Utiliser}
+\StudyGraphLabels{when}{When}{Quand}
+\StudyGraphLabels{returned-outputs}{Bring back}{Rapporter}
+\StudyGraphLabels{resume}{Continue at}{Reprendre à}
+\StudyGraphLabels{called-exit}{When called}{En cas d’appel}
+\StudyGraphLabels{called-exit-rule}{Bring back the requested output and resume at the caller's stated step.}{Rapportez le résultat demandé et reprenez à l’étape indiquée par l’appelant.}
+\input{graph-declarations.tex}
+\begin{document}
+\input{graph-body.tex}
+\end{document}

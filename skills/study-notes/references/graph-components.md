@@ -8,6 +8,17 @@ Use these components for new native decision manuscripts, including ordinary que
 
 Call `\StudyGraphReaderProfile` in the preamble for compact N-number-and-title headings, plain numbered solution steps and ordinary reader-facing labels. It changes no page geometry. Override localized words with `\StudyGraphLabels{key}{left}{right}` after selecting the profile. Register both language titles; references automatically use the current language title and printable page. Render one graph in ordinary left/right paired cells, with each side using its own title and labels.
 
+### Localize every visible label
+
+Call `\StudyGraphLabels{key}{left}{right}` after choosing profiles, because profiles set some default labels. The complete supported keys are:
+
+- Node/function and field labels: `question`, `action`, `check`, `warning`, `result`, `input`, `output`, `operation`, `limits`, `context`, `related`, `explanation`, `support`, `step`.
+- Choice instructions: `first-match` (the entire rule paragraph), `fallback`, `combined-fallback`, `if-unsure`, `uncertainty`, `needed-facts`, `invariant`.
+- Calls and continuation: `call`, `when`, `returned-outputs`, `resume`, `completion-check`, `next`, `called-exit`, `called-exit-rule` (the entire return instruction), `ordinary-next`.
+- Loops: `carried-results`, `progress`, `continue-when`, `exit-when`.
+
+Both columns initially use English labels. Supplied bilingual content does not translate package labels automatically. The reader profile changes `action` to Solution, `output` to Answer and `completion-check` to Remember, but their keys remain unchanged. Use the complete English/French [structured example driver](../examples/structured-graph.tex) as a localization example. Preserve the first-match and call-return meanings when translating rule paragraphs; do not change source conditions or route targets through presentation labels.
+
 ### Optional visual hierarchy
 
 Call `\StudyGraphHierarchyProfile` in the preamble to distinguish node identities from actions: node headings use an outlined number badge inline with the title, references repeat the badge, action fields use an indented `Step 1` label, and caution-role fields use bullets. There is no extra Question/Solution row. Unnumbered terminals remain unnumbered. This opt-in profile works alone or after `\StudyGraphReaderProfile`; without it, existing output is unchanged.
@@ -60,13 +71,17 @@ Field keys: input, output, check, warning, result, operation, limits, context, r
 
 ## Reuse, continuation and loops
 
-- `\StudyGraphCall{callee-key}{when}{returned-outputs}{resume-key}{resume-step}`; the step is a positive integer or `completion_check`.
+- `\StudyGraphCall{callee-key}{when}{returned-outputs}{resume-key}{resume-step}`; the callee must be a procedure, and the step is a positive integer or `completion_check`.
+- `\StudyGraphHelperCall{callee-key}{when}{returned-outputs}{resume-key}{resume-step}`; an optional source-validated structured-import helper may enter either a decision or a procedure, with the same explicit outputs and resume-point contract.
 - `\StudyGraphResumeReference{key}{step}`
-- `\StudyGraphCalleeExit{ordinary-next-key}`
+- `\StudyGraphReturnExit` renders the called-exit instruction alone, for a return exit with no ordinary-next route.
+- `\StudyGraphCalleeExit{ordinary-next-key}` renders the same called-exit instruction followed by its declared ordinary-next route.
 - `\StudyGraphJump{key}`
 - `\StudyGraphLoop{carried-results}{progress}{continue-condition}{exit-condition}`
 
-Emit a reuse instruction immediately after its owning step. The callee must be a procedure. A requested return takes precedence over that procedure's ordinary next link; an ordinary jump does not create a return obligation. Reader labels should say what to use, what result to bring back and where to continue, rather than exposing execution-mode jargon. Cycles need a source-validated progress/exit rule; typesetting is not a termination proof.
+Emit a reuse instruction immediately after its owning step. `\StudyGraphCall` retains its procedure-only contract. Use `\StudyGraphHelperCall` only when the structured source explicitly declares a helper entry, returned outputs and resume point; validate that source's paths and return exits before rendering. Both calls use the same semantic fields and localized labels (`call`, `when`, `returned-outputs`, `resume`). Unknown keys and terminal helper entries are rejected. Neither command infers a return route, silently changes a call into a jump, nor requires a particular graph topology.
+
+A requested return takes precedence over the callee's ordinary next link, if one exists; an ordinary jump does not create a return obligation. `\StudyGraphReturnExit` uses the existing `called-exit` and `called-exit-rule` labels without inventing an ordinary destination. Reader labels should say what to use, what result to bring back and where to continue, rather than exposing execution-mode jargon. Cycles need a source-validated progress/exit rule; typesetting is not a termination proof.
 
 ## Terminal presentation
 

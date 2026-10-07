@@ -41,7 +41,7 @@ export STUDY_NOTES_SKILL="/path/reported/by/host/study-notes"
 
 `bilingual-pdf/assets/paralleltext.sty` gère la géométrie, les polices, l’alignement des paragraphes, leur continuation, les figures, les rôles, les couvertures et les contrôles de rendu. Le fichier `studytools.sty` de cette compétence ajoute les enregistrements natifs et la navigation. Il ne télécharge jamais de dépendances et n’embarque pas de second moteur.
 
-Consultez les références indépendantes de la compétence bilingue sur l’API native, les langues et la configuration pour l’API de mise en page commune. La compilation native nécessite XeLaTeX, latexmk et les polices/paquets documentés. Python est facultatif pour les contrôles qualité du dépôt et des PDF ; cette compétence ne fournit aucun adaptateur de manuscrits JSON.
+Consultez les références indépendantes de la compétence bilingue sur l’API native, les langues et la configuration pour l’API de mise en page commune. La compilation native nécessite XeLaTeX, latexmk et les polices/paquets documentés. Python est facultatif pour contrôler les manuscrits natifs, mais nécessaire à l’importateur optionnel de graphes de décision structurés. Les notes et outils de consultation restent natifs.
 
 ## Compiler uniquement les formes souhaitées
 
@@ -82,3 +82,7 @@ Les projets utilisateurs doivent fixer une révision testée de la compétence e
 Vérifiez séparément la couverture des sources, la qualité des explications, les parcours de recherche réalistes, les chemins de décision, les liens et les pages PDF réelles. Ne revendiquez ni exhaustivité ni audit indépendant sans preuves. Livrez les PDF sélectionnés, la carte des sources et le projet portable modifiable ; indiquez les contrôles réussis, échoués et non exécutés.
 
 Le TeX natif et la configuration latexmk exécutent du code. Désactiver shell escape n’isole pas l’accès aux fichiers. Excluez des exemples publics les sources privées, noms, identifiants et données de provenance, et obtenez les autorisations applicables avant un traitement externe ou une publication. Le code et le contenu originaux sont sous [licence MIT](LICENSE) ; les dépendances conservent leurs propres licences.
+
+## Graphes de décision structurés
+
+Les notes et les outils de consultation restent en LaTeX natif. Pour un graphe structuré, suivez le [parcours graph-v1](references/structured-graph.md) et l’[exemple bilingue](examples/structured-graph.json). Un seul fichier JSON versionné définit le contenu et les transitions. L’importateur valide les données, attribue des identifiants N déterministes et produit les composants sémantiques natifs existants. Les paires déjà fournies ne nécessitent aucune dépendance de traduction. La composition reste assurée par la compétence bilingual-pdf installée.

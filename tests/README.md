@@ -165,3 +165,16 @@ python3 -B -m unittest discover -s tests -p 'test_bilingual_html_browser.py' -v
 ```
 
 `NODE_BINARY` optionally selects Node. The browser sandbox is enabled by default. `BILINGUAL_HTML_ALLOW_NO_SANDBOX=1` is an explicit test-only exception for an independently authorized isolated environment and local generated fixtures; the test neither grants that permission nor changes host isolation. Ordinary discovery reports this profile as skipped unless enabled; a missing browser/module in an enabled profile is a failure. Preserve before/after failure evidence and inspect screenshots of the actual documents as well as running the regression. These checks are not an accessibility or all-language certification.
+
+## Structured decision-graph import
+
+Install root requirements, then run the affected maintained checks:
+
+```sh
+.venv/bin/python -m unittest discover -s tests -p 'test_*graph*.py' -v
+.venv/bin/python tests/structured_graph_render.py --output .local/structured-graph-render
+```
+
+The unit suite covers the standard schema and semantic validator, strict source parsing, escaped text/restricted math/trusted-native boundaries, source bindings, image containment, call-context regressions, field coverage, a tiny independent ordering oracle and deterministic bounded larger graphs. The render profile uses separately installed skills for paired/left/right editions of the neutral parcel graph, checks Nx identities and actual helper/resume destinations, and compares a separately handwritten native manuscript's visible language columns and semantic AUX labels/pages against the importer. Source-level string equivalence alone is insufficient to establish native API correctness. Existing `study_graph_components.py` retains native compatibility and helper negative cases. Use the existing matrix `--case`, `--budget-seconds`, and `--resume` options for affected reruns; preserve failed evidence.
+
+For practical cold-context validation, give a fresh worker an ordinary graph-authoring task, separately installed skills and available toolchain paths. It should use only owned SKILL.md/references/examples, author neutral source material, preserve one authoritative graph and inspect generated PDF pixels and reader paths. Retain the original failed attempt when updating a candidate, then restage changed skills and retry the unchanged authored graph. Record source/install/output identities privately. This tests authoring usability separately from automated conformance; it does not certify every language or private downstream adapter.

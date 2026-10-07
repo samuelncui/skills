@@ -1,6 +1,6 @@
 # Build native study forms
 
-Study-notes accepts native LaTeX manuscripts only. `source-map.json` and output manifests are provenance/QA records, not a second document-authoring interface.
+Study-notes renders through native LaTeX. Notes and lookup manuscripts are native; the optional [structured graph importer](structured-graph.md) generates decision fragments for the same native components. `source-map.json` and output manifests are provenance/QA records, not a second document-authoring interface.
 
 ## Resolve installed packages
 

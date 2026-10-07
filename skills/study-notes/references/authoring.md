@@ -1,6 +1,6 @@
 # Authoring notes, lookup and decision paths
 
-Choose the form from the reader's task, then use the [native study API](native-api.md) to represent it. Native LaTeX is the only manuscript input; a source map is provenance rather than another authoring format. There is no required subject, course count or fixed teaching taxonomy.
+Choose the form from the reader's task, then use the [native study API](native-api.md) to represent it. Notes and lookup forms use native LaTeX; decision graphs may also use the [versioned structured importer](structured-graph.md). A source map remains provenance rather than another manuscript. There is no required subject, course count or fixed teaching taxonomy.
 
 ## Select the useful forms
 
