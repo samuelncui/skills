@@ -18,7 +18,7 @@
   },
   "package_dependencies": {
     "bilingual-pdf": {
-      "scripts/bilingual_pdf.py": "7d0cdb94cb2a954c84e1f3ba697d54db2d4ace3fe6db3e8ec1ce3782fd3d50cf",
+      "scripts/bilingual_pdf.py": "7109fa274ddf06045c49d008b6905d32afc1a8d56d68dfcae824f47edbe1eb2d",
       "assets/paralleltext.sty": "1e7bacbe3d54d719097fd67919eb0adaef1cf8824e6d4f5dc2725f8b294d23b4",
       "assets/bound-profile.tex": "87854c291355fc88c3fafcfb16f0f7bdcca951d3db88ad2074cdefe152b80e6c",
       "assets/reading-profile.tex": "a2b9ee83b843faf289aee5e76c48205f2346aff24b774e48662970ccccc54332"
