@@ -42,12 +42,13 @@ Alternatively, `python3 scripts/bilingual_pdf.py render input.json --output anot
 | preflight | JSON. Runs runtime structural/semantic validation, then checks Python packages, XeLaTeX tools/packages, exact font matches and text glyph coverage. Does not export or resolve/decode figure assets. |
 | export | JSON; requires --output. Validates, stages local image assets, and writes native source. Does not compile or require TeX preflight. Python/Pillow are needed for export. |
 | render | JSON; requires --output. Validates, preflights, exports, compiles through latexmk and runs mechanical PDF checks. Pixel review remains required. |
+| build | JSON; requires --output. Creates or safely updates a managed native project, then runs the same preflight, latexmk and mechanical checks. Preserves unchanged files and build dependencies. |
 | validate | Existing PDF, not JSON. Checks PDF geometry/fonts/links and any matching log; optionally checks matching AUX alignment records and cover parity. |
 
 | Option | Default and scope |
 | --- | --- |
-| --output DIRECTORY | Required for export/render. Existing directory is rejected; do not overwrite an earlier project. |
-| --asset-root DIRECTORY | Input JSON's parent directory. Export/render resolve every image relative to this root. For bundled tutorial assets use --asset-root examples/shared from the skill directory. |
+| --output DIRECTORY | Required for export/render/build. Export/render reject existing directories; build accepts only a new directory or one previously created by build. |
+| --asset-root DIRECTORY | Input JSON's parent directory. Export/render/build resolve every image relative to this root. For bundled tutorial assets use --asset-root examples/shared from the skill directory. |
 | --mode bilingual / left / right | bilingual, exported as native paired. Left/right uses the matching title/text/image. Validation/preflight still examines the supplied two-sided document. |
 | --paired | For PDF validate, require paired position evidence from the matching AUX. Off by default. |
 | --covers | For PDF validate, require default cover/blank-face/even-final-page policy. Off by default. |
@@ -57,6 +58,22 @@ Alternatively, `python3 scripts/bilingual_pdf.py render input.json --output anot
 Exports include document.tex, languages.tex, content.tex, paralleltext.sty, LICENSE and staged images. A build adds PDF/AUX/log files; render writes result.json and compile.log. Portable source delivery includes TeX, package, assets and applicable licenses, not unrelated private inputs or transient logs. Exported native projects need no Python to compile.
 
 Commands emit JSON. Exit codes: 0 success; 1 invalid input; 2 failed dependency/font/glyph preflight; 3 runtime/build/import failure; 4 mechanical acceptance failure. Read error/errors and compile logs. Failed export/build can leave partial output; preserve evidence and use a new output path. Do not suppress a failing check.
+
+## Incremental builds
+
+For repeated structured edits, start with a new managed project:
+
+~~~sh
+python3 scripts/bilingual_pdf.py build input.json --output managed-project
+# Edit input.json or its source images, then run the same command again.
+python3 scripts/bilingual_pdf.py build input.json --output managed-project
+~~~
+
+`build` regenerates into an isolated temporary staging directory and compares bytes before updating its owned files. Unchanged TeX, package and image files keep their timestamps. latexmk decides which dependencies need rebuilding and how many passes settle references. Content, language, configuration, mode, same-filename image and installed package changes are detected. Every invocation still validates the JSON, checks the current toolchain/fonts/glyphs and mechanically checks the resulting PDF. A no-op avoids TeX work, not acceptance checks. Batch related content edits when practical.
+
+The `.bilingual-build.json` receipt tracks generated inputs; preserve it with the working directory. Existing arbitrary/native projects are not adopted. Manual edits to owned TeX/package/image files, colliding user files and symlinked managed paths are rejected before updates. Use JSON as the editing source for this route. If you prefer native editing, continue with latexmk and `validate`, or choose a new directory for later JSON builds. Unrelated files remain untouched. Removed generated images are removed; current image bytes are decoded and staged on every build.
+
+An interrupted source update records old/new hashes so a later build can reconcile only known bytes. A failed compilation preserves source and dependency files for diagnosis and retry, and marks result.json unsuccessful even if the previous PDF remains. The exclusive `.bilingual-build.lock` prevents simultaneous writers; after an interrupted process, verify no build is running before removing only that stale lock. Ownership receipts and locks are not a sandbox against hostile native TeX or a hostile directory owner. Preserve prior deliverable PDFs separately when their exact historical revision is needed.
 
 ## Document fields
 
@@ -130,7 +147,11 @@ Required image is a relative PNG/JPEG path or exactly two paths [left,right]. Wi
  "text":["One shared diagram.","Un schéma commun."]}
 ~~~
 
+Figure-only `caption_prefix` is `automatic` (default) or `none`. Choose `none` when the supplied caption should be printed exactly, including any source-authored figure label. The figure counter and anchors remain; only the generated localized label is omitted. Native authors use the public `\ParallelFigureLabel` hook.
+
 Shared figures reserve <id>.caption. Both forms are bounded; image plus captions must fit. JSON provides no arbitrary graphicx option string or remote URL.
+
+For a trusted vector original, prepare and compare a supported raster derivative using the [image-fidelity procedure](latex.md#faithful-image-derivatives). Preserve the original and supplied captions; verify strokes, fonts and labels before embedding the PNG/JPEG.
 
 ### table
 

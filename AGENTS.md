@@ -2,6 +2,7 @@
 
 Read the relevant skill and its references before editing. Keep agent instructions and canonical technical references in English. Human README guides have English, Chinese, Japanese, French and German versions as requested; demonstrations use their declared languages.
 
+- `bilingual-translation` owns the source-first translation workflow and optional semantic exchange contract; renderers consume it through explicitly discovered installed skills. `bilingual-html` owns its independent HTML layout schema, renderer and presentation assets. Supplied pairs render without a translation dependency.
 - Maintain one owner per implementation. `skills/bilingual-pdf` owns the renderer, templates, LaTeX package, reusable article assets and layout references. `study-notes` owns only its teaching workflow, native learning components and learning example; it requires the installed bilingual skill rather than carrying distribution copies.
 - Test clean installations without source-checkout access: bilingual-pdf alone, and the study skill with its explicitly installed bilingual dependency at a separately discovered path. Never hardcode a sibling installation, automatically download a dependency or call repository maintainer tools from an installed skill.
 - Preserve original user inputs. Do not overwrite or silently change supplied translations.

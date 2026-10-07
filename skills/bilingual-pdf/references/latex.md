@@ -82,6 +82,14 @@ Put shared numbering and anchors in one owning command: use `ParallelEquation` f
 
 Both figure helpers are bounded and must fit on the page. Native `includegraphics` paths/formats follow graphicx and the selected engine; JSON's restricted PNG/JPEG path grammar does not constrain trusted native files. Set `graphicspath` normally or stage files in the portable project. Inspect actual captions, image aspect ratios, glyphs and divider masking.
 
+### Faithful image derivatives
+
+Prepare a derivative with a converter that supports the original diagram's actual features. For a trusted SVG, a full SVG renderer such as librsvg or an available browser is a useful option; first confirm that the executable and required fonts are available and authorized. Keep the original unchanged, save the derivative separately, and record its source hash, converter/version, fonts, pixel dimensions and intended printed size. Use a supported vector derivative for a native project where appropriate, or PNG/JPEG for the JSON route.
+
+Compare the original in a capable viewer with the derivative at readable size before embedding it. Check dashed and solid strokes, arrowheads, line joins, clipping, transparency, text/font metrics, numbers and labels, and overall geometry. A converter opening the file or producing a valid PNG establishes neither visual nor semantic fidelity. When a feature changes, choose a capable converter and repeat this comparison; describe any unresolved difference precisely.
+
+When replacing an existing raster without changing its layout, preserve its aspect ratio and raster dimensions or explicitly account for size/DPI changes. Rebuild the affected PDF and inspect the actual figure and captions: native image-size calculations can change placement slightly even when two rasters have the same aspect ratio. Verify the required text, pagination and surrounding layout before delivery. Preserve supplied captions and alternative text throughout.
+
 Use native `hyperref`, `\ref`, `pageref` and `href` where appropriate. Cross-document labels can use standard `xr-hyper` with an explicit prefix; compile the companion first and ship it at the referenced relative location. A printed logical folio may differ from a 1-based physical PDF destination. Verify both; do not hardcode a page number to silence unresolved references.
 
 ## Optional roles and localized diagrams
@@ -168,3 +176,18 @@ After compilation, inspect actual PDF pixels and run [layout acceptance checks](
 `\ParallelSubsection*[role]{id}{left}{right}` is the unnumbered variant of `\ParallelSubsection`. It retains a stable named destination, aligned heading treatment, the role style and attachment to the following unit, but does not increment the subsection counter or add a numbered contents entry. Its page can be referenced normally. The existing unstarred form remains numbered.
 
 `\ParallelTextAPIVersion` expands to the integer `2` for this native interface. Dependent native packages may verify it before document output. This is an interface-compatibility number, separate from `document-version` publication metadata and the Python renderer API number.
+
+## Supplied figure labels
+
+`\ParallelFigureLabel` supplies the localized generated figure label and following space for both figure helpers. Its default is bold figure name and number. Use `\renewcommand\ParallelFigureLabel{}` in a local group when the supplied captions already contain their complete labels or should have no generated prefix. The figure counter, anchor, shared-image geometry and paired captions remain unchanged. The structured route exposes this as figure `caption_prefix: "none"`; omitted values preserve existing output.
+
+## Generic semantic hierarchy primitives
+
+These opt-in cell-content commands use the existing semantic roles. Domain packages choose the role and wording; the common renderer owns fonts, color implementation and spacing. They do not change existing paragraph, heading or field behavior.
+
+- `\ParallelSemanticBadge{role}{label}`: outlined inline badge, inheriting current text size and the configured semantic badge style.
+- `\ParallelSemanticInlineHeading{role}{label}{title}`: badge and same-line semantic title; an empty label omits the badge. Long titles wrap normally.
+- `\ParallelSemanticIndentedField{role}{label}{body}`: labeled field whose whole paragraph is inset, including wrapped lines.
+- `\ParallelSemanticBulletField{role}{label}{body}`: bullet-labeled field with hanging continuation lines.
+
+Use them inside the normal `\ParallelEntry` or paragraph lifecycle; they create no IDs, anchors, counters or graph semantics. Styling is configured through the public `semantic-badge-*`, `semantic-field-indent` and `semantic-bullet-*` keys in [configuration](configuration.md). Defaults inherit the functional role palette and body typography; no per-document command patching is needed. Existing `\ParallelSemanticHeading`, `\ParallelSemanticLabel`, `\ParallelSemanticChoice` and `\ParallelSemanticField` remain compatible.

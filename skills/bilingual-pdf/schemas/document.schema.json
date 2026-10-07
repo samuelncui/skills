@@ -854,6 +854,15 @@
         },
         "page_label": {
           "description": "Optional nonempty plain printed folio for an external reference, e.g. iii. Defaults to the decimal page number for display; ignored without reference.file. Does not change the link destination."
+        },
+        "caption_prefix": {
+          "type": "string",
+          "enum": [
+            "automatic",
+            "none"
+          ],
+          "default": "automatic",
+          "description": "Figure-only generated label prefix. automatic preserves the localized figure number; none displays the exact supplied caption without a generated prefix. The figure counter and anchor remain."
         }
       },
       "allOf": [
@@ -1110,6 +1119,23 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "caption_prefix"
+            ]
+          },
+          "then": {
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "const": "figure"
+              }
+            }
           }
         }
       ]

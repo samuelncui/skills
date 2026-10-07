@@ -1,6 +1,6 @@
 # Native study API
 
-This is the independent reference for `assets/studytools.sty` and `assets/study-tree.tex`. Manuscripts are native LaTeX, not a JSON collection. Rendering is owned by the explicitly installed `bilingual-pdf` dependency.
+This is the independent reference for `assets/studytools.sty` and its native graph components. Manuscripts are native LaTeX, not a JSON collection. Rendering is owned by the explicitly installed `bilingual-pdf` dependency.
 
 ## Contents
 
@@ -96,6 +96,12 @@ Use common `ParallelFirstEntry` / `ParallelLastEntry` headers. Record `header-le
 
 ## Decision questions, methods and typed edges
 
+For new decision manuscripts, use [graph-components.md](graph-components.md): native auto-numbered declarations, reader-facing N references, first-match choices, inline prerequisites and source-supported cycles. This is the API used by the worked example.
+
+### Compatibility API for earlier acyclic manuscripts
+
+The declarations below remain available for existing documents. They retain the earlier visible-key and compulsory-unknown-route behavior; these are compatibility constraints, not the authoring model for new graphs.
+
 Decision IDs use the same letter-led syntax but a separate namespace from lookup records. Declare nodes and edges in the preamble.
 
 | Command | Arguments and effect |
@@ -152,7 +158,7 @@ Document version and review status are independent optional strings in the commo
 \end{document}
 ```
 
-Supply appropriate language/font declarations for a non-English pair. A fresh example project shows all four products, companion imports, subentries and a clarification return. No repository helper is required to compile native manuscripts.
+Supply appropriate language/font declarations for a non-English pair. The worked example shows all four products, companion imports, subentries and the current reader graph API. No repository helper is required to compile native manuscripts.
 
 ## Validation and limits
 

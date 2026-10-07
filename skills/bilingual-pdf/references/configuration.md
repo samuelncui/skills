@@ -51,6 +51,13 @@ Each style key replaces the corresponding public macro with a declaration list. 
 | `semantic-title-style` | `\ParallelSemanticTitleStyle` | Bold body-colored semantic titles |
 | `semantic-destination-prefix` | `\ParallelSemanticDestinationPrefix` | Arrow and space before a choice destination |
 | `semantic-destination-indent` | `\ParallelSemanticDestinationIndent` | `1em` choice-destination inset |
+| `semantic-badge-style` | `\ParallelSemanticBadgeStyle` | Semantic marker style, inherited size |
+| `semantic-badge-padding` | `\ParallelSemanticBadgePadding` | `.12em`, nonnegative internal outline padding |
+| `semantic-badge-rule` | `\ParallelSemanticBadgeRule` | `.35pt`, positive outline width |
+| `semantic-badge-gap` | `\ParallelSemanticBadgeGap` | `.4em`, nonnegative inline-heading badge/title gap |
+| `semantic-field-indent` | `\ParallelSemanticFieldIndent` | `1em`, nonnegative inset for the whole indented field |
+| `semantic-bullet-indent` | `\ParallelSemanticBulletIndent` | `1em`, nonnegative hanging bullet width |
+| `semantic-bullet-marker` | `\ParallelSemanticBulletMarker` | `\textbullet`, inherits the semantic role |
 | `diagram-style` | `\ParallelDiagramStyle` | 8/10 |
 | `header-style` | `\ParallelHeaderStyle` | Sans, 7/8 |
 | `footer-style` | `\ParallelFooterStyle` | Sans, 7/8 |
@@ -168,3 +175,5 @@ The divider follows the center of the live text block, not an independently fixe
 Emergency stretch is used only when ordinary paragraph line-breaking cannot meet its tolerance. The width-relative default can admit a legal short ragged line even when a CJK paragraph contains a long Latin identifier; it is not a fixed em threshold tied to one paper or binding width. Normal line-breaking passes still run first. It does not split an intrinsically over-wide token, suppress overflow diagnostics or change the acceptance margin. This key is native configuration; structured documents inherit the same canonical default.
 
 Native cell-content helpers `\ParallelSemanticLabel{role}{label}`, `\ParallelSemanticHeading{role}{label}{title}`, `\ParallelSemanticChoice{role}{ordinal}{condition}{destination}` and `\ParallelSemanticField{role}{label}{text}` use declared semantic roles and these hooks. Place them inside the ordinary paragraph/entry lifecycle; they do not establish layout or graph validity.
+
+The public content hook `\ParallelFigureLabel` controls generated figure-label text independently of caption typography. Its default is the localized figure name and number followed by a space. A local empty redefinition preserves source-authored labels exactly; see [native figure labels](latex.md#supplied-figure-labels).

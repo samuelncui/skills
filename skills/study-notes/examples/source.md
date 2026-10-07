@@ -10,7 +10,7 @@ A Quick Reference helps a reader retrieve an answer from a remembered term or ta
 
 A standalone Keyword Index is a compact pointer view. It is useful when the reader explicitly wants locations rather than the compact explanations in the Quick Reference. It is optional; do not produce it as an unavoidable second lookup booklet.
 
-A Decision Tree helps a reader choose a method from observable information. Ask a natural question, offer distinct alternatives and include an unknown/insufficient-information route. A leaf should provide an action or method, not merely the name of a topic.
+A Decision Tree helps a reader choose a method from observable information. Ask a natural question, state its prerequisites inline and test lettered alternatives in first-match order. A leaf should provide an action or method, not merely the name of a topic.
 
 A user may request one form or several. The default pair is notes plus Quick Reference. A tree or index can also be produced alone; absent companions must not leave broken external links.
 
@@ -38,7 +38,7 @@ The common native ParallelParagraph command supports a global paragraph-flow cho
 
 ## S6. Make decision paths explicit
 
-Ordinary A/B/C choices move to questions or method leaves. Every question also needs an unknown route. A clarification asks for particular missing information; only after that information is obtained does its conditional return lead back to a question. A required next step is a continuation, not a terminal outcome. Accidental forward cycles and dangling targets are invalid.
+A/B/C choices are tested in order; follow the first matching condition. Keep semantic keys internal and generate reader-facing N numbers and pages from the display order. Put prerequisite inspections beside the question. A separate information-gathering route is useful only when missing facts can change the answer and obtaining them is a substantive task. A solution explains reasoning, executable steps and checks. Continue only for new required work. A genuine loop states the carried information, progress and exit; all targets must exist.
 
 For this example, first ask whether the reader needs explanation, lookup or method selection. If the reader needs lookup, distinguish a compact answer from pointers alone. If the goal is unclear, ask for an example of what the reader will try to do before selecting a form.
 

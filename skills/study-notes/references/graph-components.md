@@ -1,23 +1,38 @@
 # Native decision-graph components
 
-These generic components render a validated decision graph. They do not validate graph reachability, first-match predicate meaning, loop progress or scientific correctness. A downstream structured-data adapter must validate these before emitting native TeX. The graph may converge or cycle; do not run the older acyclic tree validator on it.
+Use these components for new native decision manuscripts, including ordinary question-to-solution trees. They do not validate graph reachability, first-match predicate meaning, loop progress or scientific correctness. Authors review these against the source; an optional downstream adapter may automate structural checks before emitting native TeX. The graph may converge or cycle; do not run the older acyclic tree validator on it.
 
 ## Ownership and reader profile
 
 `studytools.sty` loads `study-graph-components.tex`. Semantic roles map to the installed `paralleltext` roles; `paralleltext` owns physical fonts, colors, spacing and columns. Generate reader fragments with the semantic commands below; put presentation overrides in the preamble using the common renderer's documented configuration/hooks. This keeps one style definition across nodes and language editions. Private course content belongs in downstream projects, never these assets or fixtures.
 
-Call `\StudyGraphReaderProfile` in the preamble for compact number-and-title headings, plain numbered solution steps and ordinary reader-facing labels. It changes no page geometry. Override localized words with `\StudyGraphLabels{key}{left}{right}` after selecting the profile. Register both language titles; references automatically use the current language title and printable page. Render one graph in ordinary left/right paired cells, with each side using its own title and labels.
+Call `\StudyGraphReaderProfile` in the preamble for compact N-number-and-title headings, plain numbered solution steps and ordinary reader-facing labels. It changes no page geometry. Override localized words with `\StudyGraphLabels{key}{left}{right}` after selecting the profile. Register both language titles; references automatically use the current language title and printable page. Render one graph in ordinary left/right paired cells, with each side using its own title and labels.
+
+### Optional visual hierarchy
+
+Call `\StudyGraphHierarchyProfile` in the preamble to distinguish node identities from actions: node headings use an outlined number badge inline with the title, references repeat the badge, action fields use an indented `Step 1` label, and caution-role fields use bullets. There is no extra Question/Solution row. Unnumbered terminals remain unnumbered. This opt-in profile works alone or after `\StudyGraphReaderProfile`; without it, existing output is unchanged.
+
+Select profiles before localizing labels, for example:
+
+```tex
+\StudyGraphReaderProfile
+\StudyGraphHierarchyProfile
+\StudyGraphLabels{step}{Step}{步骤}
+```
+
+This changes presentation only: declarations, numbering, graph keys, step/completion anchors, destinations, source text, branch order and call-return behavior stay unchanged. It does not change body size/leading, columns or functional role colors. Existing configuration remains authoritative. The installed renderer's generic badge, indented-field and bullet-field primitives own all typography; use its documented `semantic-badge-*`, `semantic-field-indent` and `semantic-bullet-*` keys for sparse visual overrides. The profile is preamble-only.
 
 Use `\StudyGraphLegendItem{question|action|check|warning|result}{description}` inside an ordinary paragraph cell for a reader-facing function legend. It uses the exact function-to-role mapping of graph headings and the current localized label; no downstream color map is needed. Question/check use the concept role, action/result the example role, and warning the caution role.
 
 ## Registry and anchors
 
+- `\StudyDeclareGraphNodeAuto{opaque-key}{decision|procedure}{question|action|check|warning|result}{left-title}{right-title}` generates the next display number in declaration order; use this for native authoring.
 - `\StudyDeclareGraphNode{opaque-key}{display-number}{decision|procedure}{question|action|check|warning|result}{left-title}{right-title}`
 - `\StudyDeclareGraphTerminal{opaque-key}{left-title}{right-title}`
 - `\StudyGraphNode{opaque-key}`
 - `\StudyGraphReference{opaque-key}`
 
-Keys are stable lowercase ASCII words separated by hyphens. Numbers are positive, unique and derived by the adapter from one explicit display order. The terminal has no artificial node number. Node labels are `graph:<key>`; step labels `graph:<key>:step:<n>`; completion labels `graph:<key>:completion-check`. Resolve actual PDF destinations from the AUX rather than guessing hyperref target names. Reference rendering never changes the current node.
+Keys are stable lowercase ASCII words separated by hyphens. Numbers are positive and unique. Use auto declarations in the intended display order, or explicit numbers generated by a downstream adapter; choose one numbering strategy per graph. Semantic keys remain internal. The reader profile formats numbers as N1, N2, … with the native `\StudyGraphNumber{number}` hook. The terminal has no artificial node number. Node labels are `graph:<key>`; step labels `graph:<key>:step:<n>`; completion labels `graph:<key>:completion-check`. Resolve actual PDF destinations from the AUX rather than guessing hyperref target names. Reference rendering never changes the current node.
 
 ## Rule placement
 
@@ -32,7 +47,7 @@ Call `\StudyGraphRulePlacement{node|intro}` in the preamble. The default `node` 
 - `\StudyGraphUncertainty{condition}{needed-facts}{target-key}{invariant-result-rule}`
 - `\StudyGraphCombinedFallback{ordinal}{fallback-condition}{uncertainty-condition}{needed-facts}{target-key}{invariant-result-rule}`
 
-Ordinals generate A/B/C in order. First-match means stop at the first true condition. An undecided earlier condition that could affect the requested result must not be treated as false. The adapter may consolidate uncertainty and final fallback only when their destinations match; preserve both triggering conditions and invariant-result scope. Different destinations remain distinct. The combined component does not prove these semantic conditions itself.
+Ordinals generate A/B/C in order. First-match means stop at the first true condition. Put prerequisite facts and how to inspect them in the question before its choices. Resolve an undecided earlier condition that could affect the requested result before proceeding; uncertainty components are optional when that work is already inline. Use a separate information-gathering destination only when it is a substantive task. The adapter may consolidate uncertainty and final fallback only when their destinations match; preserve both triggering conditions and invariant-result scope. Different destinations remain distinct. The combined component does not prove these semantic conditions itself.
 
 ## Procedures and fields
 

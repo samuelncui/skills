@@ -14,7 +14,7 @@ Offer the relevant forms without requiring the whole set:
 - Notes explain concepts, assumptions, mechanisms and worked applications.
 - Quick Reference combines substantive canonical entries, aliases and keyword routes in one sorted headword space. This is the default lookup form.
 - Keyword Index is a compact standalone pointer view when the user explicitly wants one.
-- Decision Tree asks natural questions, offers A/B/C choices plus an unknown/insufficient-information route, and leads by stable ID/page to a usable method.
+- Decision Tree asks natural questions, tests A/B/C choices in first-match order and leads by generated reader number/page to a usable answer approach.
 
 One form or a combination is valid. Discover `bilingual-pdf` through the host's installed-skill listing and read its `SKILL.md`; never assume a sibling installation or download a dependency automatically. Use the discovered directory as `BILINGUAL_PDF_SKILL`. If discovery finds no compatible installation, report the required dependency/version and continue source mapping while its installation is resolved through the authorized host workflow. Read [the human guide](README.md) for build commands, [native study API](references/native-api.md) for declarations and [rendering](references/rendering.md) for independent/combined builds. Canonical layout, language and flow references belong to the installed bilingual skill.
 
@@ -26,7 +26,7 @@ Read [authoring](references/authoring.md). Explain purpose, meaning, conditions,
 
 Declare canonical concepts and meaningful subentries once. Add direct alias/keyword routes with exact target titles and context labels. Sort one registry. Deliberately shared lookup identities group matching headwords; sort normalization alone must not merge different meanings. Keep an independently useful definition as a canonical entry; use a direct pointer for a genuine synonym or a task route whose answer lives in another entry. Local and notes section/page references must be generated, and routes must terminate at a canonical concept/subentry rather than another alias.
 
-For a decision tree, start from information the reader can observe. Each question needs distinct choices and a useful unknown route. Leaves contain a method, validation step or specific information-gathering action, not only a topic name. Keep graph IDs and generated pages visible; reject dangling targets and endless cycles.
+For a decision tree, use the [native graph components](references/graph-components.md) and their reader profile. Keep stable semantic keys internal; generate N1, N2, … from one display order. Put the facts to inspect and definitions needed to answer directly with each natural question. Test uniformly lettered choices in first-match order. Provide an information-gathering branch only when unresolved information can change the answer and cannot be obtained in that question. Each solution explains how and why to reach the requested answer, with applicable conditions and checks. A route may converge or repeat when its carried state, progress and exit are clear. Review these semantics separately from target/link checks.
 
 ## Build, inspect and deliver
 

@@ -21,11 +21,12 @@ Review the selected forms; do not automatically produce or require every form.
 
 ## Decision paths
 
-- Start from each intended entry question and exercise every ordinary choice and unknown route.
-- Questions should be answerable from observable information; choices need clear distinctions.
-- Clarifications state what to obtain before returning. Check their return conditions, rather than treating them as unconditional loops.
-- Method leaves contain usable actions/checks. Required continuations are visible; terminal outcomes have none.
-- Automated graph checks reject missing nodes, duplicate choices, empty routes and accidental forward cycles. They cannot establish that a method is correct or that all meaningful cases are covered.
+- Start from each intended entry question; try all first-match choices, including overlapping conditions to verify priority.
+- Resolve prerequisites at the question. Include a separate uncertainty route only when it changes the result and calls for substantive additional work; test any invariant-answer exception explicitly.
+- Check generated N numbers, localized titles and page references against destinations. Semantic keys remain internal anchors.
+- Read each solution as an answer approach: applicability, reasoning, executable operations and result checks. A continuation must add required work; the final solution should itself answer the task.
+- For a cycle, verify carried state, measurable or source-defined progress, repeat condition and exit. Convergence and genuine cycles are valid graph forms.
+- Component tests check declared identities, ordinal validity and reference targets. They do not establish question observability, branch coverage, reasoning correctness or loop progress. Perform these semantic reviews explicitly; the compatibility tree's acyclic validator is not a graph evaluator.
 
 ## Layout and technical checks
 

@@ -1,0 +1,247 @@
+{
+  "units": [
+    {
+      "id": "title",
+      "kind": "title",
+      "source": "A shared seed shelf",
+      "target": "Une étagère de semences partagée",
+      "status": "reviewed",
+      "locator": "source.txt: title",
+      "section": "document",
+      "source_hash": "cae76fc26f907e095cd2c635db3b91fb9c2fd901484c697050475321bc25d79c",
+      "target_source_hash": "cae76fc26f907e095cd2c635db3b91fb9c2fd901484c697050475321bc25d79c"
+    },
+    {
+      "id": "preparing",
+      "kind": "heading",
+      "source": "Preparing a packet",
+      "target": "Préparer un sachet",
+      "status": "reviewed",
+      "locator": "source.txt: preparing",
+      "section": "preparing",
+      "source_hash": "d4024c3ac76652625f30dc82246ce26a37c026df83206b8a6bee5bce1e9a6d3d",
+      "target_source_hash": "d4024c3ac76652625f30dc82246ce26a37c026df83206b8a6bee5bce1e9a6d3d"
+    },
+    {
+      "id": "intro",
+      "kind": "paragraph",
+      "source": "The community shelf holds 12 packets. Each packet has one label, and the register records its contents.",
+      "target": "L’étagère commune contient 12 sachets. Chaque sachet porte une étiquette, et le registre indique son contenu.",
+      "status": "reviewed",
+      "locator": "source.txt: intro",
+      "section": "preparing",
+      "source_hash": "c48177efad2dcb7919a381690649094fe089bd1bfb2a5de8e82db72ea4e5699d",
+      "target_source_hash": "c48177efad2dcb7919a381690649094fe089bd1bfb2a5de8e82db72ea4e5699d"
+    },
+    {
+      "id": "dry",
+      "kind": "list_item",
+      "source": "Use a dry paper packet.",
+      "target": "Utilisez un sachet en papier sec.",
+      "status": "reviewed",
+      "locator": "source.txt: dry",
+      "section": "preparing",
+      "source_hash": "c68319c3bcfde0070e966341be75bf97123325a9928604530ba7a9f69670ebe6",
+      "target_source_hash": "c68319c3bcfde0070e966341be75bf97123325a9928604530ba7a9f69670ebe6"
+    },
+    {
+      "id": "label",
+      "kind": "list_item",
+      "source": "Write the crop name and collection date on the label.",
+      "target": "Inscrivez le nom de la culture et la date de récolte sur l’étiquette.",
+      "status": "reviewed",
+      "locator": "source.txt: label",
+      "section": "preparing",
+      "source_hash": "bfffc388c57e1b4caa0f5c5aed9b1085db559634211109d4b6f8e845fbf71c40",
+      "target_source_hash": "bfffc388c57e1b4caa0f5c5aed9b1085db559634211109d4b6f8e845fbf71c40"
+    },
+    {
+      "id": "crop-header",
+      "kind": "table_cell",
+      "source": "Crop",
+      "target": "Culture",
+      "status": "reviewed",
+      "locator": "source.txt: crop-header",
+      "section": "preparing",
+      "source_hash": "98caf7c43c6f2c35cbc0376c937d27f67edad50c0d3e98dbc451c272c02ce479",
+      "target_source_hash": "98caf7c43c6f2c35cbc0376c937d27f67edad50c0d3e98dbc451c272c02ce479"
+    },
+    {
+      "id": "count-header",
+      "kind": "table_cell",
+      "source": "Packets",
+      "target": "Sachets",
+      "status": "reviewed",
+      "locator": "source.txt: count-header",
+      "section": "preparing",
+      "source_hash": "0d34e73475ec93f7dec524a3644eead20b0120d1ad132cfaac7db81de1e2e315",
+      "target_source_hash": "0d34e73475ec93f7dec524a3644eead20b0120d1ad132cfaac7db81de1e2e315"
+    },
+    {
+      "id": "bean-name",
+      "kind": "table_cell",
+      "source": "Bean",
+      "target": "Haricot",
+      "status": "reviewed",
+      "locator": "source.txt: bean-name",
+      "section": "preparing",
+      "source_hash": "1d086001c6e5975be0172586a6cfe53a03781ff43a15881ebd5e68a863402e27",
+      "target_source_hash": "1d086001c6e5975be0172586a6cfe53a03781ff43a15881ebd5e68a863402e27"
+    },
+    {
+      "id": "bean-count",
+      "kind": "table_cell",
+      "source": "3",
+      "target": "3",
+      "status": "reviewed",
+      "locator": "source.txt: bean-count",
+      "section": "preparing",
+      "source_hash": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+      "target_source_hash": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+    },
+    {
+      "id": "pea-name",
+      "kind": "table_cell",
+      "source": "Pea",
+      "target": "Pois",
+      "status": "reviewed",
+      "locator": "source.txt: pea-name",
+      "section": "preparing",
+      "source_hash": "6f7fc5ee7cb62b249884b465f6dd701d1324b491ac68b8ceb75e3b160ef40a0a",
+      "target_source_hash": "6f7fc5ee7cb62b249884b465f6dd701d1324b491ac68b8ceb75e3b160ef40a0a"
+    },
+    {
+      "id": "pea-count",
+      "kind": "table_cell",
+      "source": "2",
+      "target": "2",
+      "status": "reviewed",
+      "locator": "source.txt: pea-count",
+      "section": "preparing",
+      "source_hash": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+      "target_source_hash": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "id": "table-caption",
+      "kind": "caption",
+      "source": "Table 1. Two entries from the register.",
+      "target": "Tableau 1. Deux entrées du registre.",
+      "status": "reviewed",
+      "locator": "source.txt: table-caption",
+      "section": "preparing",
+      "source_hash": "f4c902db3fb85fed063481ff4f41e08151ea09fd3042ac7321cea72bab71dae2",
+      "target_source_hash": "f4c902db3fb85fed063481ff4f41e08151ea09fd3042ac7321cea72bab71dae2"
+    },
+    {
+      "id": "condition",
+      "kind": "paragraph",
+      "source": "If a packet is damp, keep it off the shelf until it is dry. Do not remove the label.",
+      "target": "Si un sachet est humide, ne le placez pas sur l’étagère tant qu’il n’est pas sec. Ne retirez pas l’étiquette.",
+      "status": "reviewed",
+      "locator": "source.txt: condition",
+      "section": "preparing",
+      "source_hash": "0bc0eb95fc9fd2deb487ea86c568cb2b5682cd527fd436a4580f024c9cb20ded",
+      "target_source_hash": "0bc0eb95fc9fd2deb487ea86c568cb2b5682cd527fd436a4580f024c9cb20ded"
+    },
+    {
+      "id": "figure-caption",
+      "kind": "caption",
+      "source": "Figure 1. A packet moves from the preparation area to the shared shelf.",
+      "target": "Figure 1. Un sachet passe de la zone de préparation à l’étagère commune.",
+      "status": "reviewed",
+      "locator": "source.txt: figure-caption",
+      "section": "preparing",
+      "source_hash": "97604c95e49ddc7e2c00201cc1330074e18ec4c55b98c1c34d67d4a0f51ba11a",
+      "target_source_hash": "97604c95e49ddc7e2c00201cc1330074e18ec4c55b98c1c34d67d4a0f51ba11a"
+    },
+    {
+      "id": "figure-alt",
+      "kind": "alt_text",
+      "source": "Two blue rectangles connected by a right-pointing arrow.",
+      "target": "Deux rectangles bleus reliés par une flèche pointant vers la droite.",
+      "status": "reviewed",
+      "locator": "source.txt: figure-alt",
+      "section": "preparing",
+      "source_hash": "26654e090568da31c02fb932ca9d02ec92c071ce52fc5a9a06912b89c7ed0736",
+      "target_source_hash": "26654e090568da31c02fb932ca9d02ec92c071ce52fc5a9a06912b89c7ed0736"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "unit": "title",
+      "level": 1
+    },
+    {
+      "type": "heading",
+      "unit": "preparing",
+      "level": 2
+    },
+    {
+      "type": "paragraph",
+      "unit": "intro"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "dry",
+        "label"
+      ]
+    },
+    {
+      "type": "table",
+      "headers": [
+        "crop-header",
+        "count-header"
+      ],
+      "rows": [
+        [
+          "bean-name",
+          "bean-count"
+        ],
+        [
+          "pea-name",
+          "pea-count"
+        ]
+      ],
+      "caption": "table-caption"
+    },
+    {
+      "type": "paragraph",
+      "unit": "condition"
+    },
+    {
+      "type": "figure",
+      "asset": "assets/shelf.png",
+      "caption": "figure-caption",
+      "alt": "figure-alt"
+    }
+  ],
+  "schema_version": 1,
+  "languages": {
+    "source": {
+      "tag": "en",
+      "dir": "ltr"
+    },
+    "target": {
+      "tag": "fr",
+      "dir": "ltr"
+    }
+  },
+  "source_revision": "original-seed-shelf-v1",
+  "context": {
+    "summary": "A fictional shared seed shelf procedure, followed by sample register entries and a transfer diagram.",
+    "audience": "General adult readers",
+    "glossary": [
+      {
+        "source": "packet",
+        "target": "sachet"
+      },
+      {
+        "source": "register",
+        "target": "registre"
+      }
+    ]
+  }
+}

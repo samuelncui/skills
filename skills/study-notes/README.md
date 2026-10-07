@@ -67,9 +67,9 @@ The same native registry produces the unified Quick Reference or a compact index
 
 ## Questions that lead to methods
 
-A decision question offers natural A/B/C alternatives and an explicit unknown/insufficient-information route. Choices lead to visible IDs and generated pages. Leaves contain actionable methods, checks or information-gathering steps, so a tree can be useful on its own.
+Use the [native graph components](references/graph-components.md) to ask natural questions with prerequisites at the point of use. Test A/B/C in order and take the first match. Generated N1, N2, … references keep semantic keys internal. Each solution explains the reasoning, operations and checks needed to answer the task.
 
-Ordinary decision edges must terminate. Conditional returns after a clarification are typed separately from forward choices; a required continuation is not silently treated as a terminal leaf. Missing targets, accidental cycles and empty routes are errors.
+Resolve missing facts beside the question where possible. A separate information-gathering branch is useful when that work is substantive; it is not required for every question. Genuine loops are valid when their carried state, progress and exit are clear. The shared renderer preserves question-blue and solution-green roles.
 
 ## Long paragraphs and reusable presentation
 

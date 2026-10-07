@@ -7,7 +7,7 @@ Choose the form from the reader's task, then use the [native study API](native-a
 - **Notes** explain a concept, its conditions, mechanism and application.
 - **Quick Reference** gives compact substantive answers through canonical entries, aliases and keyword routes in one sorted headword sequence.
 - **Keyword Index** is an optional standalone pointer view of the same registry. Select it when locations alone meet the reader's need.
-- **Decision Tree** turns observable information into a method through explicit questions, choices and unknown-information routes.
+- **Decision Tree** turns observable information into a method through observable questions, first-match choices and usable answer approaches.
 
 One form or several is valid. Notes plus the unified Quick Reference are the default pair; neither the index nor the tree is mandatory. A selected form must remain usable without omitted companions. The [build guide](rendering.md) explains product selection and dependency discovery.
 
@@ -43,13 +43,17 @@ Keep local and companion references distinct. A local pointer names the exact co
 
 ## Turn questions into methods
 
-Start from information the reader can observe. Use natural questions with distinct alternatives and visible stable node IDs. Each question needs at least two ordinary lettered choices and one explicit unknown/insufficient-information route.
+Use the [native graph components](graph-components.md) with the reader profile. Declare internal semantic keys once, in display order, using `StudyDeclareGraphNodeAuto`; the package generates reader numbers N1, N2, … independently of keys. References use the reader number, localized title and generated page. Keep presentation in the common renderer's configuration and semantic roles: question blue, solution green.
 
-A method leaf must contain usable instructions, checks or a specific action, not merely a topic name. A required next step is a forward continuation; a terminal leaf has no such continuation. A clarification says exactly what information to obtain before a conditional return to a question. Keep this typed return distinct from an unconditional loop.
+Author the path in this order:
 
-Check every choice, unknown route, continuation and clarification return. Ordinary forward paths must terminate and all targets must exist. Structural validation cannot establish that alternatives are sensible, observable or sufficiently complete. Test realistic reader situations, including a reader who does not yet know an answer.
+1. State the reader's requested result and the observable facts that distinguish solution approaches. Turn those distinctions into natural questions, not a list of method names the reader must already understand.
+2. Put prerequisites beside the question: what to inspect, how to recognize it, definitions, units and scope. For example, “For these measurements of the same quantity in the same unit, do all groups contain the same number of observations? Read the group counts first.” This lets a reader decide at the point of use.
+3. Write A/B/C conditions in priority order and stop at the first match. When an earlier condition is undecidable and could affect the answer, explain the specific missing fact and how to obtain it. Usually this instruction fits inline; give it a separate route only when it is a substantive source-supported task. An unknown branch is not compulsory for a question whose prerequisites already resolve the uncertainty. A result that is identical under all unresolved possibilities may still be justified explicitly.
+4. At the selected solution, explain the reasoning and the operations needed for the answer, including applicability and a check. For unequal group sizes, for example, weight each group mean by its count, sum those products, then divide by the total count: larger groups represent more observations. Check that the result lies between the smallest and largest group means. This is an answer approach a reader can execute; a named technique or blank answer form would leave the reasoning to the reader.
+5. Finish at that useful solution when it already answers the task. Add a continuation only for new required work. Shared subprocedures may return to an explicit step. A genuine iterative method may revisit a node: state what changes, what is carried forward and when to stop. Check all targets and whether each realistic route reaches its intended outcome.
 
-The original [decision declarations](../examples/decisions.tex) ask whether the reader needs explanation, lookup or method selection, then distinguish compact answers from pointers alone. They demonstrate conditional clarification returns and a shared required review step.
+The [worked decision manuscript](../examples/decisions.tex) applies these components to the source's task of building study forms. Its prerequisites are inline and its solutions contain the actual authoring approach. Graph declarations remain native TeX; structured adapters are optional downstream implementation choices, not manuscript requirements.
 
 ## Review meaning and usability
 
@@ -59,7 +63,7 @@ Before delivery:
 
 1. Trace important claims to a source, a labeled derivation or an original example.
 2. Start with realistic aliases and remembered tasks; follow exact concept/subentry targets and included notes links without guessing.
-3. Exercise every decision path, including unknown information and its return condition.
+3. Exercise every decision path, including any material uncertainty, required continuation or progress-bearing loop.
 4. Inspect every final PDF page and generated reference. Review coverage, teaching quality, language and layout separately.
 
 Use the [example coverage exercises](../examples/coverage-review.md) and [review checklist](review-release.md). Keep these independent references readable alongside the worked manuscripts; examples complement the documentation rather than replacing it.

@@ -1,38 +1,45 @@
-\StudyDeclareQuestion{choose-goal}{What is the reader trying to do?}{读者想完成什么？}
-\StudyChoice{choose-goal}{A}{Understand an idea.}{理解一个概念。}{make-notes}
-\StudyChoice{choose-goal}{B}{Find something from a remembered word or task.}{根据记得的词语或任务查找内容。}{choose-lookup}
-\StudyChoice{choose-goal}{C}{Choose a method from known conditions.}{根据已知条件选择方法。}{make-tree}
-\StudyUnknown{choose-goal}{}{}{clarify-goal}
-
-\StudyDeclareQuestion{choose-lookup}{Does the reader need a compact answer or locations?}{读者需要简明答案，还是定位信息？}
-\StudyChoice{choose-lookup}{A}{A compact answer with direct lookup routes.}{带直接检索路径的简明答案。}{make-quick}
-\StudyChoice{choose-lookup}{B}{Only compact locations.}{只要紧凑的定位信息。}{make-index}
-\StudyUnknown{choose-lookup}{}{}{clarify-lookup}
-
-\StudyDeclareLeaf{make-notes}{Build explanatory notes}{制作解释性笔记}{
- \ParallelParagraph{tree-method-notes}{Map the authorized source, explain the concept and show a worked application. Retain conditions and mark gaps. Select notes in the build; use the shared paragraph-flow option for long prose.}{映射获准使用的来源，解释概念并展示具体应用。保留条件并标记缺口。构建时选择 notes；长正文使用公共段落跨页选项。}
-}
-\StudyContinue{make-notes}{review-set}{Check the explanation and output.}{检查解释与产物。}
-\StudyDeclareLeaf{make-quick}{Build the unified Quick Reference}{制作统一速查}{
- \ParallelParagraph{tree-method-quick}{Declare canonical entries and direct aliases/keyword targets in one registry. Group deliberate headword matches, preserve distinct senses and generate target pages. Select quick-reference; notes can be included when requested.}{在同一份记录中声明规范条目，以及直接的别名／关键词目标。合并明确属于同一词头的内容，保留不同含义，并生成目标页码。选择 quick-reference；需要时可同时包含笔记。}
-}
-\StudyContinue{make-quick}{review-set}{Try realistic remembered-word lookups.}{测试真实的记忆词检索。}
-\StudyDeclareLeaf{make-index}{Build the optional Keyword Index}{制作可选关键词索引}{
- \ParallelParagraph{tree-method-index}{Use the same registry in compact mode. Keep canonical and subentry destinations. Select keyword-index only when the reader wants this separate pointer view; do not make it a second mandatory lookup location.}{以紧凑模式使用同一份记录，保留概念和子条目目标。只有读者需要独立定位视图时才选择 keyword-index，不要让它成为第二个必须查找的位置。}
-}
-\StudyContinue{make-index}{review-set}{Verify every pointer.}{核对所有定位。}
-\StudyDeclareLeaf{make-tree}{Build a question-to-method tree}{制作问题到方法的决策树}{
- \ParallelParagraph{tree-method-tree}{Ask about observable conditions. Add alternatives, explicit unknown routes and useful method leaves. Mark conditional clarification returns and required continuations separately. Select decision-tree and test each path.}{询问可观察条件，添加不同选项、明确的未知路径和有用的方法叶节点。分别标记有条件的澄清返回与必需后续步骤。选择 decision-tree，并测试每条路径。}
-}
-\StudyContinue{make-tree}{review-set}{Exercise choices and return conditions.}{走通选项并核对返回条件。}
-
-\StudyDeclareClarification{clarify-goal}{Ask for one real reader task}{询问一个真实阅读任务}{
- \ParallelParagraph{tree-clarify-goal}{Ask the reader to give an example of what they will try to understand, find or decide. Obtain that example before returning to the first question; do not guess the required form.}{请读者举例说明将尝试理解、查找或决定什么。取得这个例子后再返回第一个问题，不要猜测所需形式。}
-}{choose-goal}
-\StudyDeclareClarification{clarify-lookup}{Try one remembered-word lookup}{试一次记忆词检索}{
- \ParallelParagraph{tree-clarify-lookup}{Ask what the reader expects after finding the word: a concise explanation, or only a location. Use that answer to return to the lookup question.}{询问读者找到这个词之后期待看到什么：简明解释，还是仅仅一个位置？根据回答返回检索问题。}
-}{choose-lookup}
-
-\StudyDeclareLeaf{review-set}{Review, then deliver selected forms}{复核后交付所选资料}{
- \ParallelParagraph{tree-review}{Check source coverage, explanations, real lookup targets and decision paths separately. Inspect every final PDF page and its links. Deliver only selected forms with the source map and portable native project. Report any remaining limitations.}{分别检查来源覆盖、解释、真实检索目标和决策路径。查看全部最终 PDF 页面及其链接。只交付所选形式，并附来源映射和可移植原生项目。说明仍然存在的限制。}
+% Semantic keys are internal. One declaration order generates reader numbers.
+\StudyGraphReaderProfile
+\StudyGraphRulePlacement{intro}
+\StudyGraphLabels{question}{Question}{问题}
+\StudyGraphLabels{action}{Solution}{解法}
+\StudyGraphLabels{output}{Answer}{答案}
+\StudyGraphLabels{check}{Check}{检查}
+\StudyDeclareGraphNodeAuto{choose-goal}{decision}{question}{What does the reader need to do?}{读者需要完成什么？}
+\StudyDeclareGraphNodeAuto{choose-lookup}{decision}{question}{Does the reader need an answer or only a location?}{读者需要答案，还是只需要位置？}
+\StudyDeclareGraphNodeAuto{make-notes}{procedure}{action}{Explain the idea through worked notes}{用笔记和实例解释概念}
+\StudyDeclareGraphNodeAuto{make-quick}{procedure}{action}{Build one searchable set of compact answers}{制作统一可检索的简明答案集}
+\StudyDeclareGraphNodeAuto{make-index}{procedure}{action}{Provide direct locations in a compact index}{用紧凑索引直接定位}
+\StudyDeclareGraphNodeAuto{make-tree}{procedure}{action}{Lead from observed conditions to a solution}{从可观察条件引导到解法}
+\newcommand\StudyExampleDecisions{%
+\StudyGraphNode{choose-goal}
+\ParallelParagraph{goal-prerequisite}
+ {Name one real task the reader wants to complete. If the request is vague, ask for that example here before choosing. For a request needing several forms, apply this question separately to each task.}
+ {先明确读者希望完成的一个真实任务。如果要求不明确，就在这里询问一个实例，再作选择。如果需要多种形式，就对每个任务分别回答本问题。}
+\ParallelParagraph{goal-a}{\StudyGraphChoice{1}{Understand why an idea works or learn to apply it.}{make-notes}}{\StudyGraphChoice{1}{理解概念为何成立，或学习如何应用。}{make-notes}}
+\ParallelParagraph{goal-b}{\StudyGraphChoice{2}{Retrieve known material from a remembered term or task.}{choose-lookup}}{\StudyGraphChoice{2}{根据记得的词语或任务检索已知内容。}{choose-lookup}}
+\ParallelParagraph{goal-c}{\StudyGraphChoice{3}{Choose a solution approach using the conditions in a problem.}{make-tree}}{\StudyGraphChoice{3}{根据题目中的条件选择解题思路。}{make-tree}}
+\StudyGraphNode{choose-lookup}
+\ParallelParagraph{lookup-prerequisite}
+ {Establish what the reader expects after finding the term. A compact answer includes the rule and its conditions; a location identifies where the explanation is found. Ask which is needed if the request does not say.}
+ {先明确读者找到词语后期待什么。简明答案包含规则及适用条件；定位信息说明在哪里能找到解释。要求中没有说明时，就先询问。}
+\ParallelParagraph{lookup-a}{\StudyGraphChoice{1}{A usable explanation or rule is needed at the lookup point.}{make-quick}}{\StudyGraphChoice{1}{需要在查找处直接获得可用的解释或规则。}{make-quick}}
+\ParallelParagraph{lookup-b}{\StudyGraphChoice{2}{Only locations in an included document are needed.}{make-index}}{\StudyGraphChoice{2}{只需要随附文档中的位置。}{make-index}}
+\StudyGraphNode{make-notes}
+\ParallelParagraph{notes-method}
+ {Explain the concept's meaning and assumptions, then show why its mechanism produces the result. Work through one application with inputs, intermediate reasoning and a checked answer. This supports understanding rather than merely recognizing a name. Map each claim to the source or label it as derived explanation. Use the common paragraph-flow setting for long prose.}
+ {解释概念的含义与假设，再说明其机制为何产生相应结果。通过一个应用实例展示输入、中间推理和经过核对的答案。这样能帮助理解，而不只是记住名称。将每项论断对应到来源，或标明它是推导解释。长正文使用公共段落跨页设置。}
+\StudyGraphNode{make-quick}
+\ParallelParagraph{quick-method}
+ {Write each compact answer once as a canonical entry, including the conditions that make it valid. Add remembered terms and task keywords as direct routes to that entry or its precise subentry. Sort substantive entries and routes together so the reader searches one place. Try realistic remembered-word queries and verify each generated target page; preserve distinct meanings with context labels.}
+ {将每个简明答案写成唯一的规范条目，并包含其成立的条件。把记忆词和任务关键词设置为直接指向该条目或准确子条目的路径。将实质内容与路径一起排序，让读者只需在一个位置检索。用真实的记忆词测试，并核对自动生成的目标页码；通过上下文标签保留不同含义。}
+\StudyGraphNode{make-index}
+\ParallelParagraph{index-method}
+ {Use the same canonical registry as the Quick Reference, rendering only terms and exact locations. Keep substantive explanations in the included target document, and name the document, section and generated page so the pointer also works in print. Test the links and check that every target is delivered. This compact view is appropriate only when the reader needs locations rather than an answer at the lookup point.}
+ {使用与速查相同的规范记录，仅显示词语与准确位置。把实质解释保留在随附的目标文档中，并注明文档、章节及自动页码，让纸质定位也能使用。测试链接，并检查每个目标文档都已交付。只有读者需要位置、而不需要在查找处直接获得答案时，这种紧凑视图才合适。}
+\StudyGraphNode{make-tree}
+\ParallelParagraph{tree-method}
+ {Identify the observable conditions that change the solution. Put prerequisite inspections beside each natural question and order A/B/C conditions by first-match priority. At each solution, explain the applicable reasoning, executable steps and a result check. Resolve missing facts inline where possible; a separate branch is useful when gathering them is a substantive task. For a genuine loop, state the changing information and exit condition. Exercise realistic paths and inspect every final page before delivering the selected form with its native source and source map.}
+ {找出会改变解法的可观察条件。在每个自然问题旁写明前提检查，并按首次匹配优先顺序排列 A/B/C 条件。在每个解法中说明适用的推理、可执行步骤和结果检查。尽可能就地补齐缺失信息；只有收集信息本身是一项实质任务时，才使用独立分支。真正需要循环时，说明变化的信息与退出条件。走通真实路径，检查全部最终页面，再将所选资料、原生源文件与来源映射一起交付。}
+\ParallelEndEntry
 }

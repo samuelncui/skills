@@ -4,20 +4,26 @@
 
 Skills for bilingual documents, learning material and cost-aware software verification.
 
+- [bilingual-translation](skills/bilingual-translation/README.md): Preserve full-source context and translate one semantic unit at a time into one reviewed paired manuscript.
+- [bilingual-html](skills/bilingual-html/README.md): Render supplied pairs as portable responsive HTML, with logical pair order, RTL text, real tables and shared figures.
 - [bilingual-pdf](skills/bilingual-pdf/README.md): Render side-by-side bilingual articles, reports and handouts from paired text.
 - [study-notes](skills/study-notes/README.md): Turn learning sources into explanatory notes, quick references, keyword indexes or decision trees.
 - [testing-workflow](skills/testing-workflow/README.md): Design and run cost-aware automated tests and benchmarks for software changes.
 - [write-if-statements](skills/write-if-statements/README.md): Write and review readable if statements, and refactor conditional logic without changing behavior.
+- [skill-optimization](skills/skill-optimization/README.md): Improve skills through realistic fresh-context trials and focused corrections.
 
 ## Install
 
 With the [Skills CLI](https://github.com/vercel-labs/skills) or a compatible installer:
 
 ```sh
+npx skills add samuelncui/skills --skill bilingual-translation
+npx skills add samuelncui/skills --skill bilingual-html
 npx skills add samuelncui/skills --skill bilingual-pdf
 npx skills add samuelncui/skills --skill study-notes
 npx skills add samuelncui/skills --skill testing-workflow
 npx skills add samuelncui/skills --skill write-if-statements
+npx skills add samuelncui/skills --skill skill-optimization
 ```
 
 Install the complete directories for the skills you need, using the commands above or your host’s supported installation method. `study-notes` also requires `bilingual-pdf`; `testing-workflow` is independent. Follow each skill’s linked guide for its setup, usage and examples.
@@ -29,3 +35,5 @@ Each skill owns its implementation and documentation. Human guides live in skill
 See [validation](tests/README.md) for reproducible repository checks and the distinction between historical and current results. Curated examples stay with their owning skills. Keep private content out of this public repository; external processing and publication require applicable authorization.
 
 Original code and example content use the [MIT license](LICENSE). Dependencies retain their [own licenses](THIRD_PARTY_NOTICES.md).
+
+bilingual-pdf and bilingual-html render supplied pairs independently. Install bilingual-translation separately when translation or exchange-v1 import is needed; no skill installs dependencies automatically.

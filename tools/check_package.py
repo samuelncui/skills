@@ -4,9 +4,9 @@ import json,re,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 errors=[];skills=[]
-for filename,expected in [('paralleltext.sty','skills/bilingual-pdf/assets/paralleltext.sty'),('bilingual_pdf.py','skills/bilingual-pdf/scripts/bilingual_pdf.py')]:
+for filename,expected in [('paralleltext.sty','skills/bilingual-pdf/assets/paralleltext.sty'),('bilingual_pdf.py','skills/bilingual-pdf/scripts/bilingual_pdf.py'),('translation_contract.py','skills/bilingual-translation/scripts/translation_contract.py'),('bilingual_html.py','skills/bilingual-html/scripts/bilingual_html.py')]:
  found=sorted(p.relative_to(ROOT).as_posix() for p in (ROOT/'skills').rglob(filename) if p.is_file())
- if found!=[expected]:errors.append('Renderer must have one owner: '+filename)
+ if (filename in {'paralleltext.sty','bilingual_pdf.py'} or found or (ROOT/expected).parents[1].is_dir()) and found!=[expected]:errors.append('Implementation must have one owner: '+filename)
 for skill in sorted((ROOT/'skills').iterdir()):
  if not skill.is_dir():continue
  for required in ('LICENSE','README.md','README.zh-CN.md','README.ja.md','README.fr.md','README.de.md'):
@@ -21,7 +21,7 @@ for skill in sorted((ROOT/'skills').iterdir()):
  for p in skill.rglob('*'):
   if p.is_symlink():errors.append(str(p.relative_to(ROOT))+': symlink not self-contained')
   if not p.is_file() or '__pycache__' in p.parts:continue
-  if p.suffix not in {'.md','.py','.sty','.tex','.txt','.json','.yaml'} and p.name!='LICENSE':continue
+  if p.suffix not in {'.md','.py','.sty','.tex','.txt','.json','.yaml','.html','.css','.svg'} and p.name!='LICENSE':continue
   body=p.read_text()
   for pattern in [r'/workspace/',r'/Users/',r'ghp_[A-Za-z0-9]{20,}',r'sk-proj-[A-Za-z0-9_-]{20,}',r'github_pat_[A-Za-z0-9_]+',r'-----BEGIN .*PRIVATE KEY-----']:
    if re.search(pattern,body):errors.append(str(p.relative_to(ROOT))+': prohibited local/private data')

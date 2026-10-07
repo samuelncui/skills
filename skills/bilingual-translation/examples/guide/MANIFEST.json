@@ -1,0 +1,107 @@
+{
+  "provenance": "Original fictional example and diagram authored for this skill; no third-party or private source material.",
+  "source": {
+    "path": "source.txt",
+    "bytes": 515,
+    "sha256": "0e1757b852314e4f52bc21e823c0589a51f43590f45a41ea61ec8d39cae286ee"
+  },
+  "units": [
+    {
+      "id": "title",
+      "start": 0,
+      "end": 19,
+      "sha256": "cae76fc26f907e095cd2c635db3b91fb9c2fd901484c697050475321bc25d79c"
+    },
+    {
+      "id": "preparing",
+      "start": 21,
+      "end": 39,
+      "sha256": "d4024c3ac76652625f30dc82246ce26a37c026df83206b8a6bee5bce1e9a6d3d"
+    },
+    {
+      "id": "intro",
+      "start": 41,
+      "end": 144,
+      "sha256": "c48177efad2dcb7919a381690649094fe089bd1bfb2a5de8e82db72ea4e5699d"
+    },
+    {
+      "id": "dry",
+      "start": 146,
+      "end": 169,
+      "sha256": "c68319c3bcfde0070e966341be75bf97123325a9928604530ba7a9f69670ebe6"
+    },
+    {
+      "id": "label",
+      "start": 171,
+      "end": 224,
+      "sha256": "bfffc388c57e1b4caa0f5c5aed9b1085db559634211109d4b6f8e845fbf71c40"
+    },
+    {
+      "id": "crop-header",
+      "start": 226,
+      "end": 230,
+      "sha256": "98caf7c43c6f2c35cbc0376c937d27f67edad50c0d3e98dbc451c272c02ce479"
+    },
+    {
+      "id": "count-header",
+      "start": 232,
+      "end": 239,
+      "sha256": "0d34e73475ec93f7dec524a3644eead20b0120d1ad132cfaac7db81de1e2e315"
+    },
+    {
+      "id": "bean-name",
+      "start": 241,
+      "end": 245,
+      "sha256": "1d086001c6e5975be0172586a6cfe53a03781ff43a15881ebd5e68a863402e27"
+    },
+    {
+      "id": "bean-count",
+      "start": 247,
+      "end": 248,
+      "sha256": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+    },
+    {
+      "id": "pea-name",
+      "start": 250,
+      "end": 253,
+      "sha256": "6f7fc5ee7cb62b249884b465f6dd701d1324b491ac68b8ceb75e3b160ef40a0a"
+    },
+    {
+      "id": "pea-count",
+      "start": 255,
+      "end": 256,
+      "sha256": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "id": "table-caption",
+      "start": 258,
+      "end": 297,
+      "sha256": "f4c902db3fb85fed063481ff4f41e08151ea09fd3042ac7321cea72bab71dae2"
+    },
+    {
+      "id": "condition",
+      "start": 299,
+      "end": 383,
+      "sha256": "0bc0eb95fc9fd2deb487ea86c568cb2b5682cd527fd436a4580f024c9cb20ded"
+    },
+    {
+      "id": "figure-caption",
+      "start": 385,
+      "end": 456,
+      "sha256": "97604c95e49ddc7e2c00201cc1330074e18ec4c55b98c1c34d67d4a0f51ba11a"
+    },
+    {
+      "id": "figure-alt",
+      "start": 458,
+      "end": 514,
+      "sha256": "26654e090568da31c02fb932ca9d02ec92c071ce52fc5a9a06912b89c7ed0736"
+    }
+  ],
+  "assets": [
+    {
+      "path": "assets/shelf.png",
+      "bytes": 1735,
+      "sha256": "9d19bd4e88c74386c2f5fa689f0154a6a0246bb6fecd8dc5d300788ac43b1b2e"
+    }
+  ]
+}

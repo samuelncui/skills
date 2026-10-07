@@ -42,7 +42,7 @@
         "source-map"
       ],
       "decision": [
-        "review-set"
+        "make-notes"
       ]
     },
     {
@@ -113,9 +113,9 @@
         "unknown"
       ],
       "decision": [
-        "clarify-goal",
-        "clarify-lookup",
-        "review-set"
+        "choose-goal",
+        "choose-lookup",
+        "make-tree"
       ]
     },
     {
@@ -130,7 +130,7 @@
         "evidence"
       ],
       "decision": [
-        "review-set"
+        "make-tree"
       ]
     }
   ],

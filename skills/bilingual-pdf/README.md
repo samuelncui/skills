@@ -88,3 +88,7 @@ Follow [rendering acceptance](references/acceptance.md): inspect actual pages fo
 Deliver the PDF, portable native source project and JSON when used. Include required assets/licenses. Native TeX and latexmk configuration execute code; `-no-shell-escape` is not a sandbox. Use trusted source or appropriate isolation. Vertical writing, arbitrary floats/verbatim macro arguments, native Windows font discovery and PDF/UA remain outside the tested contract.
 
 Original code, tutorial text and diagrams use the [MIT license](LICENSE). Third-party dependencies retain their own licenses. No private document content belongs in these public examples.
+
+## Translation before layout
+
+For raw-source translation, use the separately installed bilingual-translation skill to prepare one reviewed paired manuscript. Supplied pairs still render directly. See [translation handoff](references/translation.md) for installed-skill discovery, version pinning and optional exchange-v1 import; native TeX remains equally supported.

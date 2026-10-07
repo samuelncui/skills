@@ -4,20 +4,26 @@
 
 Skills für zweisprachige Dokumente, Lernmaterialien und kostenbewusste Softwareprüfung.
 
+- [bilingual-translation](skills/bilingual-translation/README.de.md): Übersetzt jeweils eine Sinneinheit mit vollständigem Quellenkontext in ein einziges geprüftes zweisprachiges Manuskript.
+- [bilingual-html](skills/bilingual-html/README.de.md): Erstellt portables responsives HTML aus Textpaaren mit logischer Lesereihenfolge, RTL, echten Tabellen und gemeinsamen Abbildungen.
 - [bilingual-pdf](skills/bilingual-pdf/README.de.md): Erstellt zweisprachige Artikel, Berichte und Handouts in parallelen Spalten aus zugeordneten Textpaaren.
 - [study-notes](skills/study-notes/README.de.md): Verwandelt Lernquellen in erklärende Notizen, Kurzreferenzen, Stichwortverzeichnisse oder Entscheidungsbäume.
 - [testing-workflow](skills/testing-workflow/README.de.md): Entwirft und führt automatisierte Tests und Benchmarks passend zu Kosten und Risiken von Softwareänderungen aus.
 - [write-if-statements](skills/write-if-statements/README.de.md): Lesbare if-Anweisungen schreiben und prüfen sowie Bedingungslogik ohne Verhaltensänderung refaktorieren.
+- [skill-optimization](skills/skill-optimization/README.de.md): Skills durch realistische Versuche mit frischem Kontext und gezielte Korrekturen verbessern.
 
 ## Installation
 
 Mit der [Skills CLI](https://github.com/vercel-labs/skills) oder einem kompatiblen Installationswerkzeug:
 
 ```sh
+npx skills add samuelncui/skills --skill bilingual-translation
+npx skills add samuelncui/skills --skill bilingual-html
 npx skills add samuelncui/skills --skill bilingual-pdf
 npx skills add samuelncui/skills --skill study-notes
 npx skills add samuelncui/skills --skill testing-workflow
 npx skills add samuelncui/skills --skill write-if-statements
+npx skills add samuelncui/skills --skill skill-optimization
 ```
 
 Installieren Sie die vollständigen Verzeichnisse der benötigten Skills mit den obigen Befehlen oder einer vom Host unterstützten Methode. `study-notes` benötigt zusätzlich `bilingual-pdf`; `testing-workflow` ist unabhängig. Einrichtung, Verwendung und Beispiele finden Sie in den oben verlinkten Anleitungen der einzelnen Skills.
@@ -29,3 +35,5 @@ Jeder Skill verwaltet seine Implementierung und Dokumentation. Benutzeranleitung
 Die [Validierungsanleitung](tests/README.md) beschreibt reproduzierbare Repository-Prüfungen und unterscheidet historische von aktuellen Ergebnissen. Ausgewählte Beispiele bleiben beim zuständigen Skill. Private Inhalte gehören nicht in dieses öffentliche Repository; externe Verarbeitung und Veröffentlichung erfordern die jeweils nötige Autorisierung.
 
 Originalcode und Beispielinhalte stehen unter der [MIT-Lizenz](LICENSE). Abhängigkeiten behalten [ihre eigenen Lizenzen](THIRD_PARTY_NOTICES.md).
+
+bilingual-pdf und bilingual-html setzen vorhandene Textpaare unabhängig. Für Übersetzungen oder den v1-Import wird bilingual-translation separat installiert; Abhängigkeiten werden nicht automatisch installiert.

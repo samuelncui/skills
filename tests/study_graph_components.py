@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Small native graph-component regression matrix. No private source data."""
-import argparse,os,re
+import argparse,os,re,shutil
 from pathlib import Path
 import pymupdf as fitz
 from matrix_support import ROOT,add_matrix_arguments,initialize_output,execute_matrix,run_command
@@ -8,6 +8,14 @@ from matrix_support import ROOT,add_matrix_arguments,initialize_output,execute_m
 def cases():
  return [
  ('english','',None),
+ ('hierarchy',r'\def\GraphFixtureHierarchy{}\def\GraphFixtureReader{}',None),
+ ('hierarchy-paired',r'\def\GraphFixtureHierarchy{}\def\GraphFixtureReader{}\def\GraphFixturePaired{}\def\GraphFixtureChinese{}',None),
+ ('hierarchy-only',r'\def\GraphFixtureHierarchy{}',None),
+ ('hierarchy-sparse',r'\def\GraphFixtureHierarchy{}\def\GraphFixtureReader{}\def\GraphFixtureRulePlacement{\ParallelSetup{semantic-badge-padding=.18em,semantic-badge-rule=.5pt,semantic-badge-gap=.5em,semantic-field-indent=1.5em,semantic-bullet-indent=1.2em}}',None),
+ ('late-hierarchy',r'\def\GraphFixtureBody{\StudyGraphHierarchyProfile}','Can be used only in preamble'),
+ ('invalid-badge-rule',r'\def\GraphFixtureRulePlacement{\ParallelSetup{semantic-badge-rule=0pt}}','Semantic badge rule must be positive'),
+ ('invalid-field-indent',r'\def\GraphFixtureRulePlacement{\ParallelSetup{semantic-field-indent=-1pt}}','Semantic field indent must not be negative'),
+ ('native-auto',r'\def\GraphFixtureAuto{}\def\GraphFixtureReader{}\def\GraphFixtureRulePlacement{\ParallelSetup{header-left=\ParallelFirstEntry,header-right=\ParallelLastEntry}}',None),
  ('reader-profile',r'\def\GraphFixtureReader{}',None),
  ('intro-rules',r'\def\GraphFixtureIntro{}\def\GraphFixtureReader{}\def\GraphFixtureRulePlacement{\StudyGraphRulePlacement{intro}}',None),
  ('intro-rules-paired',r'\def\GraphFixtureIntro{}\def\GraphFixtureReader{}\def\GraphFixturePaired{}\def\GraphFixtureRulePlacement{\StudyGraphRulePlacement{intro}}',None),
@@ -32,9 +40,20 @@ def cases():
  ]
 def run_case(case,work):
  name,prefix,error=case;p=work/name;p.mkdir(exist_ok=True)
- source=prefix+'\n'+r'\input{'+str(ROOT/'tests/fixtures/study-graph-components.tex')+'}\n'
+ hierarchy=name.startswith('hierarchy')
+ reader=name in ('native-auto','reader-profile','intro-rules','intro-rules-paired') or (hierarchy and name!='hierarchy-only')
+ source=prefix+'\n'+(ROOT/'tests/fixtures/study-graph-components.tex').read_text()
+ if name=='native-auto':
+  source=re.sub(r'\\StudyDeclareGraphNode\{([^}]+)\}\{[1-5]\}',r'\\StudyDeclareGraphNodeAuto{\1}',source)
  (p/'main.tex').write_text(source)
  env={**os.environ,'TEXINPUTS':str(ROOT/'skills/study-notes/assets')+'//:'+str(ROOT/'skills/bilingual-pdf/assets')+'//:'+os.environ.get('TEXINPUTS','')+':'}
+ if hierarchy or name=='native-auto':
+  # The installed skills deliberately have unrelated, separately discovered paths.
+  study=p/'installed-learning';render=p/'dependencies'/'rendering'
+  shutil.copytree(ROOT/'skills/study-notes/assets',study,dirs_exist_ok=True)
+  shutil.copytree(ROOT/'skills/bilingual-pdf/assets',render,dirs_exist_ok=True)
+  env['TEXINPUTS']=str(study)+'//:'+str(render)+'//:'
+
  for turn in [1,2]:
   proc=run_command(['xelatex','-no-shell-escape','-interaction=nonstopmode','-halt-on-error','main.tex'],cwd=p,env=env,timeout=40)
   log=proc.stdout+proc.stderr;(p/f'compile-{turn}.log').write_text(log)
@@ -42,11 +61,37 @@ def run_case(case,work):
  if error:return {'case':name,'passed':False,'errors':['Expected rejection did not occur']}
  errors=[];d=fitz.open(p/'main.pdf');text='\n'.join(x.get_text() for x in d);text=' '.join(re.sub(r'(?<=\w)-\n(?=\w)', '', text).split());aux=(p/'main.aux').read_text()
  if re.search(r'Overfull \\[hv]box|Missing character:|undefined references',log):errors.append('Layout, glyph or reference diagnostic')
- headings = [(1,'Choose the task'),(2,'Obtain the missing value'),(3,'Compute the value'),(4,'Check the result'),(5,'Report the result')] if name in ('reader-profile','intro-rules','intro-rules-paired') else [(1,'Question'),(2,'Warning'),(3,'Action'),(4,'Check'),(5,'Result')]
+ headings = [(1,'Choose the task'),(2,'Obtain the missing value'),(3,'Compute the value'),(4,'Check the result'),(5,'Report the result')] if reader or hierarchy else [(1,'Question'),(2,'Warning'),(3,'Action'),(4,'Check'),(5,'Result')]
  for n,label in headings:
-  if not re.search(str(n)+r'\s*·\s*'+label,text):errors.append('Missing numbered heading '+str(n))
+  if not re.search(('N' if reader else '')+str(n)+(r'\s+' if hierarchy else r'\s*·\s*')+label,text):errors.append('Missing numbered heading '+str(n))
  values=['Choose from the stated conditions.','Perform the stated solution steps.','Resolve missing information before proceeding.','A.','B.','C.','Then resume','Carry back','Exit when']
- values += ['1:','2:','first match','Unclear or otherwise','An earlier choice is undecidable.','Report only an invariant result.'] if name in ('reader-profile','intro-rules','intro-rules-paired') else ['Action 1','Action 2','first true condition']
+ values += ['N1:','N2:','first match','Unclear or otherwise','An earlier choice is undecidable.','Report only an invariant result.'] if reader else ['Action 1','Action 2','first true condition']
+
+ if hierarchy:
+  values=[x for x in values if x not in ('N1:','N2:','Action 1','Action 2')]
+  values+=['Step 1:', 'Step 2:', 'Warning:', 'Limits:']
+  if name=='hierarchy-paired' and not re.search(r'步\s*骤\s*1',text):errors.append('Localized step label missing')
+  if not all(re.search(r'[•・]\s*'+label+':',text) for label in ('Warning','Limits')):errors.append('Caution field bullet missing')
+  if re.search(r'\b[1-5]\s*·\s*(Question|Solution|Action|Warning|Check|Result)',text):errors.append('Separate category heading remains')
+  # A neutral named step must keep its body font size and a true inset.
+  page=d[0]
+  body=page.search_for('Record the two values.')
+  steps=page.search_for('Step 1:')
+  nodes=page.search_for('Compute the value')
+  if not body or not steps or not nodes:errors.append('Hierarchy geometry probe missing')
+  elif min(x.x0 for x in steps)<=min(x.x0 for x in page.search_for('Remember:') or page.search_for('Completion check:')):errors.append('Step field is not indented')
+  spans=[s for p0 in d for b in p0.get_text('dict')['blocks'] if 'lines' in b for line in b['lines'] for s in line['spans']]
+  probe=page.search_for('Record the two values.')
+  probe_spans=[s for s in spans if any(fitz.Rect(s['bbox']).intersects(rect) for rect in probe)]
+  if not probe_spans or not all(abs(s['size']-9)<.1 for s in probe_spans):errors.append('Original 9pt body size changed')
+  # Outlined number badges are drawn in both headings and inline references.
+  outlines=[drawing for p0 in d for drawing in p0.get_drawings()
+            if drawing.get('color') and drawing['rect'].width<35 and drawing['rect'].height<22]
+  if len(outlines)<10:errors.append('Node and reference badge outlines missing')
+  for target in ['graph:compute-value:step:2','graph:get-value:completion-check']:
+   match=re.search(r'\\newlabel\{'+re.escape(target)+r'\}\{\{.*?\}\{.*?\}\{.*?\}\{([^}]+)\}',aux)
+   if not match or match[1] not in d.resolve_names():errors.append('Actual PDF destination missing '+target)
+  if not any(link.get('kind') in (fitz.LINK_GOTO,fitz.LINK_NAMED) and link.get('page',-1)>=0 for p0 in d for link in p0.get_links()):errors.append('Clickable graph links missing')
  if name.startswith('intro-rules'):
   values.remove('first match')
   values += ['Intro priority rule:', 'A required value is unknown.', 'Both values are given.', 'An earlier choice is undecidable.', 'Stop if no new fact can be obtained.']
@@ -71,6 +116,8 @@ def run_case(case,work):
   elif 'Finish (p. 1)' not in text:errors.append('Default linked terminal changed')
  for label in ['graph:compute-value:step:2','graph:get-value:completion-check','graph:finish']:
   if r'\newlabel{'+label+'}' not in aux:errors.append('Missing stable anchor '+label)
+ if reader:
+  if any(key in text for key in ('choose-task','get-value','compute-value','check-value','report-value')):errors.append('Internal graph key leaked into reader text')
  if name=='paired' and not all(x in text for x in ['Choose the task','Select the task','Compute the value','Calculate the value']):errors.append('Selected-language registry title not used')
  if name=='english' and 'Select the task' in text:errors.append('Right title leaked into left output')
  colors={s['color'] for p0 in d for b in p0.get_text('dict')['blocks'] if 'lines' in b for l in b['lines'] for s in l['spans']}

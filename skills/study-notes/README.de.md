@@ -67,9 +67,9 @@ Dasselbe native Register erzeugt die einheitliche Kurzreferenz oder ein kompakte
 
 ## Fragen, die zu Methoden führen
 
-Eine Entscheidungsfrage bietet natürliche A/B/C-Alternativen und einen ausdrücklichen Pfad für „unbekannt/zu wenig Informationen“. Die Auswahl führt zu sichtbaren IDs und automatisch ermittelten Seitenzahlen. Blätter enthalten ausführbare Methoden, Prüfungen oder Schritte zur Informationsbeschaffung, damit der Baum auch eigenständig nützlich ist.
+Verwenden Sie die [nativen Graphkomponenten](references/graph-components.md) für natürliche Fragen mit unmittelbar erklärten Voraussetzungen. Prüfen Sie A/B/C der Reihe nach und wählen Sie die erste zutreffende Bedingung. Generierte Verweise N1, N2, … bleiben von internen semantischen Schlüsseln getrennt. Jede Lösung erklärt den Lösungsweg, die nötigen Schritte und Prüfungen.
 
-Normale Entscheidungspfade müssen enden. Bedingte Rücksprünge nach einer Klärung erhalten einen anderen Typ als vorwärtsführende Auswahlmöglichkeiten; eine erforderliche Fortsetzung darf nicht stillschweigend als Endblatt behandelt werden. Fehlende Ziele, versehentliche Zyklen und leere Pfade sind Fehler.
+Klären Sie fehlende Angaben möglichst direkt bei der Frage. Ein eigener Pfad ist sinnvoll, wenn die Informationsbeschaffung eine wesentliche Aufgabe ist; er ist nicht für jede Frage erforderlich. Echte Schleifen nennen den weitergegebenen Zustand, den Fortschritt und die Ausstiegsbedingung. Der gemeinsame Renderer behält blaue Fragen und grüne Lösungen bei.
 
 ## Lange Absätze und wiederverwendbare Darstellung
 

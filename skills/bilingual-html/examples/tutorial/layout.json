@@ -1,0 +1,244 @@
+{
+  "layout_version": 1,
+  "languages": {
+    "source": {
+      "tag": "en",
+      "dir": "ltr"
+    },
+    "target": {
+      "tag": "fr",
+      "dir": "ltr"
+    }
+  },
+  "config": {
+    "browser_title": "Bilingual HTML: a paired reading guide",
+    "styles": {
+      "source_font": [
+        "system-ui",
+        "sans-serif"
+      ],
+      "target_font": [
+        "system-ui",
+        "sans-serif"
+      ],
+      "max_width": "76rem"
+    }
+  },
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 1,
+      "pair": {
+        "id": "title",
+        "source": "Build a paired reading page",
+        "target": "Créer une page de lecture bilingue"
+      }
+    },
+    {
+      "type": "paragraph",
+      "pair": {
+        "id": "intro",
+        "source": "This original guide demonstrates bilingual-html using its own embedded-pair format. Each English passage stays beside its French counterpart on a wide screen and immediately before it on a narrow screen.",
+        "target": "Ce guide original présente bilingual-html à l’aide de son propre format de paires intégrées. Sur un écran large, chaque passage anglais reste à côté de sa version française ; sur un écran étroit, il la précède immédiatement."
+      }
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "pair": {
+        "id": "prepare",
+        "source": "1. Prepare complete pairs",
+        "target": "1. Préparer des paires complètes"
+      }
+    },
+    {
+      "type": "paragraph",
+      "pair": {
+        "id": "input",
+        "source": "Start with text whose two language versions are already supplied. Keep the source wording and its matching target together in one pair with a stable identifier. This renderer does not create or approve translations.",
+        "target": "Commencez par un texte fourni dans les deux langues. Conservez le texte source et sa version cible dans une même paire dotée d’un identifiant stable. Ce moteur ne produit ni ne valide les traductions."
+      }
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "id": "step-read",
+          "source": "Read the entire input and identify headings, paragraphs, list items, table cells, captions and image descriptions.",
+          "target": "Lisez l’ensemble du contenu et repérez les titres, les paragraphes, les éléments de liste, les cellules de tableau, les légendes et les descriptions d’image."
+        },
+        {
+          "id": "step-pair",
+          "source": "Give every structural occurrence its own pair ID. Include both nonempty texts, even when a label repeats elsewhere.",
+          "target": "Attribuez un identifiant de paire à chaque occurrence structurelle. Fournissez les deux textes non vides, même lorsqu’un libellé est répété ailleurs."
+        },
+        {
+          "id": "step-config",
+          "source": "Set each language tag and direction independently. Choose desktop column order only after the source and target roles are clear.",
+          "target": "Définissez séparément la balise de langue et le sens d’écriture de chaque langue. Choisissez l’ordre des colonnes sur ordinateur après avoir précisé les rôles source et cible."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "pair": {
+        "id": "structure",
+        "source": "2. Preserve useful structure",
+        "target": "2. Conserver une structure utile"
+      }
+    },
+    {
+      "type": "paragraph",
+      "pair": {
+        "id": "table-intro",
+        "source": "A bilingual table keeps one shared row structure. Each header or data cell contains both texts, so related values remain in the same logical cell.",
+        "target": "Un tableau bilingue conserve une structure de lignes commune. Chaque cellule d’en-tête ou de données contient les deux textes, afin que les valeurs correspondantes restent dans la même cellule logique."
+      }
+    },
+    {
+      "type": "table",
+      "caption": {
+        "id": "table-caption",
+        "source": "Supported content and its presentation",
+        "target": "Contenu pris en charge et présentation"
+      },
+      "headers": [
+        {
+          "id": "head-content",
+          "source": "Content",
+          "target": "Contenu"
+        },
+        {
+          "id": "head-view",
+          "source": "Presentation",
+          "target": "Présentation"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "id": "cell-paragraph",
+            "source": "Paragraph",
+            "target": "Paragraphe"
+          },
+          {
+            "id": "cell-paragraph-view",
+            "source": "One pair, with source before target in the document order.",
+            "target": "Une paire, avec la source avant la cible dans l’ordre du document."
+          }
+        ],
+        [
+          {
+            "id": "cell-table",
+            "source": "Table cell",
+            "target": "Cellule de tableau"
+          },
+          {
+            "id": "cell-table-view",
+            "source": "Two texts inside one real header or data cell.",
+            "target": "Deux textes dans une véritable cellule d’en-tête ou de données."
+          }
+        ],
+        [
+          {
+            "id": "cell-image",
+            "source": "Figure",
+            "target": "Figure"
+          },
+          {
+            "id": "cell-image-view",
+            "source": "One local image, a paired caption and paired alternative text.",
+            "target": "Une image locale, une légende bilingue et un texte alternatif dans les deux langues."
+          }
+        ]
+      ]
+    },
+    {
+      "type": "figure",
+      "asset": "images/pairs.png",
+      "caption": {
+        "id": "figure-caption",
+        "source": "One pair remains together when the layout changes.",
+        "target": "Une paire reste regroupée lorsque la mise en page change."
+      },
+      "alt": {
+        "id": "figure-alt",
+        "source": "A green and a blue rectangle appear side by side on the left. An arrow leads to the same two rectangles stacked green above blue on the right.",
+        "target": "Un rectangle vert et un rectangle bleu sont placés côte à côte à gauche. Une flèche mène aux mêmes rectangles empilés à droite, le vert au-dessus du bleu."
+      }
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "pair": {
+        "id": "render",
+        "source": "3. Render and inspect",
+        "target": "3. Générer et vérifier"
+      }
+    },
+    {
+      "type": "paragraph",
+      "pair": {
+        "id": "command",
+        "source": "Run scripts/bilingual_html.py render layout.json --output page with Python 3.11 or later. Choose a new directory whose parent already exists, then open page/index.html in a browser.",
+        "target": "Exécutez scripts/bilingual_html.py render layout.json --output page avec Python 3.11 ou une version ultérieure. Choisissez un nouveau dossier dont le parent existe déjà, puis ouvrez page/index.html dans un navigateur."
+      }
+    },
+    {
+      "type": "paragraph",
+      "pair": {
+        "id": "literal",
+        "source": "Text is literal: <em> stays visible, an ampersand remains &, and TeX such as \\\\alpha is not executed. Rich trusted HTML requires a separate, manually reviewed authoring route.",
+        "target": "Le texte est littéral : <em> reste visible, une esperluette reste &, et du TeX comme \\\\alpha n’est pas exécuté. Un document HTML enrichi et fiable nécessite un parcours de rédaction distinct, vérifié manuellement."
+      }
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "id": "review-layout",
+          "source": "Inspect desktop and mobile widths, table relationships, line wrapping, and the shared image.",
+          "target": "Vérifiez les largeurs d’écran d’ordinateur et de mobile, les relations du tableau, le retour à la ligne et l’image commune."
+        },
+        {
+          "id": "review-language",
+          "source": "Read both languages for completeness and meaning. Inspect actual glyphs and shaping when choosing fonts or right-to-left text.",
+          "target": "Lisez les deux langues pour en vérifier l’exhaustivité et le sens. Examinez les glyphes et leur composition lorsque vous choisissez des polices ou un texte de droite à gauche."
+        },
+        {
+          "id": "review-deliver",
+          "source": "Deliver index.html, style.css, LICENSE and the image folder together. The page uses no remote fonts, scripts or images.",
+          "target": "Livrez ensemble index.html, style.css, LICENSE et le dossier d’images. La page n’utilise aucune police, aucun script et aucune image distants."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "pair": {
+        "id": "dependency",
+        "source": "4. Import translation work only when needed",
+        "target": "4. Importer le travail de traduction si nécessaire"
+      }
+    },
+    {
+      "type": "paragraph",
+      "pair": {
+        "id": "import",
+        "source": "Already paired layout JSON renders with bilingual-html alone. For raw source, discover the separately installed bilingual-translation skill. Its reviewed version-1 output can be imported with an explicit skill path; unresolved or stale units stop the import.",
+        "target": "Un fichier JSON de mise en page contenant déjà les paires se génère avec bilingual-html seul. Pour un texte source brut, recherchez la compétence bilingual-translation installée séparément. Son résultat révisé au format version 1 peut être importé en indiquant explicitement le chemin de la compétence ; les unités incomplètes ou obsolètes bloquent l’importation."
+      }
+    },
+    {
+      "type": "paragraph",
+      "pair": {
+        "id": "limits",
+        "source": "Escaping and structural checks are objective safeguards. They do not certify translation quality, font coverage or accessibility. Record the actual checks and review the delivered page in its intended viewing environment.",
+        "target": "L’échappement et les contrôles de structure sont des protections objectives. Ils ne certifient ni la qualité de traduction, ni la couverture des polices, ni l’accessibilité. Consignez les contrôles réellement effectués et examinez la page livrée dans son environnement de consultation prévu."
+      }
+    }
+  ]
+}

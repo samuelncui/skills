@@ -11,6 +11,14 @@
 \StudyDeclareGraphNode{report-value}{5}{procedure}{result}{Report the result}{State the result}
 \StudyDeclareGraphTerminal{finish}{Finish}{Done}
 \ifdefined\GraphFixtureReader\StudyGraphReaderProfile\fi
+\ifdefined\GraphFixtureHierarchy\StudyGraphHierarchyProfile\fi
+\ifdefined\GraphFixtureChinese
+\setotherlanguage{chinese}
+\newfontfamily\chinesefont{Noto Serif CJK SC}
+\newfontfamily\chinesefontsf{Noto Sans CJK SC}
+\ParallelLanguages{english}{chinese}
+\StudyGraphLabels{step}{Step}{步骤}
+\fi
 \ifdefined\GraphFixtureRulePlacement\GraphFixtureRulePlacement\fi
 \begin{document}
 \ifdefined\GraphFixtureBody\GraphFixtureBody\fi
@@ -38,6 +46,9 @@
 \GraphPair{s1}{\StudyGraphStep{1}{Record the two values.}}
 \GraphPair{call}{\StudyGraphCall{get-value}{A required value is absent.}{The missing value.}{compute-value}{2}}
 \GraphPair{s2}{\StudyGraphStep{2}{Add the two values.}}
+\ifdefined\GraphFixtureHierarchy
+\GraphPair{warning}{\StudyGraphField{warning}{Keep the given units.}\StudyGraphField{limits}{Use only the stated assumptions.}}
+\fi
 \GraphPair{cc}{\StudyGraphCompletionCheck{The total uses both values.}\StudyGraphJump{check-value}}
 \StudyGraphNode{check-value}
 \GraphPair{check-a}{\StudyGraphChoice{1}{The arithmetic is consistent.}{report-value}}

@@ -1,0 +1,58 @@
+{
+  "example": "Original English-French paired reading tutorial",
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "license": "MIT; see skill LICENSE",
+  "source": "Original generic text and programmatically drawn PNG. JPEG fixtures are Pillow conversions of that original PNG (quality=85; baseline and progressive). No external source material.",
+  "renderer": "scripts/bilingual_html.py; layout_version=1",
+  "rebuild": "python3 scripts/bilingual_html.py render examples/tutorial/layout.json --output NEW_DIRECTORY",
+  "files": [
+    {
+      "path": "tutorial/layout.json",
+      "bytes": 10419,
+      "sha256": "cc4073850dc5416ce0e60cb4df761468f21de098fe27da1fbf6b35dbce52a9de"
+    },
+    {
+      "path": "tutorial/draw_pairs.py",
+      "bytes": 1487,
+      "sha256": "89c1ae7e2754cf18b78fa902142609644474a744bce9ce3854110c1596191ffc"
+    },
+    {
+      "path": "tutorial/images/pairs.png",
+      "bytes": 2201,
+      "sha256": "b6b17702e27ee923ee0e298ef8a0fe11d1fedc455390b42762e96d79950a0d20"
+    },
+    {
+      "path": "tutorial/images/pairs.jpg",
+      "bytes": 11538,
+      "sha256": "85898c649e943452a6bc2b6b7b312364adde86fe315d16dd27937d8d636337e7"
+    },
+    {
+      "path": "tutorial/images/pairs-progressive.jpg",
+      "bytes": 7383,
+      "sha256": "6b63267b084d6bbb3ad7460b8181013ba20ff54ede968053306169b015661063"
+    },
+    {
+      "path": "tutorial/site/index.html",
+      "bytes": 13621,
+      "sha256": "20d68b09be2cee32958562ac18fc08d0bbdd1d249697491f38ad3b9ab6343328"
+    },
+    {
+      "path": "tutorial/site/style.css",
+      "bytes": 4164,
+      "sha256": "4a41fb7cde117f6949f3d35caaf095aeb9d43a6abb9f6e4135f3ef5b0fe232e6"
+    },
+    {
+      "path": "tutorial/site/images/pairs.png",
+      "bytes": 2201,
+      "sha256": "b6b17702e27ee923ee0e298ef8a0fe11d1fedc455390b42762e96d79950a0d20"
+    },
+    {
+      "path": "tutorial/site/LICENSE",
+      "bytes": 1069,
+      "sha256": "51f60a5ff7e346c2b2400c495aef61cf00f8f357f984e93a9e74b7eccd3e0294"
+    }
+  ]
+}

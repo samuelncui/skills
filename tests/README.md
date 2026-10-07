@@ -45,7 +45,7 @@ export SOURCE_DATE_EPOCH=1767225600 FORCE_SOURCE_DATE=1
 - **Native:** directly authored/installed LaTeX, package and image discovery without source-checkout access, native/structured pixel equivalence for matching normalized raster inputs in the same environment, IDs, counters, formulas, covers and direct flowing-prose helpers. Portable comparison fixtures normalize copied PNG metadata because JSON import deliberately flattens/strips image metadata; raw DPI metadata can otherwise cause subpixel dimension rounding. Installed-native example tests retain the original shared assets and independently check layout/ownership. Following paragraphs use the same keep/breakable policy in both compared fixtures.
 - **Configuration:** defaults and sparse overrides; paper/binding parity, divider geometry, clearance, folios, covers, roles, navigation, heading attachment and continuation furniture; invalid/late configuration errors.
 - **Study:** native-only selected products, clean independent installations, one interleaved lookup registry, direct subentry and companion-document targets, deferred references that survive language/formatting hooks, aliases and multisense groups, typed decision/clarification/continuation edges and actionable invalid-input errors.
-- **Graph components:** neutral English/paired graph rendering, compact reader profile, combined uncertainty/fallback wording, configurable style hooks, stable references and rejected invalid API inputs.
+- **Graph components:** neutral English/paired graph rendering, native auto-generated N reader numbers and AUX-safe running headers, compact reader profile, opt-in outlined node badges versus indented localized steps, bulleted caution fields, combined uncertainty/fallback wording, configurable style hooks, stable PDF destinations and rejected invalid API inputs. Hierarchy cases compile from separately installed renderer/study assets; the paired fixture exercises a Chinese step label while retaining original neutral content. The curated graph regression additionally checks that semantic keys stay internal, reader numbers appear, the question/solution palette remains and PDF destinations resolve. These fixtures are not a translation or full-language certification.
 - **Focused native regressions:** prefix-key ordering; all documented decision-ID punctuation; paragraph/heading lifecycle and starred subentries; short and continued headers; separate version/status values; explicit oversized keep/header failures.
 
 The registry and decision fixtures are original generic examples. Private learning material is not a fixture source. The [self-hosted source review](../skills/study-notes/examples/coverage-review.md) maps selected source sections to the four study forms; automated link checks complement source reading.
@@ -115,3 +115,53 @@ Compiler success is not semantic, factual, translation, privacy or visual approv
 Tests distinguish a bounded JSON table from paragraph continuation: each table row aligns independently, but the complete structured table remains together. Native authors may permit page breaks between bounded rows; row splitting and repeated longtable headers are not implemented.
 
 Traditional Chinese, arbitrary language combinations, vertical writing, native Windows font discovery, printer-specific production and PDF/UA are outside current acceptance. Native TeX remains executable input; disabling shell escape is not a sandbox. Keep review evidence private and publish only original fixtures, authorized examples and sanitized results. Test elapsed time on a shared machine is not a performance benchmark.
+
+## Source-first translation and HTML
+
+The translation skill's optional exchange v1 keeps exact source text, stable semantic IDs and reviewed target slots in one master. The independent HTML layout API renders supplied pairs without translation tooling. Its optional importer and the PDF importer use the separately discovered installed translation validator. Both preserve source/target roles independently of display order.
+
+Affected deterministic checks run in one native-runner batch:
+
+```sh
+PYTHONPATH=tests .venv/bin/python -m unittest test_translation_contract test_translation_pdf test_bilingual_html -v
+```
+
+These cover schema/runtime constraints, source hashes and edit invalidation, successive single-unit master updates, exact adapter mapping, installed-package separation, HTML escaping/DOM/table structure, local image paths and output preservation. They do not establish extraction completeness, translation equivalence, browser rendering, font coverage or accessibility. Review exact source/target units and actual PDF/desktop/mobile HTML output separately. Held-out fresh-context authoring trials keep prompts, source identities, outputs and scoped observations as private evidence; file/tool counts are workflow observations, not measured token usage.
+
+## Optional PDF performance profile
+
+With the setup dependencies above installed:
+
+```sh
+.venv/bin/python tests/benchmark_bilingual.py --work .local/benchmark-en-zh --case en-zh-Hans --conditions clean noop edit
+```
+
+Use a fresh work directory for each source comparison. This performs one serial observation per condition and checks the resulting PDF; it records environment, frozen source/fixture hashes, full logs, phase timings and TeX pass counts locally. Clean means an empty document build directory with the installed toolchain, not a cold OS cache. Timings exclude installation, translation, semantic/visual review, uploads and remote queue/transport. The optional longer text-only workload uses --case multipage-en-fr --condition clean with a separate work directory. Optional --conditions font-cold font-warm requires FONTCONFIG_FILE naming a self-contained configuration with exactly one cachedir and no include directives; only a benchmark-owned cache is changed. These shared-machine observations are not CI performance thresholds or broad scalability guarantees. Keep all generated evidence ignored.
+
+### Incremental rendering comparisons
+
+`test_incremental_build.py` checks managed ownership, no-op timestamps, changed content/configuration/languages/assets/package dependencies, collision/symlink rejection, unrelated-file preservation, locking and interrupted-update recovery. `test_preflight.py` covers batched package discovery without weakening missing-package/font/glyph checks. Run these with the ordinary unittest runner.
+
+For an explicit real-TeX comparison, use two fresh evidence directories and frozen checkout states. Run once per requested condition; choose additional observations only to answer a stated uncertainty. The `render` pipeline repeats fresh builds; `build` uses the managed JSON entry. `native` remains the original export/native-edit baseline.
+
+~~~sh
+.venv/bin/python tests/benchmark_bilingual.py --repo /path/to/baseline-checkout --work .local/fresh-baseline --case en-zh-Hans --pipeline render --conditions clean noop edit asset layout
+.venv/bin/python tests/benchmark_bilingual.py --work .local/incremental-candidate --case en-zh-Hans --pipeline build --conditions clean noop edit asset layout --compare-to .local/fresh-baseline
+.venv/bin/python tests/benchmark_bilingual.py --work .local/preflight-candidate --case en-fr --condition preflight
+~~~
+
+`--compare-to` asserts matching source/asset hashes and every page's extracted text and raster bytes, alongside the usual embedded-font, geometry, reference/link and alignment checks. Asset edits replace image bytes at the same path; layout edits change the column gap. Source-edit cases use the full article fixtures, not the text-only long fixture. Preflight-only comparisons assert identical dependency/font/glyph reports. Pixel equality to a baseline does not certify the baseline's factual, language, semantic or accessibility quality; inspect representative actual output as required.
+
+
+### Optional bilingual HTML browser regression
+
+The fast `test_bilingual_html.py` profile uses only Python. The separately opted-in `test_bilingual_html_browser.py` profile drives an already-installed Playwright Node module and Chromium, testing actual short-heading/time wrapping, paired order, RTL metadata, focus and keyboard table scrolling at desktop and narrow widths. It does not download tools or contact external pages.
+
+```sh
+BILINGUAL_HTML_BROWSER_TESTS=1 \
+PLAYWRIGHT_NODE_MODULE=/path/to/installed/playwright-core \
+CHROMIUM_EXECUTABLE=/path/to/chromium \
+python3 -B -m unittest discover -s tests -p 'test_bilingual_html_browser.py' -v
+```
+
+`NODE_BINARY` optionally selects Node. The browser sandbox is enabled by default. `BILINGUAL_HTML_ALLOW_NO_SANDBOX=1` is an explicit test-only exception for an independently authorized isolated environment and local generated fixtures; the test neither grants that permission nor changes host isolation. Ordinary discovery reports this profile as skipped unless enabled; a missing browser/module in an enabled profile is a failure. Preserve before/after failure evidence and inspect screenshots of the actual documents as well as running the regression. These checks are not an accessibility or all-language certification.

@@ -88,3 +88,7 @@ Suivez les [critères d’acceptation du rendu](references/acceptance.md) : exam
 Livrez le PDF, le projet source natif portable et le JSON, s’il a été utilisé. Incluez les assets et licences nécessaires. Le TeX natif et la configuration latexmk exécutent du code ; `-no-shell-escape` n’est pas un bac à sable. Utilisez des sources fiables ou une isolation adaptée. L’écriture verticale, les flottants arbitraires et le contenu verbatim dans les arguments de macros, la découverte native des polices sous Windows et PDF/UA restent hors du périmètre testé.
 
 Le code original, le texte du tutoriel et les schémas sont sous [licence MIT](LICENSE). Les dépendances tierces conservent leurs propres licences. Aucun contenu documentaire privé ne doit figurer dans ces exemples publics.
+
+## De la traduction à la mise en page
+
+Pour traduire une source, utilisez bilingual-translation, installé séparément, afin de préparer un manuscrit bilingue unique et relu. Les paires déjà fournies restent directement utilisables. Le [guide de transmission](references/translation.md) décrit la découverte de la dépendance, les révisions testées et l’import facultatif du format v1. La voie TeX native reste pleinement disponible.

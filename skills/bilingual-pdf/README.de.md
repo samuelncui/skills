@@ -88,3 +88,7 @@ Folgen Sie den [Abnahmekriterien für das Rendering](references/acceptance.md): 
 Übergeben Sie das PDF, das portable native Quellprojekt und gegebenenfalls das verwendete JSON. Fügen Sie die benötigten Assets und Lizenzen bei. Natives TeX und latexmk-Konfigurationen führen Code aus; `-no-shell-escape` ist keine Sandbox. Verwenden Sie vertrauenswürdige Quellen oder eine geeignete Isolation. Vertikaler Satz, beliebige Gleitobjekte beziehungsweise Verbatim-Inhalte in Makroargumenten, native Windows-Schrifterkennung und PDF/UA gehören nicht zum getesteten Funktionsumfang.
 
 Originalcode, Tutorialtexte und Diagramme stehen unter der [MIT-Lizenz](LICENSE). Abhängigkeiten Dritter behalten ihre eigenen Lizenzen. Private Dokumentinhalte gehören nicht in diese öffentlichen Beispiele.
+
+## Von der Übersetzung zum Layout
+
+Für die Übersetzung einer Quelle erstellt der separat installierte Skill bilingual-translation ein einziges geprüftes zweisprachiges Manuskript. Vorhandene Textpaare können weiterhin direkt gesetzt werden. Die [Übergabeanleitung](references/translation.md) erklärt die Ermittlung installierter Skills, getestete Revisionen und den optionalen v1-Import. Natives TeX bleibt gleichberechtigt verfügbar.

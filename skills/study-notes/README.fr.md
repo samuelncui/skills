@@ -67,9 +67,9 @@ Le même registre natif produit l’aide-mémoire unifié ou un index compact. C
 
 ## Des questions qui mènent à des méthodes
 
-Une question de décision propose des options A/B/C naturelles et une voie explicite « inconnu/informations insuffisantes ». Les choix mènent à des identifiants visibles et à des pages générées. Les feuilles contiennent des méthodes applicables, des vérifications ou des étapes de collecte d’informations, afin que l’arbre puisse être utile à lui seul.
+Utilisez les [composants natifs de graphe](references/graph-components.md) pour poser des questions naturelles avec leurs prérequis sur place. Testez A/B/C dans l’ordre et retenez la première condition satisfaite. Les références N1, N2, … générées restent distinctes des clés sémantiques internes. Chaque solution explique le raisonnement, les opérations et les vérifications nécessaires.
 
-Les parcours de décision ordinaires doivent aboutir. Les retours conditionnels après clarification sont typés séparément des choix qui font avancer ; une continuation obligatoire ne doit pas être silencieusement traitée comme une feuille terminale. Cibles absentes, cycles accidentels et chemins vides sont des erreurs.
+Résolvez les informations manquantes auprès de la question lorsque c’est possible. Une branche dédiée convient à une collecte substantielle, mais n’est pas obligatoire partout. Une boucle réelle précise l’état transmis, la progression et la condition de sortie. Le moteur commun conserve les questions en bleu et les solutions en vert.
 
 ## Paragraphes longs et présentation réutilisable
 

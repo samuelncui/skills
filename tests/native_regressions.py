@@ -46,7 +46,22 @@ def fixtures():
 \StudyDeclareConcept{entry}{entry}{One two three four five six seven eight nine ten eleven twelve}{Title}{}{\ParallelParagraph{body}{A short body.}{A short body.}}
 """
     huge_keep = SMALL + r"\ParallelSetup{paragraph-flow=keep}" + "\n"
+    primitives = r"""
+\ParallelText{primitives}
+ {\ParallelSemanticInlineHeading{concept}{A}{Inspect the record}\par
+  \ParallelSemanticIndentedField{body}{Review field}{Keep both sentences. A continued line keeps the configured inset.}
+  \ParallelSemanticBulletField{caution}{Check scope}{Preserve the original source.}}
+ {\ParallelSemanticInlineHeading{concept}{A}{Inspecter le registre}\par
+  \ParallelSemanticIndentedField{body}{Champ}{Conserver les deux phrases et le retrait.}
+  \ParallelSemanticBulletField{caution}{Portee}{Conserver la source originale.}}
+\ParallelText{empty-badge}{\ParallelSemanticInlineHeading{body}{}{No badge label}}{Un titre sans etiquette}
+"""
+    primitive_setup = r"\ParallelSetup{semantic-badge-padding=0pt,semantic-badge-gap=.3em,semantic-field-indent=1.4em,semantic-bullet-indent=1.2em,semantic-bullet-marker={*}}"
+    native = lambda settings,body: document(settings,body).replace(r"\usepackage{studytools}",r"\usepackage{paralleltext}")
     return [
+        ("semantic-primitives", native(primitive_setup,primitives), None),
+        ("semantic-badge-rule-rejected", native(r"\ParallelSetup{semantic-badge-rule=0pt}",primitives), "Semantic badge rule must be positive"),
+        ("semantic-field-indent-rejected", native(r"\ParallelSetup{semantic-field-indent=-1pt}",primitives), "Semantic field indent must not be negative"),
         ("lookup-prefix-order", document(sorting, r"\StudyPrintQuickReference"), None),
         ("decision-id-punctuation", document(leaves, r"\StudyPrintDecisionTree{leaf_one}\ParallelText{refs}{"+r"\StudyDecisionReference{leaf:three}"+r"}{"+r"\StudyDecisionReference{leaf-four}"+r"}"), None),
         ("paragraph-heading-lifecycle", document(SMALL, lifecycle), None),
@@ -80,7 +95,15 @@ def run_case(case, work):
         errors.append("Layout, glyph, or reference diagnostic")
     pdf = fitz.open(path/"main.pdf")
     text = "\n".join(page.get_text() for page in pdf)
-    if name == "lookup-prefix-order":
+    if name == "semantic-primitives":
+        normalized = " ".join(text.split())
+        for expected in ("Inspect the record", "Keep both sentences.", "Check scope", "No badge label"):
+            if expected not in normalized:
+                errors.append("Semantic primitive text missing: "+expected)
+        names=pdf.resolve_names()
+        if not {"primitives","empty-badge"}.issubset(names):
+            errors.append("Primitive content lost its normal paired-unit anchors")
+    elif name == "lookup-prefix-order":
         if re.findall(r"REGRESSION-GROUP: ([A-Za-z]+)",log) != ["a","alias","ab","b"]:
             errors.append("Prefix/equal-key ordering does not respect sort key then group")
     elif name == "decision-id-punctuation":

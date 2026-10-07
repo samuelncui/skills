@@ -68,6 +68,7 @@
 \newcommand\ParallelSectionStyle{\ParallelHeadingFont\color{\ParallelStructureColor}\fontsize{13}{15.6}\selectfont}
 \newcommand\ParallelSubsectionStyle{\ParallelHeadingFont\fontsize{9.5}{11.4}\selectfont}
 \newcommand\ParallelCaptionStyle{\color{parallel.secondary}}
+\newcommand\ParallelFigureLabel{\textbf{\figurename\space\textenglish{\thefigure}.}\enspace}
 \newcommand\ParallelCoverStyle{\ParallelHeadingFont\color{parallel.theme}\fontsize{24}{30}\selectfont}
 \newcommand\ParallelNoteStyle{\color{parallel.secondary}}
 \newcommand\ParallelEntryStyle{\ParallelHeadingFont\color{\ParallelStructureColor}\fontsize{11}{13.2}\selectfont}
@@ -76,6 +77,13 @@
 \newcommand\ParallelSemanticTitleStyle{\normalfont\bfseries\color{parallel.body}}
 \newcommand\ParallelSemanticDestinationPrefix{\ensuremath{\rightarrow}\space}
 \newcommand\ParallelSemanticDestinationIndent{1em}
+\newcommand\ParallelSemanticBadgeStyle{\ParallelSemanticMarkerStyle}
+\newcommand\ParallelSemanticBadgePadding{.12em}
+\newcommand\ParallelSemanticBadgeRule{.35pt}
+\newcommand\ParallelSemanticBadgeGap{.4em}
+\newcommand\ParallelSemanticFieldIndent{1em}
+\newcommand\ParallelSemanticBulletIndent{1em}
+\newcommand\ParallelSemanticBulletMarker{\textbullet}
 \newcommand\ParallelDiagramStyle{\fontsize{8}{10}\selectfont}
 \newcommand\ParallelHeaderStyle{\sffamily\fontsize{7}{8}\selectfont}
 \newcommand\ParallelEntryHeaderLeft[1]{#1}
@@ -161,6 +169,11 @@
  \ifdim\ParallelTabHeight>0pt\else\PackageError{paralleltext}{Tab height must be positive}{Use a positive tab-height.}\fi
  \ifdim\ParallelTabStep>0pt\else\PackageError{paralleltext}{Tab step must be positive}{Use a positive tab-step.}\fi
 
+ \ifdim\ParallelSemanticBadgePadding<0pt\PackageError{paralleltext}{Semantic badge padding must not be negative}{Use a nonnegative semantic-badge-padding.}\fi
+ \ifdim\ParallelSemanticBadgeRule>0pt\else\PackageError{paralleltext}{Semantic badge rule must be positive}{Use a positive semantic-badge-rule.}\fi
+ \ifdim\ParallelSemanticBadgeGap<0pt\PackageError{paralleltext}{Semantic badge gap must not be negative}{Use a nonnegative semantic-badge-gap.}\fi
+ \ifdim\ParallelSemanticFieldIndent<0pt\PackageError{paralleltext}{Semantic field indent must not be negative}{Use a nonnegative semantic-field-indent.}\fi
+ \ifdim\ParallelSemanticBulletIndent<0pt\PackageError{paralleltext}{Semantic bullet indent must not be negative}{Use a nonnegative semantic-bullet-indent.}\fi
  \ifdim\ParallelParagraphEmergencyStretch<0pt\PackageError{paralleltext}{Paragraph emergency stretch must not be negative}{Use a nonnegative length for paragraph-emergency-stretch.}\fi
  \ifdim\ParallelColumnGap<0pt\PackageError{paralleltext}{Column gap must not be negative}{Set column-gap to a nonnegative length.}\fi
  \ifdim\ParallelBodySize pt>0pt\else\PackageError{paralleltext}{Body size must be positive}{Set body-size in points.}\fi
@@ -201,6 +214,13 @@
  semantic-title-style.store = \ParallelSemanticTitleStyle,
  semantic-destination-prefix.store = \ParallelSemanticDestinationPrefix,
  semantic-destination-indent.store = \ParallelSemanticDestinationIndent,
+ semantic-badge-style.store = \ParallelSemanticBadgeStyle,
+ semantic-badge-padding.store = \ParallelSemanticBadgePadding,
+ semantic-badge-rule.store = \ParallelSemanticBadgeRule,
+ semantic-badge-gap.store = \ParallelSemanticBadgeGap,
+ semantic-field-indent.store = \ParallelSemanticFieldIndent,
+ semantic-bullet-indent.store = \ParallelSemanticBulletIndent,
+ semantic-bullet-marker.store = \ParallelSemanticBulletMarker,
  diagram-style.store = \ParallelDiagramStyle,
  section-space.store = \ParallelSectionSpace,
  subsection-space.store = \ParallelSubsectionSpace,
@@ -409,8 +429,8 @@
 % Optional final argument selects a distinct localized right-column image.
 \NewDocumentCommand\ParallelFigure{m m m m o}{%
  \PTPlace{#1}{\refstepcounter{figure}}%
- {\includegraphics[width=\linewidth]{#2}\par{\ParallelCaptionStyle\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #3\par}}%
- {\IfNoValueTF{#5}{\includegraphics[width=\linewidth]{#2}}{\includegraphics[width=\linewidth]{#5}}\par{\ParallelCaptionStyle\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #4\par}}}
+ {\includegraphics[width=\linewidth]{#2}\par{\ParallelCaptionStyle\ParallelFigureLabel #3\par}}%
+ {\IfNoValueTF{#5}{\includegraphics[width=\linewidth]{#2}}{\includegraphics[width=\linewidth]{#5}}\par{\ParallelCaptionStyle\ParallelFigureLabel #4\par}}}
 \newsavebox\PTWideBox\newlength\PTWideHeight
 % A shared image is painted once over an opaque background, so the page's
 % center rule cannot pass through it. Its localized captions remain paired.
@@ -420,8 +440,8 @@
   \refstepcounter{figure}\hypertarget{#1}{}\label{#1}%
   {\setlength\fboxsep{0pt}\colorbox{\ParallelBackgroundColor}{\includegraphics[width=\linewidth]{#2}}}\par
   \ParallelText{#1.caption}%
-   {\ParallelCaptionStyle\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #3}%
-   {\ParallelCaptionStyle\textbf{\figurename\space\textenglish{\thefigure}.}\enspace #4}%
+   {\ParallelCaptionStyle\ParallelFigureLabel #3}%
+   {\ParallelCaptionStyle\ParallelFigureLabel #4}%
  \end{minipage}\end{lrbox}%
  \setlength\PTWideHeight{\dimexpr\ht\PTWideBox+\dp\PTWideBox\relax}%
  \ifdim\PTWideHeight>\dimexpr\textheight-8mm\relax\PackageError{paralleltext}{SHARED FIGURE TOO TALL: #1}{Crop or resize the source image deliberately; keep readable captions.}\fi
@@ -470,6 +490,21 @@
  \ParallelSemanticLabel{#1}{#2.}\space #3\par
  \hspace*{\ParallelSemanticDestinationIndent}\ParallelSemanticDestinationPrefix #4\par}
 \NewDocumentCommand\ParallelSemanticField{m m +m}{\ParallelSemanticLabel{#1}{#2}:\space #3\par}
+% Opt-in structural primitives. No existing semantic command changes its output.
+\NewDocumentCommand\ParallelSemanticBadge{m m}{%
+ \ParallelRoleText{#1}{{\ParallelSemanticBadgeStyle
+  \setlength\fboxsep{\ParallelSemanticBadgePadding}\setlength\fboxrule{\ParallelSemanticBadgeRule}%
+  \fbox{\strut #2}}}}
+\NewDocumentCommand\ParallelSemanticInlineHeading{m m +m}{%
+ \ifblank{#2}{}{\ParallelSemanticBadge{#1}{#2}\nobreak\hspace{\ParallelSemanticBadgeGap}}%
+ \ParallelSemanticLabel{#1}{#3}}
+\NewDocumentCommand\ParallelSemanticIndentedField{m m +m}{%
+ \par\begingroup\advance\leftskip by \ParallelSemanticFieldIndent\relax
+ \noindent\ParallelSemanticField{#1}{#2}{#3}\endgroup}
+\NewDocumentCommand\ParallelSemanticBulletField{m m +m}{%
+ \par\begingroup\hangindent=\ParallelSemanticBulletIndent\relax\hangafter=1
+ \noindent\makebox[\ParallelSemanticBulletIndent][l]{\ParallelSemanticLabel{#1}{\ParallelSemanticBulletMarker}}%
+ \ParallelSemanticField{#1}{#2}{#3}\endgroup}
 \newcommand\PTCurrentEntryId{}\newcommand\PTCurrentEntryText{}
 \newcommand\PTCurrentNavigation{}
 \newcommand\PTPreviousEntry{}\newcommand\PTPreviousEntryPage{0}

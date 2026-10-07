@@ -2,47 +2,47 @@
   "source_hashes": {
     "Makefile": "1055e52508805729b39d58e6f43bcecc48a647f413a0862839280b2a056e1118",
     "common.tex": "d6f85449e2fb086a306f05a60d1dd4e499095386d9fccdde532db8c4dcf28209",
-    "coverage-review.md": "05b9046ffd0f6b659deddc246f059ee5d77125b51483001c2b612706564df00e",
-    "decision-tree.tex": "7133fe8f734aafe2ce26b5f53ed1e0bd8e88d1e5d7f6ca7e9da268d8540bd689",
-    "decisions.tex": "3edeb63fc067141fb30fefa2bf316f1506e55d5d820e45f91a3842e9fbfe7abf",
-    "entries.tex": "8ef786dc4267e459149c39a57a7f29cb28cce0febfb5d198a85073da00dd1f69",
+    "coverage-review.md": "c3f33178c59b9b3986c435c468d5484a8e3f0da69796ac4d5a0fb3a5db80db68",
+    "decision-tree.tex": "c003c7f098fff351a3921d74dd645b6ac1129f8f07cbaa7bc6cd52bfb272f8af",
+    "decisions.tex": "692fe94eef01f0ad29050c90ca79a43046d1ecee29c3e6998db7d2f9309a3769",
+    "entries.tex": "07b8b553f61809a1788001b6773dffd6ecdc1285fba14a59009766acdc52898b",
     "keyword-index.tex": "ee450842945066489ef33acf2dcfc7f357eee0989521a80f6732c5eb768479a1",
     "languages.tex": "9500e1beef8e6c1e2546fcb440d7173704d9b8f73253b3fb669cdc4397b357ea",
-    "notes-content.tex": "f16565b564660543c3e39d0ee7a96b7cd0b9d941bc3e8a2a4795131520d8cadc",
+    "notes-content.tex": "3d4aef4c8d8611149076a4d4ad5b8ca775b29b1210caaf68cebb62a26aeb731a",
     "notes.tex": "b96cc198f9e7eace5ae593bae9178ed530f472e43df7b917e9d6a26fa81e616e",
     "quick-reference.tex": "61f97cae50f40ede7f5ea30c23188e32d45cbc2f6b1007903a9fd82f60ddb2ad",
-    "source-map.json": "64eb98b267b96341fa0f44b32425c4d007fed63e027a675039c729d0c297421e",
-    "source.md": "8a79dae6772edd2628ea70a810c583857dfa7ba55fd161785f57cdbc4f6a9b9e"
+    "source-map.json": "b77c12a62b8082d0f709a157e29a21df9105fafdd39a1532da34980be42b1d71",
+    "source.md": "bd3850d931f1515bef208e3534f3970f3822e83568578261c0004af107d75d49"
   },
   "package_dependencies": {
     "bilingual-pdf": {
-      "scripts/bilingual_pdf.py": "5eceef3ad185e47005151353cb8381dbb2558042a9f60d4b414955475159a78d",
-      "assets/paralleltext.sty": "0fbba1b9f9daa3bd910dfa7261f2f6da9104d19423ef63b0462db5e00c2c58ee",
+      "scripts/bilingual_pdf.py": "7d0cdb94cb2a954c84e1f3ba697d54db2d4ace3fe6db3e8ec1ce3782fd3d50cf",
+      "assets/paralleltext.sty": "1e7bacbe3d54d719097fd67919eb0adaef1cf8824e6d4f5dc2725f8b294d23b4",
       "assets/bound-profile.tex": "87854c291355fc88c3fafcfb16f0f7bdcca951d3db88ad2074cdefe152b80e6c",
       "assets/reading-profile.tex": "a2b9ee83b843faf289aee5e76c48205f2346aff24b774e48662970ccccc54332"
     },
     "study-notes": {
       "assets/studytools.sty": "dfaab82dc8a12157ab59f2bdd57b7f3deb43b0af612eacd7264b734eb58bd2ad",
       "assets/study-tree.tex": "5c5cf84b9411cfe4b368cb7c2f1d0400d21df4c1db9f17b669891f2a129c756c",
-      "assets/study-graph-components.tex": "0908d293745bf47b4c41239ad97321228589030e363465ae1d3948d940671a98"
+      "assets/study-graph-components.tex": "751852eacdf5e58c715246f1680736c8a2ceca2d8bd629ef7e7217828263c311"
     }
   },
   "files": [
     {
       "path": "notes.pdf",
-      "sha256": "42364f62cb7c81c3f333df80761cc0f1e10764caee983bdf7327390de1cc7d4d"
+      "sha256": "54c7a09e7ed34066e22dbf236cd006f231c8b3ef8568e55b735ec3788c0a2544"
     },
     {
       "path": "quick-reference.pdf",
-      "sha256": "5786fd505cff4774a2192590dcb73617881d6cab5e6c8abd57d8cb6cb353a667"
+      "sha256": "25f653846950bb849b731d31cb7112a3e67c9b4dcdd5e341b2dcc9cb11a48451"
     },
     {
       "path": "keyword-index.pdf",
-      "sha256": "a1804d4c074c7b99d29bbf509417a5404e41d00e3f48a6290a45f2dec2ec0600"
+      "sha256": "54d10a23ff940c7446237762b8273dae74313db90317efe7b042bb3618dfa1e4"
     },
     {
       "path": "decision-tree.pdf",
-      "sha256": "6ecfb96147369399eebbf2f97c158c9bfb2ad49b95e92b7a9393ed79cb1cd99b"
+      "sha256": "25402b4ccd2019c4cbe66f0269edd624268b9b09992abbea6bd0b1a705a1d961"
     }
   ],
   "previews": [
@@ -52,7 +52,7 @@
     },
     {
       "path": "quick-reference-preview.png",
-      "sha256": "2b9bf547bd25e65324d95e3cb9e6e2ba80379684f799b7f844708475acf9b9ea"
+      "sha256": "5e137725a98b8b1845fd89c8b07f1097e753c0f3d26066383493e74b0063b126"
     },
     {
       "path": "keyword-index-preview.png",
@@ -60,8 +60,8 @@
     },
     {
       "path": "decision-tree-preview.png",
-      "sha256": "41aa72d6b7f297933395a19f2fc5560f87621924f75f43a584518d88938a3c4d"
+      "sha256": "ccd39b95d3310caad4a4489cee6ef587d20313e6ca284bca68e834385c7a3a4a"
     }
   ],
-  "regeneration": "See tests/README.md. Source paths are relative to this examples directory; package paths are relative to the named installed skill. Exact bytes require the same toolchain and fixed clock."
+  "regeneration": "Built with the installed-dependency study-example-all case; see tests/README.md. All nine pages reviewed on 2026-10-07."
 }

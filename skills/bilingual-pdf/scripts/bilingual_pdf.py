@@ -8,6 +8,8 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -86,6 +88,7 @@ def validate(data):
         if not isinstance(kind,str) or kind not in {'paragraph','heading','list','equation','reference','figure','quote','table'}:raise InputError('Unsupported block kind: '+str(kind))
         if 'flow' in b and (kind!='paragraph' or b['flow'] not in ('atomic','keep','breakable')):raise InputError('flow is keep, breakable or atomic (keep alias), for paragraph blocks only')
         if 'placement' in b and (kind!='figure' or b['placement'] not in ('paired','shared')):raise InputError('placement is paired or shared, for figures only')
+        if 'caption_prefix' in b and (kind!='figure' or b['caption_prefix'] not in ('automatic','none')):raise InputError('caption_prefix is automatic or none, for figures only')
         pair=b.get('text',[]) if kind=='table' else b.get('text')
         if kind=='table' and 'text' not in b:pass
         elif not isinstance(pair,list) or len(pair)!=2:raise InputError('Each block needs exactly two paired texts')
@@ -181,9 +184,13 @@ def preflight(data):
     packages=['polyglossia.sty','paracol.sty','ragged2e.sty','fontspec.sty','unicode-math.sty','geometry.sty','needspace.sty','tikz.sty','fancyhdr.sty','zref-savepos.sty','amsmath.sty','booktabs.sty','array.sty','tabularx.sty','xcolor.sty','graphicx.sty','enumitem.sty','hyperref.sty','bookmark.sty']
     if any(PROFILES[l]['direction']=='rtl' for l in data['languages']):packages.append('bidi.sty')
     if 'fr' in data['languages']:packages.append('loadhyph-fr.tex')
-    for package in packages:
-        q=subprocess.run(['kpsewhich',package],capture_output=True,text=True)
-        if q.returncode or not q.stdout.strip():package_missing.append(package)
+    # kpsewhich accepts multiple filenames; retain an explicit result for every
+    # required basename, including partial-success/missing-package responses.
+    q=subprocess.run(['kpsewhich',*packages],capture_output=True,text=True)
+    found={Path(line).name for line in q.stdout.splitlines() if line.strip()}
+    package_missing=[package for package in packages if package not in found]
+    if q.returncode and not package_missing:
+        return {'ok':False,'package_lookup_error':'kpsewhich failed despite returning every requested path'}
     fonts=[]
     font_requests=[(language,PROFILES[language]['font']) for language in data['languages']]
     for language in data['languages']:
@@ -290,7 +297,9 @@ def tex_parts(data,mode,*,stem="document",image_names=None):
             names=image_names.get(ident)
             if names is None:names=['figure-'+ident+'/'+side+'.png' for side in ('left','right')] if len(figure_images(b))==2 else ['figure-'+ident+'/image.png']
             if isinstance(names,str):names=[names]
-            body.append(('\\ParallelWideFigure{' if b.get('placement')=='shared' else '\\ParallelFigure{')+ident+'}{'+names[0]+'}{'+pair[0]+'}{'+pair[1]+'}'+('['+names[1]+']' if len(names)==2 else ''))
+            figure=('\\ParallelWideFigure{' if b.get('placement')=='shared' else '\\ParallelFigure{')+ident+'}{'+names[0]+'}{'+pair[0]+'}{'+pair[1]+'}'+('['+names[1]+']' if len(names)==2 else '')
+            if b.get('caption_prefix','automatic')=='none':figure=r'{\renewcommand\ParallelFigureLabel{}'+figure+'}'
+            body.append(figure)
         elif kind=='list':
             for i,(left,right) in enumerate(zip(*b['text'])):
                 pair=[language_text(left,languages[0]),language_text(right,languages[1])]
@@ -388,6 +397,118 @@ def export_document(data,input_path,out,mode,*,stem='document',asset_root=None):
     out.mkdir(parents=True)
     return write_project(data,input_path,out,mode,stem=stem,asset_root=asset_root)
 
+def write_json_atomic(path,value):
+    # Publish a complete receipt without exposing partially written JSON.
+    fd,name=tempfile.mkstemp(prefix='.bilingual-receipt-',dir=path.parent)
+    temporary=Path(name)
+    try:
+        with os.fdopen(fd,'w',encoding='utf-8') as stream:
+            json.dump(value,stream,ensure_ascii=False,indent=2);stream.write('\n')
+        temporary.replace(path)
+    finally:
+        if temporary.exists():temporary.unlink()
+
+
+BUILD_MANIFEST = '.bilingual-build.json'
+BUILD_LOCK = '.bilingual-build.lock'
+
+
+def build_document(data,input_path,out,mode,*,asset_root=None,environment=None):
+    """Update a renderer-owned project without discarding latexmk dependencies.
+
+    Generate into a sibling temporary directory first. Only generated files in
+    the ownership receipt may be replaced, and only if their recorded bytes are
+    still present. Native edits belong to export + latexmk, not this JSON route.
+    """
+    def digest(path):
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+
+    def generated(name):
+        return name in {'document.tex','languages.tex','content.tex','paralleltext.sty','LICENSE'} or bool(re.fullmatch(r'figure-[a-z][a-z0-9.-]{0,79}/(?:left|right|image)\.png',name))
+
+    def check_path(name):
+        target=out/name
+        for part in [target,*target.parents]:
+            if part==out:break
+            if part.is_symlink():raise InputError('Symlink in managed project path: '+name)
+        if target.exists() and not target.is_file():raise InputError('Managed project path is not a file: '+name)
+        return target
+
+    fresh=not out.exists()
+    if fresh:out.mkdir(parents=True)
+    manifest=out/BUILD_MANIFEST
+    if not fresh and (manifest.is_symlink() or not manifest.is_file()):
+        raise InputError('Build requires a new directory or a project previously created by build; preserve native edits with export and latexmk')
+    try:
+        lock=os.open(out/BUILD_LOCK,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600)
+    except FileExistsError:
+        raise InputError('Another build or interrupted build lock exists; verify no build is running before removing '+BUILD_LOCK)
+    os.close(lock)
+    try:
+        for name in ['document'+suffix for suffix in ('.aux','.pdf','.log','.out','.toc','.fls','.fdb_latexmk','.xdv','.synctex.gz')]+['compile.log','result.json']:
+            check_path(name)
+        previous={};pending={}
+        if fresh:write_json_atomic(manifest,{'format':1,'files':{}})
+        if not fresh:
+            try:
+                state=json.loads(manifest.read_text(encoding='utf-8'))
+                if state.get('format')!=1:raise ValueError('Unsupported format')
+                previous=state['files'];pending=state.get('pending',{})
+                for entries in (previous,pending):
+                    if not isinstance(entries,dict):raise ValueError('Invalid files')
+                    for name,value in entries.items():
+                        if not generated(name) or not isinstance(value,str) or not re.fullmatch('[0-9a-f]{64}',value):raise ValueError('Invalid managed file')
+            except (ValueError,KeyError,TypeError,AttributeError) as exc:
+                raise InputError('Invalid build ownership receipt') from exc
+        known=set(previous)|set(pending)
+        for name in known:
+            target=check_path(name)
+            if target.exists() and digest(target) not in {previous.get(name),pending.get(name)}:
+                raise InputError('Managed file was edited outside build: '+name+'; preserve the native project and choose a new build directory')
+        with tempfile.TemporaryDirectory(prefix='.bilingual-build-',dir=out.parent) as work:
+            staged=Path(work)/'project'
+            export_document(data,input_path,staged,mode,asset_root=asset_root)
+            current={p.relative_to(staged).as_posix():digest(p) for p in staged.rglob('*') if p.is_file()}
+            for name in current:
+                target=check_path(name)
+                if target.exists() and name not in known:
+                    raise InputError('Unmanaged file would be overwritten: '+name)
+            # The pending receipt makes an interrupted file update recoverable.
+            # Every existing byte must match a previously recorded old/new hash.
+            old={name:(digest(out/name) if (out/name).exists() else previous.get(name,pending.get(name))) for name in known}
+            def receipt(value):
+                candidate=Path(work)/'receipt.json'
+                candidate.write_text(json.dumps(value,indent=2)+'\n',encoding='utf-8')
+                candidate.replace(manifest)
+            source_changed=old!=current
+            if environment is not None or (source_changed and (out/'result.json').exists()):
+                write_json_atomic(out/'result.json',{'ok':False,'stage':'build','error':'Compilation and checks have not completed'})
+            receipt({'format':1,'files':old,'pending':current})
+            changed=[]
+            for name,value in current.items():
+                target=out/name
+                if not target.exists() or digest(target)!=value:
+                    target.parent.mkdir(parents=True,exist_ok=True)
+                    (staged/name).replace(target)
+                    changed.append(name)
+            for name in known-set(current):
+                if (out/name).exists():(out/name).unlink()
+                changed.append(name)
+            receipt({'format':1,'files':current})
+        update={'changed_files':sorted(changed),'unchanged_files':len(current)-len(set(changed)&set(current))}
+        if environment is None:return update
+        # Keep the ownership lock through compilation and QA. A previous PDF
+        # may remain after failure, but its old success receipt must not survive.
+        result_path=out/'result.json'
+        try:
+            return compile_project(data,out,mode,environment,update=update)
+        except (OSError,RuntimeError,subprocess.TimeoutExpired,ImportError) as exc:
+            write_json_atomic(result_path,{'ok':False,'stage':'build','error':str(exc),'update':update})
+            raise
+    finally:
+        (out/BUILD_LOCK).unlink()
+
+
 def check_pdf(path,covered,paired=False,margin_mm=12):
     import pymupdf as fitz
     from PIL import Image, ImageChops
@@ -453,7 +574,7 @@ def check_pdf(path,covered,paired=False,margin_mm=12):
             if not count:errors.append('No paired position records found')
     return {'ok':not errors,'pages':len(pdf),'blank_pages':blanks,'paired_blocks_checked':count,'embedded_fonts_checked':len(fonts_checked),'errors':errors,'visual_review':'required','semantic_review':'caller responsibility'}
 
-def compile_project(data,out,mode,environment,*,stem='document'):
+def compile_project(data,out,mode,environment,*,stem='document',update=None):
     """Compile and check one named project through the canonical rendering path."""
     files=project_filenames(stem)
     p=subprocess.run(['latexmk','-norc','-xelatex','-interaction=nonstopmode','-halt-on-error','-latexoption=-no-shell-escape',files['tex']],cwd=out,capture_output=True,text=True,timeout=180)
@@ -463,16 +584,17 @@ def compile_project(data,out,mode,environment,*,stem='document'):
     issues=[line for line in log.splitlines() if any(t in line for t in ['Missing character:','Overfull','undefined references','multiply defined','No hyphenation patterns'])]
     result=check_pdf(out/files['pdf'],data.get('layout',{}).get('covers',False),mode=='bilingual',min(data.get('layout',{}).get('inner_mm',data.get('layout',{}).get('margin_mm',16 if data.get('layout',{}).get('profile')=='bound' else 18)),data.get('layout',{}).get('outer_mm',data.get('layout',{}).get('margin_mm',16 if data.get('layout',{}).get('profile')=='bound' else 18))))
     result['environment']=environment
+    if update is not None:result['update']=update
     result['renderer_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     result['template_sha256']={n:hashlib.sha256((out/n).read_bytes()).hexdigest() for n in ['paralleltext.sty']}
     result['errors']+=issues;result['ok']=not result['errors']
     result.update({'pdf':str(out/files['pdf']),'sha256':hashlib.sha256((out/files['pdf']).read_bytes()).hexdigest(),'languages':data['languages'],'mode':mode})
-    (out/files['result']).write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+    write_json_atomic(out/files['result'],result)
     return result
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command',choices=['preflight','export','render','validate'])
+    parser.add_argument('command',choices=['preflight','export','render','build','validate'])
     parser.add_argument('input',type=Path)
     parser.add_argument('--output',type=Path)
     parser.add_argument('--asset-root',type=Path,help='Read figure paths inside this directory only (default: input directory)')
@@ -491,12 +613,16 @@ def main():
         else:
             data=validate(json.loads(args.input.read_text(encoding='utf-8')))
             result={'ok':True} if args.command=='export' else preflight(data);code=0 if result['ok'] else 2
-            if args.command in ('export','render') and result['ok']:
+            if args.command in ('export','render','build') and result['ok']:
                 if not args.output:raise InputError('--output is required')
-                out=args.output.resolve();export_document(data,args.input,out,args.mode,asset_root=args.asset_root)
-                if args.command=='export':
-                    print(json.dumps({'ok':True,'tex':str(out/'document.tex'),'editable_content':str(out/'content.tex'),'build':'latexmk -xelatex -interaction=nonstopmode -halt-on-error -latexoption=-no-shell-escape document.tex'}));return 0
-                result=compile_project(data,out,args.mode,result)
+                out=args.output.resolve()
+                if args.command=='build':
+                    result=build_document(data,args.input,out,args.mode,asset_root=args.asset_root,environment=result)
+                else:
+                    export_document(data,args.input,out,args.mode,asset_root=args.asset_root)
+                    if args.command=='export':
+                        print(json.dumps({'ok':True,'tex':str(out/'document.tex'),'editable_content':str(out/'content.tex'),'build':'latexmk -xelatex -interaction=nonstopmode -halt-on-error -latexoption=-no-shell-escape document.tex'}));return 0
+                    result=compile_project(data,out,args.mode,result)
                 code=0 if result['ok'] else 4
     except (InputError,json.JSONDecodeError,UnicodeError) as e:result={'ok':False,'error':str(e),'stage':'input'};code=1
     except (OSError,RuntimeError,subprocess.TimeoutExpired,ImportError) as e:result={'ok':False,'error':str(e),'stage':'runtime'};code=3

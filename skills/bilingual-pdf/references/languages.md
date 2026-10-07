@@ -53,6 +53,12 @@ Supply logical text, not manually reversed glyphs. Script=Hebrew enables intende
 
 The profile chooses western/Maghrib numerals. Native authors may choose another documented Polyglossia policy and test it. Arabic body/headings deliberately share the Naskh family.
 
+### Arabic PDF text reuse
+
+Correct visible Arabic shaping does not establish faithful Unicode copy, extraction or search. In a tested XeLaTeX/xdvipdfmx pipeline with Noto Naskh Arabic 2.004, a contextual alef can be omitted or mis-extracted, while presentation-form mappings can prevent search with the original base-Unicode text. This is a text-reuse limitation even when the rendered glyphs look correct.
+
+When text reuse matters, deliver the editable Unicode manuscript (native TeX or paired source data) alongside the PDF. Compare meaningful source words, including contextual lam-alef combinations, with extracted/copied text and perform actual base-Unicode searches in the intended reader. Normalized extraction is a diagnostic check; a match after normalization does not prove that reader search works. Report the tested reader/tool versions and remaining differences separately from visual acceptance. Searchability and accessibility require their own evidence; current validation does not establish them for every Arabic combination or reader.
+
 ### French, Chinese and Japanese
 
 ~~~tex
