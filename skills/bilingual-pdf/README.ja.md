@@ -1,5 +1,7 @@
 # Bilingual PDF
 
+レビュー済みの翻訳 JSONL から直接 PDF を作成できます。段落内の対応部分を揃え、原文とレビュー情報を保持します。[JSONL 入力](references/translation.md#direct-reviewed-jsonl-v2-input)を参照してください。別の組版用原稿は不要です。
+
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
 対応する内容を比較しやすい位置に配置します。段落の開始位置、リスト項目、表の行を揃え、物理的な左右の列の間に安定した区切り線を置きます。長い段落は一組のまま保持するか、ページをまたいで続けるかを選べます。ネイティブ LaTeX と JSON は、同じ基準となるレイアウトパッケージを使います。

@@ -2,6 +2,9 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
+
+New translations use the [gated JSONL workflow](references/workflow-v2.md): read and acknowledge the complete source, choose semantic splits for units over 2048 Unicode codepoints, then save one active target before receiving the next. Saved drafts and reviewed translations are separate; v1 JSON remains compatible.
+
 Create one aligned source/target manuscript. Read the full relevant source first, then translate and review each complete paragraph or semantic unit, saving it in the same master before advancing. Stable IDs preserve alignment; source edits reopen the corresponding target for review.
 
 Install the complete directory with your host's skill installer. Native paired TeX is an equal route. Optional plain-text JSON and its Python 3.11+ standard-library validator work independently of PDF/HTML renderers.

@@ -1,53 +1,69 @@
 ---
 name: bilingual-translation
-description: Translate source material into aligned source/target content while preserving exact source text, stable units and review progress. Use for new translations or revisions of paired content; already-paired PDF/HTML layout can use its renderer directly.
+description: Translate source material into a source-first JSONL master with full-source acknowledgment, agent-selected semantic splits, one saved block at a time, stable alignment and separate review. Use for new translations and revisions; supplied pairs can go directly to PDF/HTML renderers.
 ---
 
 # Bilingual translation
 
-Produce one canonical paired manuscript from the preserved source. Keep source and target language roles separate from physical display order. Retain supplied translations; revise them only within the user's request.
+Produce one canonical paired manuscript from preserved source bytes. Keep source and target language roles separate from physical display order. Retain supplied translations within the user's requested scope.
 
-## Establish the source and master
+## Prepare the complete source
 
-1. Preserve original input bytes. Read the complete relevant source before translating, streaming through all of it if large. For an excerpt request, read the requested excerpt and needed context. Verify extraction against the original, including lists, tables, figures, captions and footnotes; label unreadable portions.
-2. Choose a lossless manuscript route. Native paired TeX and other appropriate native formats are first-class choices. Use the optional [v1 JSON exchange](references/contract-v1.md) when its plain-text types preserve the requested content. Rich formulas, nested structures and formatting require an explicit native route when v1 cannot represent them.
-3. Establish one canonical paired master with exact source text, stable IDs, target slots and review progress. Keep full paragraphs, semantic list items, table cells and captions as separate units. Record a concise section map, audience and recurring terms with the master; keep the full source available. Summaries aid orientation; exact source governs translation and checking.
-4. Assign IDs before translation and retain them on edits/reordering. Record source snapshot identity and unit locations to reconcile coverage. Execute the source-only preparation now: save the master with exact source units and empty target slots, then read that saved file back and check its source coverage. For JSON, `validate --untranslated` checks this persisted checkpoint. Begin target authoring after this execution and readback have finished. In native TeX, save and inspect the paired source commands with explicitly empty target arguments first.
+1. Preserve the original input. Verify extraction against it, including headings, paragraphs, lists, table cells, figures, captions and footnotes. For an excerpt, preserve and read the requested excerpt plus needed context. Label unreadable material.
+2. Discover this installed skill through the host. Read [the JSONL workflow and command examples](references/workflow-v2.md). Its helper requires Python 3.11+ on POSIX, without packages or network access.
+3. Use `read-source` to receive the complete Markdown source through the tool. Read every returned page in sequence; if `complete` is false, call again with the returned token. Keep the source available. Confirm that tool output is not truncated.
+4. After reading all pages, call `ack-source` with the final token and exact source hash. This records delivery and the agent's acknowledgment of this document version; it does not prove understanding.
+5. Call `init` to import headings, plain paragraphs, flat list items and simple table cells into source-first JSONL. This saves exact source text, stable IDs and empty target slots, then validates its readback. Record a concise section map, audience and glossary through the optional context file. Rich or nested content that this subset cannot preserve needs an explicit lossless native route; keep original input intact and make that boundary clear.
 
-## Translate and save one coherent working block
+Use JSONL v2 for the gated workflow. Native paired TeX remains a first-class route when the exchange cannot represent the content. Existing v1 JSON and its original APIs remain supported for compatibility, but do not provide the v2 dispatcher guarantees.
 
-Stable alignment IDs describe what stays paired; they do not require one remote write for every small cell or item. Resume from the persisted source-only master and choose the next working block:
+## Resolve oversized source units before dispatch
 
-- Prose: one complete paragraph, translated, reviewed and saved before the next paragraph.
-- Short structured content: one coherent table row (read with its headers), a short header row, or one small coherent list. Retain each cell/item's own ID and target slot while reviewing the complete row/list together. A paragraph-length cell or item is its own working block.
+Call `oversize` after initialization. It lists all source units above 2048 Unicode codepoints; Python string indices count codepoints, not bytes, UTF-16 units or grapheme clusters.
 
-Make the active ID or small ID set explicit. Read its complete source plus only the neighboring context needed. Reuse the already-read section map and glossary. The optional `view --unit ID` gives one complete pair and table-row context; request global context once on entry/resume.
+For each oversized unit:
+- Read its complete original paragraph through `inspect` as source preparation, using the section context already read.
+- Choose semantic split positions yourself, between complete sentences or other complete meaningful units. Keep a sentence, word, combining sequence and its qualifications together. The helper verifies numeric boundaries and lossless reconstruction; semantic boundaries remain the agent's responsibility.
+- Pass those explicit offsets, unit ID, source hash and current revision to `split`. Each resulting child must be at most 2048 codepoints. Include all necessary offsets in one call.
+- Verify the returned child lengths and reconstructed parent hash. Whitespace belongs to an exact child slice; no text is trimmed, duplicated, normalized or inserted.
 
-Compare the active source and target for:
-- Complete meaning, omissions, qualifications and cross-references
-- Numbers, dates, quantities, units, names and labels, including which header belongs to each cell
-- Negation, conditions, exceptions and causal relationships
-- Consistent terminology and natural target-language expression
+Children retain the original parent ID, sequential part index and `has_more`. They remain one original paragraph for rendering. If a complete semantic unit cannot fit the hard limit, leave it blocked and explain what decision is needed; never raise the limit or silently slice it.
 
-Correct discrepancies and persist the active block once into the same paired master. Confirm that scoped write before authoring the next block. For one pair, `record-review` records the caller's review and returns the next source. For a reviewed row/list, compose the existing `record_review` calls in memory and call `save_document` once; the [worked example](references/example-guide.md#one-short-row-one-atomic-save) preserves each ID and checks all source hashes before saving.
+## Translate and save the active block
 
-Reuse one agent session, source access, glossary and editor/interactive stream. Read back the affected block or a concise save receipt rather than the complete manuscript after every small field. Batch deterministic whole-document validation after useful progress; keep semantic review with each working block. Adjacent prose paragraphs remain separate working blocks.
+1. Call `next`. It returns exactly one active source unit, at most 2048 codepoints, plus a separately bounded context excerpt (at most 1024 codepoints) and language/ID metadata. Prose children, list items and table cells retain their structural IDs. The source is complete; only the clearly labeled context excerpt may be truncated.
+2. Translate only that active unit. Read the exact source, retained whole-document context and needed terminology. For split paragraphs, preserve natural target continuity and put any required boundary whitespace in the target strings themselves: renderers concatenate children without inventing separators.
+3. Write a target-only commit payload using the exact block ID, revision, complete source-hash map and active target ID returned by `next`; choose a stable operation ID for retries. Call `commit` and inspect the successful save receipt before authoring the next unit.
+4. A repeated `next`, interrupted session or restart returns the same pending block until its target is successfully saved. On an uncertain commit result, retry the identical payload and operation ID. A stale revision, changed hash, malformed or extra ID, or changed retry payload is rejected without advancement.
 
-On a source edit, preserve the existing target and mark it for renewed review. Read the current pair before acknowledging it. Native manuscripts can use stable comments or a concise progress record; JSON offers hash-based invalidation and a single-unit review-record helper.
+The dispatcher owns source order and active state. Continue through it rather than preparing future targets with unrestricted file reads or legacy helpers. Preparation inspections and full-source prereading are for comprehension and semantic splitting, not an alternative translation batch.
+
+## Review the saved work separately
+
+Saving a target records `draft`, never `reviewed`. Read the current source/target pair with `inspect`, compare complete meaning, omissions, qualifications, numbers, dates, quantities, units, names, labels, negation, conditions, exceptions and cross-references, and check natural target expression and terminology.
+
+Record a completed review with `review`, using both current source and target hashes. The command records the caller's attestation; it cannot evaluate meaning. Save any pending translation before recording review. For needed corrections, call target-only `revise` with the current revision and both hashes; it preserves the source and resets review to draft. Review the corrected pair again before exporting.
 
 ## Reconcile and render
 
-Compare the complete master with the preserved source for missing, duplicated or misplaced units, table cells, figures and captions. Read cross-unit transitions and recurring terms. Keep unresolved uncertainty visible and unreviewed.
+Compare the entire paired master against the preserved original for missing, duplicated or misplaced content. Review cross-child and cross-paragraph transitions and recurring terms. Keep unresolved uncertainty unreviewed.
 
-The [optional validator](scripts/translation_contract.py) checks structure, source hashes, review currency and per-ID coverage. It cannot judge semantic accuracy or prove extraction completeness. Check image labels separately, preserving a shared figure unless localization is requested.
+`validate --ready` and default `export` require all targets saved and currently reviewed. `export --allow-draft` is an explicit review bypass for a requested draft, not a final-quality assertion. Objective validation checks IDs, exact source reconstruction, hashes, state and structural order; semantic, factual, extraction and visual checks stay explicit.
 
-Pass the already-paired master to an installed renderer discovered through the host, or deliver the native paired manuscript as requested. Native TeX goes directly to its renderer. Existing pairs do not require this skill; translation and rendering have separate owners. Report translation/review scope separately from objective checks and visual inspection.
+When PDF is requested, discover the installed `bilingual-pdf` and this translation skill through the host, read the PDF skill, and pass the reviewed JSONL master directly to its canonical renderer. Set `PDF_SKILL` and `TRANSLATION_SKILL` to those actual installed directories, which may be unrelated:
+
+```sh
+python3 -B "$PDF_SKILL/scripts/bilingual_pdf.py" preflight master.jsonl --translation-skill "$TRANSLATION_SKILL"
+python3 -B "$PDF_SKILL/scripts/bilingual_pdf.py" render master.jsonl --translation-skill "$TRANSLATION_SKILL" --output new-pdf-project
+```
+
+This route preserves aligned children within the same original paragraph and carries the complete translation/review records into the PDF project. Continue the PDF skill's actual-pixel acceptance checks. `export` in the PDF renderer creates an editable native project without compiling if that is the requested deliverable.
+
+Use the translation helper's v1 `export` only for a consumer that needs legacy v1 JSON. It joins each parent's exact child strings, so it omits child-level layout hints; keep JSONL as the canonical master. Existing supplied pairs do not require a new translation. Other renderer choices still follow installed-skill discovery.
 
 ## Resources
 
-- [Contract and commands](references/contract-v1.md): optional JSON schema, states and Python API
-- [Complete original English–French example](examples/guide/translation.json): all unit types, real table cells and a shared figure
-- [Executed preparation and single-unit example](references/example-guide.md): source-only readback first, later one-pair update, and native TeX equivalent
-- [Design provenance](references/design-provenance.md): consulted concepts and implementation ownership
-
-The optional helper needs Python 3.11+ and its bundled schema only. No dependency installation or translation service is involved.
+- [JSONL v2 workflow, schema and commands](references/workflow-v2.md)
+- [Legacy v1 exchange](references/contract-v1.md) and [original English–French example](examples/guide/translation.json)
+- [Legacy preparation example](references/example-guide.md)
+- [Design provenance](references/design-provenance.md)

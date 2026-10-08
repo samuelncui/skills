@@ -863,6 +863,35 @@
           ],
           "default": "automatic",
           "description": "Figure-only generated label prefix. automatic preserves the localized figure number; none displays the exact supplied caption without a generated prefix. The figure counter and anchor remain."
+        },
+        "chunks": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Optional breakable paragraph fragments. Child text concatenates exactly to parent text on both sides, including boundary spaces; the runtime checks this and unique safe IDs. Paired output aligns child starts without new paragraph indentation/gaps. Selected output uses the joined parent text.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "text"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/identifier",
+                "not": {
+                  "const": "pt-title"
+                }
+              },
+              "text": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "$ref": "#/$defs/plainText"
+                }
+              }
+            }
+          }
         }
       },
       "allOf": [
@@ -1134,6 +1163,31 @@
             "properties": {
               "kind": {
                 "const": "figure"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "chunks"
+            ]
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "paragraph"
+              },
+              "flow": {
+                "const": "breakable"
+              },
+              "text": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "$ref": "#/$defs/plainText"
+                }
               }
             }
           }

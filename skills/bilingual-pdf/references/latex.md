@@ -69,6 +69,35 @@ Plain paragraphs, emphasis, inline citations, `quote`, `itemize`, `enumerate`, u
 
 Put shared numbering and anchors in one owning command: use `ParallelEquation` for a shared numbered formula and the figure helpers below for numbered images with paired captions. Keep side bodies for their localized text and unnumbered content. Duplicating a numbered environment, identical `label`, counter mutation, float or other global side effect in both bodies can execute it twice and corrupt references. Footnotes and other page-insertion behavior need deliberate native design and actual rendered testing.
 
+## Within-paragraph aligned continuations
+
+Use one `ParallelProseGroup` for the complete original paragraph and one
+`ParallelProseChunk` for each already-paired subblock:
+
+```tex
+\begin{ParallelProseGroup}{repair}
+\ParallelProseChunk{repair.first}{First source part. }{Première partie. }
+\ParallelProseChunk{repair.next}{Continuation of the same paragraph.}{Suite du même paragraphe.}
+\end{ParallelProseGroup}
+```
+
+Use `\ParallelProseSection{id}{left title}{right title}` for a section immediately before a prose group. It is a numbered section with an opt-in reserve for the first body lines of both scripts, so the heading and actual text starts move together when space is tight. JSONL import selects it automatically; existing `ParallelSection` layout remains unchanged.
+
+Both parent and child IDs are unique anchors. Paired mode uses one paracol
+environment; each next child resynchronizes below the longer side, with a
+page-bottom reserve for its start. A chunk's body remains ordinary flowing text,
+so natural page breaks inside a long child are allowed. Continuations suppress
+paragraph indentation and paragraph skip, even with nonzero global settings.
+Only the end of the parent adds the normal pair gap. The first child and following
+paragraph retain their normal paragraph settings. Short-side whitespace is
+intentional alignment space.
+
+In selected mode the same native chunks join in one paragraph; place required
+boundary spaces inside the supplied bodies. Structured selected editions use the
+exact joined parent text. A group must contain at least one chunk and cannot nest.
+Use these commands for prose, not floats, boxed tables or unrelated paragraphs.
+Existing `ParallelProse` and `ParallelParagraph` behavior stays unchanged.
+
 ## Figures, mathematics and references
 
 | Public command | Contract |

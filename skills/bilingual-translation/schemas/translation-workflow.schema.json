@@ -1,0 +1,661 @@
+{
+  "type": "object",
+  "properties": {
+    "document": {
+      "type": "object",
+      "properties": {
+        "record_type": {
+          "const": "document"
+        },
+        "contract_version": {
+          "type": "integer",
+          "const": 2
+        },
+        "document_id": {
+          "$ref": "#/$defs/id"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "languages": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "$ref": "#/$defs/language"
+            },
+            "target": {
+              "$ref": "#/$defs/language"
+            }
+          },
+          "required": [
+            "source",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "sha256": {
+              "$ref": "#/$defs/hash"
+            },
+            "char_count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "format": {
+              "const": "markdown"
+            }
+          },
+          "required": [
+            "sha256",
+            "char_count",
+            "format"
+          ],
+          "additionalProperties": false
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          },
+          "minItems": 1
+        },
+        "parents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "kind": {
+                "enum": [
+                  "title",
+                  "heading",
+                  "paragraph",
+                  "list_item",
+                  "table_cell",
+                  "caption",
+                  "alt_text"
+                ]
+              },
+              "source_hash": {
+                "$ref": "#/$defs/hash"
+              },
+              "char_count": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "heading_path": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "minItems": 0
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "source_hash",
+              "char_count",
+              "heading_path"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "source_layout": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "parent": {
+                    "$ref": "#/$defs/id"
+                  }
+                },
+                "required": [
+                  "parent"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "minItems": 1
+        },
+        "context": {
+          "$ref": "#/$defs/context"
+        },
+        "workflow": {
+          "type": "object",
+          "properties": {
+            "active": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "block_id": {
+                      "$ref": "#/$defs/id"
+                    },
+                    "revision": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "ids": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/id"
+                      },
+                      "minItems": 1
+                    },
+                    "source_hashes": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "$ref": "#/$defs/hash"
+                      }
+                    }
+                  },
+                  "required": [
+                    "block_id",
+                    "revision",
+                    "ids",
+                    "source_hashes"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "operations": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "request_hash": {
+                    "$ref": "#/$defs/hash"
+                  },
+                  "receipt": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "request_hash",
+                  "receipt"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "active",
+            "operations"
+          ],
+          "additionalProperties": false
+        },
+        "preread": {
+          "type": "object",
+          "properties": {
+            "source_hash": {
+              "$ref": "#/$defs/hash"
+            },
+            "acknowledged": {
+              "const": true
+            }
+          },
+          "required": [
+            "source_hash",
+            "acknowledged"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "record_type",
+        "contract_version",
+        "document_id",
+        "revision",
+        "languages",
+        "source",
+        "blocks",
+        "parents",
+        "source_layout",
+        "context",
+        "workflow",
+        "preread"
+      ],
+      "additionalProperties": false
+    },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "record_type": {
+            "const": "unit"
+          },
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "parent_id": {
+            "$ref": "#/$defs/id"
+          },
+          "part_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "kind": {
+            "enum": [
+              "title",
+              "heading",
+              "paragraph",
+              "list_item",
+              "table_cell",
+              "caption",
+              "alt_text"
+            ]
+          },
+          "source": {
+            "$ref": "#/$defs/text"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/text"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_hash": {
+            "$ref": "#/$defs/hash"
+          },
+          "target_source_hash": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/hash"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "untranslated",
+              "draft",
+              "reviewed",
+              "needs_review"
+            ]
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "heading_path": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/id"
+            },
+            "minItems": 0
+          },
+          "review": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "source_hash": {
+                    "$ref": "#/$defs/hash"
+                  },
+                  "target_hash": {
+                    "$ref": "#/$defs/hash"
+                  },
+                  "reviewer": {
+                    "$ref": "#/$defs/text"
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "source_hash",
+                  "target_hash",
+                  "reviewer",
+                  "note"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "target_hash": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/hash"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "record_type",
+          "id",
+          "parent_id",
+          "part_index",
+          "has_more",
+          "kind",
+          "source",
+          "target",
+          "source_hash",
+          "target_source_hash",
+          "status",
+          "order",
+          "heading_path",
+          "review",
+          "target_hash"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "document",
+    "units"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bilingual translation workflow v2 aggregate JSONL records",
+  "$defs": {
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?=[\\s\\S]*\\S)[^\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f-\\x9f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff]*$"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*(?![\\s\\S])",
+      "maxLength": 128
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+    },
+    "language": {
+      "type": "object",
+      "properties": {
+        "tag": {
+          "type": "string",
+          "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*(?![\\s\\S])"
+        },
+        "dir": {
+          "enum": [
+            "ltr",
+            "rtl"
+          ]
+        }
+      },
+      "required": [
+        "tag",
+        "dir"
+      ],
+      "additionalProperties": false
+    },
+    "unit": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "title",
+            "heading",
+            "paragraph",
+            "list_item",
+            "table_cell",
+            "caption",
+            "alt_text"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/text"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/text"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "target_source_hash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/hash"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "untranslated",
+            "draft",
+            "reviewed",
+            "needs_review"
+          ]
+        },
+        "locator": {
+          "$ref": "#/$defs/text"
+        },
+        "section": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "source",
+        "target",
+        "source_hash",
+        "target_source_hash",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "$ref": "#/$defs/text"
+        },
+        "audience": {
+          "$ref": "#/$defs/text"
+        },
+        "glossary": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "$ref": "#/$defs/text"
+              },
+              "target": {
+                "$ref": "#/$defs/text"
+              },
+              "note": {
+                "$ref": "#/$defs/text"
+              }
+            },
+            "required": [
+              "source",
+              "target"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "block": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "heading"
+            },
+            "unit": {
+              "$ref": "#/$defs/id"
+            },
+            "level": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 6
+            }
+          },
+          "required": [
+            "type",
+            "unit",
+            "level"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "paragraph"
+            },
+            "unit": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "required": [
+            "type",
+            "unit"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "list"
+            },
+            "ordered": {
+              "type": "boolean"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/id"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "type",
+            "ordered",
+            "items"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "table"
+            },
+            "headers": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/id"
+              },
+              "minItems": 1
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "minItems": 1
+              },
+              "minItems": 1
+            },
+            "caption": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "required": [
+            "type",
+            "headers",
+            "rows"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "figure"
+            },
+            "asset": {
+              "type": "string",
+              "pattern": "^(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//)[A-Za-z0-9_-](?:[A-Za-z0-9_./-]*[A-Za-z0-9_-])?(?![\\s\\S])"
+            },
+            "caption": {
+              "$ref": "#/$defs/id"
+            },
+            "alt": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "required": [
+            "type",
+            "asset",
+            "caption",
+            "alt"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

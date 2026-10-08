@@ -102,6 +102,20 @@ def validate(data):
         for index, value in enumerate(pair):
             values=value if kind=='list' else [value]
             if PROFILES[languages[index]]['direction']!='rtl' and any(isinstance(x,dict) for x in values):raise InputError('Explicit directional runs currently require an RTL paragraph')
+        if 'chunks' in b:
+            if kind!='paragraph' or b.get('flow','breakable')!='breakable':
+                raise InputError('chunks require a breakable paragraph')
+            chunks=b['chunks']
+            if not isinstance(chunks,list) or not chunks:raise InputError('chunks must be a nonempty list')
+            for chunk in chunks:
+                if not isinstance(chunk,dict) or set(chunk)!={'id','text'}:raise InputError('Each chunk requires exactly id and text')
+                cid=chunk['id']
+                if not isinstance(cid,str) or not re.fullmatch(r'[a-z][a-z0-9.-]{0,79}',cid) or cid=='pt-title':raise InputError('Chunk IDs must be lowercase identifiers')
+                texts=chunk['text']
+                if not isinstance(texts,list) or len(texts)!=2 or any(not isinstance(x,str) for x in texts):raise InputError('Chunk text needs exactly two plain strings')
+                for x in texts:text_value(x)
+            if any(not isinstance(x,str) for x in pair) or [ ''.join(c['text'][i] for c in chunks) for i in range(2)]!=pair:
+                raise InputError('Chunk text must concatenate exactly to its parent text; preserve all spaces')
         if kind=='figure':
             figure_images(b)
         if kind=='reference':
@@ -137,6 +151,7 @@ def validate(data):
         if b.get('kind')=='reference' and 'file' not in b and b['target'] not in ids:raise InputError('Unresolved local reference: '+b['target'])
     generated=[]
     for b in blocks:
+        if 'chunks' in b:generated.extend(c['id'] for c in b['chunks'])
         if b.get('kind')=='equation':generated.append(b['id']+'.formula')
         if b.get('kind')=='figure' and b.get('placement')=='shared':generated.append(b['id']+'.caption')
         if b.get('kind')=='table':
@@ -390,10 +405,24 @@ def tex_parts(data,mode,*,stem="document",image_names=None):
     body=[];titles=[language_text(t,l) for t,l in zip(data['title'],languages)]
     if settings.get('covers',False):body.append(r'\ParallelFrontCover{'+titles[0]+'}{'+titles[1]+'}')
     body.append(r'\ParallelTitle{'+titles[0]+'}{'+titles[1]+'}')
-    for b in data['blocks']:
+    for block_index,b in enumerate(data['blocks']):
         if b.get('break_before'):body.append(r'\clearpage')
         ident=b['id'];kind=b.get('kind','paragraph');pair=[content(b,i,l) if kind!='list' else '' for i,l in enumerate(languages)]
-        if kind=='heading':body.append(r'\ParallelSection{'+ident+'}{'+pair[0]+'}{'+pair[1]+'}')
+        if kind=='heading':
+            next_block=data['blocks'][block_index+1] if block_index+1<len(data['blocks']) else {}
+            command=r'\ParallelProseSection' if 'chunks' in next_block else r'\ParallelSection'
+            body.append(command+'{'+ident+'}{'+pair[0]+'}{'+pair[1]+'}')
+        elif kind=='paragraph' and 'chunks' in b:
+            if mode=='bilingual':
+                lines=[r'\begin{ParallelProseGroup}{'+ident+'}']
+                for chunk in b['chunks']:
+                    sides=[language_text(x,l) for x,l in zip(chunk['text'],languages)]
+                    lines.append(r'\ParallelProseChunk{'+chunk['id']+'}{'+sides[0]+'}{'+sides[1]+'}')
+                lines.append(r'\end{ParallelProseGroup}')
+                body.append('\n'.join(lines))
+            else:
+                # Selected output is the exact joined paragraph, with no chunk line breaks.
+                body.append(r'\ParallelProse{'+ident+'}{'+pair[0]+'}{'+pair[1]+'}')
         elif kind=='figure':
             names=image_names.get(ident)
             if names is None:names=['figure-'+ident+'/'+side+'.png' for side in ('left','right')] if len(figure_images(b))==2 else ['figure-'+ident+'/image.png']
@@ -469,8 +498,22 @@ def write_project(data,input_path,out,mode,*,stem='document',asset_root=None):
     figures=[b for b in data['blocks'] if b.get('kind')=='figure']
     prefix=Path() if stem=='document' else Path('images')/stem
     images={b['id']:([(prefix/('figure-'+b['id'])/(side+'.png')).as_posix() for side in ('left','right')] if len(figure_images(b))==2 else [(prefix/('figure-'+b['id'])/'image.png').as_posix()]) for b in figures}
+    # Preserve recognized importer provenance only. Root metadata was historically
+    # open/ignored, so arbitrary caller-owned "translation" values stay harmless.
+    provenance={}
+    metadata=data.get('translation')
+    if isinstance(metadata,dict) and isinstance(metadata.get('content'),dict):
+        master=metadata['content'];version=metadata.get('contract_version')
+        prefix='' if stem=='document' else stem+'-'
+        if version==2 and isinstance(master.get('document'),dict) and isinstance(master.get('units'),list):
+            provenance[prefix+'translation-source.jsonl']=''.join(json.dumps(record,ensure_ascii=False,allow_nan=False)+'\n' for record in [master['document']]+master['units'])
+        elif version==1:
+            provenance[prefix+'translation-source.json']=json.dumps(master,ensure_ascii=False,allow_nan=False,indent=2)+'\n'
+        if provenance:
+            provenance[prefix+'translation-map.json']=json.dumps({k:v for k,v in metadata.items() if k!='content'},ensure_ascii=False,allow_nan=False,indent=2)+'\n'
     targets=[out/name for name in files.values()]+[out/(stem+suffix) for suffix in ('.aux','.xdv','.fls','.fdb_latexmk','.toc')]+[out/name for names in images.values() for name in names]
-    if any(target.exists() or target.is_symlink() for target in targets):raise InputError('Named document or image already exists; preserve previous outputs')
+    targets += [out/name for name in provenance]
+    if any(target.exists() or target.is_symlink() for target in targets):raise InputError('Named document, image or provenance already exists; preserve previous outputs')
     shared={'paralleltext.sty':ROOT/'assets/paralleltext.sty','LICENSE':ROOT/'LICENSE'}
     for name,source in shared.items():
         target=out/name
@@ -490,6 +533,8 @@ def write_project(data,input_path,out,mode,*,stem='document',asset_root=None):
         if not (out/name).exists():shutil.copyfile(source,out/name)
     main,locale,body=tex_parts(data,mode,stem=stem,image_names=images)
     for name,text in [(files['tex'],main),(files['languages'],locale),(files['content'],body)]:
+        (out/name).write_text(text,encoding='utf-8')
+    for name,text in provenance.items():
         (out/name).write_text(text,encoding='utf-8')
     return files
 
@@ -525,7 +570,7 @@ def build_document(data,input_path,out,mode,*,asset_root=None,environment=None):
         return hashlib.sha256(path.read_bytes()).hexdigest()
 
     def generated(name):
-        return name in {'document.tex','languages.tex','content.tex','paralleltext.sty','LICENSE'} or bool(re.fullmatch(r'figure-[a-z][a-z0-9.-]{0,79}/(?:left|right|image)\.png',name))
+        return name in {'document.tex','languages.tex','content.tex','paralleltext.sty','LICENSE','translation-map.json','translation-source.jsonl','translation-source.json'} or bool(re.fullmatch(r'figure-[a-z][a-z0-9.-]{0,79}/(?:left|right|image)\.png',name))
 
     def check_path(name):
         target=out/name
@@ -698,6 +743,9 @@ def main():
     parser.add_argument('command',choices=['preflight','export','render','build','validate'])
     parser.add_argument('input',type=Path)
     parser.add_argument('--output',type=Path)
+    parser.add_argument('--translation-skill',type=Path,help='Explicit discovered bilingual-translation installation for reviewed JSONL/v1 input')
+    parser.add_argument('--source-side',choices=['left','right'],default='left',help='Physical source column for translation input')
+    parser.add_argument('--layout',help='Sparse JSON object of global layout overrides; uses the documented layout schema without editing the input manuscript')
     parser.add_argument('--asset-root',type=Path,help='Read figure paths inside this directory only (default: input directory)')
     parser.add_argument('--mode',choices=['bilingual','left','right'],default='bilingual')
     parser.add_argument('--no-covers',action='store_true',help='Compatibility flag: validate assumes no covers by default')
@@ -712,7 +760,16 @@ def main():
             if log.exists():result['errors'] += [line for line in log.read_text(errors='replace').splitlines() if any(t in line for t in ['Missing character:','Overfull','undefined references','multiply defined','No hyphenation patterns'])]
             result['ok']=not result['errors'];code=0 if result['ok'] else 4
         else:
-            data=validate(json.loads(args.input.read_text(encoding='utf-8')))
+            if args.translation_skill or args.input.suffix.lower()=='.jsonl':
+                if not args.translation_skill:raise InputError('JSONL input requires --translation-skill with the discovered bilingual-translation installation')
+                from import_translation import read_translation
+                data=read_translation(args.input,args.translation_skill,args.source_side)
+            else:data=validate(json.loads(args.input.read_text(encoding='utf-8')))
+            if args.layout is not None:
+                overrides=json.loads(args.layout)
+                if not isinstance(overrides,dict):raise InputError('--layout must be a JSON object')
+                data['layout']={**data.get('layout',{}),**overrides}
+                validate(data)
             result={'ok':True} if args.command=='export' else preflight(data);code=0 if result['ok'] else 2
             if args.command in ('export','render','build') and result['ok']:
                 if not args.output:raise InputError('--output is required')

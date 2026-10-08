@@ -2,6 +2,9 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
+
+新翻译使用[带状态门控的 JSONL 流程](references/workflow-v2.md)：先通读并确认完整原文，对超过 2048 个 Unicode 码点的段落由 agent 选择语义切分点，再逐块保存译文后领取下一块。已保存与已审校分别记录；旧版 JSON 仍保持兼容。
+
 把原文整理为一份可逐项审校的双语主稿。先通读所需完整原文，再逐个完整段落或语义单元翻译、核对，并保存到同一主稿后继续。稳定 ID 保持对应关系；原文修改后，相应译文须重新核对。
 
 通过宿主的技能安装器安装整个目录。原生双语 TeX 是同等有效的入口。纯文本 JSON 和 Python 3.11+ 标准库校验器均为可选，可独立于 PDF/HTML 渲染器使用。

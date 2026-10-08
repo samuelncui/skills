@@ -1,5 +1,7 @@
 # Bilingual PDF
 
+Reviewed translation JSONL can be rendered directly, with within-paragraph aligned continuations and preserved source/review metadata. See [the direct JSONL route](references/translation.md#direct-reviewed-jsonl-v2-input); no second layout manuscript is needed.
+
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
 Put corresponding content where readers can compare it: matching paragraph starts, list items and table rows, with a stable divider between physical columns. Choose whether long paragraphs stay together or continue across pages. Native LaTeX and JSON share one canonical layout package.

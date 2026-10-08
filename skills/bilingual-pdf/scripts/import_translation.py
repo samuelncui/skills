@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Map reviewed translation-contract v1 pairs into the existing PDF layout API."""
+"""Consume reviewed translation JSONL v2 or legacy exchange v1 through the PDF layout API."""
 import argparse
 import importlib.util
 import json
@@ -41,8 +41,8 @@ def convert_pairs(data, contract, source_side="left"):
         unit = units[ident]
         return [unit[role] for role in roles]
     blocks = data["blocks"]
-    if not blocks or blocks[0]["type"] != "heading" or units[blocks[0]["unit"]]["kind"] != "title":
-        raise pdf.InputError("PDF import needs a first heading block whose unit kind is title; supply a reviewed paired title or use native authoring.")
+    if not blocks or blocks[0]["type"] != "heading" or blocks[0].get("level") != 1 or units[blocks[0]["unit"]]["kind"] not in {"title", "heading"}:
+        raise pdf.InputError("PDF import needs a first heading block at level 1; supply a reviewed paired title or use native authoring.")
     title_id = blocks[0]["unit"]
     result = {"languages": languages, "title": pair(title_id), "blocks": []}
     mapping = {title_id: "pt-title"}
@@ -88,6 +88,71 @@ def convert_pairs(data, contract, source_side="left"):
     return result
 
 
+
+def load_workflow(skill_path):
+    root = Path(skill_path).expanduser().resolve()
+    path = root / "scripts" / "translation_workflow.py"
+    if not (root / "SKILL.md").is_file() or not path.is_file():
+        raise pdf.InputError("JSONL input requires the discovered bilingual-translation installation with translation_workflow.py (contract v2).")
+    spec = importlib.util.spec_from_file_location("bilingual_translation_workflow", path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    if not callable(getattr(module, "load_jsonl", None)) or not callable(getattr(module, "to_legacy_document", None)):
+        raise pdf.InputError("The installed translation workflow does not provide the JSONL v2 import API.")
+    return module
+
+
+def convert_jsonl(data, workflow, contract, source_side="left"):
+    """Retain the full master; paragraph children become one page-breakable group."""
+    legacy = workflow.to_legacy_document(data, require_ready=True)
+    result = convert_pairs(legacy, contract, source_side)
+    roles = result["translation"]["column_roles"]
+    mapping = result["translation"]["unit_mapping"]
+    parents = {}
+    for unit in data["units"]:
+        parents.setdefault(unit["parent_id"], []).append(unit)
+    for block, item in zip(data["document"]["blocks"][1:], result["blocks"]):
+        if block["type"] == "paragraph":
+            parent_id = block["unit"]
+            children = parents[parent_id]
+            item["flow"] = "breakable"
+            item["chunks"] = [
+                {"id": item["id"] + ".chunk-" + str(n),
+                 "text": [unit[role] for role in roles]}
+                for n, unit in enumerate(children, 1)
+            ]
+            for unit, chunk in zip(children, item["chunks"]):
+                mapping[unit["id"]] = {"anchor": chunk["id"], "parent_anchor": item["id"],
+                                       "parent_id": parent_id, "part_index": unit["part_index"],
+                                       "has_more": unit["has_more"]}
+    # Split non-prose units rejoin at their original semantic boundary, including
+    # a split title; each child still retains a trace to its parent's visual anchor.
+    prose_parents={b["unit"] for b in data["document"]["blocks"] if b["type"]=="paragraph"}
+    for parent_id,children in parents.items():
+        if parent_id not in prose_parents:
+            for unit in children:
+                if unit["id"]!=parent_id:
+                    mapping[unit["id"]]={"parent_id":parent_id,"parent_mapping":mapping[parent_id],
+                                         "part_index":unit["part_index"],"has_more":unit["has_more"]}
+    result["translation"] = {"contract_version": 2, "column_roles": roles,
+                              "unit_mapping": mapping, "content": data}
+    pdf.validate(result)
+    return result
+
+
+def read_translation(path, skill_path, source_side="left"):
+    contract = load_contract(skill_path)
+    if Path(path).suffix.lower() == ".jsonl":
+        workflow = load_workflow(skill_path)
+        try:
+            data = workflow.load_jsonl(path, require_ready=True)
+            return convert_jsonl(data, workflow, contract, source_side)
+        except (ValueError, TypeError, KeyError) as error:
+            raise pdf.InputError("Translation JSONL is not ready: " + str(error)) from error
+    return convert_pairs(read_json(path), contract, source_side)
+
+
 def read_json(path):
     def unique_object(items):
         result = {}
@@ -109,8 +174,7 @@ def main(argv=None):
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args(argv)
     try:
-        data = read_json(args.input)
-        result = convert_pairs(data, load_contract(args.translation_skill), args.source_side)
+        result = read_translation(args.input, args.translation_skill, args.source_side)
         if args.output.exists() or args.output.is_symlink():
             raise pdf.InputError("Output already exists; choose a new file to preserve previous inputs")
         args.output.parent.mkdir(parents=True, exist_ok=True)

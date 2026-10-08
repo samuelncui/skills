@@ -18,8 +18,8 @@
   },
   "package_dependencies": {
     "bilingual-pdf": {
-      "scripts/bilingual_pdf.py": "7109fa274ddf06045c49d008b6905d32afc1a8d56d68dfcae824f47edbe1eb2d",
-      "assets/paralleltext.sty": "1e7bacbe3d54d719097fd67919eb0adaef1cf8824e6d4f5dc2725f8b294d23b4",
+      "scripts/bilingual_pdf.py": "7a85df6f5a90e5d3947662e9cae1d40407440356ed509f4fa9c317d0cdf5ba52",
+      "assets/paralleltext.sty": "46acfb7c6ead9ee3cd9b2a38d15f7f03819882baff4eb8158ddfb67b556bdf6d",
       "assets/bound-profile.tex": "87854c291355fc88c3fafcfb16f0f7bdcca951d3db88ad2074cdefe152b80e6c",
       "assets/reading-profile.tex": "a2b9ee83b843faf289aee5e76c48205f2346aff24b774e48662970ccccc54332"
     },
@@ -32,19 +32,19 @@
   "files": [
     {
       "path": "notes.pdf",
-      "sha256": "54c7a09e7ed34066e22dbf236cd006f231c8b3ef8568e55b735ec3788c0a2544"
+      "sha256": "e882375274edae1498f08840fe4cfe3550353473bf59c071d2eeaeb4f8df897d"
     },
     {
       "path": "quick-reference.pdf",
-      "sha256": "25f653846950bb849b731d31cb7112a3e67c9b4dcdd5e341b2dcc9cb11a48451"
+      "sha256": "36166620d2bf19ce5f089870ee589a9e924c7fe77545a28f9c64df35cc2c5b9b"
     },
     {
       "path": "keyword-index.pdf",
-      "sha256": "54d10a23ff940c7446237762b8273dae74313db90317efe7b042bb3618dfa1e4"
+      "sha256": "a1804d4c074c7b99d29bbf509417a5404e41d00e3f48a6290a45f2dec2ec0600"
     },
     {
       "path": "decision-tree.pdf",
-      "sha256": "25402b4ccd2019c4cbe66f0269edd624268b9b09992abbea6bd0b1a705a1d961"
+      "sha256": "9d41dd1f850909e99e02e32cd54a27bdfb2b63565fe6a0b3028527c605447e31"
     }
   ],
   "previews": [
@@ -65,5 +65,5 @@
       "sha256": "ccd39b95d3310caad4a4489cee6ef587d20313e6ca284bca68e834385c7a3a4a"
     }
   ],
-  "regeneration": "Built with the installed-dependency study-example-all case; see tests/README.md. All nine pages reviewed on 2026-10-07."
+  "regeneration": "See tests/README.md. Source paths are relative to this examples directory; package paths are relative to the named installed skill. Exact bytes require the same toolchain and fixed clock."
 }

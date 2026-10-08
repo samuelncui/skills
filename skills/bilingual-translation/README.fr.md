@@ -2,6 +2,9 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
+
+Les nouvelles traductions suivent le [flux JSONL contrôlé](references/workflow-v2.md) : lire et confirmer la source entière, choisir des limites sémantiques pour les unités de plus de 2048 points de code Unicode, puis enregistrer chaque traduction avant de passer à la suivante. Enregistrement et révision sont distincts ; le JSON v1 reste compatible.
+
 Créez un seul manuscrit appariant source et traduction. Lisez d’abord toute la source concernée, puis traduisez et vérifiez un paragraphe complet ou une unité de sens à la fois. Enregistrez le résultat dans le même manuscrit avant de poursuivre. Des identifiants stables maintiennent l’alignement ; toute modification de la source impose une nouvelle vérification.
 
 Installez le répertoire complet avec l’installateur de compétences de votre environnement. Le manuscrit TeX bilingue est une voie à part entière. Le JSON en texte brut et son validateur Python 3.11+ sans dépendances externes sont facultatifs et indépendants des moteurs PDF/HTML.

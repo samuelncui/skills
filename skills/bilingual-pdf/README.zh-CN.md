@@ -1,5 +1,7 @@
 # Bilingual PDF
 
+已审校的翻译 JSONL 可直接生成 PDF，段内子块对齐并保留完整原文及审校元数据。参见[直接输入 JSONL](references/translation.md#direct-reviewed-jsonl-v2-input)，无须再手工维护一份排版稿。
+
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
 将对应内容放在便于比较的位置：段落起点、列表项和表格行逐一对齐，物理左右栏之间保持稳定的分隔线。长段落可以保持整组不拆分，也可以跨页延续。原生 LaTeX 和 JSON 共用同一个权威版式包。

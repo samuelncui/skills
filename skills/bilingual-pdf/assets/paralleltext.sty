@@ -47,6 +47,7 @@
 \newsavebox\PTRightBox
 \newif\ifPTBody\PTBodytrue
 \newif\ifPTHeading\PTHeadingfalse
+\newif\ifPTProseHeading\PTProseHeadingfalse
 \newif\ifPTAfterHeading\PTAfterHeadingfalse
 \newlength\PTHeadingChainHeight\newlength\PTReservation
 \newcommand\PTHeadingReservation{0pt}
@@ -369,6 +370,13 @@
  \ifdim\PTHeight>\dimexpr\textheight-8mm\relax\PackageError{paralleltext}{PAIR TOO TALL: #1}{Split both texts at a matching semantic boundary. Never truncate or shrink to fit.}\fi
  \setlength\PTReservation{\dimexpr\PTHeight+\PTGap\relax}%
  \ifPTHeading\ifdim\PTReservation<\PTHeadingReservation\setlength\PTReservation{\PTHeadingReservation}\fi\fi
+ % Opt-in headings before a flowing paragraph need room for the actual first
+ % lines of either script, including CJK ascent and two-line club protection.
+ \ifPTProseHeading
+  \ifdim\PTReservation<\dimexpr\PTHeight+\PTGap+\ParallelBodyLeading pt*4+2\parskip\relax
+   \setlength\PTReservation{\dimexpr\PTHeight+\PTGap+\ParallelBodyLeading pt*4+2\parskip\relax}%
+  \fi
+ \fi
  \ifPTAfterHeading\PTReserveSpace{\dimexpr\PTHeight+\PTGap\relax}\else\PTReserveSpace{\PTReservation}\fi\noindent\PTRecord{#1}%
  % A minipage containing only an indented list can have a natural box width
  % smaller than its declared hsize. Reserve both physical slots explicitly.
@@ -397,6 +405,56 @@
   \phantomsection\PTRecordPhysical{#1}\hypertarget{#1}{}\label{#1}%
   \ifdefstring{\ParallelMode}{right}{#3}{#2}\par\PTRecordFurniture\endgroup
  }\par\addvspace{\PTGap}}
+% One source paragraph may contain several reviewed translation chunks.
+% Keep one paracol instance for the whole parent. Starred switches synchronize
+% page-aware column storage; ensurevspace prevents a new synchronized start from
+% stranding one side at the page foot. Bodies remain ordinary breakable prose.
+\newif\ifPTProseGroup
+\newif\ifPTProseFirst
+\NewDocumentEnvironment{ParallelProseGroup}{m}{%
+ \ifPTProseGroup\PackageError{paralleltext}{Nested prose groups are unsupported}{End the current paragraph group first.}\fi
+ \PTValidateGeometry\PTUnique{#1}\par
+ % Preserve the heading's no-break chain while reserving the prose start.
+ % A fresh Needspace here would force a page break after a stranded heading.
+ \PTReserveSpace{\dimexpr\ParallelBodyLeading pt*2\relax}\PTAfterHeadingfalse%
+ \PTProseGrouptrue\PTProseFirsttrue\def\PTProseParent{#1}%
+ \ifdefstring{\ParallelMode}{paired}{%
+  \setlength\columnsep{\ParallelColumnGap}\begin{paracol}{2}%
+ }{%
+  \ifdefstring{\ParallelMode}{right}{\def\PTActiveSide{right}\PTLanguage{\ParallelRightLanguage}}{\def\PTActiveSide{left}\PTLanguage{\ParallelLeftLanguage}}%
+  \phantomsection\PTRecordPhysical{#1}\hypertarget{#1}{}\label{#1}%
+ }\ignorespaces
+}{%
+ \ifPTProseFirst\PackageError{paralleltext}{Empty prose group}{Add at least one ParallelProseChunk.}\fi
+ \ifdefstring{\ParallelMode}{paired}{\end{paracol}}{\par\PTRecordFurniture}%
+ \par\addvspace{\PTGap}\aftergroup\PTAfterHeadingfalse\ignorespacesafterend
+}
+\NewDocumentCommand\ParallelProseChunk{m +m +m}{%
+ \ifPTProseGroup\else\PackageError{paralleltext}{Prose chunk outside its parent group}{Use ParallelProseGroup around the chunks of one paragraph.}\fi
+ \PTUnique{#1}%
+ \ifdefstring{\ParallelMode}{paired}{%
+  \ifPTProseFirst\else
+   \ensurevspace{\dimexpr\ParallelBodyLeading pt*2\relax}\switchcolumn[0]*%
+  \fi
+  {\def\PTActiveSide{left}\PTLanguage{\ParallelLeftLanguage}%
+   \ifPTProseFirst
+    \phantomsection\PTRecordPhysical{\PTProseParent}\hypertarget{\PTProseParent}{}\label{\PTProseParent}%
+   \else\setlength\parskip{0pt}\setlength\parindent{0pt}\noindent\fi
+   \phantomsection\PTRecordPhysical{#1}\hypertarget{#1}{}\label{#1}%
+   \zsavepos{pt-internal:#1-L-start}\label{pt-internal:#1-L}%
+   #2\par\PTRecordFurniture\zsavepos{pt-internal:#1-L-end}\label{pt-internal:#1-L-finish}}%
+  \switchcolumn[1]%
+  {\def\PTActiveSide{right}\PTLanguage{\ParallelRightLanguage}%
+   \ifPTProseFirst\else\setlength\parskip{0pt}\setlength\parindent{0pt}\noindent\fi
+   \zsavepos{pt-internal:#1-R-start}\label{pt-internal:#1-R}%
+   #3\par\PTRecordFurniture\zsavepos{pt-internal:#1-R-end}\label{pt-internal:#1-R-finish}}%
+ }{%
+  % Single-language native authoring joins the chunk bodies in the same paragraph.
+  \phantomsection\PTRecordPhysical{#1}\hypertarget{#1}{}\label{#1}%
+  \ifdefstring{\ParallelMode}{right}{#3}{#2}%
+ }%
+ \PTProseFirstfalse\ignorespaces
+}
 % General paragraphs inherit the global choice; explicit Text/Prose remain overrides.
 \DeclareKeys[parallelparagraph]{
  flow.choices:nn = {default,keep,breakable}{%
@@ -415,6 +473,8 @@
  \PTHeadingtrue\let\PTHeadingReservation\ParallelSectionSpace\PTPlace{#1}{\refstepcounter{section}\setcounter{subsection}{0}\ifdefstring{\ParallelMode}{right}{\addcontentsline{toc}{section}{\protect\numberline{\thesection}#3}}{\addcontentsline{toc}{section}{\protect\numberline{\thesection}#2}}}%
  {{\ParallelSectionStyle\textenglish{\thesection}\enspace #2\par}}%
  {{\ParallelSectionStyle\textenglish{\thesection}\enspace #3\par}}\PTHeadingfalse}
+\NewDocumentCommand\ParallelProseSection{m m m}{%
+ \PTProseHeadingtrue\ParallelSection{#1}{#2}{#3}\PTProseHeadingfalse}
 \NewDocumentCommand\ParallelSubsection{s O{body} m m m}{%
  \PTCheckRole{#2}%
  \PTHeadingtrue\let\PTHeadingReservation\ParallelSubsectionSpace\PTPlace{#3}{%

@@ -1,5 +1,7 @@
 # Translation exchange v1
 
+For new gated translations, use the [JSONL v2 workflow](workflow-v2.md). This reference documents the unchanged legacy format and helpers; its free-selection APIs do not enforce v2 dispatch.
+
 This optional plain-text exchange accompanies the source-first workflow in [SKILL.md](../SKILL.md). Native paired TeX and other lossless native formats are equally valid; they do not have to pass through JSON. This reference, [JSON Schema](../schemas/translation.schema.json), and the runtime define version 1.
 
 ## Document and units

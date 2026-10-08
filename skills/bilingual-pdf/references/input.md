@@ -24,6 +24,14 @@ The machine-readable contract is [document.schema.json](../schemas/document.sche
 
 Adjust the optional $schema reference to the input's actual location. Editors/validators can use it; the renderer ignores it. Use schema validation in read-only mode: defaults are annotations, and omitted layout fields inherit profile values. Preserve those omissions when converting or validating input.
 
+## Translation JSONL input
+
+The same renderer commands accept a reviewed translation master directly when
+`--translation-skill` names its discovered installed owner. See
+[translation handoff](translation.md#direct-reviewed-jsonl-v2-input). This route
+preserves the full master in the portable project and requires no second layout
+manuscript. Ordinary supplied JSON pairs remain independent of translation tools.
+
 ## CLI
 
 Run from the installed bilingual skill. For an editable export, compile the generated `document.tex` before validating its PDF:
@@ -48,6 +56,7 @@ Alternatively, `python3 scripts/bilingual_pdf.py render input.json --output anot
 | Option | Default and scope |
 | --- | --- |
 | --output DIRECTORY | Required for export/render/build. Export/render reject existing directories; build accepts only a new directory or one previously created by build. |
+| --layout JSON_OBJECT | Optional sparse global overrides for any structured/translation input, e.g. `--layout '{"font_size":10.5,"leading":14}'`. Uses the layout schema below; merges top-level keys, preserving unspecified settings. The input manuscript is unchanged. |
 | --asset-root DIRECTORY | Input JSON's parent directory. Export/render/build resolve every image relative to this root. For bundled tutorial assets use --asset-root examples/shared from the skill directory. |
 | --mode bilingual / left / right | bilingual, exported as native paired. Left/right uses the matching title/text/image. Validation/preflight still examines the supplied two-sided document. |
 | --paired | For PDF validate, require paired position evidence from the matching AUX. Off by default. |
@@ -116,6 +125,22 @@ A table without a supplied caption omits `text`; no caption or caption spacing i
 | placement | Optional, figure only | paired (default) or shared. |
 
 Paragraph flow is explicitly selectable. A kept pair starts together and cannot split internally; an oversized pair fails without shrinking or truncation. Breakable prose starts together, permits independent line/page breaks, then resynchronizes the next unit below the longer side. It does not force identical line breaks.
+
+## Aligned continuation chunks
+
+A paragraph may include `chunks`, a nonempty array of objects with exactly `id`
+and `text` (two plain strings in physical column order). IDs use the block ID
+grammar and must be globally unique, including generated IDs. Concatenating the
+child strings on each side must reproduce the parent `text` exactly, including
+boundary spaces. The runtime rejects mismatch rather than guessing separators.
+The optional `flow` must be `breakable`; omission also selects breakable chunk
+layout. Other kinds reject `chunks`.
+
+Paired output synchronizes each child start within one parent paragraph, with no
+new paragraph gap or continuation indentation. Both sides may cross pages; the
+shorter side leaves whitespace until its partner finishes. Selected output uses
+the joined parent text. The renderer never chooses the segmentation itself.
+Translation JSONL import supplies this field automatically.
 
 ## Block kinds
 

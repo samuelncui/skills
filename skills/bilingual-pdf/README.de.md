@@ -1,5 +1,7 @@
 # Bilingual PDF
 
+Geprüftes Übersetzungs-JSONL lässt sich direkt als PDF setzen: Teilstücke eines Absatzes werden ausgerichtet, Quelltext und Prüfdaten bleiben erhalten. Siehe [JSONL-Eingabe](references/translation.md#direct-reviewed-jsonl-v2-input). Eine zweite Satzvorlage ist nicht nötig.
+
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
 Platzieren Sie zusammengehörige Inhalte so, dass sie sich gut vergleichen lassen: mit ausgerichteten Absatzanfängen, Listeneinträgen und Tabellenzeilen sowie einer stabilen Trennlinie zwischen den physischen Spalten. Lange Absätze können zusammenbleiben oder über Seiten hinweg weiterlaufen. Natives LaTeX und JSON verwenden dasselbe maßgebliche Layoutpaket.

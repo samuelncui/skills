@@ -1,0 +1,24 @@
+{
+  "title": [
+    "Keeping a Community Repair Log",
+    "记录社区维修工作"
+  ],
+  "chunks": [
+    [
+      "On Saturday morning, the repair team opens the community workshop before the first visitors arrive. Two volunteers check the benches, count the borrowed tools and place a dated sheet beside each unfinished object. The log is deliberately simple: it records what the owner reported, what the team actually observed and what still needs to be tested. A loose cable is an observation; a failed motor is only a possible explanation until a safe test supports it. Keeping those statements separate helps the next volunteer understand the evidence without repeating every inspection. It also makes it easier to explain a delay to the owner. ",
+      "星期六上午，维修小组会在第一批访客到达之前打开社区工坊。两名志愿者检查工作台、清点借来的工具，并在每件尚未修好的物品旁放上一张注明日期的记录表。记录的内容很简单：物主反映了什么、小组实际观察到了什么，以及还有哪些项目需要测试。电线松动是一项观察结果；电机损坏则只是一种可能的解释，必须经过安全测试才能确认。把这些陈述分开，可以帮助下一位志愿者理解已有证据，无须重复每一项检查，也更容易向物主解释维修为何延迟。"
+    ],
+    [
+      "During the first inspection, the volunteer copies the model number exactly and asks whether the object has been repaired before. If the label is damaged, the log says that the number could not be read; it does not fill the gap with a guess. Photographs are useful for showing where a screw or clip belongs, but they do not replace a written account of the test. After each action, the volunteer records the result in plain language. For example, a lamp may work after its plug is reseated and then fail when the cable moves. Both observations belong in the record, because the successful moment alone would give a misleading impression. ",
+      "首次检查时，志愿者会准确抄录型号，并询问物品是否曾经修理过。如果标签破损，记录应当写明型号无法辨认，而不能凭猜测补上。照片可以用来说明螺丝或卡扣的位置，但不能代替对测试过程的文字记录。每完成一个操作，志愿者都要用清楚的语言写下结果。例如，一盏灯重新插好插头后可能恢复正常，却又在电线移动时熄灭。这两项观察都应保留，否则仅记录短暂恢复正常的时刻，会给人造成误解。"
+    ],
+    [
+      "At the end of the session, another volunteer reads the complete log before deciding what should happen next. If the next step needs a specialist, a replacement part or permission from the owner, that dependency is stated explicitly. The object is returned with its remaining limitations explained, or stored with a clear note saying why work has paused. Nothing is marked complete merely because the bench has been cleared. The following week, the team can resume from the recorded evidence, check whether the outstanding condition has changed and avoid promising a result that has not yet been established. A careful log therefore supports both practical continuity and honest communication.",
+      "活动结束时，另一位志愿者会先阅读完整记录，再决定下一步怎么做。如果后续工作需要专业人员、替换零件或物主许可，应明确写出这些条件。物品交还时，要向物主说明仍然存在的限制；如果暂时保管，则应附上清楚的说明，解释工作为何暂停。不能仅仅因为工作台已经清空，就把维修标记为完成。到了下一周，小组便可以根据已有证据继续工作，检查尚未满足的条件是否发生变化，并避免承诺未经证实的结果。因此，认真记录既能支持工作的延续，也有助于诚实沟通。"
+    ]
+  ],
+  "after": [
+    "The next paragraph begins after all three corresponding chunks have finished.",
+    "下一段在三个对应的子块全部结束后开始。"
+  ]
+}

@@ -1,5 +1,7 @@
 # Bilingual PDF
 
+Le JSONL de traduction relu peut être rendu directement en PDF, avec des fragments alignés dans chaque paragraphe et les métadonnées conservées. Voir [le parcours JSONL](references/translation.md#direct-reviewed-jsonl-v2-input) ; aucun second manuscrit de mise en page n’est nécessaire.
+
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
 Placez les contenus correspondants là où le lecteur peut les comparer : débuts de paragraphes, éléments de liste et lignes de tableau alignés, avec un séparateur stable entre les colonnes physiques. Choisissez si les longs paragraphes restent d’un seul tenant ou se poursuivent sur plusieurs pages. LaTeX natif et JSON partagent un même paquet de mise en page de référence.
