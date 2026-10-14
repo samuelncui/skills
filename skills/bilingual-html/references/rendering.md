@@ -1,12 +1,97 @@
 # Rendering contract and review
 
 ## Contents
-- Embedded-pair layout
-- Text and structure
-- Styling
-- Assets and output
-- Optional translation import
-- Review boundaries
+- [Commands and output lifecycle](#commands-and-output-lifecycle)
+- [Minimal structured example](#minimal-structured-example)
+- [Native HTML authoring](#native-html-authoring)
+- [Embedded-pair layout](#embedded-pair-layout)
+- [Text and structure](#text-and-structure)
+- [Styling](#styling)
+- [Assets and output](#assets-and-output)
+- [Optional translation import](#optional-translation-import)
+- [Review boundaries](#review-boundaries)
+- [Faithful derivatives of trusted SVG originals](#faithful-derivatives-of-trusted-svg-originals)
+
+## Commands and output lifecycle
+
+Run commands from this installed skill's directory, or use the script's discovered absolute path from a writable project directory. Shell examples use a POSIX-style shell. Install the whole skill; the renderer locates its own `assets/style.css` and `LICENSE` relative to its script, without a repository checkout or sibling installation.
+
+| Command | Input | Output |
+| --- | --- | --- |
+| `render INPUT.json --output NEW_DIRECTORY` | This skill's embedded-pair layout v1 and local images | `index.html`, `style.css`, `LICENSE`, required images |
+| `import-pairs INPUT.json --translation-skill PATH --contract-version 1 --output NEW_DIRECTORY` | Reviewed translation exchange v1 and local images | `layout.json`, `import-record.json`, required images; render it in a second step |
+
+Both commands accept `--help`. These are the only CLI subcommands: there is no direct JSONL/HTML input, independent `preflight`, incremental `build` or overwrite switch. `render` checks layout and assets before writing. Handled input/output errors exit with status 2 and an `error:` diagnostic; success exits 0 and prints the output path. Successful generation establishes neither linguistic approval nor visual acceptance.
+
+Use a new output directory with an existing, non-symlinked parent for every attempt. For a revised JSON manuscript, change the input and render to a fresh sibling output. For manually edited native HTML, keep the HTML/CSS as the editing source and reopen it in the browser; the JSON renderer does not preserve those edits or import them back. Keep originals and previous deliverables until the replacement has passed review.
+
+## Minimal structured example
+
+From the installed skill directory, this creates a complete two-block input and output in a new working directory:
+
+```sh
+set -eu
+mkdir minimal-project
+cat > minimal-project/layout.json <<'JSON'
+{
+  "layout_version": 1,
+  "languages": {
+    "source": {"tag": "en", "dir": "ltr"},
+    "target": {"tag": "fr", "dir": "ltr"}
+  },
+  "blocks": [
+    {"type": "heading", "level": 1,
+     "pair": {"id": "title", "source": "A shared guide", "target": "Un guide commun"}},
+    {"type": "paragraph",
+     "pair": {"id": "intro", "source": "Read both versions together.",
+              "target": "Lisez les deux versions ensemble."}}
+  ]
+}
+JSON
+python3 scripts/bilingual_html.py render minimal-project/layout.json --output minimal-project/page
+```
+
+Open `minimal-project/page/index.html` in a browser. This example needs only Python 3.11+ and its standard library. For tables, figures and lists, adapt the [complete tutorial](../examples/tutorial/layout.json), copying its `images/` folder beside your JSON. Save all source files as UTF-8.
+
+## Native HTML authoring
+
+For trusted hand-authored HTML, use the same owned CSS and per-pair DOM as the renderer. An existing [complete example bundle](../examples/tutorial/site/index.html) can be copied and edited without running Python. The following is a complete minimal page; run it from this skill's installed directory:
+
+```sh
+set -eu
+mkdir native-minimal
+cp assets/style.css LICENSE native-minimal/
+cat > native-minimal/index.html <<'HTML'
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+<title>A shared guide</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="source-first">
+<main>
+<h1 class="pair" id="pair-title" data-pair-id="title">
+  <span class="text source" data-role="source" lang="en" dir="ltr">A shared guide</span>
+  <span class="text target" data-role="target" lang="fr" dir="ltr">Un guide commun</span>
+</h1>
+<p class="pair" id="pair-intro" data-pair-id="intro">
+  <span class="text source" data-role="source" lang="en" dir="ltr">Read both versions together.</span>
+  <span class="text target" data-role="target" lang="fr" dir="ltr">Lisez les deux versions ensemble.</span>
+</p>
+</main>
+</body>
+</html>
+HTML
+```
+
+Open `native-minimal/index.html` directly. No compilation or Python runtime is needed. Keep the HTML wrapper and pair grid LTR; set each text child's actual `lang` and `dir` independently. Each logical occurrence has a unique `data-pair-id` and `pair-` DOM ID. Source precedes target in DOM order. Change the body's class to `target-first` only to reverse desktop presentation; preserve language roles and source-first mobile order.
+
+For lists, tables and figures, retain the complete example's native elements, scoped table headers, scroll region, caption relationships and paired alternative descriptions. Extra inline markup belongs to this manually reviewed route, not the JSON contract. Escape literal `&`, `<`, `>` and attribute quotes when authoring HTML. Keep assets local if offline delivery is required; review any links or added behavior and inspect the final DOM and rendered result.
+
+The supplied content-security policy restricts scripts and remote resources. It is not an HTML sanitizer or a sandbox for arbitrary edits, and the renderer does not validate a modified native page. Use trusted authoring inputs or suitable isolation. Keep the entire folder and licenses together.
 
 ## Embedded-pair layout
 
@@ -68,14 +153,24 @@ The output consists of `index.html`, `style.css`, `LICENSE` and required PNG/JPE
 
 Discover the installed `bilingual-translation` skill using the host's installed-skill discovery. Set `TRANSLATION_SKILL` to that verified directory; no sibling path is assumed. The path selects trusted installed executable code and should never come from untrusted document text.
 
+For the current reviewed JSONL master, export through that skill's public workflow first:
+
 ```sh
+set -eu
+python3 "$TRANSLATION_SKILL/scripts/workflow.py" export master.jsonl --output reviewed.json
 python3 scripts/bilingual_html.py import-pairs reviewed.json \
   --translation-skill "$TRANSLATION_SKILL" \
   --contract-version 1 --output imported
 python3 scripts/bilingual_html.py render imported/layout.json --output page
 ```
 
-Both destination parents must already exist. Import produces `layout.json`, copied PNG/JPEG assets and `import-record.json`. It loads `scripts/translation_contract.py` from the selected skill and calls `validate_document(data, require_ready=True)`. Only reviewed, current, nonempty targets pass. Stale, draft and unresolved units must be resolved through the translation owner before publication. Nothing is silently omitted or retranslated.
+HTML accepts translation exchange v1 through `import-pairs`, not direct JSONL. This exchange's `schema_version: 1` and HTML's `layout_version: 1` identify different schemas; changing a version field does not convert a document. For an existing reviewed exchange-v1 JSON, start at the second command. Use the discovered translation skill's own instructions to finish review; a draft export is not a publication workaround.
+
+The translation export rejoins split children into their parent units. HTML therefore aligns the resulting parent pairs, not the JSONL child starts, and does not retain the JSONL review history or child records. Preserve the reviewed master and exchange file as source/provenance; regenerate the layout derivative after translation changes instead of maintaining another independent translation copy.
+
+Export writes the exchange JSON only. For exchange-v1 documents containing figures, put the JSON where each supported PNG/JPEG asset is available at its declared relative path, or explicitly stage those unchanged assets into that directory. `import-pairs` copies them into its new bundle; `render` copies them into the final page. Neither step downloads missing files or converts SVG. The current compact Markdown preparation route does not accept image/figure syntax; it is not an automatic figure extractor.
+
+All destination parents must already exist; the export file and both output directories must be new. Import produces `layout.json`, copied PNG/JPEG assets and `import-record.json`. It loads `scripts/translation_contract.py` from the selected skill and calls `validate_document(data, require_ready=True)`. Only reviewed, current, nonempty targets pass. Stale, draft and unresolved units must be resolved through the translation owner before publication. Nothing is silently omitted or retranslated.
 
 Mapping preserves exact source and target strings, pair IDs and block/row/cell ordering. It converts unit references into embedded rendering pairs. Translation history and hashes remain in the original semantic master, not the layout schema. Table captions and figure alternative text retain their pair identities.
 

@@ -1,7 +1,5 @@
 # Bilingual PDF
 
-レビュー済みの翻訳 JSONL から直接 PDF を作成できます。段落内の対応部分を揃え、原文とレビュー情報を保持します。[JSONL 入力](references/translation.md#direct-reviewed-jsonl-v2-input)を参照してください。別の組版用原稿は不要です。
-
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
 対応する内容を比較しやすい位置に配置します。段落の開始位置、リスト項目、表の行を揃え、物理的な左右の列の間に安定した区切り線を置きます。長い段落は一組のまま保持するか、ページをまたいで続けるかを選べます。ネイティブ LaTeX と JSON は、同じ基準となるレイアウトパッケージを使います。
@@ -74,6 +72,27 @@ python3 scripts/bilingual_pdf.py render examples/en-fr/source.json --asset-root 
 独立した [JSON Schema](schemas/document.schema.json) と[フィールドリファレンス](references/input.md)を参照してください。`layout.paragraph_flow` で `keep` または `breakable` を設定し、段落の `flow` で上書きできます。`atomic` は `keep` の互換エイリアスとして引き続き使えます。スキーマ検証に加え、実行時に ID、寸法、参照、フォント、アセットのパスを確認します。
 
 画像のパスは入力ディレクトリ内、または明示した `--asset-root` 内に解決される必要があります。絶対パス、ディレクトリトラバーサル、シンボリックリンクによる範囲外へのアクセスは拒否します。アダプターはアセットや依存関係をダウンロードしません。
+
+## レビュー済み JSONL を直接使う
+
+ホストでインストール済みの bilingual-translation を検出し、そのパスを TRANSLATION_SKILL に設定します。レビュー済み原稿を唯一の翻訳入力として使い、全レコードと段落内の対応を保持します。別の組版原稿は不要です。
+
+```sh
+python3 scripts/bilingual_pdf.py preflight master.jsonl --translation-skill "$TRANSLATION_SKILL"
+python3 scripts/bilingual_pdf.py render master.jsonl --translation-skill "$TRANSLATION_SKILL" --output new-pdf-project
+```
+
+[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-v2-input)
+
+## 繰り返しビルド
+
+JSON や JSONL を更新する場合は、初回から build を使い、同じ管理対象ディレクトリで再実行します。記録済みの生成ファイルだけを更新し、未変更のファイルと latexmk の依存関係を保持して、事前検査と機械的 QA を再実行します。生成ファイルの手動変更は拒否されます。ネイティブファイルを直接編集するなら、一度 export して以後は latexmk を使います。export と render には新しい出力先が必要です。詳細は[増分ビルド](references/input.md#incremental-builds)を参照してください。
+
+```sh
+python3 scripts/bilingual_pdf.py build master.jsonl --translation-skill "$TRANSLATION_SKILL" --output managed-project
+# Structured JSON:
+python3 scripts/bilingual_pdf.py build input.json --output managed-json-project
+```
 
 ## レイアウトを分岐させずに設定する
 

@@ -2,21 +2,22 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
+Create one source-first, aligned translation master. The agent reads the complete source, chooses semantic splits, saves bounded groups, then reviews all saved source/target pairs in a separate pass.
 
-New translations use the [gated JSONL workflow](references/workflow-v2.md): read and acknowledge the complete source, choose semantic splits for units over 2048 Unicode codepoints, then save one active target before receiving the next. Saved drafts and reviewed translations are separate; v1 JSON remains compatible.
+Install this complete skill directory. The JSONL helper requires Python 3.11+ and POSIX file locking, with no external packages or network service. Native paired TeX remains an equal route for rich content outside the Markdown importer.
 
-Create one aligned source/target manuscript. Read the full relevant source first, then translate and review each complete paragraph or semantic unit, saving it in the same master before advancing. Stable IDs preserve alignment; source edits reopen the corresponding target for review.
+Try: “Translate this guide into French with bilingual-translation, preserving paragraphs and table cells in one reviewed master.” Supply the source, target language, audience and terminology.
 
-Install the complete directory with your host's skill installer. Native paired TeX is an equal route. Optional plain-text JSON and its Python 3.11+ standard-library validator work independently of PDF/HTML renderers.
+Agent entry: scripts/workflow.py. prepare reads and initializes the source, translate dispatches groups totaling at most 2048 source codepoints, and review records an independent complete comparison. Save/accept returns the next group; short references replace manually copied hashes. Revision/hash/retry checks stay inside the tool. Only changed pairs need review again.
 
-Try: “Use bilingual-translation to translate this guide into French, preserving each paragraph and table cell in one paired manuscript.” Provide the source, target language, audience and terminology. Existing pairs can go directly to a renderer.
+[Agent workflow](SKILL.md) · [Commands and boundaries](references/workflow-v2.md)
 
-Read the [workflow](SKILL.md), [optional contract](references/contract-v1.md) and [complete original English–French example](references/example-guide.md), including its source, table and shared figure. From the skill directory:
+Reviewed JSONL goes directly to the separately discovered bilingual-pdf skill. HTML uses its own layout JSON or a legacy v1 import; it does not directly consume JSONL. Existing supplied pairs need no new translation.
 
-```sh
-python3 -B scripts/translation_contract.py validate examples/guide/translation.json --ready
-```
+## Legacy v1 compatibility
 
-Checks cover structure, source hashes and recorded review currency. Semantic accuracy still requires reading source and target.
+The original [v1 contract](references/contract-v1.md), [worked English–French example](references/example-guide.md) and translation_contract.py APIs remain supported. They are separate from the gated JSONL workflow. Use workflow.py export only when a consumer needs v1 JSON; keep JSONL as the master.
 
-[Design provenance](references/design-provenance.md) · [MIT license](LICENSE)
+Validation checks structure and recorded review currency. Meaning is reviewed by the agent; PDF appearance is checked separately on actual rendered pages.
+
+[Design provenance](references/design-provenance.md) · [MIT](LICENSE)

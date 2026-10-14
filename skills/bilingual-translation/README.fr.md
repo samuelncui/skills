@@ -1,22 +1,23 @@
-# Traduction bilingue
+# Bilingual translation
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
+Créez un manuscrit bilingue unique qui préserve la source et son alignement. L’agent lit la source entière, choisit les coupures sémantiques, enregistre des groupes bornés, puis compare toutes les paires source/cible dans une passe distincte.
 
-Les nouvelles traductions suivent le [flux JSONL contrôlé](references/workflow-v2.md) : lire et confirmer la source entière, choisir des limites sémantiques pour les unités de plus de 2048 points de code Unicode, puis enregistrer chaque traduction avant de passer à la suivante. Enregistrement et révision sont distincts ; le JSON v1 reste compatible.
+Installez le répertoire complet. L’outil JSONL exige Python 3.11+ et le verrouillage POSIX, sans paquet externe ni service réseau. Le TeX natif apparié reste une voie équivalente pour les contenus riches que l’importeur Markdown ne représente pas.
 
-Créez un seul manuscrit appariant source et traduction. Lisez d’abord toute la source concernée, puis traduisez et vérifiez un paragraphe complet ou une unité de sens à la fois. Enregistrez le résultat dans le même manuscrit avant de poursuivre. Des identifiants stables maintiennent l’alignement ; toute modification de la source impose une nouvelle vérification.
+Exemple : « Avec bilingual-translation, traduisez ce guide en français en conservant les paragraphes et les cellules dans un manuscrit unique et relu. » Précisez source, langue cible, public et terminologie.
 
-Installez le répertoire complet avec l’installateur de compétences de votre environnement. Le manuscrit TeX bilingue est une voie à part entière. Le JSON en texte brut et son validateur Python 3.11+ sans dépendances externes sont facultatifs et indépendants des moteurs PDF/HTML.
+L’entrée agent est scripts/workflow.py. prepare lit et initialise la source ; translate distribue des groupes totalisant au plus 2048 points de code source ; review enregistre une comparaison complète et indépendante. Enregistrer ou accepter renvoie le groupe suivant. Des références courtes remplacent la copie manuelle des empreintes ; les contrôles de révision, d’empreinte et de répétition restent internes. Seules les paires modifiées sont relues à nouveau.
 
-Exemple : « Utilise bilingual-translation pour traduire ce guide en français en conservant chaque paragraphe et chaque cellule dans un seul manuscrit bilingue. » Fournissez la source, la langue cible, le public et les consignes terminologiques. Un texte déjà apparié peut aller directement au moteur de rendu.
+[Procédure agent](SKILL.md) · [Commandes et limites](references/workflow-v2.md)
 
-Consultez le [flux de travail](SKILL.md), le [contrat facultatif](references/contract-v1.md) et l’[exemple original complet anglais–français](references/example-guide.md), avec source, tableau et figure partagée. Depuis le répertoire de la compétence :
+Le JSONL relu passe directement au skill bilingual-pdf découvert séparément. HTML utilise son propre JSON de mise en page ou l’import v1 historique, sans lecture directe du JSONL. Les paires déjà fournies n’exigent pas de nouvelle traduction.
 
-```sh
-python3 -B scripts/translation_contract.py validate examples/guide/translation.json --ready
-```
+## Compatibilité v1 historique
 
-La commande contrôle structure, empreintes de la source et actualité des vérifications enregistrées. La justesse du sens demande toujours une lecture comparée.
+Le [contrat v1](references/contract-v1.md), l’[exemple anglais–français](references/example-guide.md) et les API translation_contract.py restent disponibles, séparément du parcours JSONL contrôlé. Utilisez workflow.py export seulement si le consommateur nécessite du JSON v1 ; le JSONL reste le maître.
 
-[Origine de la conception](references/design-provenance.md) · [Licence MIT](LICENSE)
+La validation contrôle la structure et l’actualité des attestations de relecture. L’agent vérifie le sens ; l’aspect du PDF se vérifie séparément sur les pages réellement rendues.
+
+[Design provenance](references/design-provenance.md) · [MIT](LICENSE)

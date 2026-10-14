@@ -1,7 +1,5 @@
 # Bilingual PDF
 
-已审校的翻译 JSONL 可直接生成 PDF，段内子块对齐并保留完整原文及审校元数据。参见[直接输入 JSONL](references/translation.md#direct-reviewed-jsonl-v2-input)，无须再手工维护一份排版稿。
-
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
 将对应内容放在便于比较的位置：段落起点、列表项和表格行逐一对齐，物理左右栏之间保持稳定的分隔线。长段落可以保持整组不拆分，也可以跨页延续。原生 LaTeX 和 JSON 共用同一个权威版式包。
@@ -74,6 +72,27 @@ python3 scripts/bilingual_pdf.py render examples/en-fr/source.json --asset-root 
 参阅独立的 [JSON Schema](schemas/document.schema.json) 和[字段参考](references/input.md)。`layout.paragraph_flow` 设置为 `keep` 或 `breakable`，段落自身的 `flow` 可以覆盖它。`atomic` 仍作为 `keep` 的兼容别名。除 Schema 验证外，运行时还会检查 ID、尺寸、引用、字体和资源路径。
 
 图片路径必须解析到输入目录或显式指定的 `--asset-root` 内；绝对路径、目录穿越和通过符号链接越界均会被拒绝。适配器从不下载资源或依赖。
+
+## 直接使用已审校 JSONL
+
+通过宿主发现已安装的 bilingual-translation 目录，将 TRANSLATION_SKILL 设为该路径。以已审校主稿作为唯一翻译输入，保留完整记录和段内对齐，无须再维护一份排版稿。
+
+```sh
+python3 scripts/bilingual_pdf.py preflight master.jsonl --translation-skill "$TRANSLATION_SKILL"
+python3 scripts/bilingual_pdf.py render master.jsonl --translation-skill "$TRANSLATION_SKILL" --output new-pdf-project
+```
+
+[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-v2-input)
+
+## 反复构建
+
+对 JSON 或 JSONL 反复修改时，从首次构建就使用 build，之后在同一受管理目录重跑。它只更新记录在案的生成文件，保留未改变的文件和 latexmk 依赖，并重跑预检与机械检查；手动修改生成文件会被拒绝。若要直接改原生文件，先 export，之后用 latexmk。export 和 render 要求全新输出目录，build 管理已有构建目录。参见[增量构建](references/input.md#incremental-builds)。
+
+```sh
+python3 scripts/bilingual_pdf.py build master.jsonl --translation-skill "$TRANSLATION_SKILL" --output managed-project
+# Structured JSON:
+python3 scripts/bilingual_pdf.py build input.json --output managed-json-project
+```
 
 ## 无需分叉版式即可配置
 

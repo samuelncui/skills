@@ -1,7 +1,5 @@
 # Bilingual PDF
 
-Geprüftes Übersetzungs-JSONL lässt sich direkt als PDF setzen: Teilstücke eines Absatzes werden ausgerichtet, Quelltext und Prüfdaten bleiben erhalten. Siehe [JSONL-Eingabe](references/translation.md#direct-reviewed-jsonl-v2-input). Eine zweite Satzvorlage ist nicht nötig.
-
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
 Platzieren Sie zusammengehörige Inhalte so, dass sie sich gut vergleichen lassen: mit ausgerichteten Absatzanfängen, Listeneinträgen und Tabellenzeilen sowie einer stabilen Trennlinie zwischen den physischen Spalten. Lange Absätze können zusammenbleiben oder über Seiten hinweg weiterlaufen. Natives LaTeX und JSON verwenden dasselbe maßgebliche Layoutpaket.
@@ -74,6 +72,27 @@ python3 scripts/bilingual_pdf.py render examples/en-fr/source.json --asset-root 
 Verwenden Sie das eigenständige [JSON Schema](schemas/document.schema.json) und die [Feldreferenz](references/input.md). `layout.paragraph_flow` legt `keep` oder `breakable` fest; das Feld `flow` eines Absatzes überschreibt diese Einstellung. `atomic` bleibt als Kompatibilitätsalias für `keep` erhalten. Laufzeitprüfungen für IDs, Abmessungen, Verweise, Schriftarten und Asset-Pfade ergänzen die Schemavalidierung.
 
 Bildpfade müssen innerhalb des Eingabeverzeichnisses oder des ausdrücklich angegebenen `--asset-root` aufgelöst werden. Absolute Pfade, Verzeichnistraversierung und das Verlassen des Bereichs über symbolische Links werden abgewiesen. Der Adapter lädt weder Assets noch Abhängigkeiten herunter.
+
+## Geprüftes JSONL direkt verwenden
+
+Ermitteln Sie die installierte bilingual-translation-Version über den Host und setzen Sie TRANSLATION_SKILL auf deren Verzeichnis. Das geprüfte Manuskript bleibt die einzige Übersetzungseingabe; sämtliche Datensätze und die Ausrichtung innerhalb der Absätze bleiben erhalten. Eine zweite Satzvorlage ist nicht nötig.
+
+```sh
+python3 scripts/bilingual_pdf.py preflight master.jsonl --translation-skill "$TRANSLATION_SKILL"
+python3 scripts/bilingual_pdf.py render master.jsonl --translation-skill "$TRANSLATION_SKILL" --output new-pdf-project
+```
+
+[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-v2-input)
+
+## Wiederholte Builds
+
+Verwenden Sie für wiederholte JSON- oder JSONL-Änderungen von Anfang an build und führen Sie es im selben verwalteten Verzeichnis erneut aus. Es aktualisiert nur registrierte generierte Dateien, erhält unveränderte Dateien und latexmk-Abhängigkeiten und wiederholt Vorprüfung sowie mechanische QA. Manuell geänderte generierte Dateien werden abgelehnt. Für native Bearbeitung exportieren Sie einmal und verwenden anschließend latexmk. export und render verlangen neue Ausgabeverzeichnisse; build verwaltet sein Arbeitsverzeichnis. Siehe [inkrementelle Builds](references/input.md#incremental-builds).
+
+```sh
+python3 scripts/bilingual_pdf.py build master.jsonl --translation-skill "$TRANSLATION_SKILL" --output managed-project
+# Structured JSON:
+python3 scripts/bilingual_pdf.py build input.json --output managed-json-project
+```
 
 ## Konfigurieren, ohne das Layout abzuspalten
 

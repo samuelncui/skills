@@ -1,7 +1,5 @@
 # Bilingual PDF
 
-Reviewed translation JSONL can be rendered directly, with within-paragraph aligned continuations and preserved source/review metadata. See [the direct JSONL route](references/translation.md#direct-reviewed-jsonl-v2-input); no second layout manuscript is needed.
-
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
 Put corresponding content where readers can compare it: matching paragraph starts, list items and table rows, with a stable divider between physical columns. Choose whether long paragraphs stay together or continue across pages. Native LaTeX and JSON share one canonical layout package.
@@ -74,6 +72,27 @@ python3 scripts/bilingual_pdf.py render examples/en-fr/source.json --asset-root 
 Use the independent [JSON Schema](schemas/document.schema.json) and [field reference](references/input.md). `layout.paragraph_flow` sets `keep` or `breakable`; a paragraph's `flow` overrides it. `atomic` remains a compatibility alias for `keep`. Schema validation is complemented by runtime checks for IDs, dimensions, references, fonts and asset paths.
 
 Image paths resolve inside the input directory or explicit `--asset-root`; absolute paths, traversal and symlink escapes are rejected. The adapter never fetches assets or dependencies.
+
+## Direct reviewed JSONL
+
+Discover the installed bilingual-translation directory through your host and set TRANSLATION_SKILL to that path. Keep the reviewed master as the single translation input; its full records and within-paragraph alignment are preserved. No second layout manuscript is needed.
+
+```sh
+python3 scripts/bilingual_pdf.py preflight master.jsonl --translation-skill "$TRANSLATION_SKILL"
+python3 scripts/bilingual_pdf.py render master.jsonl --translation-skill "$TRANSLATION_SKILL" --output new-pdf-project
+```
+
+[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-v2-input)
+
+## Repeated builds
+
+For JSON or JSONL edits, use build from the first build onward and rerun it in the same managed directory. It updates only recorded generated files, preserves unchanged files and latexmk dependencies, and reruns preflight and mechanical QA. Manual edits to generated files are rejected. For native edits, export once and then use latexmk instead. export and render require new output directories; build owns a managed directory. See [incremental builds](references/input.md#incremental-builds).
+
+```sh
+python3 scripts/bilingual_pdf.py build master.jsonl --translation-skill "$TRANSLATION_SKILL" --output managed-project
+# Structured JSON:
+python3 scripts/bilingual_pdf.py build input.json --output managed-json-project
+```
 
 ## Configure without forking the layout
 

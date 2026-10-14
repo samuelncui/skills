@@ -19,6 +19,14 @@ Use a lightweight ledger with source identifier, exact page/slide/section, conce
 
 Keep provenance in the working project and publish it only when authorized and appropriate. The original [teaching source](../examples/source.md) and [source map](../examples/source-map.json) demonstrate this practice without private material.
 
+## Translation and renderer handoffs
+
+Use supplied source/target pairs directly. When the task needs new translation, discover the installed `bilingual-translation` skill, read its workflow and complete its source-first translation and independent pair review. Keep the reviewed master unchanged as source evidence and retain its stable source/semantic IDs in the study source map where applicable. Record the tested skill revisions and input contract versions in the private working project.
+
+Author the learning structure through this skill: native LaTeX for notes and lookup forms, or native declarations / graph-v1 for decision paths. Choose concepts, explanations, lookup identities and graph edges deliberately; label derived teaching content and review its language and coverage separately. Translation JSONL v2 and exchange-v1 JSON are not study-manuscript import formats, and their review status does not certify newly authored explanations or decision logic. Preserve supplied translations within the user's scope instead of silently rewriting the master to fit a study form.
+
+Build those manuscripts with the explicitly discovered `bilingual-pdf` installation. A reviewed JSONL master can also go directly to that renderer for a paired article, but this does not generate study lookup records or decision semantics. For an ordinary paired HTML document, discover `bilingual-html` and follow its own layout-v1 or translation export-v1/import route; it has no automatic importer for the native study components. Keep source maps, generated study fragments and presentation derivatives distinct from the translation master.
+
 ## Teach with notes
 
 Use the structure the concept needs. A definition may need a contrast and example; a procedure may need inputs, preconditions, steps and failure cases; a mathematical result may need notation, assumptions, derivation and a worked calculation. Choose the relevant elements for that concept and arrange them in the order a reader needs to understand or apply it.

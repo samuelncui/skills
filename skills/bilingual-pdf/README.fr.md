@@ -1,7 +1,5 @@
 # Bilingual PDF
 
-Le JSONL de traduction relu peut être rendu directement en PDF, avec des fragments alignés dans chaque paragraphe et les métadonnées conservées. Voir [le parcours JSONL](references/translation.md#direct-reviewed-jsonl-v2-input) ; aucun second manuscrit de mise en page n’est nécessaire.
-
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
 Placez les contenus correspondants là où le lecteur peut les comparer : débuts de paragraphes, éléments de liste et lignes de tableau alignés, avec un séparateur stable entre les colonnes physiques. Choisissez si les longs paragraphes restent d’un seul tenant ou se poursuivent sur plusieurs pages. LaTeX natif et JSON partagent un même paquet de mise en page de référence.
@@ -74,6 +72,27 @@ python3 scripts/bilingual_pdf.py render examples/en-fr/source.json --asset-root 
 Utilisez le [JSON Schema](schemas/document.schema.json) indépendant et la [référence des champs](references/input.md). `layout.paragraph_flow` prend la valeur `keep` ou `breakable` ; le champ `flow` d’un paragraphe la remplace localement. `atomic` reste un alias de compatibilité pour `keep`. Des contrôles à l’exécution portant sur les identifiants, dimensions, références, polices et chemins d’assets complètent la validation du schéma.
 
 Les chemins d’images doivent se résoudre à l’intérieur du répertoire d’entrée ou du `--asset-root` explicite ; les chemins absolus, traversées de répertoires et sorties par lien symbolique sont refusés. L’adaptateur ne télécharge jamais d’assets ni de dépendances.
+
+## JSONL relu en entrée directe
+
+Repérez bilingual-translation via l’hôte et définissez TRANSLATION_SKILL avec son chemin d’installation. Le manuscrit relu reste l’unique entrée de traduction ; tous ses enregistrements et l’alignement interne des paragraphes sont conservés. Aucun second manuscrit de mise en page n’est nécessaire.
+
+```sh
+python3 scripts/bilingual_pdf.py preflight master.jsonl --translation-skill "$TRANSLATION_SKILL"
+python3 scripts/bilingual_pdf.py render master.jsonl --translation-skill "$TRANSLATION_SKILL" --output new-pdf-project
+```
+
+[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-v2-input)
+
+## Reconstructions successives
+
+Pour modifier du JSON ou du JSONL, utilisez build dès la première compilation, puis relancez-le dans le même répertoire géré. Il actualise uniquement les fichiers générés enregistrés, conserve les fichiers inchangés et les dépendances latexmk, puis réexécute les vérifications préalables et mécaniques. Les modifications manuelles des fichiers générés sont rejetées. Pour éditer le natif, faites un export puis utilisez latexmk. export et render exigent un nouveau répertoire ; build gère son répertoire de travail. Voir les [compilations incrémentales](references/input.md#incremental-builds).
+
+```sh
+python3 scripts/bilingual_pdf.py build master.jsonl --translation-skill "$TRANSLATION_SKILL" --output managed-project
+# Structured JSON:
+python3 scripts/bilingual_pdf.py build input.json --output managed-json-project
+```
 
 ## Configurer sans dupliquer la mise en page
 

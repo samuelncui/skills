@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import copy
 from contextlib import contextmanager
 import fcntl
@@ -40,6 +41,59 @@ COMMIT_KEYS = {"operation_id", "block_id", "revision", "source_hashes", "targets
 
 def digest(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def compact_reference(data, phase, units):
+    """Short version/phase/selection binding; not an authentication credential."""
+    h = data["document"]
+    value = [h["document_id"], h["revision"], phase,
+             [[u["id"], u["source_hash"], u["target_hash"]] for u in units]]
+    raw = hashlib.sha256(_canonical(value).encode("utf-8")).digest()[:12]
+    return "r" + base64.urlsafe_b64encode(raw).decode("ascii")
+
+
+def _validate_operation_journal(data):
+    h, units = data["document"], data["units"]
+    operations = h["workflow"]["operations"]
+    for record in operations.values():
+        _keys(record, {"request_hash", "receipt"}, "operation journal record")
+        _require(_hash(record["request_hash"]) and isinstance(record["receipt"], dict),
+                 "invalid operation journal record")
+    if "_compact_seen" in operations:
+        record = operations["_compact_seen"]
+        _keys(record["receipt"], {"phases"}, "compact phases")
+        phases = record["receipt"]["phases"]
+        _require(isinstance(phases, list) and all(p in ("translate", "review") for p in phases)
+                 and len(set(phases)) == len(phases) and record["request_hash"] == digest("phases"),
+                 "invalid compact phases")
+    if "_compact_active" not in operations:
+        return
+    record = operations["_compact_active"]
+    a = record["receipt"]
+    _keys(a, {"phase", "ids", "ref", "page", "last_continue", "initial"}, "compact active")
+    _require(record["request_hash"] == digest(_canonical(a)), "invalid compact journal checksum")
+    _require(a["phase"] in ("translate", "review") and isinstance(a["ids"], list)
+             and a["ids"] and all(_id(uid) for uid in a["ids"]), "invalid compact phase/IDs")
+    selected = [u for u in units if u["id"] in a["ids"]]
+    _require([u["id"] for u in selected] == a["ids"]
+             and all(b["order"] == a0["order"] + 1 for a0, b in zip(selected, selected[1:])),
+             "invalid compact selection order")
+    _require(a["ref"] == compact_reference(data, a["phase"], selected), "stale compact reference")
+    _require(type(a["page"]) is int and a["page"] >= 0 and type(a["initial"]) is bool
+             and (a["last_continue"] is None or isinstance(a["last_continue"], str)),
+             "invalid compact page metadata")
+    _require(h["workflow"]["active"] is None and sum(len(u["source"]) for u in selected) <= MAX_SOURCE,
+             "mixed dispatcher state or oversized compact source")
+    if a["phase"] == "translate":
+        remaining = [u for u in units if u["target"] is None]
+        _require(a["ids"] == [u["id"] for u in remaining[:len(selected)]]
+                 and a["page"] == 0 and a["last_continue"] is None, "invalid compact translation block")
+    else:
+        _require(all(u["target"] is not None for u in units), "review requires all saved targets")
+        # This budget is part of the compact protocol, independent of source cap.
+        target_chars = sum(len(u["target"]) for u in selected)
+        _require((len(selected) == 1 or target_chars <= 8192)
+                 and a["page"] <= (target_chars - 1) // 8192, "invalid compact review page/budget")
 
 
 def _json(text):
@@ -145,7 +199,7 @@ def read_source(source, receipt, continuation=None):
             _require(state["end"] < len(text), "all source pages delivered; acknowledge source")
         start = state["end"]
         end = min(start + READ_PAGE, len(text))
-        token = secrets.token_hex(16)
+        token = secrets.token_urlsafe(9)
         page = {"source_hash": sha, "start": start, "end": end, "char_count": len(text),
                 "text": text[start:end], "complete": end == len(text), "token": token,
                 "note": "Read this exact page. Acknowledge the version after the final page."}
@@ -288,7 +342,7 @@ def import_markdown(text):
 
 
 def initialize(source, receipt, output, source_lang="en", target_lang="fr",
-               source_dir="ltr", target_dir="ltr", context=None):
+               source_dir="ltr", target_dir="ltr", context=None, initial_operations=None, source_splits=None):
     text = _source(source)
     state = _json(Path(receipt).read_text("utf-8"))
     _require(state.get("acknowledged") is True and state.get("source_hash") == digest(text)
@@ -304,14 +358,27 @@ def initialize(source, receipt, output, source_lang="en", target_lang="fr",
                               "target": {"tag": target_lang, "dir": target_dir}},
                 "source": {"sha256": digest(text), "char_count": len(text), "format": "markdown"},
                 "blocks": blocks, "parents": parents, "source_layout": layout,
-                "context": context or {}, "workflow": {"active": None, "operations": {}},
+                "context": context or {}, "workflow": {
+                    "active": None, "operations": {} if callable(initial_operations) else initial_operations or {}},
                 "preread": {"source_hash": digest(text), "acknowledged": True}}
     data = {"document": document, "units": units}
+    if source_splits is not None:
+        _require(isinstance(source_splits, dict), "split plan must be an ID-to-offsets object")
+        _require(set(source_splits) == {u["id"] for u in units if len(u["source"]) > MAX_SOURCE},
+                 "split plan must cover exactly all oversized source units")
+        for unit in list(units):
+            if unit["id"] in source_splits:
+                _split_data(data, unit["id"], source_splits[unit["id"]],
+                            unit["source_hash"], document["revision"])
+    if callable(initial_operations):
+        # Build protocol receipts after stable document IDs exist, within the
+        # same initial transaction. Existing dictionary callers stay supported.
+        document["workflow"]["operations"] = initial_operations(data)
     with _lock(output):
         _save(output, data, new=True)
     # Readback is part of init, before any target authoring.
     checked = load_jsonl(output)
-    return {"initialized": True, "revision": 0, "document_id": document["document_id"],
+    return {"initialized": True, "revision": document["revision"], "document_id": document["document_id"],
             "source_hash": document["source"]["sha256"], "units": len(checked["units"]),
             "oversize": oversized(checked), "preparation_readback": True}
 
@@ -461,6 +528,7 @@ def _validate(data, require_ready=False):
                 headings.append((block["level"], pid))
     _keys(h["workflow"], {"active", "operations"}, "workflow")
     _require(isinstance(h["workflow"]["operations"], dict), "invalid operations")
+    _validate_operation_journal(data)
     active = h["workflow"]["active"]
     if active is not None:
         _keys(active, {"block_id", "revision", "ids", "source_hashes"}, "active block")
@@ -473,7 +541,8 @@ def _validate(data, require_ready=False):
                  "active source hash mismatch")
         _require(len(remaining[0]["source"]) <= MAX_SOURCE, "active source exceeds limit")
     if require_ready:
-        _require(active is None and not oversized(data), "master not ready")
+        _require(active is None and not oversized(data)
+                 and h["workflow"]["operations"].get("_compact_active") is None, "master not ready")
     return data
 
 
@@ -510,38 +579,45 @@ def oversized(data):
              "source_hash": u["source_hash"]} for u in data["units"] if len(u["source"]) > MAX_SOURCE]
 
 
+def _split_data(data, unit_id, offsets, source_hash, revision):
+    """Apply a checked source split in memory for either protocol's transaction."""
+    h = data["document"]
+    _require(h["revision"] == revision, "stale revision")
+    _require(h["workflow"]["active"] is None, "save active block before changing segmentation")
+    unit = next((u for u in data["units"] if u["id"] == unit_id), None)
+    _require(unit is not None and unit["parent_id"] == unit_id, "split requires an unsplit parent ID")
+    _require(unit["source_hash"] == source_hash, "stale source hash")
+    _require(unit["target"] is None, "split source-only units before translating")
+    _require(isinstance(offsets, list) and offsets and all(type(n) is int for n in offsets)
+             and offsets == sorted(set(offsets)) and 0 < offsets[0]
+             and offsets[-1] < len(unit["source"]), "invalid Unicode codepoint offsets")
+    edges = [0] + offsets + [len(unit["source"])]
+    texts = [unit["source"][a:b] for a, b in zip(edges, edges[1:])]
+    _require(all(0 < len(v) <= MAX_SOURCE and v.strip() for v in texts),
+             "each semantic child must contain text and be at most 2048 codepoints")
+    children = []
+    for i, value in enumerate(texts):
+        child = _new_unit(unit_id + ".part" + str(i + 1).zfill(4), unit["kind"], value, unit["heading_path"])
+        child.update(parent_id=unit_id, part_index=i, has_more=i < len(texts) - 1)
+        children.append(child)
+    index = data["units"].index(unit)
+    data["units"][index:index + 1] = children
+    for i, u in enumerate(data["units"]):
+        u["order"] = i
+    h["revision"] += 1
+    return {"split": unit_id, "revision": h["revision"], "children": [
+        {"id": u["id"], "characters": len(u["source"]), "source_hash": u["source_hash"],
+         "part_index": u["part_index"], "has_more": u["has_more"]} for u in children],
+            "reconstruction_hash": digest("".join(texts))}
+
+
 def split_unit(path, unit_id, offsets, source_hash, revision):
     with _lock(path):
         data = load_jsonl(path)
-        h = data["document"]
-        _require(h["revision"] == revision, "stale revision")
-        _require(h["workflow"]["active"] is None, "save active block before changing segmentation")
-        unit = next((u for u in data["units"] if u["id"] == unit_id), None)
-        _require(unit is not None and unit["parent_id"] == unit_id, "split requires an unsplit parent ID")
-        _require(unit["source_hash"] == source_hash, "stale source hash")
-        _require(unit["target"] is None, "split source-only units before translating")
-        _require(isinstance(offsets, list) and offsets and all(type(n) is int for n in offsets)
-                 and offsets == sorted(set(offsets)) and 0 < offsets[0]
-                 and offsets[-1] < len(unit["source"]), "invalid Unicode codepoint offsets")
-        edges = [0] + offsets + [len(unit["source"])]
-        texts = [unit["source"][a:b] for a, b in zip(edges, edges[1:])]
-        _require(all(0 < len(v) <= MAX_SOURCE and v.strip() for v in texts),
-                 "each semantic child must contain text and be at most 2048 codepoints")
-        children = []
-        for i, value in enumerate(texts):
-            child = _new_unit(unit_id + ".part" + str(i + 1).zfill(4), unit["kind"], value, unit["heading_path"])
-            child.update(parent_id=unit_id, part_index=i, has_more=i < len(texts) - 1)
-            children.append(child)
-        index = data["units"].index(unit)
-        data["units"][index:index + 1] = children
-        for i, u in enumerate(data["units"]):
-            u["order"] = i
-        h["revision"] += 1
+        _legacy_writer(data)
+        result = _split_data(data, unit_id, offsets, source_hash, revision)
         _save(path, data)
-        return {"split": unit_id, "revision": h["revision"], "children": [
-            {"id": u["id"], "characters": len(u["source"]), "source_hash": u["source_hash"],
-             "part_index": u["part_index"], "has_more": u["has_more"]} for u in children],
-                "reconstruction_hash": digest("".join(texts))}
+        return result
 
 
 def _envelope(data, unit):
@@ -560,9 +636,15 @@ def _envelope(data, unit):
             "character_limit": MAX_CONTEXT}
 
 
+def _legacy_writer(data):
+    _require(data["document"]["workflow"]["operations"].get("_compact_active") is None,
+             "compact block pending; finish it with workflow.py")
+
+
 def next_block(path):
     with _lock(path):
         data = load_jsonl(path)
+        _legacy_writer(data)
         h = data["document"]
         blocked = oversized(data)
         _require(not blocked, "oversized sources require agent-selected semantic splits: " + _canonical(blocked))
@@ -592,6 +674,7 @@ def commit(path, payload):
     fingerprint = digest(_canonical(payload))
     with _lock(path):
         data = load_jsonl(path)
+        _legacy_writer(data)
         h = data["document"]
         old = h["workflow"]["operations"].get(payload["operation_id"])
         if old is not None:
@@ -629,6 +712,7 @@ def review(path, payload):
     fingerprint = digest(_canonical(payload))
     with _lock(path):
         data = load_jsonl(path)
+        _legacy_writer(data)
         h = data["document"]
         old = h["workflow"]["operations"].get(payload["operation_id"])
         if old is not None:
@@ -661,6 +745,7 @@ def revise(path, payload):
     fingerprint = digest(_canonical(payload))
     with _lock(path):
         data = load_jsonl(path)
+        _legacy_writer(data)
         h = data["document"]
         old = h["workflow"]["operations"].get(payload["operation_id"])
         if old is not None:
