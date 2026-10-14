@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import argparse
-import base64
 import copy
 import importlib.util
 import json
-import re
 from pathlib import Path
 import sys
 
@@ -64,10 +62,12 @@ def _public_error(error):
     return "invalid input or saved state; check the command schema and preserved checkpoint"
 
 
-def _short(value):
-    import hashlib
-    return base64.urlsafe_b64encode(
-        hashlib.sha256(core._canonical(value).encode("utf-8")).digest()[:12]).decode("ascii")
+def _reference(value):
+    try:
+        core.reference_number(value)
+    except ValueError:
+        raise ProtocolError("use the complete returned ref: positive number, hyphen and word") from None
+    return value
 
 
 _ticket = core.compact_reference
@@ -83,6 +83,8 @@ def _active(data):
 
 
 def _set_active(data, active):
+    units = [u for u in data["units"] if u["id"] in active["ids"]]
+    active["binding"] = core.compact_binding(data, active["phase"], units)
     _ops(data)[ACTIVE] = {"request_hash": core.digest(core._canonical(active)), "receipt": active}
 
 
@@ -137,7 +139,7 @@ def _local(data, unit):
             "character_limit": core.MAX_CONTEXT}
 
 
-def _oversize(data, references=True):
+def _oversize(data):
     # Locate units in the already-delivered exact source, including syntax gaps,
     # BOM and CRLF. No extra source text needs to be emitted to choose splits.
     if not any(len(u["source"]) > core.MAX_SOURCE for u in data["units"]):
@@ -157,8 +159,6 @@ def _oversize(data, references=True):
         starts[unit["parent_id"]] = end
         if len(unit["source"]) > core.MAX_SOURCE:
             item = {"id": unit["id"], "characters": len(unit["source"]), "source_span": [start, end]}
-            if references:
-                item["ref"] = _ticket(data, "split", [unit])
             result.append(item)
     return result
 
@@ -191,12 +191,12 @@ def _scope(data, unit):
 def _group(data, phase, unit_id=None):
     units = data["units"]
     if phase == "translate":
-        require(not _oversize(data), "prepare split required for oversized source units")
+        require(not _oversize(data), "prepare init with a complete split plan required for oversized source units")
         candidates = [u for u in units if u["target"] is None]
     else:
         require(all(u["target"] is not None for u in units),
                 "finish translate before starting the separate review pass")
-        require(not _oversize(data), "prepare split required for oversized source units")
+        require(not _oversize(data), "prepare init with a complete split plan required for oversized source units")
         if unit_id:
             candidates = [u for u in units if u["id"] == unit_id]
             require(candidates, "unknown review unit")
@@ -249,13 +249,13 @@ def _envelope(data):
                                  "complete": end == len(target)}
         if end < len(target):
             result.pop("ref")
-            result["continue"] = "p" + _short([active["ref"], active["page"]])
+            result["continue"] = active["ref"]
     return result
 
 
 def _dispatch(data, phase, unit_id=None):
     require(data["document"]["workflow"]["active"] is None,
-            "legacy block pending; finish it with translation_workflow.py")
+            "unsupported pending state; start a new task with prepare read and prepare init")
     active = _active(data)
     if active is not None:
         require(active["phase"] == phase, "finish the active " + active["phase"] + " block first")
@@ -279,6 +279,8 @@ def _dispatch(data, phase, unit_id=None):
 
 
 def next_block(path, phase="translate", include_context=False, unit_id=None, continuation=None, restart=False):
+    if continuation is not None:
+        _reference(continuation)
     with core._lock(path):
         data = _load(path)
         before = core._canonical(data)
@@ -287,7 +289,9 @@ def next_block(path, phase="translate", include_context=False, unit_id=None, con
             require(phase == "review" and continuation is None and not result.get("complete"),
                     "restart requires an active review and cannot be combined with continue")
             active = _active(data)
-            active.update(page=0, last_continue=None)
+            data["document"]["revision"] += 1
+            units = [u for u in data["units"] if u["id"] in active["ids"]]
+            active.update(page=0, last_continue=None, ref=_ticket(data, phase, units))
             _set_active(data, active)
             result = _envelope(data)
         if continuation is not None:
@@ -297,6 +301,9 @@ def next_block(path, phase="translate", include_context=False, unit_id=None, con
                 require(result.get("continue") == continuation, "stale/wrong review continuation")
                 active["last_continue"] = continuation
                 active["page"] += 1
+                data["document"]["revision"] += 1
+                units = [u for u in data["units"] if u["id"] in active["ids"]]
+                active["ref"] = _ticket(data, phase, units)
                 _set_active(data, active)
             result = _envelope(data)
         if include_context:
@@ -316,7 +323,7 @@ def mutate(path, action, payload):
         core._text(payload["note"], "review note", empty=True)
     else:
         core._keys(payload, {"ref", "targets"}, "target-only payload")
-    require(isinstance(payload["ref"], str), "expected ref")
+    _reference(payload["ref"])
     fingerprint = core.digest(core._canonical([action, payload]))
     key = "_compact_receipt:" + payload["ref"]
     with core._lock(path):
@@ -328,7 +335,7 @@ def mutate(path, action, payload):
         active = _active(data)
         phase = "translate" if action == "save" else "review"
         require(active is not None and active["phase"] == phase, "wrong phase or no active block")
-        require(payload["ref"] == active["ref"], "stale/wrong reference or document")
+        require(payload["ref"] == active["ref"], "stale/wrong reference for this task")
         envelope = _envelope(data)
         require("ref" in envelope, "read every review page before accepting or revising")
         units = [u for u in data["units"] if u["id"] in active["ids"]]
@@ -371,24 +378,9 @@ def mutate(path, action, payload):
         return result
 
 
-def _read_ref(token):
-    # Existing legacy preread receipts can contain hex tokens. Keep their stored
-    # protocol untouched, but never expose those tokens through this interface.
-    if isinstance(token, str) and re.fullmatch(r"[a-f0-9]{32}", token):
-        return "p" + _short(["read", token])
-    require(isinstance(token, str) and re.fullmatch(r"[A-Za-z0-9_-]{12}", token),
-            "invalid read receipt; create a new receipt and reread the source")
-    return "p" + token
-
-
 def read_source(source, receipt, continuation=None):
-    if continuation is not None and Path(receipt).exists():
-        state = core._json(Path(receipt).read_text("utf-8"))
-        tokens = [state["token"], state["last_request"]]
-        matched = next((token for token in tokens
-                        if token is not None and _read_ref(token) == continuation), None)
-        require(matched is not None, "invalid read continuation; use the last returned ref")
-        continuation = matched
+    if continuation is not None:
+        _reference(continuation)
     page = core.read_source(source, receipt, continuation)
     text = core._source(source)
     require(core.digest(text) == page["source_hash"], "source changed; reread with a new receipt")
@@ -396,8 +388,8 @@ def read_source(source, receipt, continuation=None):
     preparation = {"units": units, "document": {
         "parents": [{"id": u["id"], "char_count": len(u["source"])} for u in units],
         "source_layout": layout}}
-    result = {k: page[k] for k in ("start", "end", "text", "complete")} | {"ref": _read_ref(page["token"])}
-    oversized = [u for u in _oversize(preparation, references=False)
+    result = {k: page[k] for k in ("start", "end", "text", "complete")} | {"ref": _reference(page["token"])}
+    oversized = [u for u in _oversize(preparation)
                  if page["start"] <= u["source_span"][0] < page["end"]]
     if oversized:
         result["oversize"] = oversized
@@ -408,6 +400,7 @@ def initialize(source, receipt, output, read_ref, source_lang="en", target_lang=
                source_dir="ltr", target_dir="ltr", context=None, splits=None):
     # The final delivery reference explicitly acknowledges the emitted source.
     # The initial replay record is part of the same atomic creation as the master.
+    _reference(read_ref)
     require(splits is None or isinstance(splits, dict), "split plan must be an ID-to-offsets object")
     kwargs = dict(source_lang=source_lang, target_lang=target_lang,
                   source_dir=source_dir, target_dir=target_dir, context=context,
@@ -422,9 +415,10 @@ def initialize(source, receipt, output, read_ref, source_lang="en", target_lang=
     if Path(output).exists():
         return replay()
     state = core._json(Path(receipt).read_text("utf-8"))
-    require(read_ref == _read_ref(state["token"]), "use the final prepare read ref to initialize")
+    require(read_ref == state["token"], "use the final prepare read ref to initialize")
     core.ack_source(source, receipt, state["source_hash"], state["token"])
     def initial_operations(data):
+        data["document"]["revision"] = max(data["document"]["revision"], core.reference_number(read_ref))
         result = {"initialized": True, "units": len(data["units"]), "oversize": _oversize(data)}
         return {"_compact_init": {"request_hash": fingerprint, "receipt": result}}
     try:
@@ -436,39 +430,6 @@ def initialize(source, receipt, output, read_ref, source_lang="en", target_lang=
     return replay()
 
 
-def inspect(path, unit_id):
-    data = _load(path)
-    require(_active(data) is None and data["document"]["workflow"]["active"] is None,
-            "finish active block before preparation")
-    require(all(u["target"] is None for u in data["units"]), "preparation is source-only")
-    unit = next((u for u in data["units"] if u["id"] == unit_id), None)
-    require(unit is not None, "unknown unit")
-    return {"ref": _ticket(data, "split", [unit]), "unit": _unit_view(unit, data=data)}
-
-
-def split(path, ref, offsets):
-    payload_hash = core.digest(core._canonical(["split", ref, offsets]))
-    key = "_compact_receipt:" + str(ref)
-    with core._lock(path):
-        data = _load(path)
-        old = _ops(data).get(key)
-        if old is not None:
-            require(old["request_hash"] == payload_hash, "reference reused with different split")
-            return copy.deepcopy(old["receipt"])
-        require(_active(data) is None, "finish active block before preparation")
-        require(all(u["target"] is None for u in data["units"]), "preparation is source-only")
-        unit = next((u for u in data["units"] if _ticket(data, "split", [u]) == ref), None)
-        require(unit is not None, "stale/wrong split reference or document")
-        result = core._split_data(data, unit["id"], offsets, unit["source_hash"], data["document"]["revision"])
-        result = {"split": result["split"],
-                  "children": [{k: u[k] for k in ("id", "characters", "part_index", "has_more")}
-                               for u in result["children"]],
-                  "oversize": _oversize(data)}
-        _ops(data)[key] = {"request_hash": payload_hash, "receipt": copy.deepcopy(result)}
-        core._save(path, data)
-        return result
-
-
 def status(path, include_context=False):
     data = _load(path)
     units = data["units"]
@@ -476,12 +437,10 @@ def status(path, include_context=False):
     reviewed = sum(u["status"] == "reviewed" for u in units)
     blocked = _oversize(data)
     active = _active(data)
-    if data["document"]["workflow"]["active"]:
-        action = "legacy commit"
-    elif active:
+    if active:
         action = active["phase"] + (" save" if active["phase"] == "translate" else " next")
     elif blocked:
-        action = "prepare split"
+        action = "prepare init"
     elif saved != len(units):
         action = "translate next"
     elif reviewed != len(units):
@@ -515,13 +474,6 @@ def main(argv=None):
     init.add_argument("--target-dir", choices=["ltr", "rtl"], default="ltr")
     init.add_argument("--context", type=Path)
     init.add_argument("--splits", type=Path)
-    ins = prepare.add_parser("inspect")
-    ins.add_argument("data", type=Path, nargs="?", default=Path("master.jsonl"), help="JSONL master (default: ./master.jsonl)")
-    ins.add_argument("--unit", required=True)
-    spl = prepare.add_parser("split")
-    spl.add_argument("data", type=Path, nargs="?", default=Path("master.jsonl"), help="JSONL master (default: ./master.jsonl)")
-    spl.add_argument("--ref", required=True)
-    spl.add_argument("--offsets", required=True)
     for phase, actions in (("translate", ("next", "save")), ("review", ("next", "accept", "revise"))):
         sub = commands.add_parser(phase).add_subparsers(dest="action", required=True)
         for action in actions:
@@ -560,14 +512,6 @@ def main(argv=None):
                 result = initialize(args.source, args.receipt, args.output, args.read_ref,
                                     source_lang=args.source_lang, target_lang=args.target_lang,
                                     source_dir=args.source_dir, target_dir=args.target_dir, context=context, splits=splits)
-            elif args.action == "inspect":
-                result = inspect(args.data, args.unit)
-            else:
-                try:
-                    offsets = [int(x) for x in args.offsets.split(",")]
-                except ValueError:
-                    raise ProtocolError("offsets must be comma-separated integer codepoint boundaries") from None
-                result = split(args.data, args.ref, offsets)
         elif args.phase in ("translate", "review"):
             if args.action == "next":
                 result = next_block(args.data, args.phase, args.context,

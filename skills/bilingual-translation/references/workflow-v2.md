@@ -2,7 +2,21 @@
 
 ## Agent entry point
 
-Use `scripts/workflow.py` in this installed skill. Python 3.11+ and POSIX locking are required; no external package or network service is used. This phase facade preserves the JSONL contract and internal locking, hashes, revisions and retry checks while exposing only short opaque references in protocol metadata; full hashes remain internal. Source/target text is unchanged, including literal hexadecimal text.
+Use `scripts/workflow.py` in this installed skill. Python 3.11+ and POSIX locking are required; no external package or network service is used. This phase facade preserves the JSONL contract and internal locking, hashes, revisions and retry checks while exposing short confirmation codes in protocol metadata; full binding hashes remain internal. Source/target text is unchanged, including literal hexadecimal text.
+
+Returned `ref` and `continue` values are strings such as `17-maple`. The number advances with the task revision and may skip; initialization continues from the final reading number. Return the complete value unchanged, without predicting either part. The common word is a confirmation cue, not security authentication; codes are not globally unique across tasks. Keep each task's directory and returned work together.
+
+## Execution boundaries
+
+Run each documented `python3 -B .../scripts/workflow.py ...` command directly in its own host execution-tool call. Read the complete returned text yourself before the next step. Command blocks show a sequence, not a batch to paste or automate. Calling the supplied Python CLI directly is the intended tool use.
+
+- Do not drive workflow commands through helper scripts, loops, pipelines, subprocesses or wrappers, even when they call the official CLI in order. Do not change the installed tools or import their internals to operate the workflow.
+- Use workflow commands for controlled source, master, receipt, hash and review/state access. Scripts, other commands and direct file reads/edits must not replace them. Restore context through documented workflow options instead of scanning files.
+- Use host file-writing tools to prepare documented `context.json`, `splits.json` and active target/correction payloads. Author these inputs from the returned work; do not batch future translations or automatically approve review.
+- Read-only calculations may count offsets in text already delivered to your context after you choose a semantic cut. They must not reopen source/master files, replace semantic decisions or advance the workflow.
+- On failure, use documented recovery or an identical retry. If unresolved, or a needed capability is missing, report the blocker and ask for direction; do not modify the tool or invent a bypass.
+
+These are agent-compliance rules, not an operating-system permission boundary. Normal documented steps need no extra confirmation.
 
 ## Authorized delegation
 
@@ -49,17 +63,13 @@ From the same initial reading, write substantive context in `context.json`:
 
 Init acknowledges complete reading, validates exact split-plan coverage and lossless reconstruction, and creates the fully split source-only master in one atomic operation. Missing, extra or invalid plans leave no partial master. It never chooses semantic cuts or normalizes text. Children retain parent ID, order, part index and continuation fields as parts of one original paragraph. Init reports `initialized`, the final unit count and an empty `oversize` list. Identical retries replay the original response; changed plans or context cannot overwrite an existing master.
 
-### Recover an existing source-only checkpoint
-
-Only older source-only checkpoints may still need separate splitting. `status` returns current oversized IDs, references and source spans; use `prepare split master.jsonl --ref SPLIT_REF --offsets 1450,2870` with actual relative offsets. Each response refreshes remaining references. After an old response is replayed, use `status` to recover current ones. `prepare inspect master.jsonl --unit ID` rereads source only when its context is lost. These are recovery routes, not extra normal preparation passes.
-
 ## Translate bounded groups
 
 ```sh
 python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" translate next
 ```
 
-The normal work envelope has `phase`, opaque `ref` and `units`. Each unit includes `id`, `kind` and complete `source`. Split children also include `parent_id`, `part_index` and `has_more`; unsplit units imply parent=id, index=0 and no continuation. Heading levels and list/table positions are included where applicable. Group source totals at most 2048 codepoints. Source is never truncated. Initial phase dispatch includes languages and complete `shared` context. Routine groups do not repeat local headings/table headers; explicit `--context` restores shared guidance and, when available, a local excerpt capped at 1024 codepoints with a truncation flag.
+The normal work envelope has `phase`, confirmation-code `ref` and `units`. Each unit includes `id`, `kind` and complete `source`. Split children also include `parent_id`, `part_index` and `has_more`; unsplit units imply parent=id, index=0 and no continuation. Heading levels and list/table positions are included where applicable. Group source totals at most 2048 codepoints. Source is never truncated. Initial phase dispatch includes languages and complete `shared` context. Routine groups do not repeat local headings/table headers; explicit `--context` restores shared guidance and, when available, a local excerpt capped at 1024 codepoints with a truncation flag.
 
 Translate the displayed units, then write a target-only payload:
 
@@ -75,7 +85,7 @@ python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" translate save --payload tar
 
 Save returns `saved` IDs and `next`. Continue from that envelope; call `next` separately only initially or to resume. Pending work is sticky until saved. A finished phase returns `complete: true` and `next_action`.
 
-References bind IDs, revisions and source hashes internally. Extra fields, wrong IDs, stale references and changed retries fail. Identical replay returns the original response even after later work advances. After resolving an old retry, recover current work with `next` rather than acting on its historical envelope. Preparation reads establish context and splits, not an alternative route to author future targets. Saves create drafts.
+The tool keeps full bindings for document, phase, revision, IDs and source/target hashes internally. Extra fields, wrong IDs, stale references and changed retries fail. Identical replay returns the original response even after later work advances. After resolving an old retry, recover current work with `next` rather than acting on its historical envelope. Preparation reads establish context and splits, not an alternative route to author future targets. Saves create drafts.
 
 ## Review all pairs separately
 

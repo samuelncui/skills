@@ -34,7 +34,9 @@ Keep both output directories for inspection. They contain exact fixtures, copied
 - Body reference: source text and fixed target strings tokenized independently once. These are reference costs, not an additive decomposition of serialized protocol tokens; BPE boundaries and repeated text matter.
 - Both modes use the same fixture hashes, targets and review note. The first three fixtures have no optional context; a fourth independently tests a supplied summary, audience and glossary. The benchmark checks complete source delivery, translation/review ID coverage in order, source reconstruction, unchanged fixed translations, reviewed status and default export readiness. It does not merely trust a successful process exit.
 
-## Recorded result (2026-10-14)
+## Historical measured result (2026-10-14)
+
+The measurements below identify earlier implementation and instruction snapshots, before the numbered confirmation codes and direct-tool execution rules. The new protocol and fixed-loading totals have not yet been measured; these historical percentages are not claims about the current revision.
 
 Python 3.13.5, tiktoken 0.12.0, o200k_base. Original baseline commit: `25fb7db96bc86be93e91abb3c3b6979596901a02`. Original three baseline workloads were reused unchanged; only the new shared-context fixture required an additional baseline run. No timing or statistical significance claim.
 
@@ -56,7 +58,7 @@ Directly measured implementation SHA-256:
 | zh_en_structure | 3,763 → 670 | 8,285 → 1,417 | 11,485 → 2,378 | 21,597 → 4,560 | 109 + 82 |
 | shared_context | 1,286 → 465 | 2,699 → 640 | 4,090 → 1,682 | 7,649 → 2,381 | 37 + 50 |
 
-Current fixed loading: 4,216 → 3,703 tokens (12.17% reduction). Only instruction text was recounted after the delegation-policy edit; the actual-CLI protocol measurements above are unchanged and were not rerun.
+Historical fixed loading: 4,216 → 3,703 tokens (12.17% reduction). Only instruction text was recounted after the delegation-policy edit; the actual-CLI protocol measurements above are unchanged and were not rerun.
 - `SKILL.md`: 972 tokens; SHA-256 `f3f75d6ff30c7267990c7e801eaddcdf0620343fa1d05626289584b72675becd`.
 - `references/workflow-v2.md`: 2,731 tokens; SHA-256 `342b1c1941fe525d0d2bd12c165bc24e1da6be3924a80c59c7bd1fb4c55fe7eb`.
 
@@ -101,4 +103,4 @@ The main fixed-loading table has always counted only SKILL plus workflow-v2, exc
 
 ## Delegation instruction boundary
 
-The main-agent default, explicit delegation consent and context/state handoff guidance add 288 instruction tokens to the preceding 3,415-token revision. The current fixed-loading count above includes this addition; human README translations remain excluded. Scripts, schemas, fixtures and CLI protocol are unchanged, so their original executed evidence is retained. This documentation-only recount does not test fresh-agent compliance or translation quality.
+The main-agent default, explicit delegation consent and context/state handoff guidance add 288 instruction tokens to the preceding 3,415-token revision. The historical fixed-loading count above includes this addition; human README translations remain excluded. That documentation-only revision left scripts, schemas, fixtures and CLI protocol unchanged, so its original executed evidence was retained. This documentation-only recount does not test fresh-agent compliance or translation quality.

@@ -29,7 +29,7 @@ class CompactWorkflowTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def prepare(self, text="First.\n\nSecond.\n", *, legacy=False, **kwargs):
+    def prepare(self, text="First.\n\nSecond.\n", **kwargs):
         self.source.write_bytes(text.encode("utf-8"))
         page = W.read_source(self.source, self.receipt)
         delivered = page["text"]
@@ -38,12 +38,6 @@ class CompactWorkflowTests(unittest.TestCase):
             delivered += page["text"]
         self.assertEqual(delivered, text)
         self.final_ref = page["ref"]
-        if legacy:
-            state = C._json(self.receipt.read_text())
-            C.ack_source(self.source, self.receipt, state["source_hash"], state["token"])
-            C.initialize(self.source, self.receipt, self.master, **kwargs)
-            data = C.load_jsonl(self.master)
-            return {"initialized": True, "units": len(data["units"]), "oversize": W._oversize(data)}
         return W.initialize(self.source, self.receipt, self.master, page["ref"], **kwargs)
 
     def targets(self, block, value="Translated."):
@@ -124,22 +118,9 @@ class CompactWorkflowTests(unittest.TestCase):
     def test_cap_unicode_semantic_split_and_source_integrity(self):
         parts = ["😀" * 1000 + ".  ", "e\u0301" * 600 + ".\r\n", "尾" * 500 + "."]
         source = "\ufeff# 标题\r\n\r\n" + "".join(parts) + "\r\n"
-        initial = self.prepare(source, legacy=True)
-        self.assertEqual(len(initial["oversize"]), 1)
-        with self.assertRaisesRegex(ValueError, "split"):
-            W.next_block(self.master)
-        unit = W.inspect(self.master, "u000002")
-        self.assertEqual(unit["unit"]["source"], "".join(parts))
-        before = self.master.read_bytes()
-        for offsets in ([True], [0], [1], [20, 10], [10, 10]):
-            with self.subTest(offsets=offsets), self.assertRaises(ValueError):
-                W.split(self.master, unit["ref"], offsets)
-            self.assertEqual(self.master.read_bytes(), before)
         offsets = [len(parts[0]), len(parts[0]) + len(parts[1])]
-        split = W.split(self.master, unit["ref"], offsets)
-        self.assertEqual(W.split(self.master, unit["ref"], offsets), split)
-        with self.assertRaisesRegex(ValueError, "reused"):
-            W.split(self.master, unit["ref"], [1000, 2000])
+        initial = self.prepare(source, splits={"u000002": offsets})
+        self.assertEqual(initial["oversize"], [])
         self.assertEqual([u["source"] for u in C.load_jsonl(self.master)["units"][1:]], parts)
         block = W.next_block(self.master)
         while not block.get("complete"):
@@ -190,7 +171,7 @@ class CompactWorkflowTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "reused"):
             W.mutate(self.master, "save", self.targets(block, "Different."))
 
-    def test_cross_document_phase_stale_and_legacy_writer_guards(self):
+    def test_task_local_numbers_phase_stale_and_legacy_writer_guards(self):
         self.prepare()
         block = W.next_block(self.master)
         with self.assertRaises(ValueError):
@@ -200,25 +181,24 @@ class CompactWorkflowTests(unittest.TestCase):
         other = self.root / "other.jsonl"
         W.initialize(self.source, self.receipt, other, self.final_ref)
         other_block = W.next_block(other)
-        self.assertNotEqual(other_block["ref"], block["ref"])
-        with self.assertRaisesRegex(ValueError, "reference"):
-            W.mutate(other, "save", self.targets(block))
+        # Numbers are task-local; no cross-document identity guarantee is claimed.
+        self.assertEqual(C.reference_number(other_block["ref"]), C.reference_number(block["ref"]))
+        other_before = other.read_bytes()
         with self.assertRaisesRegex(ValueError, "active translate"):
             W.next_block(self.master, "review")
         W.mutate(self.master, "save", self.targets(block))
+        self.assertEqual(other.read_bytes(), other_before)
         review = W.next_block(self.master, "review")
+        self.assertGreater(C.reference_number(review["ref"]), C.reference_number(block["ref"]))
         with self.assertRaisesRegex(ValueError, "wrong phase"):
             W.mutate(self.master, "save", self.targets(review))
-        self.accept(review)
-        unit = C.load_jsonl(self.master)["units"][0]
-        state = C.load_jsonl(self.master)
-        C.revise(self.master, {"operation_id": "legacy-edit", "unit": unit["id"],
-                  "revision": state["document"]["revision"], "source_hash": unit["source_hash"],
-                  "target_hash": unit["target_hash"], "target": "Correction."})
-        current = W.next_block(self.master, "review")
-        self.assertNotEqual(current["ref"], review["ref"])
+        accepted = self.accept(review)
+        selected = W.next_block(self.master, "review", unit_id="u000001")
+        revised = W.mutate(self.master, "revise", self.targets(selected, "Correction."))
+        self.assertGreater(C.reference_number(revised["next"]["ref"]), C.reference_number(selected["ref"]))
         with self.assertRaisesRegex(ValueError, "reused"):
             W.mutate(self.master, "revise", self.targets(review, "Bad stale correction."))
+        self.assertEqual(self.accept(review), accepted)
 
     def test_separate_review_subset_revision_and_ready_gate(self):
         self.prepare()
@@ -330,6 +310,11 @@ class CompactWorkflowTests(unittest.TestCase):
         bad = copy.deepcopy(data)
         bad["document"]["workflow"]["operations"]["_compact_seen"]["receipt"]["phases"] = ["bogus"]
         cases.append(bad)
+        bad = copy.deepcopy(data)
+        active = bad["document"]["workflow"]["operations"]["_compact_active"]
+        active["receipt"]["binding"] = "0" * 64
+        active["request_hash"] = C.digest(C._canonical(active["receipt"]))
+        cases.append(bad)
         for bad in cases:
             with self.subTest(data=bad), self.assertRaises(ValueError):
                 C.validate(bad)
@@ -409,25 +394,24 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
         self.assertEqual(sorted(p.returncode for p in processes), [0, 1], results)
         self.assertEqual(W.status(self.master)["saved"], 2)
 
-    def test_legacy_hex_preread_tokens_are_never_exposed_or_required(self):
-        self.source.write_text("Source. " * (C.READ_PAGE // 8 + 2))
-        with patch.object(C.secrets, "token_urlsafe", return_value="a" * 32):
-            old = C.read_source(self.source, self.receipt)
-        self.assertFalse(old["complete"])
-        page = W.read_source(self.source, self.receipt)
-        self.assertTrue(page["ref"].startswith("p"))
-        self.assertNotIn("a" * 32, json.dumps(page))
-        with patch.object(C.secrets, "token_urlsafe", return_value="b" * 32):
-            last = W.read_source(self.source, self.receipt, page["ref"])
-        self.assertTrue(last["complete"])
-        self.assertEqual(W.read_source(self.source, self.receipt, page["ref"]), last)
-        self.assertNotIn("b" * 32, json.dumps(last))
-        plan = {"u000001": [2048, 4096, 6144, 8192]}
-        initialized = W.initialize(self.source, self.receipt, self.master, last["ref"], splits=plan)
-        self.assertTrue(initialized["initialized"])
-        self.assertEqual(W.initialize(self.source, self.receipt, self.master, last["ref"], splits=plan), initialized)
+    def test_numbered_refs_reject_guessed_words_and_malformed_values(self):
+        self.prepare()
+        block = W.next_block(self.master)
+        before = self.master.read_bytes()
+        number, word = block["ref"].split("-")
+        wrong_word = next(candidate for candidate in C.REF_WORDS if candidate != word)
+        invalid = [number, int(number), True, None, "0-maple", "01-maple",
+                   "-1-maple", "1.0-maple", "1e1-maple", "１-maple",
+                   number + "-unknownword", number + "-Maple", number + "-maple ",
+                   "1" * 30 + "-maple", number + "-" + wrong_word]
+        for value in invalid:
+            with self.subTest(ref=value), self.assertRaises(ValueError):
+                W.mutate(self.master, "save", dict(self.targets(block), ref=value))
+            self.assertEqual(self.master.read_bytes(), before)
+        self.assertEqual(W.next_block(self.master), block)
+        self.assertEqual(len(C.REF_WORDS), len(set(C.REF_WORDS)))
 
-    def test_malformed_preread_digest_token_is_rejected_without_echo(self):
+    def test_old_preread_token_is_rejected_without_echo(self):
         self.source.write_text("Source.")
         C.read_source(self.source, self.receipt)
         state = C._json(self.receipt.read_text())
@@ -439,7 +423,7 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
         self.assertEqual(result.returncode, 1)
         self.assertEqual(result.stdout, "")
         self.assertNotIn(sha, result.stderr)
-        self.assertIn("reread", json.loads(result.stderr)["error"])
+        self.assertNotIn("Traceback", result.stderr)
 
     def test_all_compact_cli_success_branches_exclude_machine_hash_metadata(self):
         import re
@@ -451,7 +435,7 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
                 self.assertFalse(forbidden & value.keys())
                 for key, child in value.items():
                     if key in ("ref", "continue"):
-                        self.assertRegex(child, r"^[pr][A-Za-z0-9_-]{12,16}$")
+                        self.assertRegex(child, r"^[1-9][0-9]*-[a-z]+$")
                     check(child)
             elif isinstance(value, list):
                 for child in value:
@@ -477,11 +461,6 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
                            "--read-ref", page["ref"], "--output", self.master,
                            "--source-lang", "en", "--target-lang", "fr", "--splits", splits)
         self.assertEqual(set(initialized), {"initialized", "units", "oversize"})
-        legacy_checkpoint = self.root / "legacy-checkpoint.jsonl"
-        C.initialize(self.source, self.receipt, legacy_checkpoint)
-        inspection = call("prepare", "inspect", legacy_checkpoint, "--unit", "u000001")
-        self.assertNotIn("parent_id", inspection["unit"])
-        call("prepare", "split", legacy_checkpoint, "--ref", inspection["ref"], "--offsets", "1100")
         call("status", self.master)
         call("status", self.master, "--context")
         call("validate", self.master)
@@ -545,35 +524,6 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
         review = self.cli("review", "next", self.master)
         self.assertIn(literal, review["units"][0]["target"])
 
-    def test_legacy_checkpoint_spans_refresh_refs_and_freeze_split_replay(self):
-        first_parts = ["Alpha sentence. " * 80 + "\r\n", "Beta sentence. " * 80]
-        second_parts = ["Gamma sentence. " * 75, "Delta sentence. " * 75]
-        first, second = "".join(first_parts), "".join(second_parts)
-        source = "\ufeff# Concepts\r\n\r\n" + first + "\r\n\r\n## Next\r\n\r\n" + second + "\r\n"
-        initial = self.prepare(source, legacy=True)
-        entries = initial["oversize"]
-        self.assertEqual(W.status(self.master)["next_action"], "prepare split")
-        self.assertEqual(len(entries), 2)
-        for entry, text in zip(entries, (first, second)):
-            start, end = entry["source_span"]
-            self.assertEqual(source[start:end], text)
-            self.assertEqual(end - start, entry["characters"])
-            self.assertEqual(start, source.index(text))
-        response = W.split(self.master, entries[0]["ref"], [len(first_parts[0])])
-        remaining = response["oversize"][0]
-        self.assertEqual(remaining["source_span"], entries[1]["source_span"])
-        self.assertNotEqual(remaining["ref"], entries[1]["ref"])
-        before = self.master.read_bytes()
-        with self.assertRaisesRegex(ValueError, "stale"):
-            W.split(self.master, entries[1]["ref"], [len(second_parts[0])])
-        self.assertEqual(self.master.read_bytes(), before)
-        self.assertEqual(W.status(self.master)["oversize"], response["oversize"])
-        final = W.split(self.master, remaining["ref"], [len(second_parts[0])])
-        self.assertEqual(final["oversize"], [])
-        self.assertEqual(W.split(self.master, entries[0]["ref"], [len(first_parts[0])]), response)
-        self.assertNotIn("oversize", W.status(self.master))
-        self.assertEqual(C.load_jsonl(self.master)["document"]["source"]["sha256"], C.digest(source))
-
     def test_normal_three_source_passes_one_target_read_and_global_context(self):
         context = {"summary": "Distinguish opening balance from movement; retain the ledger concept.",
                    "audience": "new volunteers", "glossary": [
@@ -585,10 +535,8 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
         self.assertTrue(page["complete"])
         self.assertEqual(page["text"], text)  # source delivery pass 1
         plan = {page["oversize"][0]["id"]: [len(parts[0])]}
-        with patch.object(W, "inspect", side_effect=AssertionError("normal preparation must not reread source")), \
-             patch.object(W, "split", side_effect=AssertionError("normal preparation must split inside init")):
-            prepared = W.initialize(self.source, self.receipt, self.master, page["ref"],
-                                    context=context, splits=plan)
+        prepared = W.initialize(self.source, self.receipt, self.master, page["ref"],
+                                context=context, splits=plan)
         self.assertEqual(prepared["oversize"], [])
         expected = [(u["id"], u["source"]) for u in C.load_jsonl(self.master)["units"]]
         seen_translation, authored_targets = [], {}
@@ -641,8 +589,9 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
         self.assertNotIn("shared", last)
         self.assertEqual("".join(p["units"][0]["target"] for p in (page, second, last)), target)
         restart = W.next_block(self.master, "review", restart=True)
-        self.assertEqual(restart, page)
-        with self.assertRaisesRegex(ValueError, "every review page"):
+        self.assertEqual(restart["units"], page["units"])
+        self.assertGreater(C.reference_number(restart["continue"]), C.reference_number(last["ref"]))
+        with self.assertRaisesRegex(ValueError, "stale/wrong"):
             self.accept(last)
 
     def test_initial_receipt_factory_is_atomic_and_replay_safe(self):
@@ -729,12 +678,16 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
         W.initialize(self.source, self.receipt, other / "master.jsonl", self.final_ref)
         block = run("translate", "next")
         other_block = run("translate", "next", cwd=other)
-        self.assertNotEqual(block["ref"], other_block["ref"])
+        self.assertEqual(C.reference_number(block["ref"]), C.reference_number(other_block["ref"]))
         payload = self.root / "target.json"
         payload.write_text(json.dumps(self.targets(block)))
-        wrong = run("translate", "save", "--payload", payload, cwd=other, check=False)
-        self.assertEqual(wrong.returncode, 1)
-        self.assertEqual(run("status", cwd=other)["saved"], 0)
+        other_payload = other / "target.json"
+        other_payload.write_text(json.dumps(self.targets(other_block, "Other task.")))
+        root_before = self.master.read_bytes()
+        self.assertTrue(run("translate", "save", "--payload", "target.json", cwd=other)["next"]["complete"])
+        self.assertEqual(self.master.read_bytes(), root_before)
+        self.assertEqual(run("status")["saved"], 0)
+        self.assertEqual(run("status", cwd=other)["saved"], 2)
         self.assertTrue(run("translate", "save", "--payload", "target.json")["next"]["complete"])
         review = run("review", "next")
         payload.write_text(json.dumps(self.targets(review, "Corrected.")))
@@ -747,19 +700,6 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
         self.assertEqual(run("status")["reviewed"], 2)
         self.assertEqual(run("status", cwd=other)["reviewed"], 0)
         self.assertEqual(run("status", self.master, cwd=other)["reviewed"], 2)
-        # Existing source-only checkpoints use the same local default for recovery.
-        recovery = self.root / "recovery task"
-        recovery.mkdir()
-        source, receipt, master = (recovery / name for name in ("source.md", "read.json", "master.jsonl"))
-        source.write_text("Sentence. " * 220)
-        page = C.read_source(source, receipt)
-        C.ack_source(source, receipt, page["source_hash"], page["token"])
-        C.initialize(source, receipt, master)
-        inspected = run("prepare", "inspect", "--unit", "u000001", cwd=recovery)
-        response = run("prepare", "split", "--ref", inspected["ref"], "--offsets", "1100", cwd=recovery)
-        self.assertEqual(response["oversize"], [])
-        self.assertEqual(run("status", cwd=recovery)["next_action"], "translate next")
-
     def test_schema_old_reader_clean_install_and_pdf_import(self):
         from jsonschema import Draft202012Validator
         schema = json.loads((SCRIPT.parents[1] / "schemas/translation-workflow.schema.json").read_text())

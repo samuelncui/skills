@@ -10,7 +10,7 @@ Installez le répertoire complet. L’outil JSONL exige Python 3.11+ et le verro
 
 Exemple : « Avec bilingual-translation, traduisez ce guide en français en conservant les paragraphes et les cellules dans un manuscrit unique et relu. » Précisez source, langue cible, public et terminologie.
 
-L’entrée agent est scripts/workflow.py. prepare lit et initialise la source ; translate distribue des groupes totalisant au plus 2048 points de code source ; review enregistre une comparaison complète et indépendante. Enregistrer ou accepter renvoie le groupe suivant. Des références courtes remplacent la copie manuelle des empreintes ; les contrôles de révision, d’empreinte et de répétition restent internes. Seules les paires modifiées sont relues à nouveau.
+L’entrée agent est scripts/workflow.py. prepare lit et initialise la source ; translate distribue des groupes totalisant au plus 2048 points de code source ; review enregistre une comparaison complète et indépendante. Enregistrer ou accepter renvoie le groupe suivant. Les codes de confirmation complets, comme 17-maple, sont renvoyés tels quels à la place des empreintes et ne sont pas des identifiants de sécurité ; les contrôles de révision, d’empreinte et de répétition restent internes. Seules les paires modifiées sont relues à nouveau.
 
 [Procédure agent](SKILL.md) · [Commandes et limites](references/workflow-v2.md)
 

@@ -10,7 +10,7 @@ Installieren Sie das vollständige Skill-Verzeichnis. Das JSONL-Werkzeug benöti
 
 Beispiel: „Übersetze diesen Leitfaden mit bilingual-translation ins Französische und erhalte Absätze und Tabellenzellen in einem einzigen geprüften Manuskript.“ Geben Sie Quelle, Zielsprache, Zielgruppe und Terminologie an.
 
-Der Agent-Einstieg ist scripts/workflow.py. prepare liest und initialisiert die Quelle; translate liefert Gruppen mit insgesamt höchstens 2048 Quell-Codepoints; review dokumentiert einen unabhängigen vollständigen Vergleich. Speichern und Bestätigen liefern die nächste Gruppe. Kurze Referenzen ersetzen manuell kopierte Hashes; Revisions-, Hash- und Wiederholungsprüfungen bleiben intern erhalten. Nur geänderte Paare werden erneut geprüft.
+Der Agent-Einstieg ist scripts/workflow.py. prepare liest und initialisiert die Quelle; translate liefert Gruppen mit insgesamt höchstens 2048 Quell-Codepoints; review dokumentiert einen unabhängigen vollständigen Vergleich. Speichern und Bestätigen liefern die nächste Gruppe. Vollständige Bestätigungscodes wie 17-maple werden unverändert statt manuell kopierter Hashes zurückgegeben und dienen nicht der Sicherheitsauthentifizierung; Revisions-, Hash- und Wiederholungsprüfungen bleiben intern erhalten. Nur geänderte Paare werden erneut geprüft.
 
 [Agent-Ablauf](SKILL.md) · [Befehle und Grenzen](references/workflow-v2.md)
 

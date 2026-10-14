@@ -10,7 +10,7 @@ Subagent 可能丢失上下文，造成术语、风格或细节不一致。委�
 
 可以这样请求：“用 bilingual-translation 将这份指南译成法语，把段落和表格单元格保存在一份已审校主稿中。”提供原文、目标语言、受众和术语要求。
 
-Agent 入口是 scripts/workflow.py：prepare 阅读并初始化原文；translate 每批分发合计不超过 2048 原文码点的单元；review 独立完整对照审校。保存／接受后直接返回下一批，用短引用代替手抄哈希；版本、哈希和重试校验仍由工具执行。修改后只重审受影响的原译对。
+Agent 入口是 scripts/workflow.py：prepare 阅读并初始化原文；translate 每批分发合计不超过 2048 原文码点的单元；review 独立完整对照审校。保存／接受后直接返回下一批，完整原样回传 17-maple 这样的短确认码，代替手抄哈希，确认码不构成安全认证；版本、哈希和重试校验仍由工具执行。修改后只重审受影响的原译对。
 
 [Agent 流程](SKILL.md) · [命令和边界](references/workflow-v2.md)
 

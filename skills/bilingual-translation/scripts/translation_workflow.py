@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import base64
 import copy
 from contextlib import contextmanager
 import fcntl
@@ -43,13 +42,37 @@ def digest(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def compact_reference(data, phase, units):
-    """Short version/phase/selection binding; not an authentication credential."""
+# A short confirmation cue, not authentication or evidence of comprehension.
+REF_WORDS = tuple("""apple arrow beach bird bloom blue boat book bread bridge bright brook
+brown brush cabin calm candle cedar chair cherry clear cloud coast coral crane creek
+crown dance dawn deer dream drift dune eagle earth east ember field fire flame
+flower forest fox fresh frost garden glass globe gold grape grass green grove harbor
+hawk hazel hill honey horse house ice island ivory jade jewel lake leaf lemon
+light lily lion maple marsh meadow mint moon moss mountain music night north oak
+ocean olive orange owl palm paper park peach pearl pine pink plum pond quiet
+rain raven reed ridge river road robin rock rose round ruby sage sand sea
+seed shade shell shore silver sky small snow soft south spark spring star stone
+storm stream sun sweet swift table tall tea thorn tide tiger trail tree tulip
+vale violet warm water wave west wheat white wild willow wind wing winter wood""".split())
+REFERENCE = re.compile(r"([1-9][0-9]{0,17})-([a-z]+)\Z")
+
+
+def reference_number(value):
+    match = REFERENCE.fullmatch(value) if isinstance(value, str) else None
+    _require(match is not None and match[2] in REF_WORDS, "invalid numbered reference")
+    return int(match[1])
+
+
+def compact_binding(data, phase, units):
+    """Full internal binding; the public word is only a low-cost confirmation cue."""
     h = data["document"]
-    value = [h["document_id"], h["revision"], phase,
-             [[u["id"], u["source_hash"], u["target_hash"]] for u in units]]
-    raw = hashlib.sha256(_canonical(value).encode("utf-8")).digest()[:12]
-    return "r" + base64.urlsafe_b64encode(raw).decode("ascii")
+    return digest(_canonical([h["document_id"], h["revision"], phase,
+                              [[u["id"], u["source_hash"], u["target_hash"]] for u in units]]))
+
+
+def compact_reference(data, phase, units):
+    binding = compact_binding(data, phase, units)
+    return str(data["document"]["revision"]) + "-" + REF_WORDS[int(binding, 16) % len(REF_WORDS)]
 
 
 def _validate_operation_journal(data):
@@ -70,7 +93,7 @@ def _validate_operation_journal(data):
         return
     record = operations["_compact_active"]
     a = record["receipt"]
-    _keys(a, {"phase", "ids", "ref", "page", "last_continue", "initial"}, "compact active")
+    _keys(a, {"phase", "ids", "ref", "page", "last_continue", "initial", "binding"}, "compact active")
     _require(record["request_hash"] == digest(_canonical(a)), "invalid compact journal checksum")
     _require(a["phase"] in ("translate", "review") and isinstance(a["ids"], list)
              and a["ids"] and all(_id(uid) for uid in a["ids"]), "invalid compact phase/IDs")
@@ -78,7 +101,8 @@ def _validate_operation_journal(data):
     _require([u["id"] for u in selected] == a["ids"]
              and all(b["order"] == a0["order"] + 1 for a0, b in zip(selected, selected[1:])),
              "invalid compact selection order")
-    _require(a["ref"] == compact_reference(data, a["phase"], selected), "stale compact reference")
+    _require(a["ref"] == compact_reference(data, a["phase"], selected)
+             and a["binding"] == compact_binding(data, a["phase"], selected), "stale compact reference")
     _require(type(a["page"]) is int and a["page"] >= 0 and type(a["initial"]) is bool
              and (a["last_continue"] is None or isinstance(a["last_continue"], str)),
              "invalid compact page metadata")
@@ -192,6 +216,8 @@ def read_source(source, receipt, continuation=None):
         else:
             state = _json(path.read_text("utf-8"))
             _require(state["source_hash"] == sha, "source changed; create a new preread receipt")
+            _require(reference_number(state["token"]) == (state["end"] + READ_PAGE - 1) // READ_PAGE,
+                     "invalid read receipt; create a new receipt and reread the source")
             if continuation == state["last_request"] and state["page"] is not None:
                 return state["page"]
             _require(continuation is not None and continuation == state["token"],
@@ -199,7 +225,7 @@ def read_source(source, receipt, continuation=None):
             _require(state["end"] < len(text), "all source pages delivered; acknowledge source")
         start = state["end"]
         end = min(start + READ_PAGE, len(text))
-        token = secrets.token_urlsafe(9)
+        token = str(start // READ_PAGE + 1) + "-" + secrets.choice(REF_WORDS)
         page = {"source_hash": sha, "start": start, "end": end, "char_count": len(text),
                 "text": text[start:end], "complete": end == len(text), "token": token,
                 "note": "Read this exact page. Acknowledge the version after the final page."}
