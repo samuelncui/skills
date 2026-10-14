@@ -6,7 +6,7 @@ Study-notes renders through native LaTeX. Notes and lookup manuscripts are nativ
 
 Discover both skills through the host's supported skill listing. Set `BILINGUAL_PDF_SKILL` to the actual bilingual-pdf directory and `STUDY_NOTES_SKILL` to this installed skill. They may be unrelated paths, including paths with spaces. The helpers never fetch a missing dependency.
 
-Use matching tested revisions. `studytools.sty` requires native `ParallelTextAPIVersion` 2 and exposes `StudyToolsAPIVersion` 1. The common renderer owns all typography and layout. See its native, language and configuration references through the discovered installation.
+Use matching tested revisions. `studytools.sty` checks the native renderer commands it uses and reports missing capabilities when loaded. The common renderer owns all typography and layout. See its native, language and configuration references through the discovered installation.
 
 ## Build the worked example
 

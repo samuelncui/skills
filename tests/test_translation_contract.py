@@ -1,4 +1,4 @@
-"""Objective v1 exchange regression tests; these do not grade translation quality."""
+"""Objective semantic exchange regression tests; these do not grade translation quality."""
 import copy
 import hashlib
 import importlib.util
@@ -36,7 +36,8 @@ class TranslationContractTests(unittest.TestCase):
 
     def test_schema_and_complete_example(self):
         Draft202012Validator.check_schema(SCHEMA)
-        self.assertEqual(CONTRACT.CONTRACT_VERSION, 1)
+        self.assertFalse(hasattr(CONTRACT, "CONTRACT_VERSION"))
+        self.assertNotIn("schema_version", BASE)
         self.assertTrue(VALIDATOR.is_valid(BASE))
         self.assertEqual(CONTRACT.validate_document(BASE, require_ready=True), [])
         self.assertEqual({u["kind"] for u in BASE["units"]},
@@ -216,210 +217,48 @@ class TranslationContractTests(unittest.TestCase):
             self.assertEqual(CONTRACT.validate_document(doc), [])
             self.rejects(doc, "not ready", ready=True)
 
-    def test_sync_preserves_all_content_and_invalidates_only_stale_target(self):
+    def test_validation_rejects_stale_source_without_mutating_any_content(self):
         doc = self.doc()
-        doc["units"][2]["source"] = "The community shelf holds 13 packets."
-        old = copy.deepcopy(doc)
-        updated = CONTRACT.sync_document(doc)
-        self.assertEqual(doc, old, "sync mutated its input")
-        expected = copy.deepcopy(old)
-        expected["units"][2]["source_hash"] = CONTRACT.source_digest(expected["units"][2]["source"])
-        expected["units"][2]["status"] = "needs_review"
-        self.assertEqual(updated, expected)
-        self.assertEqual(CONTRACT.validate_document(updated), [])
-        self.rejects(updated, "not ready", ready=True)
-        self.assertEqual(CONTRACT.sync_document(updated), updated, "sync is not idempotent")
+        doc["units"][2]["source"] += " Changed."
+        before = copy.deepcopy(doc)
+        for ready in (False, True):
+            self.rejects(doc, "source_hash", ready=ready)
+            self.assertEqual(doc, before)
 
-    def test_recording_review_is_one_slot_only_and_requires_current_source(self):
-        doc = self.doc()
-        original = copy.deepcopy(doc)
-        uid = "intro"
-        digest = doc["units"][2]["source_hash"]
-        updated = CONTRACT.record_review(doc, uid, "Une nouvelle traduction vérifiée.",
-                                         reviewed_source_hash=digest)
-        self.assertEqual(doc, original)
-        expected = copy.deepcopy(original)
-        expected["units"][2]["target"] = "Une nouvelle traduction vérifiée."
-        self.assertEqual(updated, expected)
-        with self.assertRaisesRegex(ValueError, "reviewed source changed"):
-            CONTRACT.record_review(doc, uid, "texte", reviewed_source_hash="0" * 64)
-        with self.assertRaisesRegex(ValueError, "missing unit"):
-            CONTRACT.record_review(doc, "absent", "texte", reviewed_source_hash=digest)
-        with self.assertRaises(ValueError):
-            CONTRACT.record_review(doc, uid, "", reviewed_source_hash=digest)
-
-    def test_successive_review_updates_persist_one_master_and_exact_source(self):
-        raw_source = (EXAMPLE.parent / "source.txt").read_bytes()
-        master = self.doc()
-        for unit in master["units"]:
-            unit["target"] = unit["target_source_hash"] = None
-            unit["status"] = "untranslated"
+    def test_exchange_exposes_no_authoring_helpers_or_commands(self):
+        for name in ("sync_document", "record_review", "save_document", "untranslated_errors", "unit_view"):
+            self.assertFalse(hasattr(CONTRACT, name), name)
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "master.json"
-            CONTRACT.save_document(path, master)
-            for selected in BASE["units"][:3]:
-                master = json.loads(path.read_text())
-                before = copy.deepcopy(master)
-                master = CONTRACT.record_review(master, selected["id"], selected["target"],
-                                                 reviewed_source_hash=selected["source_hash"])
-                CONTRACT.save_document(path, master)
-                for old, now in zip(before["units"], master["units"]):
-                    self.assertEqual(old["source"], now["source"])
-                    self.assertEqual(old["id"], now["id"])
-                    if now["id"] != selected["id"]:
-                        self.assertEqual(old, now)
-                self.assertEqual(list(Path(directory).iterdir()), [path])
-            self.assertEqual(json.loads(path.read_text()), master)
-            self.assertEqual(sum(u["status"] == "reviewed" for u in master["units"]), 3)
-        self.assertEqual((EXAMPLE.parent / "source.txt").read_bytes(), raw_source)
-
-    def test_executed_preparation_readback_and_later_single_unit_update(self):
-        with tempfile.TemporaryDirectory() as directory:
-            path=Path(directory)/"master.json"
-            command=[sys.executable,"-B",str(SKILL/"examples/guide/prepare_master.py"),"--output",str(path)]
-            prepared=subprocess.run(command,capture_output=True,text=True)
-            self.assertEqual(prepared.returncode,0,prepared.stderr)
-            receipt=json.loads(prepared.stdout)
-            self.assertTrue(receipt["preparation_readback"])
-            master=json.loads(path.read_text())
-            self.assertEqual(CONTRACT.untranslated_errors(master),[])
-            self.assertEqual([u["source"] for u in master["units"]],[u["source"] for u in BASE["units"]])
-            self.assertTrue(all(u["target"] is None for u in master["units"]))
-            before=copy.deepcopy(master)
-            unit=CONTRACT.unit_view(master,"intro",include_context=True)["unit"]
-            update=[sys.executable,"-B",str(SKILL/"scripts/translation_contract.py"),"record-review",str(path),"--unit","intro","--source-hash",unit["source_hash"],"--target","A caller-reviewed example target."]
-            recorded=subprocess.run(update,capture_output=True,text=True)
-            self.assertEqual(recorded.returncode,0,recorded.stderr)
-            result=json.loads(recorded.stdout)
-            self.assertEqual(result["recorded_unit"],"intro")
-            current=json.loads(path.read_text())
-            for old,new in zip(before["units"],current["units"]):
-                if old["id"]!="intro":self.assertEqual(old,new)
-                else:self.assertEqual(new["source"],old["source"])
-            self.assertEqual(list(Path(directory).iterdir()),[path])
-            self.assertTrue(CONTRACT.untranslated_errors(current))
-            rejected=subprocess.run(command,capture_output=True,text=True)
-            self.assertNotEqual(rejected.returncode,0)
-
-    def test_unit_view_is_complete_focused_and_read_only(self):
-        master=self.doc();before=copy.deepcopy(master)
-        view=CONTRACT.unit_view(master,"intro")
-        self.assertEqual(view["unit"]["source"],master["units"][2]["source"])
-        self.assertNotIn("context",view)
-        self.assertNotIn("neighbor_sources",view)
-        wider=CONTRACT.unit_view(master,"intro",include_context=True,neighbors=1)
-        self.assertEqual(wider["context"],master["context"])
-        self.assertEqual([u["id"] for u in wider["neighbor_sources"]],["preparing","dry"])
-        cell=CONTRACT.unit_view(master,"bean-count")
-        self.assertEqual(cell["table_context"],{"headers":["Crop","Packets"],"row":["Bean","3"]})
-        self.assertTrue(CONTRACT.unit_view(master)["complete"])
-        self.assertEqual(master,before)
-        with self.assertRaises(ValueError):CONTRACT.unit_view(master,"missing")
-        with self.assertRaises(ValueError):CONTRACT.unit_view(master,neighbors=-1)
-
-    def test_preparation_cli_rejects_existing_targets_and_stale_review_write(self):
-        with tempfile.TemporaryDirectory() as directory:
-            path=Path(directory)/"master.json";path.write_text(json.dumps(BASE))
-            command=[sys.executable,"-B",str(SKILL/"scripts/translation_contract.py")]
-            rejected=subprocess.run(command+["validate",str(path),"--untranslated"],capture_output=True,text=True)
-            self.assertNotEqual(rejected.returncode,0)
-            self.assertIn("empty untranslated",rejected.stderr)
-            original=path.read_bytes()
-            result=subprocess.run(command+["record-review",str(path),"--unit","intro","--source-hash","0"*64,"--target","Changed"],capture_output=True,text=True)
-            self.assertNotEqual(result.returncode,0)
-            self.assertEqual(path.read_bytes(),original)
-            view=subprocess.run(command+["view",str(path),"--unit","intro"],capture_output=True,text=True)
-            self.assertEqual(view.returncode,0,view.stderr)
-            self.assertEqual(json.loads(view.stdout)["unit"]["id"],"intro")
-            self.assertEqual(path.read_bytes(),original)
-
-    def test_reviewed_row_or_short_list_composes_one_atomic_save(self):
-        # Existing-API composition, not an automated semantic group classifier.
-        for identifiers in (("bean-name", "bean-count"), ("dry", "label")):
-            with self.subTest(identifiers=identifiers), tempfile.TemporaryDirectory() as directory:
-                path=Path(directory)/"master.json";master=self.doc()
-                reviews=[(u["id"],u["target"],u["source_hash"]) for u in master["units"] if u["id"] in identifiers]
-                for unit in master["units"]:
-                    if unit["id"] in identifiers:unit.update(target=None,target_source_hash=None,status="untranslated")
-                CONTRACT.save_document(path,master);before=copy.deepcopy(master)
-                pending=master
-                with patch.object(CONTRACT.os,"replace",wraps=CONTRACT.os.replace) as replacements:
-                    for uid,target,digest in reviews:
-                        pending=CONTRACT.record_review(pending,uid,target,reviewed_source_hash=digest)
-                    CONTRACT.save_document(path,pending)
-                    self.assertEqual(replacements.call_count,1)
-                current=json.loads(path.read_text())
-                self.assertEqual(master,before)
-                self.assertEqual(current["blocks"],before["blocks"])
-                self.assertEqual([u["id"] for u in current["units"]],[u["id"] for u in before["units"]])
-                for old,new in zip(before["units"],current["units"]):
-                    self.assertEqual(new["source"],old["source"])
-                    self.assertEqual(new["source_hash"],old["source_hash"])
-                    if old["id"] not in identifiers:self.assertEqual(new,old)
-                    else:
-                        self.assertEqual(new["status"],"reviewed")
-                        self.assertEqual(new["target"],next(text for uid,text,_ in reviews if uid==old["id"]))
-                self.assertEqual(list(Path(directory).iterdir()),[path])
-
-    def test_stale_later_cell_leaves_entire_saved_group_unchanged(self):
-        with tempfile.TemporaryDirectory() as directory:
-            path=Path(directory)/"master.json";master=self.doc()
-            by_id={u["id"]:u for u in master["units"]}
-            reviews=[("bean-name","Haricot",by_id["bean-name"]["source_hash"]),
-                     ("bean-count","3",by_id["bean-count"]["source_hash"])]
-            by_id["bean-count"]["source"]="4"
-            master=CONTRACT.sync_document(master)
-            CONTRACT.save_document(path,master);original=path.read_bytes();before=copy.deepcopy(master)
-            with patch.object(CONTRACT.os,"replace",wraps=CONTRACT.os.replace) as replacements:
-                with self.assertRaisesRegex(ValueError,"reviewed source changed"):
-                    pending=master
-                    for uid,target,digest in reviews:
-                        pending=CONTRACT.record_review(pending,uid,target,reviewed_source_hash=digest)
-                    CONTRACT.save_document(path,pending)
-                self.assertEqual(replacements.call_count,0)
-            self.assertEqual(path.read_bytes(),original)
-            self.assertEqual(master,before)
-            self.assertEqual(list(Path(directory).iterdir()),[path])
-
-    def test_invalid_atomic_save_preserves_existing_file(self):
-        with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "master.json"
-            CONTRACT.save_document(path, BASE)
-            original = path.read_bytes()
-            with self.assertRaises(ValueError):
-                CONTRACT.save_document(path, {"invalid": True})
-            self.assertEqual(path.read_bytes(), original)
-            alias = Path(directory) / "alias.json"
-            alias.symlink_to(path)
-            with self.assertRaisesRegex(ValueError, "symlink"):
-                CONTRACT.save_document(alias, BASE)
-
-    def test_cli_in_place_and_checkpoint_preserve_targets(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            path, checkpoint = root / "master.json", root / "checkpoint.json"
-            doc = self.doc()
-            doc["units"][2]["source"] += " A new sentence."
-            path.write_text(json.dumps(doc))
-            command = [sys.executable, "-B", str(SKILL / "scripts/translation_contract.py")]
-            result = subprocess.run(command + ["sync", str(path), "--in-place"],
-                                    capture_output=True, text=True, timeout=15)
-            self.assertEqual(result.returncode, 0, result.stderr)
-            master = json.loads(path.read_text())
-            self.assertEqual(master["units"][2]["target"], doc["units"][2]["target"])
-            self.assertEqual(master["units"][2]["status"], "needs_review")
+            path = Path(directory) / "exchange.json"
+            path.write_text(json.dumps(BASE))
             before = path.read_bytes()
-            result = subprocess.run(command + ["sync", str(path), "--output", str(checkpoint)],
-                                    capture_output=True, text=True, timeout=15)
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(path.read_bytes(), before)
-            self.assertEqual(json.loads(checkpoint.read_text()), master)
-            result = subprocess.run(command + ["sync", str(path), "--output", str(checkpoint)],
-                                    capture_output=True, text=True, timeout=15)
-            self.assertNotEqual(result.returncode, 0)
-            result = subprocess.run(command + ["validate", str(path), "--ready"],
-                                    capture_output=True, text=True, timeout=15)
-            self.assertNotEqual(result.returncode, 0)
+            command = [sys.executable, "-B", str(SKILL / "scripts/translation_contract.py")]
+            for args in (["sync", str(path), "--in-place"],
+                         ["record-review", str(path), "--unit", "intro", "--target", "Changed"],
+                         ["view", str(path), "--unit", "intro"],
+                         ["validate", str(path), "--untranslated"]):
+                with self.subTest(args=args):
+                    result = subprocess.run(command + args, capture_output=True, text=True, timeout=15)
+                    self.assertEqual(result.returncode, 2, result.stderr)
+                    self.assertEqual(path.read_bytes(), before)
+            self.assertEqual(list(Path(directory).iterdir()), [path])
+
+    def test_validation_cli_is_read_only_for_valid_and_stale_exchange(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "exchange.json"
+            command = [sys.executable, "-B", str(SKILL / "scripts/translation_contract.py")]
+            for stale in (False, True):
+                doc = self.doc()
+                if stale:
+                    doc["units"][2]["source"] += " Changed."
+                path.write_text(json.dumps(doc))
+                before = path.read_bytes()
+                for flags in ([], ["--ready"]):
+                    result = subprocess.run(command + ["validate", str(path)] + flags,
+                                            capture_output=True, text=True, timeout=15)
+                    self.assertEqual(result.returncode, int(stale), result.stderr)
+                    self.assertEqual(path.read_bytes(), before)
+                self.assertEqual(list(Path(directory).iterdir()), [path])
 
     def test_installed_copy_is_self_contained_and_rejects_duplicate_keys(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -431,7 +270,7 @@ class TranslationContractTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("Semantic accuracy is not checked", result.stdout)
             path = Path(directory) / "bad.json"
-            for content in ('{"schema_version": 1, "schema_version": 1}', '{"x": NaN}'):
+            for content in ('{"units": [], "units": []}', '{"x": NaN}'):
                 path.write_text(content)
                 result = subprocess.run(command + ["validate", str(path)], cwd=directory,
                                         capture_output=True, text=True, timeout=15)
@@ -442,6 +281,85 @@ class TranslationContractTests(unittest.TestCase):
         doc["units"][2]["target"] = "This deliberately unrelated text is not a translation."
         self.assertEqual(CONTRACT.validate_document(doc, True), [],
                          "the structural checker must not pretend to judge semantic accuracy")
+
+
+class WorkflowWriteSafetyTests(unittest.TestCase):
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location("contract_write_workflow", SKILL / "scripts/workflow.py")
+        self.workflow = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.workflow)
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.master = self.root / "master.jsonl"
+
+    def prepare(self, text):
+        source, receipt = self.root / "source.md", self.root / "read.json"
+        source.write_bytes(text.encode("utf-8"))
+        page = self.workflow.read_source(source, receipt)
+        self.assertTrue(page["complete"])
+        self.workflow.initialize(source, receipt, self.master, page["ref"])
+        return self.workflow.next_block(self.master)
+
+    def test_table_and_list_groups_use_one_atomic_save_without_source_changes(self):
+        for text in ("| Crop | Count |\n| --- | --- |\n| Bean | 3 |\n",
+                     "- Dry packets\n- Label packets\n"):
+            with self.subTest(text=text):
+                # Each case uses a distinct workflow directory.
+                self.root = Path(self.temp.name) / str(len(list(Path(self.temp.name).iterdir())))
+                self.root.mkdir()
+                self.master = self.root / "master.jsonl"
+                block = self.prepare(text)
+                core = self.workflow.core
+                before = core.load_jsonl(self.master)
+                targets = {u["id"]: "Translated " + u["source"] for u in block["units"]}
+                with patch.object(core.os, "replace", wraps=core.os.replace) as replace:
+                    saved = self.workflow.mutate(self.master, "save", {"ref": block["ref"], "targets": targets})
+                self.assertEqual(replace.call_count, 1)
+                self.assertEqual(saved["saved"], list(targets))
+                after = core.load_jsonl(self.master)
+                self.assertEqual(after["document"]["source"], before["document"]["source"])
+                self.assertEqual(after["document"]["blocks"], before["document"]["blocks"])
+                for old, new in zip(before["units"], after["units"], strict=True):
+                    for key in old.keys() - {"target", "target_hash", "target_source_hash", "status", "review"}:
+                        self.assertEqual(old[key], new[key])
+                    self.assertEqual(new["target"], targets[new["id"]])
+                    self.assertEqual(new["status"], "draft")
+                    self.assertIsNone(new["review"])
+                self.assertEqual((self.root / "source.md").read_bytes(), text.encode("utf-8"))
+                self.assertEqual(list(self.root.glob(".*.tmp")), [])
+
+    def test_stale_later_cell_rejects_whole_group_without_save(self):
+        block = self.prepare("| Crop | Count |\n| --- | --- |\n| Bean | 3 |\n")
+        core = self.workflow.core
+        data = core.load_jsonl(self.master)
+        data["units"][-1]["source"] = "4"
+        # Simulate external corruption after dispatch; the actor cannot edit source.
+        self.master.write_text("\n".join(json.dumps(v) for v in [data["document"]] + data["units"]) + "\n")
+        before = self.master.read_bytes()
+        payload = {"ref": block["ref"], "targets": {u["id"]: "Translated" for u in block["units"]}}
+        with patch.object(core.os, "replace", wraps=core.os.replace) as replace:
+            with self.assertRaises(ValueError):
+                self.workflow.mutate(self.master, "save", payload)
+        self.assertEqual(replace.call_count, 0)
+        self.assertEqual(self.master.read_bytes(), before)
+        self.assertEqual(list(self.root.glob(".*.tmp")), [])
+
+    def test_invalid_later_target_and_symlink_save_preserve_master(self):
+        block = self.prepare("First.\n\nSecond.\n")
+        targets = {u["id"]: "Translated" for u in block["units"]}
+        before = self.master.read_bytes()
+        invalid = dict(targets)
+        invalid[block["units"][-1]["id"]] = ""
+        with self.assertRaises(ValueError):
+            self.workflow.mutate(self.master, "save", {"ref": block["ref"], "targets": invalid})
+        alias = self.root / "alias.jsonl"
+        alias.symlink_to(self.master)
+        with self.assertRaisesRegex(ValueError, "symlink"):
+            self.workflow.mutate(alias, "save", {"ref": block["ref"], "targets": targets})
+        self.assertEqual(self.master.read_bytes(), before)
+        self.assertTrue(alias.is_symlink())
+        self.assertEqual(list(self.root.glob(".*.tmp")), [])
 
 
 if __name__ == "__main__":

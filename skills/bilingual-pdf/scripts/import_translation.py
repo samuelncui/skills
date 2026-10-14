@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Consume reviewed translation JSONL v2 or legacy exchange v1 through the PDF layout API."""
+"""Consume reviewed translation JSONL or semantic exchange JSON through the PDF layout API."""
 import argparse
 import importlib.util
 import json
@@ -18,8 +18,8 @@ def load_contract(skill_path):
     spec = importlib.util.spec_from_file_location("bilingual_translation_contract", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    if getattr(module, "CONTRACT_VERSION", None) != 1:
-        raise pdf.InputError("This adapter requires bilingual-translation contract version 1; use a tested compatible installation.")
+    if not callable(getattr(module, "validate_document", None)):
+        raise pdf.InputError("The installed translation contract does not provide validate_document; use a tested compatible installation.")
     return module
 
 
@@ -83,7 +83,7 @@ def convert_pairs(data, contract, source_side="left"):
         raise pdf.InputError("PDF import needs at least one content block after the title")
     # The existing PDF API accepts metadata and ignores it during layout. This
     # keeps every source/target unit, locator and review hash available for edits.
-    result["translation"] = {"contract_version": 1, "column_roles": roles, "unit_mapping": mapping, "content": data}
+    result["translation"] = {"column_roles": roles, "unit_mapping": mapping, "content": data}
     pdf.validate(result)
     return result
 
@@ -93,20 +93,20 @@ def load_workflow(skill_path):
     root = Path(skill_path).expanduser().resolve()
     path = root / "scripts" / "translation_workflow.py"
     if not (root / "SKILL.md").is_file() or not path.is_file():
-        raise pdf.InputError("JSONL input requires the discovered bilingual-translation installation with translation_workflow.py (contract v2).")
+        raise pdf.InputError("JSONL input requires the discovered bilingual-translation installation with translation_workflow.py.")
     spec = importlib.util.spec_from_file_location("bilingual_translation_workflow", path)
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
-    if not callable(getattr(module, "load_jsonl", None)) or not callable(getattr(module, "to_legacy_document", None)):
-        raise pdf.InputError("The installed translation workflow does not provide the JSONL v2 import API.")
+    if not callable(getattr(module, "load_jsonl", None)) or not callable(getattr(module, "to_exchange_document", None)):
+        raise pdf.InputError("The installed translation workflow does not provide the JSONL import API.")
     return module
 
 
 def convert_jsonl(data, workflow, contract, source_side="left"):
     """Retain the full master; paragraph children become one page-breakable group."""
-    legacy = workflow.to_legacy_document(data, require_ready=True)
-    result = convert_pairs(legacy, contract, source_side)
+    exchange = workflow.to_exchange_document(data, require_ready=True)
+    result = convert_pairs(exchange, contract, source_side)
     roles = result["translation"]["column_roles"]
     mapping = result["translation"]["unit_mapping"]
     parents = {}
@@ -135,7 +135,7 @@ def convert_jsonl(data, workflow, contract, source_side="left"):
                 if unit["id"]!=parent_id:
                     mapping[unit["id"]]={"parent_id":parent_id,"parent_mapping":mapping[parent_id],
                                          "part_index":unit["part_index"],"has_more":unit["has_more"]}
-    result["translation"] = {"contract_version": 2, "column_roles": roles,
+    result["translation"] = {"column_roles": roles,
                               "unit_mapping": mapping, "content": data}
     pdf.validate(result)
     return result

@@ -181,11 +181,11 @@ def main():
                 if proc.returncode:
                     return {'case': ident, 'passed': False, 'error': 'Companion build failed', 'compile_exit': proc.returncode}
         if case.get('incompatible'):
-            (project/'paralleltext.sty').write_text(r'\ProvidesPackage{paralleltext}\newcommand\ParallelTextAPIVersion{1}')
+            (project/'paralleltext.sty').write_text(r'\ProvidesPackage{paralleltext}')
         proc = build(project)
         if case.get('error'):
             transcript = proc.stdout+proc.stderr
-            return {'case': ident, 'passed': proc.returncode != 0 and case['error'].lower() in transcript.lower(),
+            return {'case': ident, 'passed': proc.returncode != 0 and re.sub(r'\s+', '', case['error'].lower()) in re.sub(r'\s+', '', transcript.lower()),
                     'compile_exit': proc.returncode, 'expected_error': case['error']}
         if proc.returncode:
             return {'case': ident, 'passed': False, 'compile_exit': proc.returncode, 'error': proc.stdout[-1800:]}
@@ -251,7 +251,7 @@ def main():
                   'preamble': r'\StudyDeclareNotesSource{lost}{Lost notes}{Lost notes}{missing}{missing.pdf}\StudyDeclareConcept[notes-source=lost]{entry}{entry}{Entry}{Entry}{section}{\ParallelText{body}{Content.}{Content.}}',
                   'body': r'\StudyPrintQuickReference', 'qa_error': 'undefined references'})
     invalid = [
-        ('incompatible-dependency', '', '', 'Unsupported native renderer API'),
+        ('incompatible-dependency', '', '', 'Missing native renderer command: ParallelDeclareNavigation'),
         ('duplicate-study-id', concept+concept, '', 'Duplicate study ID'),
         ('empty-sort-key', r'\StudyDeclareConcept{one}{}{One}{One}{}{Body}', '', 'Empty sort key'),
         ('invalid-study-id', r'\StudyDeclareConcept{1bad}{one}{One}{One}{}{Body}', '', 'Invalid study ID'),

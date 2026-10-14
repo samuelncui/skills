@@ -16,11 +16,11 @@ Agent entry: scripts/workflow.py. prepare reads and initializes the source, tran
 
 [Agent workflow](SKILL.md) · [Commands and boundaries](references/workflow.md)
 
-Reviewed JSONL goes directly to the separately discovered bilingual-pdf skill. HTML uses its own layout JSON or a legacy v1 import; it does not directly consume JSONL. Existing supplied pairs need no new translation.
+Reviewed JSONL goes directly to the separately discovered bilingual-pdf skill. HTML uses its own layout JSON or imports the semantic exchange; it does not directly consume JSONL. Existing supplied pairs need no new translation.
 
-## Legacy v1 compatibility
+## Semantic exchange
 
-The original [v1 contract](references/contract-v1.md), [worked English–French example](references/example-guide.md) and translation_contract.py APIs remain supported. They are separate from the gated JSONL workflow. Use workflow.py export only when a consumer needs v1 JSON; keep JSONL as the master.
+The [semantic exchange](references/semantic-exchange.md) and [worked English–French example](references/example-guide.md) describe the renderer handoff. Use workflow.py export when a consumer needs semantic exchange JSON; keep JSONL as the master. Consumers validate exchange documents with translation_contract.py’s read-only validate_document API.
 
 Validation checks structure and recorded review currency. Meaning is reviewed by the agent; PDF appearance is checked separately on actual rendered pages.
 

@@ -49,4 +49,4 @@ Suppress duplicate reports only for retries of the same task, phase and submitte
 
 For PDF, discover `bilingual-pdf`, read its skill and pass reviewed JSONL directly with `--translation-skill` set to this installation. Keep JSONL as the master. PDF acceptance checks actual page pixels, separately from semantic review. See [handoff commands](references/workflow.md#render-or-export).
 
-Native paired TeX remains supported. HTML uses its own layout schema or legacy v1 import, not direct JSONL. Use `export` only for consumers needing v1 JSON; joined children lose child-level layout hints. Existing [v1 APIs and example](references/contract-v1.md) are compatibility routes separate from the gated workflow.
+Native paired TeX remains supported. HTML uses its own layout schema or imports the [semantic exchange](references/semantic-exchange.md), not direct JSONL. Use `export` when a consumer needs semantic exchange JSON; joined children lose child-level layout hints. The [worked example](references/example-guide.md) illustrates exchange structure and pair-review scope.

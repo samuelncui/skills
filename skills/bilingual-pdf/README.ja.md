@@ -82,7 +82,7 @@ python3 scripts/bilingual_pdf.py preflight master.jsonl --translation-skill "$TR
 python3 scripts/bilingual_pdf.py render master.jsonl --translation-skill "$TRANSLATION_SKILL" --output new-pdf-project
 ```
 
-[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-v2-input)
+[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-input)
 
 ## 繰り返しビルド
 
@@ -112,6 +112,6 @@ PDF、持ち運べるネイティブのソースプロジェクト、および�
 
 ## 翻訳から組版へ
 
-原文から翻訳する場合は、別途インストールした bilingual-translation で、確認済みの原文・訳文を一つの対訳原稿にまとめます。既存の対訳はそのまま組版できます。[翻訳の引き継ぎ](references/translation.md)に、依存先の検出、バージョン固定、任意の v1 交換形式の取り込みを示します。ネイティブ TeX も引き続き同等に利用できます。
+原文から翻訳する場合は、別途インストールした bilingual-translation で、確認済みの原文・訳文を一つの対訳原稿にまとめます。既存の対訳はそのまま組版できます。[翻訳の引き継ぎ](references/translation.md)に、依存先の検出、検証済みリビジョン、任意の意味構造交換形式の取り込みを示します。ネイティブ TeX も引き続き同等に利用できます。
 
 信頼できるネイティブアダプターでは、[原文に結び付けたテキスト API](references/bound-text.md)で数式と参照を正確な原文範囲に統合できます。

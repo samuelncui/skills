@@ -20,7 +20,7 @@ CASES = [('parcel-paired', 'paired'), ('parcel-left', 'left'),
 # This authored native manuscript is an independent rendering oracle. It does
 # not import generated fragments or reproduce the importer's emission algorithm.
 SMALL_GRAPH = {
-    'schema_version': 1, 'languages': ['en', 'fr'],
+    'languages': ['en', 'fr'],
     'title': ['Measure a strip', 'Mesurez une bande'],
     'entry': 'record-length', 'seed_order': ['record-length'],
     'nodes': [{

@@ -68,8 +68,7 @@ def pair(identifier="p", source="Source", target="Cible"):
 
 
 def minimal():
-    return {"layout_version": 1,
-            "languages": {"source": {"tag": "en", "dir": "ltr"}, "target": {"tag": "fr", "dir": "ltr"}},
+    return {"languages": {"source": {"tag": "en", "dir": "ltr"}, "target": {"tag": "fr", "dir": "ltr"}},
             "blocks": [{"type": "paragraph", "pair": pair()}]}
 
 
@@ -185,7 +184,7 @@ class BilingualHTMLTests(unittest.TestCase):
 
     def test_malformed_documents_report_errors_without_mutation(self):
         variations = [
-            None, [], {}, {"layout_version": 2},
+            None, [], {}, {"unexpected": 2},
         ]
         def changed(path, value):
             data = minimal()
@@ -195,7 +194,7 @@ class BilingualHTMLTests(unittest.TestCase):
             cursor[path[-1]] = value
             return data
         variations += [
-            changed(["layout_version"], True),
+            changed(["unexpected"], True),
             changed(["languages", "source", "tag"], 'en" onload="x'),
             changed(["languages", "target", "dir"], "auto"),
             changed(["languages", "source"], []),
@@ -301,7 +300,7 @@ class BilingualHTMLTests(unittest.TestCase):
 
     def test_duplicate_json_keys_invalid_json_and_cli_error_exit(self):
         source = self.base / "bad.json"
-        for value in ('{"layout_version":1,"layout_version":1}', "{", '{"number":NaN}'):
+        for value in ('{"languages":{},"languages":{}}', "{", '{"number":NaN}'):
             source.write_text(value)
             with self.assertRaises(RENDERER.RenderError):
                 RENDERER.load_json(source)
@@ -330,7 +329,7 @@ class BilingualHTMLTests(unittest.TestCase):
         source_before = source.read_bytes()
         validator_hash = hashlib.sha256((semantic / "scripts" / "translation_contract.py").read_bytes()).hexdigest()
         result = self.run_cli(installed, "import-pairs", source, "--translation-skill", semantic,
-                              "--contract-version", "1", "--validator-sha256", validator_hash,
+                              "--validator-sha256", validator_hash,
                               "--tested-revision", "test-fixture", "--output", self.base / "imported")
         self.assertEqual(result.returncode, 0, result.stderr)
         imported = json.loads((self.base / "imported" / "layout.json").read_text())
@@ -341,7 +340,7 @@ class BilingualHTMLTests(unittest.TestCase):
         self.assertEqual([x["type"] for x in imported["blocks"]], [x["type"] for x in original["blocks"]])
         self.assertEqual(imported["languages"], original["languages"])
         record = json.loads((self.base / "imported" / "import-record.json").read_text())
-        self.assertEqual(record, {"translation_contract": 1, "validator_sha256": validator_hash,
+        self.assertEqual(record, {"validator_sha256": validator_hash,
                                   "tested_revision": "test-fixture"})
         rendered = self.run_cli(installed, "render", self.base / "imported" / "layout.json",
                                 "--output", self.base / "final")
@@ -359,8 +358,6 @@ class BilingualHTMLTests(unittest.TestCase):
             RENDERER.import_pairs(source, self.base / "missing", self.base)
         with self.assertRaisesRegex(RENDERER.RenderError, "validator-sha256"):
             RENDERER.import_pairs(source, self.base / "bad-hash", TRANSLATION_SKILL, validator_sha256="0" * 64)
-        with self.assertRaisesRegex(RENDERER.RenderError, "version 1"):
-            RENDERER.import_pairs(source, self.base / "bad-version", TRANSLATION_SKILL, contract_version=2)
         original = json.loads(source.read_text())
         for changes in ({"target": None, "status": "untranslated", "target_source_hash": None},
                         {"status": "needs_review", "target_source_hash": "0" * 64},
@@ -371,6 +368,29 @@ class BilingualHTMLTests(unittest.TestCase):
             with self.assertRaisesRegex(RENDERER.RenderError, "not ready"):
                 RENDERER.import_pairs(input_path, self.base / "not-ready", TRANSLATION_SKILL)
         self.assertFalse((self.base / "not-ready").exists())
+
+    def test_import_requires_callable_validator_and_rejects_removed_cli_flag(self):
+        source = self.write_input()
+        for index, code in enumerate(("", "validate_document = 1\n")):
+            skill = self.base / f"invalid-validator-{index}"
+            (skill / "scripts").mkdir(parents=True)
+            (skill / "scripts" / "translation_contract.py").write_text(code)
+            output = self.base / f"invalid-output-{index}"
+            with self.assertRaisesRegex(RENDERER.RenderError, "callable validate_document"):
+                RENDERER.import_pairs(source, output, skill)
+            self.assertFalse(output.exists())
+        result = self.run_cli(SKILL, "import-pairs", source, "--translation-skill", TRANSLATION_SKILL,
+                              "--contract-version", "1", "--output", self.base / "removed-flag")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("unrecognized arguments", result.stderr)
+        self.assertFalse((self.base / "removed-flag").exists())
+
+    def test_layout_is_marker_free_and_still_rejects_unknown_fields(self):
+        data = minimal()
+        self.assertEqual(RENDERER.validate_document(data), [])
+        self.assertNotIn("layout_version", example())
+        data["layout_version"] = 1
+        self.assertTrue(any("unsupported fields" in error for error in RENDERER.validate_document(data)))
 
     def test_jpeg_baseline_progressive_and_malformed_framing(self):
         data = minimal()

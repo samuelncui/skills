@@ -52,7 +52,6 @@ class GraphOrderingTests(unittest.TestCase):
         self.assertEqual(report["baseline_score"], crossing_score(report["baseline"], edges))
         self.assertLessEqual(report["score"], report["baseline_score"])
         self.assertEqual(json.loads(json.dumps(report, allow_nan=False)), report)
-        self.assertEqual(report["algorithm_version"], "1")
         self.assertEqual(report["exact"], report["certified_optimal"])
 
     def test_known_path_improves_with_entry_fixed(self):

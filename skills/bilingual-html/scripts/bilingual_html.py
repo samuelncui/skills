@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render literal paired text as portable HTML; optionally import translation v1."""
+"""Render literal paired text as portable HTML; optionally import reviewed semantic exchange."""
 from __future__ import annotations
 
 import argparse
@@ -15,7 +15,6 @@ import sys
 import zlib
 from pathlib import Path, PurePosixPath
 
-LAYOUT_VERSION = 1
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 ID = re.compile(r"[A-Za-z][A-Za-z0-9_.:-]*\Z")
 LANG = re.compile(r"[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*\Z")
@@ -66,11 +65,9 @@ def _asset_name(value):
 def validate_document(data):
     """Return layout errors without mutation. This is a rendering schema only."""
     errors = []
-    if not _object(data, {"layout_version", "languages", "config", "blocks"},
-                   {"layout_version", "languages", "blocks"}, "document", errors):
+    if not _object(data, {"languages", "config", "blocks"},
+                   {"languages", "blocks"}, "document", errors):
         return errors
-    if type(data.get("layout_version")) is not int or data["layout_version"] != LAYOUT_VERSION:
-        errors.append("layout_version: expected 1")
     languages = data.get("languages")
     if _object(languages, {"source", "target"}, {"source", "target"}, "languages", errors):
         for role in ("source", "target"):
@@ -435,7 +432,7 @@ def render_document(input_path, output):
     return _write_bundle(output, files)
 
 
-def import_pairs(input_path, output, translation_skill, contract_version=1,
+def import_pairs(input_path, output, translation_skill,
                  validator_sha256=None, tested_revision=None):
     """Use the installed semantic owner's validator; own only the layout mapping."""
     if not translation_skill:
@@ -449,16 +446,14 @@ def import_pairs(input_path, output, translation_skill, contract_version=1,
     spec = importlib.util.spec_from_file_location("_installed_translation_contract", validator_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    if (type(contract_version) is not int or contract_version != 1
-            or type(getattr(module, "CONTRACT_VERSION", None)) is not int
-            or module.CONTRACT_VERSION != contract_version):
-        raise RenderError("Unsupported translation contract; this adapter supports version 1")
+    if not callable(getattr(module, "validate_document", None)):
+        raise RenderError("The discovered translation skill must provide callable validate_document(data, require_ready=True)")
     data = load_json(input_path)
     errors = module.validate_document(data, require_ready=True)
     if errors:
         raise RenderError("Translation content is not ready:\n" + "\n".join(errors))
     pairs = {unit["id"]: {key: unit[key] for key in ("id", "source", "target")} for unit in data["units"]}
-    result = {"layout_version": LAYOUT_VERSION, "languages": copy.deepcopy(data["languages"]), "blocks": []}
+    result = {"languages": copy.deepcopy(data["languages"]), "blocks": []}
     for block in data["blocks"]:
         kind = block["type"]
         mapped = {"type": kind}
@@ -481,7 +476,7 @@ def import_pairs(input_path, output, translation_skill, contract_version=1,
         result["blocks"].append(mapped)
     _require_valid(result)
     assets = _read_assets(result, Path(input_path).absolute().parent)
-    record = {"translation_contract": contract_version, "validator_sha256": validator_hash}
+    record = {"validator_sha256": validator_hash}
     if tested_revision is not None:
         record["tested_revision"] = tested_revision
     files = {"layout.json": (json.dumps(result, ensure_ascii=False, indent=2) + "\n").encode("utf-8"),
@@ -495,11 +490,10 @@ def main(argv=None):
     render = sub.add_parser("render", help="Render ready embedded pairs without translation tooling")
     render.add_argument("input", type=Path)
     render.add_argument("--output", type=Path, required=True, help="New output directory; parent must exist")
-    imported = sub.add_parser("import-pairs", help="Import ready semantic v1 pairs using a discovered translation skill")
+    imported = sub.add_parser("import-pairs", help="Import ready semantic exchange pairs using a discovered translation skill")
     imported.add_argument("input", type=Path)
     imported.add_argument("--output", type=Path, required=True, help="New portable layout bundle directory")
     imported.add_argument("--translation-skill", type=Path, required=True)
-    imported.add_argument("--contract-version", type=int, default=1)
     imported.add_argument("--validator-sha256")
     imported.add_argument("--tested-revision", help="Project's reviewed dependency revision label")
     args = parser.parse_args(argv)
@@ -509,7 +503,7 @@ def main(argv=None):
             print(f"Rendered {output / 'index.html'}")
         else:
             output = import_pairs(args.input, args.output, args.translation_skill,
-                                  args.contract_version, args.validator_sha256, args.tested_revision)
+                                  validator_sha256=args.validator_sha256, tested_revision=args.tested_revision)
             print(f"Imported {output / 'layout.json'}")
         return 0
     except (RenderError, OSError) as error:

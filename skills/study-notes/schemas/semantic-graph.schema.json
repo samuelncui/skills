@@ -1,12 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://samuelncui.github.io/skills/study-notes/graph-v1.schema.json",
-  "title": "Study Notes structured graph v1",
+  "$id": "https://samuelncui.github.io/skills/study-notes/semantic-graph.schema.json",
+  "title": "Study Notes semantic graph",
   "type": "object",
   "properties": {
-    "schema_version": {
-      "const": 1
-    },
     "languages": {
       "type": "array",
       "items": {
@@ -315,7 +312,6 @@
     }
   },
   "required": [
-    "schema_version",
     "languages",
     "title",
     "entry",

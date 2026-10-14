@@ -16,11 +16,11 @@ L’entrée agent est scripts/workflow.py. prepare lit et initialise la source ;
 
 [Procédure agent](SKILL.md) · [Commandes et limites](references/workflow.md)
 
-Le JSONL relu passe directement au skill bilingual-pdf découvert séparément. HTML utilise son propre JSON de mise en page ou l’import v1 historique, sans lecture directe du JSONL. Les paires déjà fournies n’exigent pas de nouvelle traduction.
+Le JSONL relu passe directement au skill bilingual-pdf découvert séparément. HTML utilise son propre JSON de mise en page ou importe le format d’échange sémantique, sans lecture directe du JSONL. Les paires déjà fournies n’exigent pas de nouvelle traduction.
 
-## Compatibilité v1 historique
+## Échange sémantique
 
-Le [contrat v1](references/contract-v1.md), l’[exemple anglais–français](references/example-guide.md) et les API translation_contract.py restent disponibles, séparément du parcours JSONL contrôlé. Utilisez workflow.py export seulement si le consommateur nécessite du JSON v1 ; le JSONL reste le maître.
+Le [format d’échange sémantique](references/semantic-exchange.md) et l’[exemple anglais–français](references/example-guide.md) décrivent la transmission au moteur de rendu. Utilisez workflow.py export lorsque le consommateur nécessite ce JSON ; le JSONL reste le maître. Les consommateurs valident les documents d’échange avec l’API en lecture seule validate_document de translation_contract.py.
 
 La validation contrôle la structure et l’actualité des attestations de relecture. L’agent vérifie le sens ; l’aspect du PDF se vérifie séparément sur les pages réellement rendues.
 

@@ -7,10 +7,6 @@
         "record_type": {
           "const": "document"
         },
-        "contract_version": {
-          "type": "integer",
-          "const": 2
-        },
         "document_id": {
           "$ref": "#/$defs/id"
         },
@@ -145,45 +141,6 @@
         "workflow": {
           "type": "object",
           "properties": {
-            "active": {
-              "anyOf": [
-                {
-                  "type": "object",
-                  "properties": {
-                    "block_id": {
-                      "$ref": "#/$defs/id"
-                    },
-                    "revision": {
-                      "type": "integer",
-                      "minimum": 0
-                    },
-                    "ids": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/$defs/id"
-                      },
-                      "minItems": 1
-                    },
-                    "source_hashes": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "$ref": "#/$defs/hash"
-                      }
-                    }
-                  },
-                  "required": [
-                    "block_id",
-                    "revision",
-                    "ids",
-                    "source_hashes"
-                  ],
-                  "additionalProperties": false
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
             "operations": {
               "type": "object",
               "additionalProperties": {
@@ -205,7 +162,6 @@
             }
           },
           "required": [
-            "active",
             "operations"
           ],
           "additionalProperties": false
@@ -229,7 +185,6 @@
       },
       "required": [
         "record_type",
-        "contract_version",
         "document_id",
         "revision",
         "languages",
@@ -390,7 +345,7 @@
   ],
   "additionalProperties": false,
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Bilingual translation workflow v2 aggregate JSONL records",
+  "title": "Bilingual translation workflow aggregate JSONL records",
   "$defs": {
     "text": {
       "type": "string",

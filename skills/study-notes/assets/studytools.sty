@@ -4,10 +4,9 @@
 \RequirePackage{xr-hyper}
 \RequirePackage{paralleltext}
 \makeatletter
-\@ifundefined{ParallelTextAPIVersion}{\PackageError{studytools}{Compatible bilingual-pdf is required}{Install both skills from a matching revision; native renderer API 2 is required.}}{%
- \ifnum\ParallelTextAPIVersion=2\relax\else\PackageError{studytools}{Unsupported native renderer API}{Install both skills from a matching revision; native renderer API 2 is required.}\fi}
+\@for\study@required:=ParallelDeclareNavigation,ParallelEndEntry,ParallelEndNavigation,ParallelEntry,ParallelEntryHeaderLeft,ParallelEntryHeaderRight,ParallelLocalize,ParallelNavigation,ParallelSubsection,ParallelText\do{%
+ \@ifundefined{\study@required}{\PackageError{studytools}{Missing native renderer command: \study@required}{Install bilingual-pdf with the required native commands; use matching tested skill revisions.}}{}}
 \makeatother
-\newcommand\StudyToolsAPIVersion{1}
 \newcommand\StudyPageLabelLeft{p.}
 \newcommand\StudyPageLabelRight{p.}
 \newcommand\StudyNotesLabelLeft{Notes}

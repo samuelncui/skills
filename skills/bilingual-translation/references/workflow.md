@@ -20,7 +20,7 @@ Normal documented steps need no extra confirmation.
 
 Follow the [main-agent default and permission rule](../SKILL.md#keep-one-agent-in-context). For approved work, hand over the full-source background, concepts/glossary, audience, style decisions, user constraints, relevant source text and neighboring passages, and unit boundaries/continuation relationships. The main agent integrates results and remains responsible for whole-document consistency during the required review.
 
-Approval does not change dispatch or concurrency rules: keep writes coordinated through the active group, current references and existing locks; never bypass these gates with parallel work or direct/legacy edits.
+Approval does not change dispatch or concurrency rules: keep writes coordinated through the active group, current references and existing locks; never bypass these gates with parallel work or direct edits.
 
 ## Task directory
 
@@ -57,7 +57,7 @@ From the same initial reading, write substantive context in `context.json`:
 {"summary":"Community tool-lending procedures and their exceptions.","audience":"Library volunteers","glossary":[{"source":"loan","target":"prêt","note":"Temporary lending, not a financial loan."}]}
 ```
 
-`summary` and `audience` are optional nonempty strings. `glossary` is optional; each entry needs nonempty `source` and `target`, with optional nonempty `note`. Use the document's actual concepts and languages; no v1 document is needed to supply context. `--context` stores this guidance for translation and review. Language directions optionally use `--source-dir rtl` and `--target-dir rtl`.
+`summary` and `audience` are optional nonempty strings. `glossary` is optional; each entry needs nonempty `source` and `target`, with optional nonempty `note`. Use the document's actual concepts and languages; supply context directly in this object. `--context` stores this guidance for translation and review. Language directions optionally use `--source-dir rtl` and `--target-dir rtl`.
 
 Init acknowledges complete reading, validates exact split-plan coverage and lossless reconstruction, and creates the fully split source-only master in one atomic operation. Missing, extra or invalid plans leave no partial master. It never chooses semantic cuts or normalizes text. Children retain parent ID, order, part index and continuation fields as parts of one original paragraph. Init reports `initialized`, the final unit count and an empty `oversize` list. Identical retries replay the original response; changed plans or context cannot overwrite an existing master.
 
@@ -140,16 +140,16 @@ python3 -B "$PDF_SKILL/scripts/bilingual_pdf.py" render master.jsonl --translati
 
 PDF directly consumes reviewed JSONL, retains full records and aligns children within their original paragraph. Inspect actual pages through PDF acceptance. Its `export` creates portable native source without compiling; `build` handles repeated managed builds. Follow its structure, language and font limits. Native paired TeX is equally supported.
 
-Only for consumers needing v1 JSON:
+For consumers needing semantic exchange JSON:
 
 ```sh
-python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" export --output reviewed-v1.json
+python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" export --output reviewed-exchange.json
 ```
 
-Export creates a new file and retains the master. Joined children lose child-level layout hints. Default export requires current reviews; explicit `--allow-draft` is only for a requested draft and still rejects empty targets. HTML consumes its own layout JSON or legacy v1 import, not direct JSONL.
+Export creates a new file and retains the master. Joined children lose child-level layout hints. Default export requires current reviews; explicit `--allow-draft` is only for a requested draft and still rejects empty targets. HTML consumes its own layout JSON or semantic exchange import, not direct JSONL.
 
 ## Data access
 
-Keep the JSONL master and use the workflow commands to read or change it. Do not edit controlled source/master/state files directly. After an interrupted write, retry the identical payload, then use `next` to recover current work. Do not mix legacy mutable helpers with this workflow.
+Keep the JSONL master and use the workflow commands to read or change it. Do not edit controlled source/master/state files directly. After an interrupted write, retry the identical payload, then use `next` to recover current work.
 
-Use `export` for consumers requiring legacy v1 JSON. Existing v1 inputs use the separate [v1 APIs](contract-v1.md) and [example](example-guide.md).
+Use `export` for consumers requiring [semantic exchange JSON](semantic-exchange.md). Its read-only validation API serves renderer integrations; translation and review remain in `workflow.py`. See the [worked exchange example](example-guide.md).

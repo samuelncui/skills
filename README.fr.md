@@ -30,7 +30,7 @@ npx skills add samuelncui/skills --skill write-if-statements
 npx skills add samuelncui/skills --skill skill-optimization
 ```
 
-Installez les répertoires complets des compétences utiles. Des paires déjà fournies nécessitent seulement bilingual-pdf ou bilingual-html ; traduire une source nécessite bilingual-translation. PDF accepte directement le JSONL relu ; HTML utilise son propre JSON de mise en page ou l’importeur v1 historique. study-notes dépend de bilingual-pdf. Les trois guides de qualité n’ont pas de dépendance d’exécution propre : les projets testés fournissent leurs outils. Les dépendances sont découvertes via l’hôte, jamais installées automatiquement. Consultez chaque guide pour la configuration et les exemples.
+Installez les répertoires complets des compétences utiles. Des paires déjà fournies nécessitent seulement bilingual-pdf ou bilingual-html ; traduire une source nécessite bilingual-translation. PDF accepte directement le JSONL relu ; HTML utilise son propre JSON de mise en page ou l’importeur de données sémantiques. study-notes dépend de bilingual-pdf. Les trois guides de qualité n’ont pas de dépendance d’exécution propre : les projets testés fournissent leurs outils. Les dépendances sont découvertes via l’hôte, jamais installées automatiquement. Consultez chaque guide pour la configuration et les exemples.
 
 ## Conventions du dépôt
 

@@ -6,13 +6,13 @@
   ],
   "license": "MIT; see skill LICENSE",
   "source": "Original generic text and programmatically drawn PNG. JPEG fixtures are Pillow conversions of that original PNG (quality=85; baseline and progressive). No external source material.",
-  "renderer": "scripts/bilingual_html.py; layout_version=1",
+  "renderer": "scripts/bilingual_html.py; embedded-pair layout",
   "rebuild": "python3 scripts/bilingual_html.py render examples/tutorial/layout.json --output NEW_DIRECTORY",
   "files": [
     {
       "path": "tutorial/layout.json",
       "bytes": 10419,
-      "sha256": "cc4073850dc5416ce0e60cb4df761468f21de098fe27da1fbf6b35dbce52a9de"
+      "sha256": "e95779bfe64eb4d89625e63e5d618dcff6da00ef98d84e357e536921b6d2df75"
     },
     {
       "path": "tutorial/draw_pairs.py",
@@ -36,8 +36,8 @@
     },
     {
       "path": "tutorial/site/index.html",
-      "bytes": 13621,
-      "sha256": "20d68b09be2cee32958562ac18fc08d0bbdd1d249697491f38ad3b9ab6343328"
+      "bytes": 13644,
+      "sha256": "97f2f584b04ae551c8fdc042e1a4b2d1ccb8de029bd24d12df1ad45dafb33163"
     },
     {
       "path": "tutorial/site/style.css",

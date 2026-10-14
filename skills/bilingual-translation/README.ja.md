@@ -16,11 +16,11 @@
 
 [エージェント手順](SKILL.md) · [コマンドと制約](references/workflow.md)
 
-レビュー済み JSONL は別途検出した bilingual-pdf に直接渡せます。HTML は独自の組版 JSON または旧 v1 インポートを使い、JSONL を直接読みません。既存の対訳を翻訳し直す必要はありません。
+レビュー済み JSONL は別途検出した bilingual-pdf に直接渡せます。HTML は独自の組版 JSON または意味構造の交換形式のインポートを使い、JSONL を直接読みません。既存の対訳を翻訳し直す必要はありません。
 
-## 旧 v1 との互換性
+## 意味構造の交換形式
 
-元の [v1 契約](references/contract-v1.md)、[英仏の実例](references/example-guide.md)、translation_contract.py API は維持されます。これらはゲート付き JSONL 手順とは別です。利用先が v1 JSON を必要とする場合だけ workflow.py export を使い、JSONL をマスターとして保持します。
+[意味構造の交換形式](references/semantic-exchange.md)と[英仏の実例](references/example-guide.md)は描画側への受け渡しを説明します。利用先が交換用 JSON を必要とする場合は workflow.py export を使い、JSONL をマスターとして保持します。利用側は translation_contract.py の読み取り専用 validate_document API で交換文書を検証します。
 
 自動検証は構造とレビュー記録の有効性を確認します。意味はエージェントが確認し、PDF の見た目は実際の描画ページで別途確認します。
 

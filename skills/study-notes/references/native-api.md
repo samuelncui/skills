@@ -17,7 +17,7 @@ This is the independent reference for `assets/studytools.sty` and its native gra
 
 Load `studytools` before language/manuscript configuration. It loads `xr-hyper` before the shared `paralleltext` package. Make both packages discoverable through `TEXINPUTS` or a portable delivery copy; do not assume the two installed skills are siblings.
 
-`\StudyToolsAPIVersion` is `1`. The package requires native `\ParallelTextAPIVersion` `2`; a missing or incompatible version produces an actionable error. Keep the two skills on a matching tested repository revision. These interface numbers are separate from user-visible document version/status metadata.
+The package checks the native renderer commands it uses at load time and reports any missing command. Keep the two skills on a matching tested repository revision. User-visible document version/status metadata remains independent.
 
 The common package owns languages, fonts, styles, alignment, geometry, paragraph continuation, figures, covers and print checks. Consult its independently installed `references/latex.md`, `references/configuration.md` and `references/languages.md`. Do not copy that implementation into this skill.
 

@@ -35,7 +35,7 @@ Use Python 3.11+. The output directory `page` must be new and its parent must ex
 
 ## Structured JSON: supplied pairs
 
-Author layout version 1 using the [minimal runnable input](references/rendering.md#minimal-structured-example), [field contract](references/rendering.md#embedded-pair-layout) and [JSON Schema](schemas/layout.schema.json). To adapt the complete tutorial while preserving the supplied example:
+Author an embedded-pair layout using the [minimal runnable input](references/rendering.md#minimal-structured-example), [field contract](references/rendering.md#embedded-pair-layout) and [JSON Schema](schemas/layout.schema.json). To adapt the complete tutorial while preserving the supplied example:
 
 ```sh
 set -eu
@@ -70,13 +70,13 @@ For raw source, first discover the separately installed `bilingual-translation` 
 set -eu
 python3 "$TRANSLATION_SKILL/scripts/workflow.py" export master.jsonl --output reviewed.json
 python3 scripts/bilingual_html.py import-pairs reviewed.json \
-  --translation-skill "$TRANSLATION_SKILL" --contract-version 1 --output imported
+  --translation-skill "$TRANSLATION_SKILL" --output imported
 python3 scripts/bilingual_html.py render imported/layout.json --output translated-page
 ```
 
-Use project input paths as needed and fresh destinations. The first command exports translation exchange v1; the second maps it to HTML's independent layout v1. HTML does not consume JSONL directly. Existing reviewed exchange-v1 JSON can start at `import-pairs`.
+Use project input paths as needed and fresh destinations. The first command exports semantic translation exchange; the second maps it to HTML's independent embedded-pair layout. HTML does not consume JSONL directly. Existing reviewed semantic exchange JSON can start at `import-pairs`.
 
-Import invokes the selected translation validator, rejects unfinished/stale targets and preserves paired strings, IDs and order. It creates `layout.json`, copied supported assets and `import-record.json`. Keep the JSONL master and exported exchange file for translation history; layout JSON is a rendering derivative. Export rejoins split chunks into parent pairs, so HTML does not retain child-level alignment or review records. See [asset staging, version/hash pinning and handoff limits](references/rendering.md#optional-translation-import). Supplied layout pairs need no translation dependency, and missing skills are never installed automatically.
+Import invokes the selected translation validator, rejects unfinished/stale targets and preserves paired strings, IDs and order. It creates `layout.json`, copied supported assets and `import-record.json`. Keep the JSONL master and exported exchange file for translation history; layout JSON is a rendering derivative. Export rejoins split chunks into parent pairs, so HTML does not retain child-level alignment or review records. See [asset staging, revision/hash pinning and handoff limits](references/rendering.md#optional-translation-import). Supplied layout pairs need no translation dependency, and missing skills are never installed automatically.
 
 ## Configure and review
 
@@ -105,7 +105,7 @@ Deliver the entire output directory, preserving relative paths, with the editabl
 
 ## Limits and safety
 
-Layout v1 accepts literal Unicode text and local PNG/JPEG figures. It displays HTML, Markdown and TeX literally; there is no rich-text, equation, hyperlink or script syntax in JSON. It is not an OCR tool, translator or existing-page layout extractor. Browser print rules provide basic assistance, not controlled PDF pagination.
+The layout format accepts literal Unicode text and local PNG/JPEG figures. It displays HTML, Markdown and TeX literally; there is no rich-text, equation, hyperlink or script syntax in JSON. It is not an OCR tool, translator or existing-page layout extractor. Browser print rules provide basic assistance, not controlled PDF pagination.
 
 Raster paths, sizes and structure are bounded; remote URLs, traversal, symlinks and SVG input are rejected. See [asset constraints](references/rendering.md#assets-and-output) and [faithful raster derivatives of trusted SVG](references/rendering.md#faithful-derivatives-of-trusted-svg-originals). Header checks do not fully decode images. Review actual browser output; a small language sample does not establish universal language or accessibility support.
 

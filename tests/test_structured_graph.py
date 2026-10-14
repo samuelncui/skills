@@ -43,7 +43,7 @@ class StructuredGraphTests(unittest.TestCase):
         self.assertEqual(report['outputs']['graph-body.tex'], hashlib.sha256(body.encode()).hexdigest())
         self.assertFalse(assets)
     def test_one_node_exact_native_equivalence_plain_text(self):
-        self.data = {'schema_version':1,'languages':['en','fr'],'title':['Plan','Plan'], 'entry':'finish',
+        self.data = {'languages':['en','fr'],'title':['Plan','Plan'], 'entry':'finish',
                      'seed_order':['finish'], 'nodes':[{'key':'finish','kind':'procedure','function':'result',
                      'title':['Finish','Terminer'],'steps':[{'text':['A & B cost $2.','A et B coûtent 2 $.']}],
                      'stop':['Done.','Terminé.']}]}
@@ -170,7 +170,7 @@ class StructuredGraphTests(unittest.TestCase):
     def test_return_edges_do_not_activate_orphan_callers(self):
         def node(key, **extra):
             return {'key':key,'kind':'procedure','function':'action','title':[key,key],**extra}
-        self.data={'schema_version':1,'languages':['en','en'],'title':['Route','Route'],'entry':'start',
+        self.data={'languages':['en','en'],'title':['Route','Route'],'entry':'start',
             'seed_order':['start','shared-exit','done','orphan-caller'], 'nodes':[
             node('start',next='shared-exit'),node('shared-exit',next='done'),node('done',stop=['Done','Done']),
             node('orphan-caller',steps=[{'text':['Call','Call'],'call':{'target':'shared-exit','when':['Now','Now'],
@@ -181,6 +181,33 @@ class StructuredGraphTests(unittest.TestCase):
     def test_unreachable_and_unknown_metadata(self):
         self.data['nodes'][0]['choices']=[self.data['nodes'][0]['choices'][1]]
         self.reject('Unreachable')
+    def test_renderer_capabilities_not_release_markers(self):
+        required = ('validate', 'text_value', 'language_text', 'resolve_image')
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / 'scripts').mkdir()
+            (root / 'assets').mkdir()
+            (root / 'assets/paralleltext.sty').write_text('% Native package placeholder')
+            module = root / 'scripts/bilingual_pdf.py'
+            base = {name: 'lambda *args, **kwargs: None' for name in required}
+            base['PROFILES'] = "{'en': {}}"
+            def write(capabilities):
+                module.write_text('\n'.join(name + ' = ' + value for name, value in capabilities.items()))
+                shutil.rmtree(root / 'scripts/__pycache__', ignore_errors=True)
+            write(base)
+            self.assertTrue(callable(graph.load_renderer(root).validate))
+            for name in required + ('PROFILES',):
+                for value in (None, '[]'):
+                    with self.subTest(name=name, value=value):
+                        broken = dict(base)
+                        if value is None:
+                            del broken[name]
+                        else:
+                            broken[name] = value
+                        write(broken)
+                        with self.assertRaisesRegex(graph.GraphError, name):
+                            graph.load_renderer(root)
+
     def test_clean_install_and_cli_no_sibling_assumption(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);study=root/'installed'/'learning';pdf=root/'separate'/'typesetter'

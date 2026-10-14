@@ -18,8 +18,8 @@ Run commands from this installed skill's directory, or use the script's discover
 
 | Command | Input | Output |
 | --- | --- | --- |
-| `render INPUT.json --output NEW_DIRECTORY` | This skill's embedded-pair layout v1 and local images | `index.html`, `style.css`, `LICENSE`, required images |
-| `import-pairs INPUT.json --translation-skill PATH --contract-version 1 --output NEW_DIRECTORY` | Reviewed translation exchange v1 and local images | `layout.json`, `import-record.json`, required images; render it in a second step |
+| `render INPUT.json --output NEW_DIRECTORY` | This skill's embedded-pair layout and local images | `index.html`, `style.css`, `LICENSE`, required images |
+| `import-pairs INPUT.json --translation-skill PATH --output NEW_DIRECTORY` | Reviewed semantic translation exchange and local images | `layout.json`, `import-record.json`, required images; render it in a second step |
 
 Both commands accept `--help`. These are the only CLI subcommands: there is no direct JSONL/HTML input, independent `preflight`, incremental `build` or overwrite switch. `render` checks layout and assets before writing. Handled input/output errors exit with status 2 and an `error:` diagnostic; success exits 0 and prints the output path. Successful generation establishes neither linguistic approval nor visual acceptance.
 
@@ -34,7 +34,6 @@ set -eu
 mkdir minimal-project
 cat > minimal-project/layout.json <<'JSON'
 {
-  "layout_version": 1,
   "languages": {
     "source": {"tag": "en", "dir": "ltr"},
     "target": {"tag": "fr", "dir": "ltr"}
@@ -95,9 +94,9 @@ The supplied content-security policy restricts scripts and remote resources. It 
 
 ## Embedded-pair layout
 
-Python 3.11+ is the only runtime dependency. [layout.schema.json](../schemas/layout.schema.json) describes layout version 1; the executable validator reports invalid input before writing. The [complete original English–French tutorial](../examples/tutorial/layout.json) is both documentation and an input you can render.
+Python 3.11+ is the only runtime dependency. [layout.schema.json](../schemas/layout.schema.json) describes the embedded-pair layout; the executable validator reports invalid input before writing. The [complete original English–French tutorial](../examples/tutorial/layout.json) is both documentation and an input you can render.
 
-A document contains `layout_version: 1`, `languages`, optional `config`, and ordered `blocks`. Each language is `{"tag":"en","dir":"ltr"}`. Tags use a conservative hyphenated language-tag subset, such as `en`, `zh-CN`, `fr`, `ar` or `he`; direction must be explicitly `ltr` or `rtl`.
+A document contains `languages`, optional `config`, and ordered `blocks`. Each language is `{"tag":"en","dir":"ltr"}`. Tags use a conservative hyphenated language-tag subset, such as `en`, `zh-CN`, `fr`, `ar` or `he`; direction must be explicitly `ltr` or `rtl`.
 
 Every text pair is `{"id":"intro","source":"Hello.","target":"Bonjour."}`. Both texts are nonempty literal Unicode. IDs start with an ASCII letter and then use ASCII letters, digits, underscores, periods, colons or hyphens. IDs are unique across the document. No translation status, hash, revision or translation skill is required.
 
@@ -112,7 +111,7 @@ Unknown fields, duplicate JSON keys, duplicate IDs, malformed structures and unr
 
 ## Text and structure
 
-All text is HTML-escaped. Strings resembling tags, formulas or Markdown remain text. There is no inline HTML, raw TeX, URL embedding, arbitrary CSS or script execution interface. The JSON route is deliberately plain-text v1; it cannot preserve arbitrary rich source markup.
+All text is HTML-escaped. Strings resembling tags, formulas or Markdown remain text. There is no inline HTML, raw TeX, URL embedding, arbitrary CSS or script execution interface. The JSON route is deliberately plain-text; it cannot preserve arbitrary rich source markup.
 
 Each pair is one logical DOM container with source followed by target. Headings and paragraphs contain two language spans; list items contain a pair. Real `table`, `thead`, `tbody`, `tr`, `th scope="col"` and `td` elements preserve row/cell semantics. Each cell contains its two texts. Narrow screens stack the two languages within each cell. Cells retain word-based minimum widths instead of squeezing headings, times and numbers into single-character lines. When the table is wider than the page, its own region scrolls horizontally; prose stays within the viewport. The region is keyboard-focusable, has a direction-neutral `↔` cue, visible focus ring and scrollbar styling, and takes its accessible name from the supplied bilingual caption or first header. Focus it and use the arrow keys to reach columns outside the view. Very long unbroken identifiers can require substantial horizontal scrolling; review the actual data at the intended viewport and zoom.
 
@@ -137,13 +136,13 @@ The owned `assets/style.css` defines these CSS variables; configuration writes s
 
 For example, `{"desktop_order":"target-first","styles":{"source_font":["Noto Sans","sans-serif"],"target_font":["Noto Naskh Arabic","serif"],"column_gap":"2rem","source_weight":1,"target_weight":1.25}}`.
 
-Font names select fonts already available on the viewing system. Fonts are neither downloaded nor bundled. A family name does not prove glyph coverage, correct shaping, line breaking or readability. Inspect actual CJK/RTL/combined-script glyphs and wrapping in the delivery environment. Font family names in this v1 interface use ASCII letters, digits, spaces and hyphens. For additional trusted styling, manually edit the delivered CSS and review the result; the JSON schema intentionally does not accept arbitrary CSS.
+Font names select fonts already available on the viewing system. Fonts are neither downloaded nor bundled. A family name does not prove glyph coverage, correct shaping, line breaking or readability. Inspect actual CJK/RTL/combined-script glyphs and wrapping in the delivery environment. Font family names in this interface use ASCII letters, digits, spaces and hyphens. For additional trusted styling, manually edit the delivered CSS and review the result; the JSON schema intentionally does not accept arbitrary CSS.
 
 The mobile breakpoint is 48rem. Source/target language directions are independent of the left-to-right layout wrapper. Any new color palette, text size or column ratio needs visual and contrast review. Print rules are basic browser-print assistance, not a paginated PDF renderer.
 
 ## Assets and output
 
-Figures accept local PNG and 8-bit baseline/progressive JPEG files in v1. For a trusted original SVG, follow [faithful derivative checks](#faithful-derivatives-of-trusted-svg-originals), preserving the original and its paired caption/alternative text. SVG itself is not accepted by this renderer because it can contain active or remote content. Paths are relative to the JSON file's directory, use forward slashes, and may contain ASCII letters, digits, spaces, underscores, periods or hyphens. Absolute paths, URLs, traversal, empty path components and symlinks are rejected. Raster images are limited to 20 MiB and 16000 pixels per dimension. PNG chunk integrity and JPEG marker/frame/scan boundaries are checked; compressed pixels are not fully decoded. These are bounded structural checks, not a full image-decoder audit. Open every delivered image in the intended browser.
+Figures accept local PNG and 8-bit baseline/progressive JPEG files. For a trusted original SVG, follow [faithful derivative checks](#faithful-derivatives-of-trusted-svg-originals), preserving the original and its paired caption/alternative text. SVG itself is not accepted by this renderer because it can contain active or remote content. Paths are relative to the JSON file's directory, use forward slashes, and may contain ASCII letters, digits, spaces, underscores, periods or hyphens. Absolute paths, URLs, traversal, empty path components and symlinks are rejected. Raster images are limited to 20 MiB and 16000 pixels per dimension. PNG chunk integrity and JPEG marker/frame/scan boundaries are checked; compressed pixels are not fully decoded. These are bounded structural checks, not a full image-decoder audit. Open every delivered image in the intended browser.
 
 Rendering copies checked image bytes and the owned stylesheet into a new directory; no network access is performed. Keep original source images separate and unchanged. The output directory must not exist, its parent must exist, and symlinked output paths are rejected. A write failure removes only the newly created output directory. Choose another directory for each revision and compare before replacing a previously delivered version.
 
@@ -160,21 +159,21 @@ set -eu
 python3 "$TRANSLATION_SKILL/scripts/workflow.py" export master.jsonl --output reviewed.json
 python3 scripts/bilingual_html.py import-pairs reviewed.json \
   --translation-skill "$TRANSLATION_SKILL" \
-  --contract-version 1 --output imported
+  --output imported
 python3 scripts/bilingual_html.py render imported/layout.json --output page
 ```
 
-HTML accepts translation exchange v1 through `import-pairs`, not direct JSONL. This exchange's `schema_version: 1` and HTML's `layout_version: 1` identify different schemas; changing a version field does not convert a document. For an existing reviewed exchange-v1 JSON, start at the second command. Use the discovered translation skill's own instructions to finish review; a draft export is not a publication workaround.
+HTML accepts semantic translation exchange through `import-pairs`, not direct JSONL. The semantic exchange and embedded-pair layout have different structures; use the adapter to convert between them. For an existing reviewed semantic exchange JSON, start at the second command. Use the discovered translation skill's own instructions to finish review; a draft export is not a publication workaround.
 
 The translation export rejoins split children into their parent units. HTML therefore aligns the resulting parent pairs, not the JSONL child starts, and does not retain the JSONL review history or child records. Preserve the reviewed master and exchange file as source/provenance; regenerate the layout derivative after translation changes instead of maintaining another independent translation copy.
 
-Export writes the exchange JSON only. For exchange-v1 documents containing figures, put the JSON where each supported PNG/JPEG asset is available at its declared relative path, or explicitly stage those unchanged assets into that directory. `import-pairs` copies them into its new bundle; `render` copies them into the final page. Neither step downloads missing files or converts SVG. The current compact Markdown preparation route does not accept image/figure syntax; it is not an automatic figure extractor.
+Export writes the exchange JSON only. For semantic exchange documents containing figures, put the JSON where each supported PNG/JPEG asset is available at its declared relative path, or explicitly stage those unchanged assets into that directory. `import-pairs` copies them into its new bundle; `render` copies them into the final page. Neither step downloads missing files or converts SVG. The current compact Markdown preparation route does not accept image/figure syntax; it is not an automatic figure extractor.
 
 All destination parents must already exist; the export file and both output directories must be new. Import produces `layout.json`, copied PNG/JPEG assets and `import-record.json`. It loads `scripts/translation_contract.py` from the selected skill and calls `validate_document(data, require_ready=True)`. Only reviewed, current, nonempty targets pass. Stale, draft and unresolved units must be resolved through the translation owner before publication. Nothing is silently omitted or retranslated.
 
 Mapping preserves exact source and target strings, pair IDs and block/row/cell ordering. It converts unit references into embedded rendering pairs. Translation history and hashes remain in the original semantic master, not the layout schema. Table captions and figure alternative text retain their pair identities.
 
-Pin `--contract-version 1`. For reproducible projects, record the tested skill release or commit and the validator SHA-256; `--tested-revision LABEL` records the supplied revision label and `--validator-sha256 HEX` verifies an expected validator hash before loading it. The importer always records the actual hash. A supplied label is a project assertion, not independently verified Git history. Keep these records with the project's source master and renderer version, without public machine-specific paths.
+For reproducible projects, record the tested skill release or commit and the validator SHA-256; `--tested-revision LABEL` records the supplied revision label and `--validator-sha256 HEX` verifies an expected validator hash before loading it. The importer always records the actual hash. A supplied label is a project assertion, not independently verified Git history. Keep these records with the project's source master and renderer version, without public machine-specific paths.
 
 The adapter needs only the semantic owner's public validator and owns only HTML mapping. It carries no copy of the translation SOP or validator. It does not install a missing dependency. Already paired layout JSON uses `render` directly.
 

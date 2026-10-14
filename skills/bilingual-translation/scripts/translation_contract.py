@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
-"""Optional v1 exchange validation. Checks structure/currency, never meaning."""
+"""Semantic exchange validation. Checks structure/currency, never meaning."""
 from __future__ import annotations
 
 import argparse
-import copy
 import hashlib
 import json
-import os
-import tempfile
 from pathlib import Path
 import re
 import sys
 
-CONTRACT_VERSION = 1
 _SCHEMA = json.loads((Path(__file__).resolve().parents[1] / "schemas" /
                       "translation.schema.json").read_text(encoding="utf-8"))
 
@@ -90,7 +86,7 @@ def validate_document(data, require_ready=False) -> list[str]:
         units[uid] = unit
         current = source_digest(unit["source"])
         if current != unit["source_hash"]:
-            errors.append(f"unit {uid}: source_hash does not match exact source; run sync")
+            errors.append(f"unit {uid}: source_hash does not match exact source; regenerate the exchange from the current master")
         target, status, previous = unit["target"], unit["status"], unit["target_source_hash"]
         if target is None:
             if status != "untranslated" or previous is not None:
@@ -143,70 +139,6 @@ def validate_document(data, require_ready=False) -> list[str]:
     return errors
 
 
-def sync_document(data) -> dict:
-    """Refresh source hashes, preserving target bytes and never recording review."""
-    errors = _schema_errors(data, _SCHEMA)
-    if errors:
-        raise ValueError("\n".join(errors))
-    result = copy.deepcopy(data)
-    for unit in result["units"]:
-        current = source_digest(unit["source"])
-        if unit["target"] is not None and (
-                unit["source_hash"] != current or unit["target_source_hash"] != current):
-            unit["status"] = "needs_review"
-        unit["source_hash"] = current
-    errors = validate_document(result)
-    if errors:
-        raise ValueError("\n".join(errors))
-    return result
-
-
-def record_review(data, unit_id: str, target: str, *, reviewed_source_hash: str) -> dict:
-    """Record a caller's completed review for one exact source; never judge meaning."""
-    errors = validate_document(data)
-    if errors:
-        raise ValueError("\n".join(errors))
-    result = copy.deepcopy(data)
-    unit = next((u for u in result["units"] if u["id"] == unit_id), None)
-    if unit is None:
-        raise ValueError(f"missing unit {unit_id!r}")
-    if reviewed_source_hash != source_digest(unit["source"]):
-        raise ValueError(f"unit {unit_id}: reviewed source changed; read and review current source")
-    unit["target"] = target
-    unit["target_source_hash"] = reviewed_source_hash
-    unit["status"] = "reviewed"
-    errors = validate_document(result)
-    if errors:
-        raise ValueError("\n".join(errors))
-    return result
-
-
-
-def save_document(path, data) -> None:
-    """Atomically persist a valid working master. Caller coordinates a single writer."""
-    errors = validate_document(data)
-    if errors:
-        raise ValueError("\n".join(errors))
-    path = Path(path)
-    if path.is_symlink():
-        raise ValueError("refusing to replace a symlink; select the actual working master")
-    temporary = None
-    try:
-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
-                                         prefix=f".{path.name}.", suffix=".tmp",
-                                         delete=False) as output:
-            temporary = Path(output.name)
-            json.dump(data, output, ensure_ascii=False, indent=2, allow_nan=False)
-            output.write("\n")
-            output.flush()
-            os.fsync(output.fileno())
-        os.replace(temporary, path)
-        temporary = None
-    finally:
-        if temporary is not None:
-            temporary.unlink(missing_ok=True)
-
-
 def _object(pairs):
     result = {}
     for key, value in pairs:
@@ -220,115 +152,23 @@ def _nonfinite(value):
     raise ValueError(f"non-finite JSON value {value}")
 
 
-def untranslated_errors(data) -> list[str]:
-    """Check a saved preparation checkpoint; no judgment of source completeness."""
-    errors = validate_document(data)
-    if errors:
-        return errors
-    for unit in data["units"]:
-        if unit["target"] is not None or unit["target_source_hash"] is not None or unit["status"] != "untranslated":
-            errors.append(f"unit {unit['id']}: preparation checkpoint requires an empty untranslated target")
-    return errors
-
-
-def unit_view(data, unit_id=None, *, include_context=False, neighbors=0) -> dict:
-    """Read one complete pair from the current master, with requested context."""
-    errors = validate_document(data)
-    if errors:
-        raise ValueError("\n".join(errors))
-    if type(neighbors) is not int or neighbors < 0:
-        raise ValueError("neighbors must be a nonnegative integer")
-    units = data["units"]
-    selected = next((u for u in units if u["id"] == unit_id), None) if unit_id is not None else next(
-        (u for u in units if u["status"] != "reviewed"), None)
-    if selected is None:
-        if unit_id is not None:
-            raise ValueError(f"missing unit {unit_id!r}")
-        return {"complete": True, "note": "All units have current review records; semantic accuracy is not checked."}
-    result = {"complete": False, "unit": copy.deepcopy(selected)}
-    if include_context:
-        result["context"] = copy.deepcopy(data.get("context", {}))
-        result["languages"] = copy.deepcopy(data["languages"])
-    if neighbors:
-        index = units.index(selected)
-        result["neighbor_sources"] = [
-            {key: unit[key] for key in ("id", "kind", "source")}
-            for unit in units[max(0, index-neighbors):index+neighbors+1]
-            if unit["id"] != selected["id"]]
-    for block in data["blocks"]:
-        if block["type"] == "table":
-            rows = [block["headers"]] + block["rows"]
-            row = next((row for row in rows if selected["id"] in row), None)
-            if row is not None:
-                by_id = {u["id"]: u for u in units}
-                result["table_context"] = {
-                    "headers": [by_id[x]["source"] for x in block["headers"]],
-                    "row": [by_id[x]["source"] for x in row]}
-                break
-    return result
-
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     validate = commands.add_parser("validate", help="check structure, source hashes and currency")
     validate.add_argument("data", type=Path)
-    stage = validate.add_mutually_exclusive_group()
-    stage.add_argument("--ready", action="store_true", help="require recorded current reviews")
-    stage.add_argument("--untranslated", action="store_true", help="read back an executed source-only preparation checkpoint")
-    view = commands.add_parser("view", help="show one complete current source/target pair")
-    view.add_argument("data", type=Path)
-    selected = view.add_mutually_exclusive_group(required=True)
-    selected.add_argument("--unit")
-    selected.add_argument("--next", action="store_true", help="first unit without a completed review record")
-    view.add_argument("--context", action="store_true", help="include shared context once when entering/resuming the master")
-    view.add_argument("--neighbors", type=int, default=0, help="complete neighboring source units on each side, when needed")
-    review = commands.add_parser("record-review", help="persist the caller's already-reviewed target for one exact source")
-    review.add_argument("data", type=Path)
-    review.add_argument("--unit", required=True)
-    review.add_argument("--source-hash", required=True)
-    review.add_argument("--target", required=True, help="one complete target already reviewed by the caller")
-    sync = commands.add_parser("sync", help="refresh source hashes; invalidate existing targets")
-    sync.add_argument("data", type=Path)
-    output = sync.add_mutually_exclusive_group(required=True)
-    output.add_argument("--output", type=Path, help="a new checkpoint; input is untouched")
-    output.add_argument("--in-place", action="store_true", help="atomically update the working master")
+    validate.add_argument("--ready", action="store_true", help="require recorded current reviews")
     args = parser.parse_args(argv)
     try:
         data = json.loads(args.data.read_text(encoding="utf-8"),
                           object_pairs_hook=_object, parse_constant=_nonfinite)
-        if args.command == "validate":
-            errors = untranslated_errors(data) if args.untranslated else validate_document(data, args.ready)
-            if errors:
-                raise ValueError("\n".join(errors))
-            if args.untranslated:
-                print(json.dumps({"preparation_readback": True, "units": len(data["units"]),
-                                  "master_sha256": hashlib.sha256(args.data.read_bytes()).hexdigest(),
-                                  "note": "Empty target slots and exact source hashes checked. Compare source coverage with the original before authoring targets."}))
-            else:
-                print("Valid structure and current review records." if args.ready else
-                      "Valid structure and source/target state.")
-            print("Semantic accuracy is not checked by this command.")
-        elif args.command == "view":
-            print(json.dumps(unit_view(data, args.unit, include_context=args.context, neighbors=args.neighbors),
-                             ensure_ascii=False, indent=2))
-        elif args.command == "record-review":
-            result = record_review(data, args.unit, args.target, reviewed_source_hash=args.source_hash)
-            save_document(args.data, result)
-            print(json.dumps({"recorded_unit": args.unit,
-                              "note": "Caller review recorded; this command does not evaluate translation meaning.",
-                              "next": unit_view(result)}, ensure_ascii=False, indent=2))
-        else:
-            result = sync_document(data)
-            if args.in_place:
-                save_document(args.data, result)
-            else:
-                if args.output.resolve() == args.data.resolve():
-                    raise ValueError("use --in-place to update the working master")
-                with args.output.open("x", encoding="utf-8") as output:
-                    json.dump(result, output, ensure_ascii=False, indent=2, allow_nan=False)
-                    output.write("\n")
-            print("Source hashes refreshed; targets preserved. Semantic review remains manual.")
+        errors = validate_document(data, args.ready)
+        if errors:
+            raise ValueError("\n".join(errors))
+        print("Valid structure and current review records." if args.ready else
+              "Valid structure and source/target state.")
+        print("Semantic accuracy is not checked by this command.")
         return 0
     except (OSError, ValueError, TypeError, UnicodeError) as error:
         print(str(error), file=sys.stderr)

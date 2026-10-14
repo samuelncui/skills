@@ -27,7 +27,7 @@ It is deterministic and never worsens the baseline score; it is not a global
 optimality certificate, even if the result happens to be optimal.
 
 The JSON-safe report includes baseline/order, normalized directed edges, scores,
-evaluation count, method, exact/certified_optimal flags, algorithm_version and
+evaluation count, method, exact/certified_optimal flags and
 config. Evaluations count objective calls, including repeated candidates in the
 heuristic. Exact search takes O((n-1)! * (n+m)) time; the heuristic uses at most
 budget calls of O(n+m) each. Search memory is O(n+m), apart from the returned
@@ -37,7 +37,6 @@ report and input normalization. There is no I/O, randomness or input mutation.
 from collections.abc import Iterable, Sequence
 from itertools import permutations
 
-ALGORITHM_VERSION = "1"
 MAX_EXACT_LIMIT = 9
 
 
@@ -147,7 +146,6 @@ def optimize(keys, entry, edges, exact_limit=9, budget=60000):
             best_order, best_score = sweep_order, sweep_score
 
     return {
-        "algorithm_version": ALGORITHM_VERSION,
         "baseline": [keys[rank] for rank in baseline],
         "order": [keys[rank] for rank in best_order],
         "edges": [[keys[source], keys[target]] for source, target in edges],

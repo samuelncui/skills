@@ -30,7 +30,7 @@ npx skills add samuelncui/skills --skill write-if-statements
 npx skills add samuelncui/skills --skill skill-optimization
 ```
 
-必要なスキルのディレクトリ全体をインストールします。既存の対訳には bilingual-pdf または bilingual-html だけで十分です。原文の翻訳には bilingual-translation が必要です。PDF はレビュー済み JSONL を直接受け取り、HTML は独自の組版 JSON または旧 v1 インポーターを使います。study-notes は bilingual-pdf に依存します。品質関連の三つのガイド自体にランタイム依存はなく、対象プロジェクトのツールを使います。依存先はホストで検出し、自動インストールしません。設定と例は各ガイドを参照してください。
+必要なスキルのディレクトリ全体をインストールします。既存の対訳には bilingual-pdf または bilingual-html だけで十分です。原文の翻訳には bilingual-translation が必要です。PDF はレビュー済み JSONL を直接受け取り、HTML は独自の組版 JSON または意味情報の交換形式インポーターを使います。study-notes は bilingual-pdf に依存します。品質関連の三つのガイド自体にランタイム依存はなく、対象プロジェクトのツールを使います。依存先はホストで検出し、自動インストールしません。設定と例は各ガイドを参照してください。
 
 ## リポジトリの規約
 

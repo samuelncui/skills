@@ -82,7 +82,7 @@ python3 scripts/bilingual_pdf.py preflight master.jsonl --translation-skill "$TR
 python3 scripts/bilingual_pdf.py render master.jsonl --translation-skill "$TRANSLATION_SKILL" --output new-pdf-project
 ```
 
-[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-v2-input)
+[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-input)
 
 ## 反复构建
 
@@ -112,6 +112,6 @@ JSON 表格会对齐各行，但整张表及其标题保持为一个不可拆分
 
 ## 翻译与排版衔接
 
-需要从原文翻译时，先使用单独安装的 bilingual-translation 技能，形成一份已审校的原译对照主稿。已有配对文本可直接排版。已安装技能查找、版本固定和可选 v1 交换格式导入见[翻译衔接](references/translation.md)；原生 TeX 仍是同等支持的入口。
+需要从原文翻译时，先使用单独安装的 bilingual-translation 技能，形成一份已审校的原译对照主稿。已有配对文本可直接排版。已安装技能查找、已测试修订和可选语义交换格式导入见[翻译衔接](references/translation.md)；原生 TeX 仍是同等支持的入口。
 
 可信的原生适配器可通过[源文本绑定 API](references/bound-text.md)合并精确匹配的数学片段和引用。

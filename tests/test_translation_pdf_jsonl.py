@@ -1,5 +1,6 @@
 """Real JSONL workflow-to-PDF integration; no second manuscript is authored."""
 import copy
+import importlib.util
 import json
 from pathlib import Path
 import shutil
@@ -19,6 +20,9 @@ import import_translation as adapter
 def make_master(root, *, source_side="en", stress=False):
     """Original supplied text pairs; gates record fixture review, not machine meaning."""
     workflow = adapter.load_workflow(TRANSLATION)
+    spec = importlib.util.spec_from_file_location("pdf_fixture_workflow", TRANSLATION / "scripts/workflow.py")
+    protocol = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(protocol)
     fixture = json.loads((ROOT / "tests/fixtures/translation-chunks.json").read_text())
     pairs = fixture["chunks"]
     if stress:
@@ -45,20 +49,41 @@ def make_master(root, *, source_side="en", stress=False):
     offsets = []
     for pair in pairs[:-1]:
         offsets.append((offsets[-1] if offsets else 0) + len(pair[0]))
-    workflow.split_unit(master, parent["id"], offsets, parent["source_hash"], data["document"]["revision"])
+    # Layout fixtures intentionally split even short prose to exercise child
+    # alignment in both language directions. Build only that fixture structure
+    # with the core helper; use the public protocol for every save and review.
+    workflow._split_data(data, parent["id"], offsets, parent["source_hash"], data["document"]["revision"])
+    workflow._save(master, data)
     targets = [fixture["title"][1]] + [pair[1] for pair in pairs] + [fixture["after"][1]]
-    for index, target in enumerate(targets):
-        block = workflow.next_block(master)
-        uid = block["ids"][0]
-        saved = workflow.commit(master, {"operation_id": "save" + str(index),
-                    "revision": block["revision"], "block_id": block["block_id"],
-                    "source_hashes": block["source_hashes"], "targets": {uid: target}})
-        unit = next(u for u in workflow.load_jsonl(master)["units"] if u["id"] == uid)
-        workflow.review(master, {"operation_id": "review" + str(index), "revision": saved["revision"],
-                    "unit": uid, "source_hash": unit["source_hash"], "target_hash": unit["target_hash"],
+    by_id = dict(zip((unit["id"] for unit in data["units"]), targets))
+    block = protocol.next_block(master)
+    while not block.get("complete"):
+        block = protocol.mutate(master, "save", {"ref": block["ref"],
+                    "targets": {unit["id"]: by_id[unit["id"]] for unit in block["units"]}})["next"]
+    block = protocol.next_block(master, "review")
+    while not block.get("complete"):
+        block = protocol.mutate(master, "accept", {"ref": block["ref"],
                     "reviewer": "original-fixture-author",
-                    "note": "Supplied original fixture pair; stress repetition is layout-only."})
+                    "note": "Supplied original fixture pair; stress repetition is layout-only."})["next"]
     return master, workflow.load_jsonl(master, require_ready=True)
+
+
+class TranslationWorkflowLoaderTests(unittest.TestCase):
+    def test_requires_callable_jsonl_and_exchange_apis(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "SKILL.md").write_text("Fixture installation")
+            scripts = root / "scripts"
+            scripts.mkdir()
+            module = scripts / "translation_workflow.py"
+            for source in ("load_jsonl = None\nto_exchange_document = None\n",
+                           "def load_jsonl(*args, **kwargs): pass\n"):
+                module.write_text(source)
+                with self.subTest(source=source), self.assertRaisesRegex(pdf.InputError, "JSONL import API"):
+                    adapter.load_workflow(root)
+            module.write_text("def load_jsonl(*args, **kwargs): pass\n"
+                              "def to_exchange_document(*args, **kwargs): pass\n")
+            self.assertTrue(callable(adapter.load_workflow(root).to_exchange_document))
 
 
 class JSONLPDFTests(unittest.TestCase):
@@ -143,7 +168,8 @@ class JSONLPDFTests(unittest.TestCase):
         preserved = adapter.load_workflow(translation).load_jsonl(out / "translation-source.jsonl", require_ready=True)
         self.assertEqual(preserved, self.data)
         mapping = json.loads((out / "translation-map.json").read_text())
-        self.assertEqual(mapping["contract_version"], 2)
+        self.assertEqual(mapping["column_roles"], ["source", "target"])
+        self.assertNotIn("contract_version", mapping)
         self.assertEqual((out / "paralleltext.sty").read_bytes(), (PDF / "assets/paralleltext.sty").read_bytes())
         again = subprocess.run(cmd, cwd=self.root, capture_output=True, text=True)
         self.assertNotEqual(again.returncode, 0)
@@ -153,12 +179,15 @@ class JSONLPDFTests(unittest.TestCase):
         self.assertNotEqual(missing.returncode, 0)
         self.assertIn("--translation-skill", missing.stdout)
 
-    def test_legacy_metadata_is_ignored_and_provenance_never_clobbered(self):
+    def test_unrecognized_metadata_is_ignored_and_provenance_never_clobbered(self):
         result = adapter.read_translation(self.master, TRANSLATION)
-        for index, value in enumerate((None, "private note", {"content": {}}, {"contract_version": 2, "content": {}})):
+        for index, value in enumerate((None, "private note", {"content": {}},
+                                      {"content": {"document": {}, "units": "invalid"}},
+                                      {"content": {"languages": {}, "blocks": []}},
+                                      {"content": {"units": []}})):
             candidate = copy.deepcopy(result)
             candidate["translation"] = value
-            out = self.root / ("legacy" + str(index))
+            out = self.root / ("unrecognized" + str(index))
             pdf.export_document(candidate, self.master, out, "bilingual")
             self.assertFalse((out / "translation-map.json").exists())
         occupied = self.root / "occupied"

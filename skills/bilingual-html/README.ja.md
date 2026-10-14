@@ -35,7 +35,7 @@ Python 3.11 以降が必要です。出力先 `page` は未作成で、その親
 
 ## 構造化 JSON：用意済みの対訳
 
-[そのまま実行できる最小例](references/rendering.md#minimal-structured-example)、[フィールドの仕様](references/rendering.md#embedded-pair-layout)、[JSON Schema](schemas/layout.schema.json)に従い、レイアウト形式バージョン 1 を作成します。元のサンプルを残して完全なチュートリアルを編集するには、次のようにコピーします。
+[そのまま実行できる最小例](references/rendering.md#minimal-structured-example)、[フィールドの仕様](references/rendering.md#embedded-pair-layout)、[JSON Schema](schemas/layout.schema.json)に従い、対訳を埋め込んだレイアウトを作成します。元のサンプルを残して完全なチュートリアルを編集するには、次のようにコピーします。
 
 ```sh
 set -eu
@@ -70,11 +70,11 @@ test ! -e native-page && cp -R examples/tutorial/site native-page
 set -eu
 python3 "$TRANSLATION_SKILL/scripts/workflow.py" export master.jsonl --output reviewed.json
 python3 scripts/bilingual_html.py import-pairs reviewed.json \
-  --translation-skill "$TRANSLATION_SKILL" --contract-version 1 --output imported
+  --translation-skill "$TRANSLATION_SKILL" --output imported
 python3 scripts/bilingual_html.py render imported/layout.json --output translated-page
 ```
 
-入力パスはプロジェクトに合わせ、出力には未作成の場所を使います。最初のコマンドは翻訳交換形式 v1 を出力し、次のコマンドはそれを HTML 独自のレイアウト形式 v1 に変換します。HTML は JSONL を直接読みません。レビュー済みの交換形式 v1 JSON があれば `import-pairs` から開始できます。
+入力パスはプロジェクトに合わせ、出力には未作成の場所を使います。最初のコマンドは翻訳交換形式 を出力し、次のコマンドはそれを HTML 独自のレイアウト形式 に変換します。HTML は JSONL を直接読みません。レビュー済みの交換形式 JSON があれば `import-pairs` から開始できます。
 
 取り込みでは指定した翻訳スキルの検証器を呼び出し、未完成・古い訳文を拒否し、文字列、ID、順序を保持します。出力は `layout.json`、コピーされた対応画像、`import-record.json` です。翻訳履歴のために JSONL 原稿と交換ファイルを保管します。レイアウト JSON は表示用の派生物です。エクスポート時に分割チャンクは親のペアに再結合されるため、HTML は子チャンク単位の整列やレビュー記録を保持しません。[素材の準備、バージョン／ハッシュ固定、受け渡しの制限](references/rendering.md#optional-translation-import)を参照してください。用意済みのレイアウト対訳には翻訳スキルは不要で、不足する依存関係を自動インストールしません。
 
@@ -105,7 +105,7 @@ python3 scripts/bilingual_html.py render imported/layout.json --output translate
 
 ## 制限と安全性
 
-レイアウト v1 は Unicode のプレーンテキストとローカル PNG/JPEG を扱います。HTML、Markdown、TeX は文字どおりに表示し、JSON にリッチテキスト、数式、リンク、スクリプト用の構文はありません。OCR、翻訳、既存ページのレイアウト抽出は対象外です。印刷 CSS はブラウザー印刷の簡単な補助であり、PDF の厳密な改ページ処理ではありません。
+レイアウト は Unicode のプレーンテキストとローカル PNG/JPEG を扱います。HTML、Markdown、TeX は文字どおりに表示し、JSON にリッチテキスト、数式、リンク、スクリプト用の構文はありません。OCR、翻訳、既存ページのレイアウト抽出は対象外です。印刷 CSS はブラウザー印刷の簡単な補助であり、PDF の厳密な改ページ処理ではありません。
 
 画像のパス、サイズ、構造には制限があり、リモート URL、ディレクトリトラバーサル、シンボリックリンク、SVG 入力は拒否されます。[素材の制約](references/rendering.md#assets-and-output)と[信頼できる SVG からの忠実なラスター変換](references/rendering.md#faithful-derivatives-of-trusted-svg-originals)を参照してください。ヘッダー検査は画像全体のデコードではありません。実際のブラウザー表示を確認し、少数の言語サンプルから全言語への対応やアクセシビリティ適合を断定しないでください。
 

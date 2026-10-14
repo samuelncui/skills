@@ -1,4 +1,4 @@
-"""Compact workflow -> installed PDF export and v1 -> installed HTML render.
+"""Compact workflow -> installed PDF export and semantic exchange -> installed HTML render.
 
 The original fixture pairs are supplied content, not model-generated translations.
 Review attestations exercise the protocol; these assertions do not grade meaning.
@@ -152,29 +152,29 @@ class TranslationConsumerTests(unittest.TestCase):
         self.assertEqual([json.loads(line) for line in
                           (pdf_out / "translation-source.jsonl").read_bytes().splitlines()], records)
         mapping = json.loads((pdf_out / "translation-map.json").read_text())
-        self.assertEqual(mapping["contract_version"], 2)
+        self.assertNotIn("contract_version", mapping)
         self.assertEqual(set(mapping["unit_mapping"]),
                          {unit["id"] for unit in units} | {parent["id"] for parent in header["parents"]})
         self.assertEqual((pdf_out / "paralleltext.sty").read_bytes(),
                          (self.pdf / "assets/paralleltext.sty").read_bytes())
         self.assertEqual((pdf_out / "content.tex").read_text().count("\\ParallelProseChunk"), 4)
 
-        exchange = self.work / "reviewed-v1.json"
+        exchange = self.work / "reviewed-exchange.json"
         self.workflow("export", self.master, "--output", exchange)
-        legacy = json.loads(exchange.read_text())
-        self.assertEqual(legacy["blocks"], header["blocks"])
-        self.assertEqual(legacy["languages"], header["languages"])
-        self.assertEqual([(u["source"], u["target"]) for u in legacy["units"]],
+        exchange_data = json.loads(exchange.read_text())
+        self.assertEqual(exchange_data["blocks"], header["blocks"])
+        self.assertEqual(exchange_data["languages"], header["languages"])
+        self.assertEqual([(u["source"], u["target"]) for u in exchange_data["units"]],
                          [tuple(pair) for pair in self.parent_pairs])
-        self.assertEqual([u["id"] for u in legacy["units"]],
+        self.assertEqual([u["id"] for u in exchange_data["units"]],
                          [parent["id"] for parent in header["parents"]])
-        self.assertTrue(all(u["status"] == "reviewed" for u in legacy["units"]))
+        self.assertTrue(all(u["status"] == "reviewed" for u in exchange_data["units"]))
 
         validator_hash = hashlib.sha256(
             (self.translation / "scripts/translation_contract.py").read_bytes()).hexdigest()
         imported = self.work / "html-import"
         self.run_cli(self.html / "scripts/bilingual_html.py", "import-pairs", exchange,
-                     "--translation-skill", self.translation, "--contract-version", "1",
+                     "--translation-skill", self.translation,
                      "--validator-sha256", validator_hash, "--tested-revision", "isolated-fixture",
                      "--output", imported, json_output=False)
         layout = json.loads((imported / "layout.json").read_text())
@@ -182,14 +182,14 @@ class TranslationConsumerTests(unittest.TestCase):
                          ["heading", "paragraph", "heading", "list", "table", "paragraph"])
         self.assertEqual(layout["languages"], header["languages"])
         self.assertEqual(json.loads((imported / "import-record.json").read_text()),
-                         {"translation_contract": 1, "validator_sha256": validator_hash,
+                         {"validator_sha256": validator_hash,
                           "tested_revision": "isolated-fixture"})
         site = self.work / "html-site"
         self.run_cli(self.html / "scripts/bilingual_html.py", "render",
                      imported / "layout.json", "--output", site, json_output=False)
         tree = DocumentTree((site / "index.html").read_text())
         self.assertEqual([node["attrs"]["data-pair-id"] for node in tree.pairs()],
-                         [unit["id"] for unit in legacy["units"]])
+                         [unit["id"] for unit in exchange_data["units"]])
         self.assertEqual([tuple(texts(child) for child in node["children"]) for node in tree.pairs()],
                          [tuple(pair) for pair in self.parent_pairs])
         self.assertEqual(len(tree.by_tag("ul")), 1)
@@ -199,7 +199,7 @@ class TranslationConsumerTests(unittest.TestCase):
         self.assertTrue((site / "style.css").is_file())
         self.assertTrue((site / "LICENSE").is_file())
         self.assertEqual(self.master.read_bytes(), before)
-        self.assertEqual(json.loads(exchange.read_text()), legacy)
+        self.assertEqual(json.loads(exchange.read_text()), exchange_data)
 
 
 if __name__ == "__main__":

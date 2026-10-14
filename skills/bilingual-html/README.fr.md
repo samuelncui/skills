@@ -35,7 +35,7 @@ Utilisez Python 3.11 ou ultérieur. Le dossier de sortie `page` doit être nouve
 
 ## JSON structuré : paires fournies
 
-Rédigez une entrée au format de mise en page version 1 à l’aide de l’[exemple minimal exécutable](references/rendering.md#minimal-structured-example), du [contrat des champs](references/rendering.md#embedded-pair-layout) et du [JSON Schema](schemas/layout.schema.json). Pour adapter le tutoriel complet sans modifier l’exemple fourni :
+Rédigez une entrée au format de mise en page à paires intégrées à l’aide de l’[exemple minimal exécutable](references/rendering.md#minimal-structured-example), du [contrat des champs](references/rendering.md#embedded-pair-layout) et du [JSON Schema](schemas/layout.schema.json). Pour adapter le tutoriel complet sans modifier l’exemple fourni :
 
 ```sh
 set -eu
@@ -70,11 +70,11 @@ Pour une source à traduire, repérez d’abord la compétence `bilingual-transl
 set -eu
 python3 "$TRANSLATION_SKILL/scripts/workflow.py" export master.jsonl --output reviewed.json
 python3 scripts/bilingual_html.py import-pairs reviewed.json \
-  --translation-skill "$TRANSLATION_SKILL" --contract-version 1 --output imported
+  --translation-skill "$TRANSLATION_SKILL" --output imported
 python3 scripts/bilingual_html.py render imported/layout.json --output translated-page
 ```
 
-Adaptez les chemins d’entrée au projet et choisissez des destinations nouvelles. La première commande exporte le format d’échange de traduction v1 ; la deuxième le convertit vers le format de mise en page v1 propre au HTML. HTML ne lit pas directement le JSONL. Un JSON d’échange v1 déjà relu permet de commencer à `import-pairs`.
+Adaptez les chemins d’entrée au projet et choisissez des destinations nouvelles. La première commande exporte le format d’échange de traduction ; la deuxième le convertit vers le format de mise en page propre au HTML. HTML ne lit pas directement le JSONL. Un JSON d’échange déjà relu permet de commencer à `import-pairs`.
 
 L’import appelle le validateur de traduction sélectionné, refuse les traductions inachevées ou obsolètes et conserve les chaînes, identifiants et ordres. Il produit `layout.json`, les images compatibles copiées et `import-record.json`. Gardez le manuscrit JSONL et le fichier d’échange pour l’historique de traduction ; le JSON de mise en page est un dérivé de rendu. L’export réunit les fragments divisés dans leurs paires parentes : HTML ne conserve ni l’alignement interne des fragments ni leurs traces de révision. Voir la [préparation des ressources, la fixation des versions/hachages et les limites du transfert](references/rendering.md#optional-translation-import). Les paires de mise en page fournies n’ont pas besoin de compétence de traduction ; les dépendances manquantes ne sont jamais installées automatiquement.
 
@@ -105,7 +105,7 @@ Livrez tout le dossier de sortie, en préservant les chemins relatifs, avec le J
 
 ## Limites et sécurité
 
-Le format de mise en page v1 accepte du texte Unicode littéral et des figures PNG/JPEG locales. HTML, Markdown et TeX restent du texte ; le JSON ne propose aucune syntaxe de texte enrichi, formule, hyperlien ou script. Ce n’est ni un outil d’OCR, ni un traducteur, ni un extracteur de mise en page existante. Les styles d’impression sont une aide élémentaire à l’impression du navigateur, sans pagination PDF contrôlée.
+Le format de mise en page accepte du texte Unicode littéral et des figures PNG/JPEG locales. HTML, Markdown et TeX restent du texte ; le JSON ne propose aucune syntaxe de texte enrichi, formule, hyperlien ou script. Ce n’est ni un outil d’OCR, ni un traducteur, ni un extracteur de mise en page existante. Les styles d’impression sont une aide élémentaire à l’impression du navigateur, sans pagination PDF contrôlée.
 
 Les chemins, tailles et structures des images sont limités ; les URL distantes, traversées de répertoires, liens symboliques et entrées SVG sont refusés. Voir les [contraintes des ressources](references/rendering.md#assets-and-output) et les [dérivés matriciels fidèles de SVG fiables](references/rendering.md#faithful-derivatives-of-trusted-svg-originals). Les contrôles d’en-tête ne décodent pas entièrement les images. Vérifiez le résultat réel dans le navigateur ; quelques exemples linguistiques ne prouvent pas une prise en charge universelle ni la conformité d’accessibilité.
 

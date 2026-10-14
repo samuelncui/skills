@@ -1,5 +1,4 @@
 {
-  "layout_version": 1,
   "languages": {
     "source": {
       "tag": "en",
@@ -228,8 +227,8 @@
       "type": "paragraph",
       "pair": {
         "id": "import",
-        "source": "Already paired layout JSON renders with bilingual-html alone. For raw source, discover the separately installed bilingual-translation skill. Its reviewed version-1 output can be imported with an explicit skill path; unresolved or stale units stop the import.",
-        "target": "Un fichier JSON de mise en page contenant déjà les paires se génère avec bilingual-html seul. Pour un texte source brut, recherchez la compétence bilingual-translation installée séparément. Son résultat révisé au format version 1 peut être importé en indiquant explicitement le chemin de la compétence ; les unités incomplètes ou obsolètes bloquent l’importation."
+        "source": "Already paired layout JSON renders with bilingual-html alone. For raw source, discover the separately installed bilingual-translation skill. Its reviewed semantic exchange output can be imported with an explicit skill path; unresolved or stale units stop the import.",
+        "target": "Un fichier JSON de mise en page contenant déjà les paires se génère avec bilingual-html seul. Pour un texte source brut, recherchez la compétence bilingual-translation installée séparément. Son résultat révisé au format d’échange sémantique peut être importé en indiquant explicitement le chemin de la compétence ; les unités incomplètes ou obsolètes bloquent l’importation."
       }
     },
     {

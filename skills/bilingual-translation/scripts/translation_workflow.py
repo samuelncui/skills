@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Source-first JSONL v2 workflow. Receipts attest delivery/review, never understanding."""
+"""Source-first JSONL storage and validation. Receipts attest delivery/review, never understanding."""
 from __future__ import annotations
 
-import argparse
 import copy
 from contextlib import contextmanager
 import fcntl
@@ -13,15 +12,13 @@ import os
 from pathlib import Path
 import re
 import secrets
-import sys
 import tempfile
 
 _SPEC = importlib.util.spec_from_file_location(
-    "_translation_contract_v1", Path(__file__).with_name("translation_contract.py"))
-legacy = importlib.util.module_from_spec(_SPEC)
-_SPEC.loader.exec_module(legacy)
+    "_translation_semantic_contract", Path(__file__).with_name("translation_contract.py"))
+exchange = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(exchange)
 
-CONTRACT_VERSION = 2
 MAX_SOURCE = 2048
 MAX_CONTEXT = 1024
 READ_PAGE = 8192
@@ -31,11 +28,10 @@ BAD_TEXT = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f\u202a-\u202e\u2066-
 UNIT_KEYS = {"record_type", "id", "parent_id", "part_index", "has_more", "kind",
              "source", "target", "source_hash", "target_source_hash", "status",
              "order", "heading_path", "review", "target_hash"}
-HEADER_KEYS = {"record_type", "contract_version", "document_id", "revision", "languages",
+HEADER_KEYS = {"record_type", "document_id", "revision", "languages",
                "source", "blocks", "parents", "source_layout", "context", "workflow",
                "preread"}
 PARENT_KEYS = {"id", "kind", "source_hash", "char_count", "heading_path"}
-COMMIT_KEYS = {"operation_id", "block_id", "revision", "source_hashes", "targets"}
 
 
 def digest(text):
@@ -106,8 +102,8 @@ def _validate_operation_journal(data):
     _require(type(a["page"]) is int and a["page"] >= 0 and type(a["initial"]) is bool
              and (a["last_continue"] is None or isinstance(a["last_continue"], str)),
              "invalid compact page metadata")
-    _require(h["workflow"]["active"] is None and sum(len(u["source"]) for u in selected) <= MAX_SOURCE,
-             "mixed dispatcher state or oversized compact source")
+    _require(sum(len(u["source"]) for u in selected) <= MAX_SOURCE,
+             "oversized active source")
     if a["phase"] == "translate":
         remaining = [u for u in units if u["target"] is None]
         _require(a["ids"] == [u["id"] for u in remaining[:len(selected)]]
@@ -121,7 +117,7 @@ def _validate_operation_journal(data):
 
 
 def _json(text):
-    return json.loads(text, object_pairs_hook=legacy._object, parse_constant=legacy._nonfinite)
+    return json.loads(text, object_pairs_hook=exchange._object, parse_constant=exchange._nonfinite)
 
 
 def _canonical(value):
@@ -378,14 +374,14 @@ def initialize(source, receipt, output, source_lang="en", target_lang="fr",
                {"char_count": len(u["source"])} for u in units]
     for i, u in enumerate(units):
         u["order"] = i
-    document = {"record_type": "document", "contract_version": 2,
+    document = {"record_type": "document",
                 "document_id": "d" + secrets.token_hex(12), "revision": 0,
                 "languages": {"source": {"tag": source_lang, "dir": source_dir},
                               "target": {"tag": target_lang, "dir": target_dir}},
                 "source": {"sha256": digest(text), "char_count": len(text), "format": "markdown"},
                 "blocks": blocks, "parents": parents, "source_layout": layout,
                 "context": context or {}, "workflow": {
-                    "active": None, "operations": {} if callable(initial_operations) else initial_operations or {}},
+                    "operations": {} if callable(initial_operations) else initial_operations or {}},
                 "preread": {"source_hash": digest(text), "acknowledged": True}}
     data = {"document": document, "units": units}
     if source_splits is not None:
@@ -398,7 +394,7 @@ def initialize(source, receipt, output, source_lang="en", target_lang="fr",
                             unit["source_hash"], document["revision"])
     if callable(initial_operations):
         # Build protocol receipts after stable document IDs exist, within the
-        # same initial transaction. Existing dictionary callers stay supported.
+        # same initial transaction.
         document["workflow"]["operations"] = initial_operations(data)
     with _lock(output):
         _save(output, data, new=True)
@@ -422,7 +418,7 @@ def _joined(data):
         result.append({"id": parent["id"], "kind": parent["kind"], "source": source,
                        "source_hash": digest(source), "target": target, "status": status,
                        "target_source_hash": None if target is None else digest(source)})
-    return {"schema_version": 1, "languages": copy.deepcopy(h["languages"]),
+    return {"languages": copy.deepcopy(h["languages"]),
             "source_revision": h["source"]["sha256"], "context": copy.deepcopy(h["context"]),
             "units": result, "blocks": copy.deepcopy(h["blocks"])}
 
@@ -450,8 +446,7 @@ def _validate(data, require_ready=False):
     _keys(data, {"document", "units"}, "master")
     h, units = data["document"], data["units"]
     _keys(h, HEADER_KEYS, "document")
-    _require(h["record_type"] == "document" and type(h["contract_version"]) is int
-             and h["contract_version"] == 2, "expected JSONL contract_version 2")
+    _require(h["record_type"] == "document", "expected JSONL document record")
     _require(_id(h["document_id"]), "invalid document_id")
     _require(type(h["revision"]) is int and h["revision"] >= 0, "invalid revision")
     _keys(h["source"], {"sha256", "char_count", "format"}, "source metadata")
@@ -539,7 +534,7 @@ def _validate(data, require_ready=False):
                  isinstance(h["languages"][role].get("tag"), str) and
                  len(h["languages"][role]["tag"]) <= 64 for role in ("source", "target")),
              "language metadata must use bounded tags")
-    errors = legacy.validate_document(_joined(data))
+    errors = exchange.validate_document(_joined(data))
     _require(not errors, "\n".join(errors))
     _require(_structural_order(h["blocks"]) == list(parents), "structural reading order differs from parents")
     # Heading metadata must identify the actual preceding structural ancestry.
@@ -552,22 +547,11 @@ def _validate(data, require_ready=False):
             _require(parents[pid]["heading_path"] == [v for _, v in headings], "heading ancestry mismatch")
             if block["type"] == "heading":
                 headings.append((block["level"], pid))
-    _keys(h["workflow"], {"active", "operations"}, "workflow")
+    _keys(h["workflow"], {"operations"}, "workflow")
     _require(isinstance(h["workflow"]["operations"], dict), "invalid operations")
     _validate_operation_journal(data)
-    active = h["workflow"]["active"]
-    if active is not None:
-        _keys(active, {"block_id", "revision", "ids", "source_hashes"}, "active block")
-        remaining = [u for u in units if u["target"] is None]
-        _require(remaining and active["ids"] == [remaining[0]["id"]], "active is not next unsaved block")
-        _require(type(active["revision"]) is int and active["revision"] == h["revision"]
-                 and _id(active["block_id"]),
-                 "stale active revision/ID")
-        _require(active["source_hashes"] == {remaining[0]["id"]: remaining[0]["source_hash"]},
-                 "active source hash mismatch")
-        _require(len(remaining[0]["source"]) <= MAX_SOURCE, "active source exceeds limit")
     if require_ready:
-        _require(active is None and not oversized(data)
+        _require(not oversized(data)
                  and h["workflow"]["operations"].get("_compact_active") is None, "master not ready")
     return data
 
@@ -590,7 +574,7 @@ def load_jsonl(path, require_ready=False):
         raise ValueError("malformed JSONL structure: " + str(exc)) from exc
 
 
-def to_legacy_document(data, require_ready=True):
+def to_exchange_document(data, require_ready=True):
     validate(data, require_ready)
     return _joined(data)
 
@@ -606,10 +590,11 @@ def oversized(data):
 
 
 def _split_data(data, unit_id, offsets, source_hash, revision):
-    """Apply a checked source split in memory for either protocol's transaction."""
+    """Apply a checked source split inside the initialization transaction."""
     h = data["document"]
     _require(h["revision"] == revision, "stale revision")
-    _require(h["workflow"]["active"] is None, "save active block before changing segmentation")
+    _require(h["workflow"]["operations"].get("_compact_active") is None,
+             "finish active work before changing segmentation")
     unit = next((u for u in data["units"] if u["id"] == unit_id), None)
     _require(unit is not None and unit["parent_id"] == unit_id, "split requires an unsplit parent ID")
     _require(unit["source_hash"] == source_hash, "stale source hash")
@@ -635,243 +620,3 @@ def _split_data(data, unit_id, offsets, source_hash, revision):
         {"id": u["id"], "characters": len(u["source"]), "source_hash": u["source_hash"],
          "part_index": u["part_index"], "has_more": u["has_more"]} for u in children],
             "reconstruction_hash": digest("".join(texts))}
-
-
-def split_unit(path, unit_id, offsets, source_hash, revision):
-    with _lock(path):
-        data = load_jsonl(path)
-        _legacy_writer(data)
-        result = _split_data(data, unit_id, offsets, source_hash, revision)
-        _save(path, data)
-        return result
-
-
-def _envelope(data, unit):
-    # Fixed, bounded context. No neighbor/count option can enlarge a dispatched block.
-    parents = {p["id"]: p for p in data["document"]["parents"]}
-    sources = {pid: "".join(u["source"] for u in data["units"] if u["parent_id"] == pid) for pid in parents}
-    context = {"heading_path": [sources[p] for p in unit["heading_path"]],
-               "shared": data["document"]["context"]}
-    for block in data["document"]["blocks"]:
-        if block["type"] == "table" and unit["parent_id"] in _structural_order([block]):
-            context["table_headers"] = [sources[pid] for pid in block["headers"]]
-            break
-    # A single serialized text excerpt is explicitly context, never source-to-translate.
-    raw = _canonical(context)
-    return {"text": raw[:MAX_CONTEXT], "truncated": len(raw) > MAX_CONTEXT,
-            "character_limit": MAX_CONTEXT}
-
-
-def _legacy_writer(data):
-    _require(data["document"]["workflow"]["operations"].get("_compact_active") is None,
-             "compact block pending; finish it with workflow.py")
-
-
-def next_block(path):
-    with _lock(path):
-        data = load_jsonl(path)
-        _legacy_writer(data)
-        h = data["document"]
-        blocked = oversized(data)
-        _require(not blocked, "oversized sources require agent-selected semantic splits: " + _canonical(blocked))
-        active = h["workflow"]["active"]
-        remaining = [u for u in data["units"] if u["target"] is None]
-        if not remaining:
-            return {"complete": True, "saved": len(data["units"]),
-                    "reviewed": sum(u["status"] == "reviewed" for u in data["units"]),
-                    "note": "Saved is distinct from reviewed; export defaults to reviewed."}
-        unit = remaining[0]
-        if active is None:
-            h["revision"] += 1
-            active = {"block_id": "b" + secrets.token_hex(16), "revision": h["revision"],
-                      "ids": [unit["id"]], "source_hashes": {unit["id"]: unit["source_hash"]}}
-            h["workflow"]["active"] = active
-            _save(path, data)
-        return {"complete": False, **copy.deepcopy(active), "document_id": h["document_id"],
-                "units": [{k: unit[k] for k in ("id", "parent_id", "part_index", "has_more",
-                                               "kind", "source", "source_hash")}],
-                "source_characters": len(unit["source"]), "context": _envelope(data, unit),
-                "languages": h["languages"]}
-
-
-def commit(path, payload):
-    _keys(payload, COMMIT_KEYS, "commit payload (target-only)")
-    _require(_id(payload["operation_id"]), "invalid operation_id")
-    fingerprint = digest(_canonical(payload))
-    with _lock(path):
-        data = load_jsonl(path)
-        _legacy_writer(data)
-        h = data["document"]
-        old = h["workflow"]["operations"].get(payload["operation_id"])
-        if old is not None:
-            _require(old["request_hash"] == fingerprint, "operation_id reused with different content")
-            return copy.deepcopy(old["receipt"])
-        active = h["workflow"]["active"]
-        _require(active is not None, "request next before committing")
-        _require(type(payload["revision"]) is int and payload["revision"] == h["revision"]
-                 and payload["revision"] == active["revision"], "stale revision")
-        _require(payload["block_id"] == active["block_id"], "wrong active block ID")
-        _require(payload["source_hashes"] == active["source_hashes"], "stale or extra source IDs/hashes")
-        _require(isinstance(payload["targets"], dict) and set(payload["targets"]) == set(active["ids"]),
-                 "targets must match exact active IDs")
-        for u in data["units"]:
-            if u["id"] in active["ids"]:
-                target = payload["targets"][u["id"]]
-                _text(target, "target")
-                u.update(target=target, target_hash=digest(target), target_source_hash=u["source_hash"],
-                         status="draft", review=None)
-        h["revision"] += 1
-        receipt = {"saved": active["ids"], "revision": h["revision"],
-                   "block_id": active["block_id"], "operation_id": payload["operation_id"],
-                   "reviewed": False}
-        h["workflow"]["operations"][payload["operation_id"]] = {
-            "request_hash": fingerprint, "receipt": receipt}
-        h["workflow"]["active"] = None
-        _save(path, data)
-        return receipt
-
-
-def review(path, payload):
-    _keys(payload, {"operation_id", "revision", "unit", "source_hash", "target_hash",
-                    "reviewer", "note"}, "review payload")
-    _require(_id(payload["operation_id"]), "invalid operation_id")
-    fingerprint = digest(_canonical(payload))
-    with _lock(path):
-        data = load_jsonl(path)
-        _legacy_writer(data)
-        h = data["document"]
-        old = h["workflow"]["operations"].get(payload["operation_id"])
-        if old is not None:
-            _require(old["request_hash"] == fingerprint, "operation_id reused with different content")
-            return copy.deepcopy(old["receipt"])
-        _require(h["workflow"]["active"] is None, "save active block before recording review")
-        _require(type(payload["revision"]) is int and payload["revision"] == h["revision"], "stale revision")
-        unit = next((u for u in data["units"] if u["id"] == payload["unit"]), None)
-        _require(unit is not None and unit["target"] is not None, "review requires a saved target")
-        _require(payload["source_hash"] == unit["source_hash"]
-                 and payload["target_hash"] == unit["target_hash"], "stale source/target review hash")
-        _text(payload["reviewer"], "reviewer")
-        _text(payload["note"], "review note", empty=True)
-        unit["review"] = {k: payload[k] for k in ("source_hash", "target_hash", "reviewer", "note")}
-        unit["status"] = "reviewed"
-        h["revision"] += 1
-        receipt = {"reviewed": unit["id"], "revision": h["revision"],
-                   "note": "Caller review attestation recorded; meaning was not evaluated."}
-        h["workflow"]["operations"][payload["operation_id"]] = {
-            "request_hash": fingerprint, "receipt": receipt}
-        _save(path, data)
-        return receipt
-
-
-def revise(path, payload):
-    """Correct one saved target with CAS; preserve source and invalidate old review."""
-    _keys(payload, {"operation_id", "revision", "unit", "source_hash", "target_hash", "target"},
-          "revision payload (target-only)")
-    _require(_id(payload["operation_id"]), "invalid operation_id")
-    fingerprint = digest(_canonical(payload))
-    with _lock(path):
-        data = load_jsonl(path)
-        _legacy_writer(data)
-        h = data["document"]
-        old = h["workflow"]["operations"].get(payload["operation_id"])
-        if old is not None:
-            _require(old["request_hash"] == fingerprint, "operation_id reused with different content")
-            return copy.deepcopy(old["receipt"])
-        _require(h["workflow"]["active"] is None, "save active block before revising a saved target")
-        _require(type(payload["revision"]) is int and payload["revision"] == h["revision"], "stale revision")
-        unit = next((u for u in data["units"] if u["id"] == payload["unit"]), None)
-        _require(unit is not None and unit["target"] is not None, "revision requires a saved target")
-        _require(payload["source_hash"] == unit["source_hash"]
-                 and payload["target_hash"] == unit["target_hash"], "stale source/target revision hash")
-        _text(payload["target"], "target")
-        unit.update(target=payload["target"], target_hash=digest(payload["target"]),
-                    status="draft", review=None)
-        h["revision"] += 1
-        receipt = {"revised": unit["id"], "revision": h["revision"], "reviewed": False}
-        h["workflow"]["operations"][payload["operation_id"]] = {
-            "request_hash": fingerprint, "receipt": receipt}
-        _save(path, data)
-        return receipt
-
-
-def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
-    commands = parser.add_subparsers(dest="command", required=True)
-    read = commands.add_parser("read-source")
-    read.add_argument("source", type=Path)
-    read.add_argument("--receipt", type=Path, required=True)
-    read.add_argument("--continue", dest="continuation")
-    ack = commands.add_parser("ack-source")
-    ack.add_argument("source", type=Path)
-    ack.add_argument("--receipt", type=Path, required=True)
-    ack.add_argument("--source-hash", required=True)
-    ack.add_argument("--token", required=True)
-    init = commands.add_parser("init")
-    init.add_argument("source", type=Path)
-    init.add_argument("--receipt", type=Path, required=True)
-    init.add_argument("--output", type=Path, required=True)
-    init.add_argument("--source-lang", required=True)
-    init.add_argument("--target-lang", required=True)
-    init.add_argument("--source-dir", choices=["ltr", "rtl"], default="ltr")
-    init.add_argument("--target-dir", choices=["ltr", "rtl"], default="ltr")
-    init.add_argument("--context", type=Path)
-    for name in ("oversize", "next", "validate", "split", "commit", "review", "revise", "export", "inspect"):
-        cmd = commands.add_parser(name)
-        cmd.add_argument("data", type=Path)
-        if name == "validate":
-            cmd.add_argument("--ready", action="store_true")
-        if name in ("commit", "review", "revise"):
-            cmd.add_argument("--payload", type=Path, required=True)
-        if name == "split":
-            cmd.add_argument("--unit", required=True)
-            cmd.add_argument("--offsets", required=True)
-            cmd.add_argument("--source-hash", required=True)
-            cmd.add_argument("--revision", type=int, required=True)
-        if name == "export":
-            cmd.add_argument("--output", type=Path, required=True)
-            cmd.add_argument("--allow-draft", action="store_true")
-        if name == "inspect":
-            cmd.add_argument("--unit", required=True)
-    args = parser.parse_args(argv)
-    try:
-        if args.command == "read-source":
-            result = read_source(args.source, args.receipt, args.continuation)
-        elif args.command == "ack-source":
-            result = ack_source(args.source, args.receipt, args.source_hash, args.token)
-        elif args.command == "init":
-            context = _json(args.context.read_text("utf-8")) if args.context else None
-            result = initialize(args.source, args.receipt, args.output, args.source_lang,
-                                args.target_lang, args.source_dir, args.target_dir, context)
-        elif args.command == "next":
-            result = next_block(args.data)
-        elif args.command == "split":
-            result = split_unit(args.data, args.unit, [int(x) for x in args.offsets.split(",")],
-                                args.source_hash, args.revision)
-        elif args.command in ("commit", "review", "revise"):
-            result = globals()[args.command](args.data, _json(args.payload.read_text("utf-8")))
-        else:
-            data = load_jsonl(args.data, require_ready=getattr(args, "ready", False))
-            if args.command == "oversize":
-                result = {"revision": data["document"]["revision"], "oversize": oversized(data)}
-            elif args.command == "validate":
-                result = {"valid": True, "revision": data["document"]["revision"],
-                          "ready": bool(args.ready), "note": "Structure/state only; semantic review is manual."}
-            elif args.command == "inspect":
-                unit = next((u for u in data["units"] if u["id"] == args.unit), None)
-                _require(unit is not None, "unknown unit")
-                result = {"revision": data["document"]["revision"], "unit": unit}
-            else:
-                _require(all(u["target"] is not None for u in data["units"]), "export requires all targets saved")
-                legacy_data = to_legacy_document(data, require_ready=not args.allow_draft)
-                with _lock(args.output):
-                    _atomic(args.output, json.dumps(legacy_data, ensure_ascii=False, indent=2) + "\n", new=True)
-                result = {"exported": str(args.output), "review_gate": not args.allow_draft}
-        print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
-        return 0
-    except (ValueError, OSError, TypeError, KeyError, UnicodeError) as error:
-        print(str(error), file=sys.stderr)
-        return 1
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())

@@ -5,6 +5,7 @@ No compilation, dependency download, or translation is performed. The caller exp
 selects an installed bilingual-pdf skill; its API owns escaping, math and asset policy.
 """
 import argparse
+from collections.abc import Mapping
 import hashlib
 import importlib.util
 import json
@@ -16,7 +17,6 @@ from jsonschema import Draft202012Validator
 from graph_ordering import optimize
 
 ROOT = Path(__file__).resolve().parents[1]
-IMPORTER_API_VERSION = 1
 
 class GraphError(ValueError):
     pass
@@ -46,8 +46,12 @@ def load_renderer(path):
     spec = importlib.util.spec_from_file_location('study_graph_bilingual_pdf', module_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    if getattr(module, 'RENDERER_API_VERSION', None) != 1:
-        raise GraphError('bilingual-pdf renderer API 1 is required')
+    required = ('validate', 'text_value', 'language_text', 'resolve_image')
+    missing = [name for name in required if not callable(getattr(module, name, None))]
+    if not isinstance(getattr(module, 'PROFILES', None), Mapping):
+        missing.append('PROFILES mapping')
+    if missing:
+        raise GraphError('bilingual-pdf is missing required capabilities: ' + ', '.join(missing))
     return module
 
 def content_fields(graph):
@@ -73,7 +77,7 @@ def content_fields(graph):
             yield f'{base}/figures/{j}/caption', figure['caption']
 
 def validate(graph, renderer, *, trusted_native=False, asset_root=None):
-    schema = json.loads((ROOT / 'schemas' / 'graph-v1.schema.json').read_text())
+    schema = json.loads((ROOT / 'schemas' / 'semantic-graph.schema.json').read_text())
     errors = sorted(Draft202012Validator(schema).iter_errors(graph), key=lambda x: str(list(x.path)))
     if errors:
         error = errors[0]
@@ -155,7 +159,7 @@ def validate(graph, renderer, *, trusted_native=False, asset_root=None):
             if resume['kind'] != 'procedure':
                 raise GraphError('Call resume must be a procedure')
             if call['resume']['node'] != key:
-                raise GraphError('Graph v1 calls must resume within their owning procedure')
+                raise GraphError('Graph calls must resume within their owning procedure')
             point = call['resume']['step']
             if point != 'completion_check':
                 point = int(point)
@@ -224,7 +228,7 @@ def validate(graph, renderer, *, trusted_native=False, asset_root=None):
         if owner in region:
             raise GraphError('Recursive calls are unsupported')
         if any(any('call' in step for step in nodes[key].get('steps', [])) for key in region):
-            raise GraphError('Nested helper calls are unsupported in graph v1')
+            raise GraphError('Nested helper calls are unsupported in structured graphs')
         can_return = set(exits)
         while True:
             expanded = can_return | {a for a in region - exits if adjacency[a] & can_return}
@@ -346,8 +350,7 @@ def render(graph, renderer, *, trusted_native=False, asset_root=None):
         raise GraphError('Internal field coverage mismatch')
     declarations = '\n'.join(declarations) + '\n'
     body = '\n\n'.join(body) + '\n'
-    report = {'schema_version':1, 'importer_api_version':1, 'renderer_api_version':1,
-        'source_sha256':digest(graph), 'seed_order':list(graph['seed_order']),
+    report = {'source_sha256':digest(graph), 'seed_order':list(graph['seed_order']),
         'ordering':ordering, 'crosswalk':crosswalk,
         'fields':[{'pointer':pointer,'sha256':digest(pair),'emitted':True} for pointer,pair in content_fields(graph)],
         'outputs':{'graph-declarations.tex':hashlib.sha256(declarations.encode()).hexdigest(),

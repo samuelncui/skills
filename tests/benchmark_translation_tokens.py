@@ -3,10 +3,11 @@
 
 Requires tiktoken==0.12.0 (benchmark only; installed skill remains stdlib-only).
 Example:
-  python3 tests/benchmark_translation_tokens.py --skill SKILL --mode legacy \
+  python3 tests/benchmark_translation_tokens.py --skill SKILL \
     --fixtures-skill BASELINE_SKILL --output PRIVATE_NEW_DIRECTORY
 
-Use the same --fixtures-skill for both modes. Output preserves raw argv, payload,
+Use the same --fixtures-skill for comparable runs. Historical protocol baselines
+must use the runner from their recorded source snapshot. Output preserves raw argv, payload,
 stdout, UTF-8 byte lengths, token counts, fixture/code hashes and saved masters.
 Each CLI command is one logical tool call. Payload authoring is counted once as
 input text; a separate file-write tool's framing/call is excluded, as are MCP/JSON
@@ -66,12 +67,12 @@ def fixtures(skill):
     return [short, long, mixed, contextual]
 
 class Runner:
-    def __init__(self, skill, directory, encoding, mode):
+    def __init__(self, skill, directory, encoding):
         self.directory = directory
         directory.mkdir()
         shutil.copytree(skill, directory / "skill")
         self.encoding = encoding
-        self.entrypoint = "workflow.py" if mode == "compact" else "translation_workflow.py"
+        self.entrypoint = "workflow.py"
         self.records = []
         self.phase = "preparation"
 
@@ -104,8 +105,8 @@ class Runner:
         records = [json.loads(line) for line in (self.directory / "master.jsonl").read_text().splitlines() if line]
         return records[0], records[1:]
 
-def run(skill, out, fixture, mode, encoding):
-    r = Runner(skill, out / fixture["name"], encoding, mode)
+def run(skill, out, fixture, encoding):
+    r = Runner(skill, out / fixture["name"], encoding)
     (r.directory / "source.md").write_bytes(fixture["source"].encode())
     translations = dict(fixture["pairs"])
     translated_ids, reviewed_ids = [], []
@@ -113,91 +114,50 @@ def run(skill, out, fixture, mode, encoding):
     if "context" in fixture:
         (r.directory / "context.json").write_text(compact(fixture["context"]))
         context_args = ["--context", "context.json"]
-    if mode == "legacy":
-        page = r.call("read-source", "source.md", "--receipt", "read.json")
-        delivered = page["text"]
-        while not page["complete"]:
-            page = r.call("read-source", "source.md", "--receipt", "read.json", "--continue", page["token"])
-            delivered += page["text"]
-        assert delivered == fixture["source"]
-        r.call("ack-source", "source.md", "--receipt", "read.json", "--source-hash", page["source_hash"], "--token", page["token"])
-        r.call("init", "source.md", "--receipt", "read.json", "--output", "master.jsonl",
-               "--source-lang", fixture["source_lang"], "--target-lang", fixture["target_lang"], *context_args)
-        large = r.call("oversize", "master.jsonl")["oversize"]
-        for item in large:
-            unit_id = item.get("id", item.get("unit"))
-            inspected = r.call("inspect", "master.jsonl", "--unit", unit_id)
-            u = inspected["unit"]
-            r.call("split", "master.jsonl", "--unit", unit_id, "--offsets",
-                   ",".join(map(str, fixture["splits"][u["source_hash"]])),
-                   "--source-hash", u["source_hash"], "--revision", inspected["revision"])
-        r.phase = "translation"
-        while True:
-            block = r.call("next", "master.jsonl")
-            if block.get("complete"):
-                break
-            translated_ids.extend(u["id"] for u in block["units"])
-            r.call("commit", "master.jsonl", payload={
-                "operation_id": "save-" + block["units"][0]["id"],
-                "block_id": block["block_id"], "revision": block["revision"],
-                "source_hashes": block["source_hashes"],
-                "targets": {u["id"]: translations[u["source"]] for u in block["units"]}})
-        r.phase = "review"
-        _, saved = r.state()
-        for original in saved:
-            inspected = r.call("inspect", "master.jsonl", "--unit", original["id"])
-            u = inspected["unit"]
+    page = r.call("prepare", "read", "source.md", "--receipt", "read.json")
+    delivered = page["text"]
+    oversized = list(page.get("oversize", []))
+    while not page["complete"]:
+        page = r.call("prepare", "read", "source.md", "--receipt", "read.json", "--continue", page["ref"])
+        delivered += page["text"]
+        oversized.extend(page.get("oversize", []))
+    assert delivered == fixture["source"]
+    split_plan = {}
+    for item in oversized:
+        start, end = item["source_span"]
+        source = delivered[start:end]
+        assert len(source) == item["characters"]
+        split_plan[item["id"]] = fixture["splits"][sha(source)]
+    split_args = []
+    if split_plan:
+        (r.directory / "splits.json").write_text(compact(split_plan))
+        split_args = ["--splits", "splits.json"]
+    initialized = r.call("prepare", "init", "source.md", "--receipt", "read.json",
+                         "--read-ref", page["ref"], "--output", "master.jsonl",
+                         "--source-lang", fixture["source_lang"], "--target-lang", fixture["target_lang"],
+                         *context_args, *split_args)
+    assert initialized["oversize"] == []
+    r.phase = "translation"
+    block = r.call("translate", "next")
+    assert block["shared"] == fixture.get("context", {})
+    while not block.get("complete"):
+        assert sum(len(u["source"]) for u in block["units"]) <= 2048
+        translated_ids.extend(u["id"] for u in block["units"])
+        result = r.call("translate", "save", payload={
+            "ref": block["ref"], "targets": {u["id"]: translations[u["source"]] for u in block["units"]}})
+        block = result["next"]
+    r.phase = "review"
+    block = r.call("review", "next")
+    assert block["shared"] == fixture.get("context", {})
+    while not block.get("complete"):
+        for u in block["units"]:
             assert translations[u["source"]] == u["target"]
-            reviewed_ids.append(u["id"])
-            r.call("review", "master.jsonl", payload={
-                "operation_id": "review-" + u["id"], "revision": inspected["revision"],
-                "unit": u["id"], "source_hash": u["source_hash"], "target_hash": u["target_hash"],
-                "reviewer": "translation-agent", "note": NOTE})
-    else:
-        page = r.call("prepare", "read", "source.md", "--receipt", "read.json")
-        delivered = page["text"]
-        oversized = list(page.get("oversize", []))
-        while not page["complete"]:
-            page = r.call("prepare", "read", "source.md", "--receipt", "read.json", "--continue", page["ref"])
-            delivered += page["text"]
-            oversized.extend(page.get("oversize", []))
-        assert delivered == fixture["source"]
-        split_plan = {}
-        for item in oversized:
-            start, end = item["source_span"]
-            source = delivered[start:end]
-            assert len(source) == item["characters"]
-            split_plan[item["id"]] = fixture["splits"][sha(source)]
-        split_args = []
-        if split_plan:
-            (r.directory / "splits.json").write_text(compact(split_plan))
-            split_args = ["--splits", "splits.json"]
-        initialized = r.call("prepare", "init", "source.md", "--receipt", "read.json",
-                             "--read-ref", page["ref"], "--output", "master.jsonl",
-                             "--source-lang", fixture["source_lang"], "--target-lang", fixture["target_lang"],
-                             *context_args, *split_args)
-        assert initialized["oversize"] == []
-        r.phase = "translation"
-        block = r.call("translate", "next")
-        assert block["shared"] == fixture.get("context", {})
-        while not block.get("complete"):
-            assert sum(len(u["source"]) for u in block["units"]) <= 2048
-            translated_ids.extend(u["id"] for u in block["units"])
-            result = r.call("translate", "save", payload={
-                "ref": block["ref"], "targets": {u["id"]: translations[u["source"]] for u in block["units"]}})
-            block = result["next"]
-        r.phase = "review"
-        block = r.call("review", "next")
-        assert block["shared"] == fixture.get("context", {})
-        while not block.get("complete"):
-            for u in block["units"]:
-                assert translations[u["source"]] == u["target"]
-            reviewed_ids.extend(u["id"] for u in block["units"])
-            result = r.call("review", "accept", "--ref", block["ref"],
-                            "--reviewer", "translation-agent", "--note", NOTE)
-            block = result["next"]
+        reviewed_ids.extend(u["id"] for u in block["units"])
+        result = r.call("review", "accept", "--ref", block["ref"],
+                        "--reviewer", "translation-agent", "--note", NOTE)
+        block = result["next"]
     r.phase = "reconciliation"
-    data_args = [] if mode == "compact" else ["master.jsonl"]
+    data_args = []
     r.call("validate", *data_args, "--ready")
     r.call("export", *data_args, "--output", "export.json")
     header, units = r.state()
@@ -208,7 +168,7 @@ def run(skill, out, fixture, mode, encoding):
         source_by_parent[u["parent_id"]] = source_by_parent.get(u["parent_id"], "") + u["source"]
     reconstructed = "".join(item["text"] if "text" in item else source_by_parent[item["parent"]] for item in header["source_layout"])
     assert reconstructed == fixture["source"]
-    exposure = exposures(r.records, units, fixture, mode)
+    exposure = exposures(r.records, units, fixture)
     totals = {direction: {k: sum(x[direction][k] for x in r.records) for k in ("bytes", "tokens")}
               for direction in ("input", "output")}
     return {"fixture": fixture["name"], "fixture_hash": sha(compact(fixture)),
@@ -221,7 +181,7 @@ def run(skill, out, fixture, mode, encoding):
             **totals, "protocol_tokens": totals["input"]["tokens"] + totals["output"]["tokens"],
             "ready": True, "exact_source_reconstruction": True}
 
-def exposures(records, units, fixture, mode):
+def exposures(records, units, fixture):
     """Count decoded body delivery, not substring matches or billing tokens."""
     counts = {u["id"]: {"translation": 0, "review": 0, "target_write": 0, "target_read": 0} for u in units}
     totals = {"prepare_source": 0, "prepare_inspect_source": 0, "translation_source": 0,
@@ -263,14 +223,13 @@ def exposures(records, units, fixture, mode):
     assert totals["translation_source"] == totals["review_source"] == body
     assert totals["target_written"] == totals["target_read"] == expected_targets
     assert all(all(n == 1 for n in count.values()) for count in counts.values())
-    if mode == "compact":
-        assert totals["prepare_inspect_source"] == 0
-        assert totals["local_context_characters"] == 0
-        assert totals["shared_context_emissions"] == 2
+    assert totals["prepare_inspect_source"] == 0
+    assert totals["local_context_characters"] == 0
+    assert totals["shared_context_emissions"] == 2
     return {**totals, "unit_body_characters": body,
             "syntax_characters_read_once": len(fixture["source"]) - body,
             "primary_source_reads_per_unit": 3,
-            "three_pass_without_extra_source": mode == "compact",
+            "three_pass_without_extra_source": True,
             "per_unit": counts,
             "context_scope": "Authored semantic summary/audience/glossary, not full source" if "context" in fixture else "No optional context supplied",
             "retry_or_revise": "Not exercised in these normal-path workloads"}
@@ -280,7 +239,6 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--skill", type=Path, required=True)
     parser.add_argument("--fixtures-skill", type=Path, required=True)
-    parser.add_argument("--mode", choices=["legacy", "compact"], required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--workload", action="append", help="Run only named workload(s)")
     parser.add_argument("--baseline-summary", type=Path, help="Compare against preserved baseline summary")
@@ -299,7 +257,7 @@ def main():
         assert len(cases) == len(set(args.workload)), "Unknown workload"
     (args.output / "fixtures.json").write_text(json.dumps(cases, ensure_ascii=False, indent=2))
     docs = ["SKILL.md", "references/workflow.md"]
-    summary = {"mode": args.mode, "python": sys.version, "tokenizer": "tiktoken",
+    summary = {"protocol": "workflow", "python": sys.version, "tokenizer": "tiktoken",
                "tokenizer_version": tiktoken.__version__, "encoding": "o200k_base",
                "boundary": "Actual argv JSON + once-authored payload; actual stdout. Excludes MCP/file-write framing, reasoning, billing and rendering.",
                "quality": "Fixed reviewed fixture translations replayed by code; protocol evidence only, no live translation evaluation.",
@@ -309,7 +267,7 @@ def main():
                                     "bytes": len((skill / p).read_bytes())} for p in docs},
                "workloads": []}
     for case in cases:
-        summary["workloads"].append(run(skill, args.output, case, args.mode, enc))
+        summary["workloads"].append(run(skill, args.output, case, enc))
         (args.output / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2))
     if args.baseline_summary:
         baseline = json.loads(args.baseline_summary.read_text())

@@ -28,7 +28,7 @@ Adjust the optional $schema reference to the input's actual location. Editors/va
 
 The same renderer commands accept a reviewed translation master directly when
 `--translation-skill` names its discovered installed owner. See
-[translation handoff](translation.md#direct-reviewed-jsonl-v2-input). This route
+[translation handoff](translation.md#direct-reviewed-jsonl-input). This route
 preserves the full master in the portable project and requires no second layout
 manuscript. Ordinary supplied JSON pairs remain independent of translation tools.
 

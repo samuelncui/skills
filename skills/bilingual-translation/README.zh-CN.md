@@ -16,11 +16,11 @@ Agent 入口是 scripts/workflow.py：prepare 阅读并初始化原文；transla
 
 [Agent 流程](SKILL.md) · [命令和边界](references/workflow.md)
 
-已审校 JSONL 可直接交给另行发现的 bilingual-pdf。HTML 使用自己的排版 JSON 或旧版 v1 导入，不直接读取 JSONL。已有配对文本无须重新翻译。
+已审校 JSONL 可直接交给另行发现的 bilingual-pdf。HTML 使用自己的排版 JSON 或导入语义交换格式，不直接读取 JSONL。已有配对文本无须重新翻译。
 
-## 旧版 v1 兼容
+## 语义交换格式
 
-保留原有 [v1 协议](references/contract-v1.md)、[完整英法示例](references/example-guide.md)和 translation_contract.py API，它们与受门禁保护的 JSONL 流程分开。仅在下游需要 v1 JSON 时使用 workflow.py export，JSONL 始终为主稿。
+[语义交换格式](references/semantic-exchange.md)和[完整英法示例](references/example-guide.md)说明渲染交接。下游需要语义交换 JSON 时使用 workflow.py export，JSONL 始终为主稿。下游通过 translation_contract.py 的只读 validate_document API 验证交换文档。
 
 自动验证检查结构及审校记录是否有效；语义由 agent 审校，PDF 外观另在实际渲染页面上检查。
 

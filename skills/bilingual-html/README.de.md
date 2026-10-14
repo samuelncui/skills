@@ -35,7 +35,7 @@ Verwenden Sie Python 3.11 oder neuer. Das Ausgabeverzeichnis `page` muss neu sei
 
 ## Strukturiertes JSON: bereitgestellte Textpaare
 
-Erstellen Sie Layout-Version 1 anhand des [ausführbaren Minimalbeispiels](references/rendering.md#minimal-structured-example), des [Feldvertrags](references/rendering.md#embedded-pair-layout) und des [JSON Schema](schemas/layout.schema.json). So passen Sie das vollständige Tutorial an und erhalten das mitgelieferte Original:
+Erstellen Sie ein Layout mit eingebetteten Textpaaren anhand des [ausführbaren Minimalbeispiels](references/rendering.md#minimal-structured-example), des [Feldvertrags](references/rendering.md#embedded-pair-layout) und des [JSON Schema](schemas/layout.schema.json). So passen Sie das vollständige Tutorial an und erhalten das mitgelieferte Original:
 
 ```sh
 set -eu
@@ -70,11 +70,11 @@ Ermitteln Sie für zu übersetzende Quellen zunächst den separat installierten 
 set -eu
 python3 "$TRANSLATION_SKILL/scripts/workflow.py" export master.jsonl --output reviewed.json
 python3 scripts/bilingual_html.py import-pairs reviewed.json \
-  --translation-skill "$TRANSLATION_SKILL" --contract-version 1 --output imported
+  --translation-skill "$TRANSLATION_SKILL" --output imported
 python3 scripts/bilingual_html.py render imported/layout.json --output translated-page
 ```
 
-Passen Sie Eingabepfade an das Projekt an und wählen Sie neue Ausgabeziele. Der erste Befehl exportiert das Übersetzungsaustauschformat v1; der zweite überführt es in HTMLs eigenständiges Layoutformat v1. HTML liest JSONL nicht direkt ein. Bei bereits geprüftem Austausch-JSON v1 können Sie mit `import-pairs` beginnen.
+Passen Sie Eingabepfade an das Projekt an und wählen Sie neue Ausgabeziele. Der erste Befehl exportiert das Übersetzungsaustauschformat; der zweite überführt es in HTMLs eigenständiges Layoutformat. HTML liest JSONL nicht direkt ein. Bei bereits geprüftem Austausch-JSON können Sie mit `import-pairs` beginnen.
 
 Der Import ruft den gewählten Übersetzungsvalidator auf, weist unfertige oder veraltete Zieltexte zurück und erhält Zeichenfolgen, IDs und Reihenfolge. Er erzeugt `layout.json`, kopierte unterstützte Bilder und `import-record.json`. Bewahren Sie JSONL-Manuskript und Austauschdatei für die Übersetzungshistorie auf; Layout-JSON ist eine abgeleitete Darstellungsdatei. Der Export verbindet aufgeteilte Abschnitte wieder zu ihren übergeordneten Paaren. HTML erhält daher weder die Ausrichtung einzelner Teilstücke noch deren Prüfprotokolle. Siehe [Dateivorbereitung, Versions-/Hashbindung und Übergabegrenzen](references/rendering.md#optional-translation-import). Vorhandene Layout-Textpaare benötigen keinen Übersetzungs-Skill. Fehlende Abhängigkeiten werden nie automatisch installiert.
 
@@ -105,7 +105,7 @@ Geben Sie das vollständige Ausgabeverzeichnis mit unveränderten relativen Pfad
 
 ## Grenzen und Sicherheit
 
-Layout v1 akzeptiert wörtlichen Unicode-Text und lokale PNG-/JPEG-Abbildungen. HTML, Markdown und TeX werden als Text angezeigt; JSON bietet keine Syntax für formatierten Text, Gleichungen, Hyperlinks oder Skripte. Der Skill ist weder OCR-Werkzeug noch Übersetzer oder Extraktor bestehender Seitenlayouts. Druck-CSS unterstützt einfaches Drucken im Browser, aber keine kontrollierte PDF-Paginierung.
+Das Layoutformat akzeptiert wörtlichen Unicode-Text und lokale PNG-/JPEG-Abbildungen. HTML, Markdown und TeX werden als Text angezeigt; JSON bietet keine Syntax für formatierten Text, Gleichungen, Hyperlinks oder Skripte. Der Skill ist weder OCR-Werkzeug noch Übersetzer oder Extraktor bestehender Seitenlayouts. Druck-CSS unterstützt einfaches Drucken im Browser, aber keine kontrollierte PDF-Paginierung.
 
 Bildpfade, Größen und Strukturen sind begrenzt; entfernte URLs, Verzeichnistraversierung, symbolische Links und SVG-Eingaben werden abgewiesen. Siehe [Dateibeschränkungen](references/rendering.md#assets-and-output) und [originalgetreue Rasterableitungen vertrauenswürdiger SVGs](references/rendering.md#faithful-derivatives-of-trusted-svg-originals). Headerprüfungen dekodieren Bilder nicht vollständig. Prüfen Sie die tatsächliche Browserausgabe; wenige Sprachbeispiele belegen keine universelle Sprachunterstützung oder Barrierefreiheitskonformität.
 

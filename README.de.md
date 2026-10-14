@@ -30,7 +30,7 @@ npx skills add samuelncui/skills --skill write-if-statements
 npx skills add samuelncui/skills --skill skill-optimization
 ```
 
-Installieren Sie die benötigten Skill-Verzeichnisse vollständig. Vorhandene Textpaare benötigen nur bilingual-pdf oder bilingual-html; die Übersetzung einer Quelle benötigt bilingual-translation. PDF liest geprüftes JSONL direkt, HTML verwendet sein eigenes Layout-JSON oder den bisherigen v1-Importer. study-notes benötigt bilingual-pdf. Die drei Qualitätsleitfäden haben keine eigene Laufzeitabhängigkeit; getestete Projekte stellen ihre Werkzeuge bereit. Abhängigkeiten werden über den Host ermittelt und nie automatisch installiert. Einrichtung und Beispiele stehen im jeweiligen Leitfaden.
+Installieren Sie die benötigten Skill-Verzeichnisse vollständig. Vorhandene Textpaare benötigen nur bilingual-pdf oder bilingual-html; die Übersetzung einer Quelle benötigt bilingual-translation. PDF liest geprüftes JSONL direkt, HTML verwendet sein eigenes Layout-JSON oder den Importer für semantische Austauschdaten. study-notes benötigt bilingual-pdf. Die drei Qualitätsleitfäden haben keine eigene Laufzeitabhängigkeit; getestete Projekte stellen ihre Werkzeuge bereit. Abhängigkeiten werden über den Host ermittelt und nie automatisch installiert. Einrichtung und Beispiele stehen im jeweiligen Leitfaden.
 
 ## Repository-Konventionen
 

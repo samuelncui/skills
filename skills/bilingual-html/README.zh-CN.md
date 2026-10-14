@@ -35,7 +35,7 @@ python3 scripts/bilingual_html.py render examples/tutorial/layout.json --output 
 
 ## 结构化 JSON：使用已有配对内容
 
-按排版格式第 1 版编写输入，参阅[可直接运行的最小示例](references/rendering.md#minimal-structured-example)、[字段约定](references/rendering.md#embedded-pair-layout)和 [JSON Schema](schemas/layout.schema.json)。以下命令复制完整教程，保留安装包内的原始示例：
+按内嵌对译文本的排版格式编写输入，参阅[可直接运行的最小示例](references/rendering.md#minimal-structured-example)、[字段约定](references/rendering.md#embedded-pair-layout)和 [JSON Schema](schemas/layout.schema.json)。以下命令复制完整教程，保留安装包内的原始示例：
 
 ```sh
 set -eu
@@ -70,11 +70,11 @@ test ! -e native-page && cp -R examples/tutorial/site native-page
 set -eu
 python3 "$TRANSLATION_SKILL/scripts/workflow.py" export master.jsonl --output reviewed.json
 python3 scripts/bilingual_html.py import-pairs reviewed.json \
-  --translation-skill "$TRANSLATION_SKILL" --contract-version 1 --output imported
+  --translation-skill "$TRANSLATION_SKILL" --output imported
 python3 scripts/bilingual_html.py render imported/layout.json --output translated-page
 ```
 
-按项目位置调整输入路径，并使用尚不存在的输出目标。第一步导出翻译交换格式 v1，第二步转换成 HTML 自己独立的排版格式 v1。HTML 不直接读取 JSONL。已有经过审校的交换格式 v1 JSON 时，可从 `import-pairs` 开始。
+按项目位置调整输入路径，并使用尚不存在的输出目标。第一步导出翻译交换格式，第二步转换成 HTML 自己独立的排版格式。HTML 不直接读取 JSONL。已有经过审校的交换格式 JSON 时，可从 `import-pairs` 开始。
 
 导入时调用指定翻译技能的验证器，拒绝未完成或过期译文，保留配对字符串、ID 和顺序，输出 `layout.json`、复制的受支持图片和 `import-record.json`。保留 JSONL 主稿及交换文件作为翻译历史；排版 JSON 是渲染用的派生文件。导出会将拆分子块合回父级配对，因此 HTML 不保留子块级对齐或审校记录。[资源准备、版本／哈希固定与交接限制](references/rendering.md#optional-translation-import)详见参考文档。已有排版配对内容无需翻译依赖，也不会自动安装缺失技能。
 
@@ -105,7 +105,7 @@ python3 scripts/bilingual_html.py render imported/layout.json --output translate
 
 ## 限制与安全
 
-排版格式 v1 接受 Unicode 纯文本和本地 PNG/JPEG 图片。HTML、Markdown 和 TeX 按字面显示；JSON 不提供富文本、公式、超链接或脚本语法。此技能不负责 OCR、翻译或提取已有网页的版式。浏览器打印样式只是基础辅助，不提供可控的 PDF 分页。
+排版格式 接受 Unicode 纯文本和本地 PNG/JPEG 图片。HTML、Markdown 和 TeX 按字面显示；JSON 不提供富文本、公式、超链接或脚本语法。此技能不负责 OCR、翻译或提取已有网页的版式。浏览器打印样式只是基础辅助，不提供可控的 PDF 分页。
 
 图片路径、大小和结构受限；远程 URL、目录穿越、符号链接和 SVG 输入会被拒绝。详见[资源限制](references/rendering.md#assets-and-output)与[可信 SVG 的保真栅格派生](references/rendering.md#faithful-derivatives-of-trusted-svg-originals)。文件头检查不会完整解码图片，必须查看真实浏览器输出；少量语言样例不能证明通用语言支持或无障碍合规。
 

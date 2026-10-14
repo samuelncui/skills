@@ -16,11 +16,11 @@ Der Agent-Einstieg ist scripts/workflow.py. prepare liest und initialisiert die 
 
 [Agent-Ablauf](SKILL.md) · [Befehle und Grenzen](references/workflow.md)
 
-Geprüftes JSONL geht direkt an den separat ermittelten Skill bilingual-pdf. HTML verwendet sein eigenes Layout-JSON oder den bisherigen v1-Import und liest JSONL nicht direkt. Vorhandene Textpaare müssen nicht erneut übersetzt werden.
+Geprüftes JSONL geht direkt an den separat ermittelten Skill bilingual-pdf. HTML verwendet sein eigenes Layout-JSON oder importiert das semantische Austauschformat und liest JSONL nicht direkt. Vorhandene Textpaare müssen nicht erneut übersetzt werden.
 
-## Bestehende v1-Kompatibilität
+## Semantisches Austauschformat
 
-Der [v1-Vertrag](references/contract-v1.md), das [englisch-französische Beispiel](references/example-guide.md) und die translation_contract.py-APIs bleiben erhalten, getrennt vom kontrollierten JSONL-Ablauf. Nutzen Sie workflow.py export nur für Verbraucher, die v1-JSON benötigen; JSONL bleibt das Hauptmanuskript.
+Das [semantische Austauschformat](references/semantic-exchange.md) und das [englisch-französische Beispiel](references/example-guide.md) beschreiben die Übergabe an den Renderer. Nutzen Sie workflow.py export, wenn ein Verbraucher dieses Austausch-JSON benötigt; JSONL bleibt das Hauptmanuskript. Verbraucher validieren Austauschdokumente mit der schreibgeschützten API validate_document in translation_contract.py.
 
 Die Validierung prüft Struktur und Aktualität dokumentierter Prüfungen. Die Bedeutung prüft der Agent; das PDF-Erscheinungsbild wird separat an tatsächlich gerenderten Seiten geprüft.
 

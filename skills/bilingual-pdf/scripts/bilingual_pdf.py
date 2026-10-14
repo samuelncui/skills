@@ -13,7 +13,6 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RENDERER_API_VERSION = 1
 PROFILES = {
     'en': {'font': 'Latin Modern Roman', 'direction': 'ltr', 'locale': 'en'},
     'fr': {'font': 'Latin Modern Roman', 'direction': 'ltr', 'locale': 'fr'},
@@ -250,8 +249,7 @@ def language_text(text,language,prefix='',suffix=''):
 
 
 # Additive Python API for explicitly source-bound native authoring. This does not
-# change the article JSON schema or the study graph-v1 rich-run contract.
-BOUND_TEXT_API_VERSION = 1
+# change the article JSON schema or the study graph rich-run contract.
 _SCIENTIFIC_SYMBOLS = {
     '←': r'\ensuremath{\leftarrow}\allowbreak{}',
     '→': r'\ensuremath{\rightarrow}\allowbreak{}',
@@ -503,11 +501,11 @@ def write_project(data,input_path,out,mode,*,stem='document',asset_root=None):
     provenance={}
     metadata=data.get('translation')
     if isinstance(metadata,dict) and isinstance(metadata.get('content'),dict):
-        master=metadata['content'];version=metadata.get('contract_version')
+        master=metadata['content']
         prefix='' if stem=='document' else stem+'-'
-        if version==2 and isinstance(master.get('document'),dict) and isinstance(master.get('units'),list):
+        if isinstance(master.get('document'),dict) and isinstance(master.get('units'),list):
             provenance[prefix+'translation-source.jsonl']=''.join(json.dumps(record,ensure_ascii=False,allow_nan=False)+'\n' for record in [master['document']]+master['units'])
-        elif version==1:
+        elif 'document' not in master and isinstance(master.get('languages'),dict) and isinstance(master.get('blocks'),list) and isinstance(master.get('units'),list):
             provenance[prefix+'translation-source.json']=json.dumps(master,ensure_ascii=False,allow_nan=False,indent=2)+'\n'
         if provenance:
             provenance[prefix+'translation-map.json']=json.dumps({k:v for k,v in metadata.items() if k!='content'},ensure_ascii=False,allow_nan=False,indent=2)+'\n'
@@ -743,7 +741,7 @@ def main():
     parser.add_argument('command',choices=['preflight','export','render','build','validate'])
     parser.add_argument('input',type=Path)
     parser.add_argument('--output',type=Path)
-    parser.add_argument('--translation-skill',type=Path,help='Explicit discovered bilingual-translation installation for reviewed JSONL/v1 input')
+    parser.add_argument('--translation-skill',type=Path,help='Explicit discovered bilingual-translation installation for reviewed JSONL or semantic exchange input')
     parser.add_argument('--source-side',choices=['left','right'],default='left',help='Physical source column for translation input')
     parser.add_argument('--layout',help='Sparse JSON object of global layout overrides; uses the documented layout schema without editing the input manuscript')
     parser.add_argument('--asset-root',type=Path,help='Read figure paths inside this directory only (default: input directory)')

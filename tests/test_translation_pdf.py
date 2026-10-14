@@ -1,4 +1,4 @@
-"""Optional translation-v1 adapter; legacy rendering remains independent."""
+"""Optional semantic exchange adapter; supplied-pair rendering remains independent."""
 import copy
 import importlib.util
 import json
@@ -31,7 +31,7 @@ def fixture(contract):
         ("figure.alt", "alt_text", "Two connected boxes.", "Deux cases reliées."),
     ]
     units = [{"id": i, "kind": k, "source": s, "target": t, "source_hash": contract.source_digest(s), "target_source_hash": contract.source_digest(s), "status": "reviewed"} for i,k,s,t in texts]
-    return {"schema_version": 1, "languages": {"source": {"tag": "en", "dir": "ltr"}, "target": {"tag": "fr", "dir": "ltr"}},
+    return {"languages": {"source": {"tag": "en", "dir": "ltr"}, "target": {"tag": "fr", "dir": "ltr"}},
         "units": units, "blocks": [
             {"type": "heading", "unit": "title", "level": 1},
             {"type": "heading", "unit": "intro", "level": 2},
@@ -59,6 +59,23 @@ class TranslationPDFTests(unittest.TestCase):
         self.assertEqual(set(result["translation"]["unit_mapping"]), {x["id"] for x in original["units"]})
         self.assertEqual(result["blocks"][3]["rows"], [[["Reviewed"]], [["Relu"]]])
         self.assertFalse(result["translation"]["unit_mapping"]["figure.alt"]["pdf_alt_encoded"])
+
+    def test_exchange_export_preserves_content_without_format_version(self):
+        from bilingual_pdf import export_document
+        result = convert_pairs(self.data, self.contract)
+        self.assertNotIn("contract_version", result["translation"])
+        self.assertNotIn("schema_version", result["translation"]["content"])
+        # The figure is omitted only from layout to avoid unrelated image setup;
+        # its semantic source and mapping remain part of preserved provenance.
+        result["blocks"] = result["blocks"][:-1]
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            out = root / "portable"
+            export_document(result, root / "pairs.json", out, "bilingual")
+            self.assertEqual(json.loads((out / "translation-source.json").read_text()), self.data)
+            self.assertFalse((out / "translation-source.jsonl").exists())
+            self.assertEqual(json.loads((out / "translation-map.json").read_text()),
+                             {key: value for key, value in result["translation"].items() if key != "content"})
 
     def test_source_role_can_be_physical_right(self):
         result = convert_pairs(self.data, self.contract, "right")
@@ -156,9 +173,11 @@ class TranslationPDFTests(unittest.TestCase):
             with self.assertRaisesRegex(InputError,"Discover the installed"):
                 load_contract(path)
             (path/"scripts").mkdir();(path/"SKILL.md").write_text("fixture")
-            (path/"scripts/translation_contract.py").write_text("CONTRACT_VERSION=9\n")
-            with self.assertRaisesRegex(InputError,"version 1"):
+            (path/"scripts/translation_contract.py").write_text("validate_document = None\n")
+            with self.assertRaisesRegex(InputError,"validate_document"):
                 load_contract(path)
+            (path/"scripts/translation_contract.py").write_text("def validate_document(data, *, require_ready=False): return []\n")
+            self.assertTrue(callable(load_contract(path).validate_document))
 
 
 if __name__ == "__main__":

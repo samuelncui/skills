@@ -82,7 +82,7 @@ python3 scripts/bilingual_pdf.py preflight master.jsonl --translation-skill "$TR
 python3 scripts/bilingual_pdf.py render master.jsonl --translation-skill "$TRANSLATION_SKILL" --output new-pdf-project
 ```
 
-[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-v2-input)
+[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-input)
 
 ## Wiederholte Builds
 
@@ -112,6 +112,6 @@ Originalcode, Tutorialtexte und Diagramme stehen unter der [MIT-Lizenz](LICENSE)
 
 ## Von der Übersetzung zum Layout
 
-Für die Übersetzung einer Quelle erstellt der separat installierte Skill bilingual-translation ein einziges geprüftes zweisprachiges Manuskript. Vorhandene Textpaare können weiterhin direkt gesetzt werden. Die [Übergabeanleitung](references/translation.md) erklärt die Ermittlung installierter Skills, getestete Revisionen und den optionalen v1-Import. Natives TeX bleibt gleichberechtigt verfügbar.
+Für die Übersetzung einer Quelle erstellt der separat installierte Skill bilingual-translation ein einziges geprüftes zweisprachiges Manuskript. Vorhandene Textpaare können weiterhin direkt gesetzt werden. Die [Übergabeanleitung](references/translation.md) erklärt die Ermittlung installierter Skills, getestete Revisionen und den optionalen Import des semantischen Austauschformats. Natives TeX bleibt gleichberechtigt verfügbar.
 
 Vertrauenswürdige native Adapter können Formeln und Verweise über die [quelltextgebundene API](references/bound-text.md) in exakt zugeordnete Textbereiche einfügen.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compact, transactional agent protocol over the canonical JSONL v2 implementation."""
+"""Transactional agent protocol over canonical JSONL storage."""
 from __future__ import annotations
 
 import argparse
@@ -10,7 +10,7 @@ from pathlib import Path
 import sys
 
 _SPEC = importlib.util.spec_from_file_location(
-    "_translation_workflow_v2", Path(__file__).with_name("translation_workflow.py"))
+    "_translation_workflow_core", Path(__file__).with_name("translation_workflow.py"))
 core = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(core)
 
@@ -175,7 +175,7 @@ def _recovery_context(data):
 
 
 def _load(path):
-    # The canonical reader validates both legacy and compact journal records.
+    # The canonical reader validates the current operation journal.
     return core.load_jsonl(path)
 
 
@@ -254,8 +254,6 @@ def _envelope(data):
 
 
 def _dispatch(data, phase, unit_id=None):
-    require(data["document"]["workflow"]["active"] is None,
-            "unsupported pending state; start a new task with prepare read and prepare init")
     active = _active(data)
     if active is not None:
         require(active["phase"] == phase, "finish the active " + active["phase"] + " block first")
@@ -548,9 +546,9 @@ def main(argv=None):
             else:
                 require(all(u["target"] is not None for u in data["units"]), "export requires all targets saved")
                 require(args.allow_draft or _active(data) is None, "finish active review")
-                legacy = core.to_legacy_document(data, not args.allow_draft)
+                exchange = core.to_exchange_document(data, not args.allow_draft)
                 with core._lock(args.output):
-                    core._atomic(args.output, json.dumps(legacy, ensure_ascii=False, indent=2) + "\n", new=True)
+                    core._atomic(args.output, json.dumps(exchange, ensure_ascii=False, indent=2) + "\n", new=True)
                 result = {"exported": str(args.output), "review_gate": not args.allow_draft}
         print(json.dumps(result, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False))
         return 0

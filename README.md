@@ -30,7 +30,7 @@ npx skills add samuelncui/skills --skill write-if-statements
 npx skills add samuelncui/skills --skill skill-optimization
 ```
 
-Choose complete skill directories. Supplied pairs need only bilingual-pdf or bilingual-html. Raw-source translation needs bilingual-translation; direct reviewed JSONL input is supported by PDF, while HTML uses its own layout JSON or the legacy v1 importer. study-notes requires bilingual-pdf. The three software/skill-quality guides have no runtime dependency of their own; tested projects supply their toolchains. Dependencies are discovered through the host and never installed automatically. Follow each linked guide for setup and examples.
+Choose complete skill directories. Supplied pairs need only bilingual-pdf or bilingual-html. Raw-source translation needs bilingual-translation; direct reviewed JSONL input is supported by PDF, while HTML uses its own layout JSON or the semantic-exchange importer. study-notes requires bilingual-pdf. The three software/skill-quality guides have no runtime dependency of their own; tested projects supply their toolchains. Dependencies are discovered through the host and never installed automatically. Follow each linked guide for setup and examples.
 
 ## Repository conventions
 

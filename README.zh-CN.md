@@ -30,7 +30,7 @@ npx skills add samuelncui/skills --skill write-if-statements
 npx skills add samuelncui/skills --skill skill-optimization
 ```
 
-按需安装完整技能目录。已有配对文本只需 bilingual-pdf 或 bilingual-html；从原文翻译需 bilingual-translation。PDF 可直接接收已审校 JSONL，HTML 使用自己的排版 JSON 或旧版 v1 导入器。study-notes 依赖 bilingual-pdf。三个软件／技能质量指南本身不要求运行时，测试使用目标项目的工具链。通过宿主发现依赖，不自动安装；配置和示例见各技能指南。
+按需安装完整技能目录。已有配对文本只需 bilingual-pdf 或 bilingual-html；从原文翻译需 bilingual-translation。PDF 可直接接收已审校 JSONL，HTML 使用自己的排版 JSON 或语义交换格式导入器。study-notes 依赖 bilingual-pdf。三个软件／技能质量指南本身不要求运行时，测试使用目标项目的工具链。通过宿主发现依赖，不自动安装；配置和示例见各技能指南。
 
 ## 仓库约定
 

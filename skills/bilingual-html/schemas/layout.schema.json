@@ -1,14 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Bilingual HTML embedded-pair layout v1",
+  "title": "Bilingual HTML embedded-pair layout",
   "description": "Literal paired text only. Runtime also checks duplicate IDs/JSON keys, control characters, rectangular tables, local PNG/JPEG paths and assets. No translation dependency.",
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "layout_version": {
-      "const": 1,
-      "type": "integer"
-    },
     "languages": {
       "type": "object",
       "additionalProperties": false,
@@ -259,7 +255,6 @@
     }
   },
   "required": [
-    "layout_version",
     "languages",
     "blocks"
   ],

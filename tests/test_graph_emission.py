@@ -238,13 +238,13 @@ text = trace.field('/action', 'en', source, rendered)
 clean, report = trace.finish({'body': text}, expected_fields={'en': ['/action']})
 assert clean['body'] == r'Keep A \\& B'
 assert graph.native_reference('pack-box', 1) == r'\\StudyGraphResumeReference{pack-box}{1}'
-print(json.dumps({'fields': len(report['fields']), 'bound_api': pdf.BOUND_TEXT_API_VERSION}))
+print(json.dumps({'fields': len(report['fields']), 'bound_text_callable': callable(pdf.render_bound_text)}))
 """
             result = subprocess.run([sys.executable, "-I", "-c", script,
                         str(a / "scripts/bilingual_pdf.py"), str(b / "scripts/graph_emission.py")],
                         cwd=root, text=True, capture_output=True, timeout=20)
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(json.loads(result.stdout), {"fields": 1, "bound_api": 1})
+            self.assertEqual(json.loads(result.stdout), {"fields": 1, "bound_text_callable": True})
 
 
 if __name__ == "__main__":

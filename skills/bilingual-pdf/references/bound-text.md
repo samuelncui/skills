@@ -1,8 +1,8 @@
-# Source-bound native text API 1
+# Source-bound native text API
 
 Use this additive Python API when a trusted native authoring adapter has exact
 source text, reviewed mathematical spans and resolved reference fragments.
-Article JSON and graph-v1 retain their existing, separate contracts. This helper
+Article JSON and structured graph retain their existing, separate contracts. This helper
 does not translate, infer mathematics or fetch sources.
 
 Discover the installed bilingual-pdf skill through the host and resolve its
@@ -18,7 +18,7 @@ path = Path(os.environ["BILINGUAL_PDF_SKILL"]) / "scripts/bilingual_pdf.py"
 spec = importlib.util.spec_from_file_location("installed_pdf", path)
 pdf = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(pdf)
-assert pdf.BOUND_TEXT_API_VERSION == 1
+assert callable(getattr(pdf, "render_bound_text", None))
 
 source = "Keep x^2 & y."
 tex = pdf.render_bound_text(source, runs=[

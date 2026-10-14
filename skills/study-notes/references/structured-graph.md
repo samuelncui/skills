@@ -1,12 +1,12 @@
-# Structured decision graphs, contract v1
+# Structured decision graphs, semantic contract
 
-Use this optional route when the input is a structured decision graph. Keep one versioned JSON graph as the authoritative content and edge source; regenerate TeX after every edit. Native notes, quick references, indexes and manually authored graphs remain supported. The importer emits the existing studytools semantic commands, not another renderer or reader graph. `bilingual-pdf` owns typography, escaping, restricted math and image resolution.
+Use this optional route when the input is a structured decision graph. Keep one JSON graph as the authoritative content and edge source; regenerate TeX after every edit. Native notes, quick references, indexes and manually authored graphs remain supported. The importer emits the existing studytools semantic commands, not another renderer or reader graph. `bilingual-pdf` owns typography, escaping, restricted math and image resolution.
 
 ## Installed workflow
 
-1. Discover installed `study-notes` and `bilingual-pdf` through the host's skill listing. Read both SKILL.md files. Set `STUDY_NOTES_SKILL` and `BILINGUAL_PDF_SKILL` to those discovered directories. The importer requires bilingual-pdf renderer API 1 and the studytools helper-call API shipped with this revision. Pin both skills to the tested repository revision in downstream projects; do not infer paths from sibling directories.
+1. Discover installed `study-notes` and `bilingual-pdf` through the host's skill listing. Read both SKILL.md files. Set `STUDY_NOTES_SKILL` and `BILINGUAL_PDF_SKILL` to those discovered directories. The importer requires the bilingual-pdf renderer functions `validate`, `text_value`, `language_text`, `resolve_image` and its `PROFILES` mapping and the studytools helper-call API shipped with this revision. Pin both skills to the tested repository revision in downstream projects; do not infer paths from sibling directories.
 2. Use Python 3.10+ in a project environment. Install `study-notes/requirements.txt` and the discovered bilingual-pdf requirements. Native-only manuscripts do not require Python. No script fetches a skill or installs packages automatically.
-3. Start from [the complete paired parcel example](../examples/structured-graph.json), or author the standard [JSON Schema](../schemas/graph-v1.schema.json). Read the actual sources first. Supplied pairs need no translation service or model review workflow. Preserve their wording; content review is separate from compilation.
+3. Start from [the complete paired parcel example](../examples/structured-graph.json), or author the standard [JSON Schema](../schemas/semantic-graph.schema.json). Read the actual sources first. Supplied pairs need no translation service or model review workflow. Preserve their wording; content review is separate from compilation.
 4. Validate, order and generate into a new output directory. The command rejects an existing output directory to avoid overwriting user work.
 
 ```sh
@@ -34,7 +34,6 @@ All objects reject unknown properties. The CLI rejects duplicate object member n
 
 Required root properties:
 
-- `schema_version`: integer `1`.
 - `languages`: exactly two installed renderer profile IDs. Repeating a language is allowed for same-language parallel variants. Edition selection never changes node order. The renderer's mixed simplified/traditional Chinese limitation applies.
 - `title`: exactly two nonempty plain strings.
 - `entry`: stable semantic node key.
@@ -71,7 +70,7 @@ A call belongs immediately after a procedure step. It has:
 }
 ```
 
-`target` may be a decision or procedure. All return exits must be reachable procedures. `resume.node` must be the owning procedure; `resume.step` must be a later actual step or `completion_check` with that field present. The region stops at declared return exits. Every region node must have a structural path to a declared exit. Nested/recursive calls and overlapping regions with incompatible return exits are rejected in v1. A return-only exit cannot be reached in ordinary entry flow; give it an ordinary `next` when ordinary access is intended. Calls are never silently converted into jumps.
+`target` may be a decision or procedure. All return exits must be reachable procedures. `resume.node` must be the owning procedure; `resume.step` must be a later actual step or `completion_check` with that field present. The region stops at declared return exits. Every region node must have a structural path to a declared exit. Nested/recursive calls and overlapping regions with incompatible return exits are rejected. A return-only exit cannot be reached in ordinary entry flow; give it an ordinary `next` when ordinary access is intended. Calls are never silently converted into jumps.
 
 The motivating reader task in the neutral example is selecting one material through an optional question helper, bringing that result back, and finishing the existing packing procedure. This does not require a separate reader graph, inspection stage, uncertainty topology or call for ordinary solutions. Native `StudyGraphCall` keeps its old procedure-only contract. The importer uses `StudyGraphHelperCall` for decision-entry helpers and `StudyGraphReturnExit` only for return-only exits.
 
@@ -103,11 +102,11 @@ Objective: sum of absolute ordinal distances over distinct directed executable t
 
 Entry is fixed first. At or below `exact_limit`, enumerate every remaining-node permutation (at most 8! = 40,320 scores); this is an exact optimum only for that constrained ordinal objective. This bounded exhaustive search ignores the heuristic budget. Larger graphs use deterministic rank-tie-broken swaps/relocations, at most `budget` candidate scores including the baseline, and retain a result no worse than baseline. There is no approximation ratio or global-optimum claim for that branch. Page distances are measured after rendering, never certified by ordinal ordering.
 
-The report records algorithm/API/schema versions, effective settings, seed/baseline/final order, exact edges, scores, evaluations, certification flag, source/output hashes and key-number-anchor crosswalk. Hashes use UTF-8 canonical JSON (sorted keys, compact separators, Unicode preserved) for structured values and exact UTF-8 bytes for output files. The report does not independently certify its own optimality claim; maintained independent tiny-graph oracle tests check the exact algorithm.
+The report records ordering method, effective settings, seed/baseline/final order, exact edges, scores, evaluations, certification flag, source/output hashes and key-number-anchor crosswalk. Hashes use UTF-8 canonical JSON (sorted keys, compact separators, Unicode preserved) for structured values and exact UTF-8 bytes for output files. The report does not independently certify its own optimality claim; maintained independent tiny-graph oracle tests check the exact algorithm.
 
-## Native adapters outside graph-v1
+## Native adapters outside structured graph
 
-The additive [native emission helpers](native-emission.md) support already-authored native call prose and source survival checks without widening this schema or validator. Use this importer for graph-v1 inputs; choose a reviewed native adapter for contracts outside its stated limits.
+The additive [native emission helpers](native-emission.md) support already-authored native call prose and source survival checks without widening this schema or validator. Use this importer for structured graph inputs; choose a reviewed native adapter for contracts outside its stated limits.
 
 ## Maintainer verification
 

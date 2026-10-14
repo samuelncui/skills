@@ -285,13 +285,12 @@ class CompactWorkflowTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "reused"):
             W.mutate(self.master, "save", self.targets(block, "Different."))
 
-    def test_task_local_numbers_phase_stale_and_legacy_writer_guards(self):
+    def test_task_local_numbers_phase_stale_and_single_writer_api(self):
         self.prepare()
         block = W.next_block(self.master)
         with self.assertRaises(ValueError):
             self.accept(block)
-        with self.assertRaisesRegex(ValueError, "compact block"):
-            C.next_block(self.master)
+        self.assertFalse(hasattr(C, "next_block"))
         other = self.root / "other.jsonl"
         W.initialize(self.source, self.receipt, other, self.final_ref)
         other_block = W.next_block(other)
@@ -593,7 +592,7 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
         while not block.get("complete"):
             block = call("review", "accept", self.master, "--ref", block["ref"])["next"]
         call("validate", self.master, "--ready")
-        call("export", self.master, "--output", self.root / "legacy.json")
+        call("export", self.master, "--output", self.root / "exchange.json")
         raw = "\n".join(transcript)
         self.assertIsNone(re.search(r"[a-f0-9]{32,}", raw))
         for unit in C.load_jsonl(self.master)["units"]:
@@ -814,7 +813,27 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
         self.assertEqual(run("status")["reviewed"], 2)
         self.assertEqual(run("status", cwd=other)["reviewed"], 0)
         self.assertEqual(run("status", self.master, cwd=other)["reviewed"], 2)
-    def test_schema_old_reader_clean_install_and_pdf_import(self):
+    def test_current_shape_rejects_obsolete_markers_and_dispatcher_state(self):
+        from jsonschema import Draft202012Validator
+        schema = json.loads((SCRIPT.parents[1] / "schemas/translation-workflow.schema.json").read_text())
+        validator = Draft202012Validator(schema)
+        self.prepare()
+        data = C.load_jsonl(self.master)
+        self.assertNotIn("contract_version", data["document"])
+        self.assertNotIn("active", data["document"]["workflow"])
+        self.assertNotIn("schema_version", C.to_exchange_document(data, False))
+        for place, key, value in (("document", "contract_version", 2),
+                                  ("workflow", "active", None)):
+            changed = copy.deepcopy(data)
+            target = changed["document"] if place == "document" else changed["document"]["workflow"]
+            target[key] = value
+            self.assertFalse(validator.is_valid(changed))
+            with self.assertRaises(ValueError):
+                C.validate(changed)
+        for name in ("next_block", "commit", "review", "revise", "split_unit", "main"):
+            self.assertFalse(hasattr(C, name))
+
+    def test_schema_reader_clean_install_and_pdf_import(self):
         from jsonschema import Draft202012Validator
         schema = json.loads((SCRIPT.parents[1] / "schemas/translation-workflow.schema.json").read_text())
         validator = Draft202012Validator(schema)
@@ -857,11 +876,11 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
             adapter_spec.loader.exec_module(adapter)
         reader = adapter.load_workflow(destination)
         data = reader.load_jsonl(installed_master, require_ready=True)
-        self.assertEqual([u["target"] for u in reader.to_legacy_document(data)["units"]],
+        self.assertEqual([u["target"] for u in reader.to_exchange_document(data)["units"]],
                          ["Translated.Translated.", "Translated."])
-        exported = self.root / "legacy.json"
+        exported = self.root / "exchange.json"
         self.cli("export", self.master, "--output", exported)
-        self.assertEqual(C.legacy.validate_document(json.loads(exported.read_text())), [])
+        self.assertEqual(C.exchange.validate_document(json.loads(exported.read_text())), [])
 
 
 if __name__ == "__main__":

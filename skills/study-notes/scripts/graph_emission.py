@@ -1,4 +1,4 @@
-"""Native graph prose and source-emission accounting, independent of graph-v1.
+"""Native graph prose and source-emission accounting, independent of the structured graph importer.
 
 Inputs are already-rendered trusted TeX. This module neither escapes text nor
 validates graph topology; use the discovered bilingual-pdf skill for text/math.
@@ -8,7 +8,6 @@ import re
 from collections import Counter, defaultdict
 from string import Formatter
 
-EMISSION_API_VERSION = 1
 _RESERVED = "\x1c\x1d\x1e\x1f"
 _MARKER = re.compile("\x1e([0-9]+):([oc])\x1f")
 CALL_TEMPLATES = {

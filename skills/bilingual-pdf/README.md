@@ -82,7 +82,7 @@ python3 scripts/bilingual_pdf.py preflight master.jsonl --translation-skill "$TR
 python3 scripts/bilingual_pdf.py render master.jsonl --translation-skill "$TRANSLATION_SKILL" --output new-pdf-project
 ```
 
-[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-v2-input)
+[JSONL → PDF](references/translation.md#direct-reviewed-jsonl-input)
 
 ## Repeated builds
 
@@ -112,6 +112,6 @@ Original code, tutorial text and diagrams use the [MIT license](LICENSE). Third-
 
 ## Translation before layout
 
-For raw-source translation, use the separately installed bilingual-translation skill to prepare one reviewed paired manuscript. Supplied pairs still render directly. See [translation handoff](references/translation.md) for installed-skill discovery, version pinning and optional exchange-v1 import; native TeX remains equally supported.
+For raw-source translation, use the separately installed bilingual-translation skill to prepare one reviewed paired manuscript. Supplied pairs still render directly. See [translation handoff](references/translation.md) for installed-skill discovery, tested revisions and optional semantic exchange import; native TeX remains equally supported.
 
 Trusted native adapters can merge exact-source math and references with the [source-bound text API](references/bound-text.md).

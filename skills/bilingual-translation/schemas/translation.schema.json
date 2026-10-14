@@ -1,10 +1,6 @@
 {
   "type": "object",
   "properties": {
-    "schema_version": {
-      "const": 1,
-      "type": "integer"
-    },
     "languages": {
       "type": "object",
       "properties": {
@@ -43,14 +39,13 @@
     }
   },
   "required": [
-    "schema_version",
     "languages",
     "units",
     "blocks"
   ],
   "additionalProperties": false,
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Bilingual translation exchange v1",
+  "title": "Bilingual translation exchange",
   "$defs": {
     "text": {
       "type": "string",

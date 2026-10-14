@@ -204,7 +204,7 @@ After compilation, inspect actual PDF pixels and run [layout acceptance checks](
 
 `\ParallelSubsection*[role]{id}{left}{right}` is the unnumbered variant of `\ParallelSubsection`. It retains a stable named destination, aligned heading treatment, the role style and attachment to the following unit, but does not increment the subsection counter or add a numbered contents entry. Its page can be referenced normally. The existing unstarred form remains numbered.
 
-`\ParallelTextAPIVersion` expands to the integer `2` for this native interface. Dependent native packages may verify it before document output. This is an interface-compatibility number, separate from `document-version` publication metadata and the Python renderer API number.
+Dependent native packages check that the commands they require are defined before document output and report any missing command with an actionable dependency error. Use matching tested skill revisions. The `document-version` key remains user-visible publication metadata.
 
 ## Supplied figure labels
 

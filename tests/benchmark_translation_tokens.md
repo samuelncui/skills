@@ -1,3 +1,5 @@
+> Current runner: `python3 tests/benchmark_translation_tokens.py --skill SKILL --fixtures-skill FIXTURES --output NEW_DIRECTORY`. Historical commands and measurements below belong to their recorded source snapshots; use that snapshot's runner to reproduce them. The current runner supports only the current workflow.
+
 # Translation protocol token benchmark
 
 This is an actual-CLI protocol benchmark with fixed translations, not a live translation-quality evaluation or a bill estimate. Run it explicitly; the installed translation skill still needs only Python's standard library. Its optional benchmark dependency is `tiktoken==0.12.0`, using `o200k_base`.
@@ -139,3 +141,21 @@ The main fixed-loading table has always counted only SKILL plus workflow-v2, exc
 ## Delegation instruction boundary
 
 The main-agent default, explicit delegation consent and context/state handoff guidance add 288 instruction tokens to the preceding 3,415-token revision. The historical fixed-loading count above includes this addition; human README translations remain excluded. That documentation-only revision left scripts, schemas, fixtures and CLI protocol unchanged, so its original executed evidence was retained. This documentation-only recount does not test fresh-agent compliance or translation quality.
+
+
+## Format cleanup and progress attribution (2026-10-14)
+
+The current runner exercises only `workflow.py`; it no longer carries the retired writer protocol. The historical snapshot commands above remain evidence for their recorded implementations, not commands for the current installed skill. Current runs can compare a preserved summary with `--baseline-summary`; fixture hashes and tokenizer settings must match. Do not rerun historical writers against a current installation.
+
+One actual four-fixture run used tiktoken 0.12.0/o200k_base and recorded every CLI request, response and payload. Each source unit was delivered once in preparation, once in translation and once in the separate review; each target was written and reviewed once. All four masters passed readiness and exact source reconstruction. Fixed instruction loading was 4,304 tokens and is separate from the protocol totals below.
+
+| Fixture | Actual protocol tokens | Progress events | Progress field marginal tokens | Same trace without progress fields | Historical f732d91 protocol tokens |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| guide_short | 1,773 | 3 | 70 | 1,703 | 1,701 |
+| long_semantic_split | 5,080 | 7 | 164 | 4,916 | 4,914 |
+| zh_en_structure | 2,139 | 9 | 208 | 1,931 | 1,931 |
+| shared_context | 1,145 | 5 | 116 | 1,029 | 1,023 |
+
+Progress attribution is an offline serialization counterfactual on the same raw trace: remove only each top-level `progress` field and recount, verifying that the original parsed/re-serialized response matches the recorded bytes. Translation/review events add 23 output tokens each; the preparation event adds 24–26. Translation groups per fixture were 1, 3, 4 and 2, with the same number of review groups. User-facing notification text is outside this CLI-only boundary.
+
+The historical f732d91 trace is retained rather than rerun. This comparison does not isolate every reference implementation detail, and random reference words affect tokenization. The newly requested progress information accounts for essentially all observed protocol growth; it is not evidence that the short-reference mechanism became ineffective. These small fixed-pair fixtures establish protocol behavior, not long-document elapsed time, translation quality, error rates or billed savings. No live model translation evaluation is claimed.

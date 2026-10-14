@@ -13,18 +13,18 @@
     "quick-reference.tex": "61f97cae50f40ede7f5ea30c23188e32d45cbc2f6b1007903a9fd82f60ddb2ad",
     "source-map.json": "b77c12a62b8082d0f709a157e29a21df9105fafdd39a1532da34980be42b1d71",
     "source.md": "bd3850d931f1515bef208e3534f3970f3822e83568578261c0004af107d75d49",
-    "structured-graph.json": "e98f40e80b553bba95ed3b91f7a03502c2d5cf495829e280b414006d97de56df",
+    "structured-graph.json": "6fba16f9efe8b6a19dfd3fdf154b6e6475458e7ef1148ca42c21c778d0499891",
     "structured-graph.tex": "35fdfda33a4dbb3783e1fdd59a734f71a45feaaf66f54cc2939c2148b1e95ddf"
   },
   "package_dependencies": {
     "bilingual-pdf": {
-      "scripts/bilingual_pdf.py": "7a85df6f5a90e5d3947662e9cae1d40407440356ed509f4fa9c317d0cdf5ba52",
-      "assets/paralleltext.sty": "46acfb7c6ead9ee3cd9b2a38d15f7f03819882baff4eb8158ddfb67b556bdf6d",
+      "scripts/bilingual_pdf.py": "04b1f46398a032cebae8cf480dee831eb875d857a1c90658e745e41147ce2478",
+      "assets/paralleltext.sty": "81987a63304c50457f109d3008b4f0e010b24623901ae2a392adc03c33a25497",
       "assets/bound-profile.tex": "87854c291355fc88c3fafcfb16f0f7bdcca951d3db88ad2074cdefe152b80e6c",
       "assets/reading-profile.tex": "a2b9ee83b843faf289aee5e76c48205f2346aff24b774e48662970ccccc54332"
     },
     "study-notes": {
-      "assets/studytools.sty": "dfaab82dc8a12157ab59f2bdd57b7f3deb43b0af612eacd7264b734eb58bd2ad",
+      "assets/studytools.sty": "7576f214b9797a800f4bbd13cf31fb6dd6e4c9177e5d217c26f57ac8d8dbf8e3",
       "assets/study-tree.tex": "5c5cf84b9411cfe4b368cb7c2f1d0400d21df4c1db9f17b669891f2a129c756c",
       "assets/study-graph-components.tex": "b6acd914f9e56367d19b0760e3aff23c3fce029c9c5da23359d6080846ec61fa"
     }
@@ -32,19 +32,19 @@
   "files": [
     {
       "path": "notes.pdf",
-      "sha256": "e882375274edae1498f08840fe4cfe3550353473bf59c071d2eeaeb4f8df897d"
+      "sha256": "5b4109532c1040af7968918fa6501790ade1499ab146ccd40ccafc88b90c0589"
     },
     {
       "path": "quick-reference.pdf",
-      "sha256": "36166620d2bf19ce5f089870ee589a9e924c7fe77545a28f9c64df35cc2c5b9b"
+      "sha256": "eee4fd098bae1cbe54ef32f4c480f5bd38bed94253a1fccb0a0d6c63a1c404d6"
     },
     {
       "path": "keyword-index.pdf",
-      "sha256": "a1804d4c074c7b99d29bbf509417a5404e41d00e3f48a6290a45f2dec2ec0600"
+      "sha256": "92518a48ede89ba0e11bc1afbaaba7a8849c5ff10b55db2cf515b25612c36dc9"
     },
     {
       "path": "decision-tree.pdf",
-      "sha256": "9d41dd1f850909e99e02e32cd54a27bdfb2b63565fe6a0b3028527c605447e31"
+      "sha256": "5a8844cf0b1624a955f282f13b71ebae131bddbd644448e265a77d67652f3cf7"
     }
   ],
   "previews": [

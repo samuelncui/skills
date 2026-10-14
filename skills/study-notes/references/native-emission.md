@@ -1,16 +1,16 @@
-# Native graph emission helpers, API 1
+# Native graph emission helpers
 
 Use scripts/graph_emission.py for trusted native adapters that need inline
 helper-call prose, precise native references or source-field survival checks.
-It is independent of the graph-v1 importer: no new schema, call-group behavior,
-branch selection or graph-validation bypass is introduced. Keep graph-v1 inputs
+It is independent of the structured graph importer: no new schema, call-group behavior,
+branch selection or graph-validation bypass is introduced. Keep structured graph inputs
 on the documented structured route. This helper is also usable without a graph
 JSON file.
 
 Discover installed study-notes and bilingual-pdf separately. Load each script
 by its discovered absolute path with importlib.util.spec_from_file_location;
-never infer a sibling installation. Check EMISSION_API_VERSION == 1 and the
-bilingual renderer's BOUND_TEXT_API_VERSION == 1. Read the installed
+never infer a sibling installation. Verify the emission helpers you use are callable
+and the bilingual renderer provides callable `render_bound_text`. Read the installed
 bilingual-pdf reference references/bound-text.md for escaping, math, exact
 source runs and trusted-native boundaries.
 
@@ -41,7 +41,7 @@ outputs is a nonempty ordered list/tuple of rendered fragments.
 - A call does not choose among other calls, advance a resume step, sort outputs
   or suppress ordinary continuation. Preserve the author's call sequence and
   conditions. A same-step resume remains the same exact reference. The stricter
-  graph-v1 importer continues to enforce its own later-step restrictions.
+  structured graph importer continues to enforce its own later-step restrictions.
 - Translation review and source-to-call mapping remain the caller's job.
 
 ## Verify actual formatted fragments
@@ -66,7 +66,7 @@ path = Path(os.environ["STUDY_NOTES_SKILL"]) / "scripts/graph_emission.py"
 spec = importlib.util.spec_from_file_location("installed_emission", path)
 emission = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(emission)
-assert emission.EMISSION_API_VERSION == 1
+assert callable(getattr(emission, "EmissionTrace", None))
 
 trace = emission.EmissionTrace()
 field = trace.field("/steps/0", "en", "Keep the box.", "Keep the box.")
