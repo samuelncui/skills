@@ -2,7 +2,9 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-Create one source-first, aligned translation master. The agent reads the complete source, chooses semantic splits, saves bounded groups, then reviews all saved source/target pairs in a separate pass.
+Create one source-first, aligned translation master. By default, the current main agent reads the complete source, chooses semantic splits, saves bounded groups, then reviews all saved pairs in a separate pass. Independent review is a separate stage by the same agent.
+
+Subagents may lose context and introduce inconsistent terminology, style or details. Delegation requires explaining this risk and your explicit approval for its scope; urgency alone does not authorize it. Specific approval in your current request need not be repeated.
 
 Install this complete skill directory. The JSONL helper requires Python 3.11+ and POSIX file locking, with no external packages or network service. Native paired TeX remains an equal route for rich content outside the Markdown importer.
 

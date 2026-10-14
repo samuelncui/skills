@@ -4,6 +4,12 @@
 
 Use `scripts/workflow.py` in this installed skill. Python 3.11+ and POSIX locking are required; no external package or network service is used. This phase facade preserves the JSONL contract and internal locking, hashes, revisions and retry checks while exposing only short opaque references in protocol metadata; full hashes remain internal. Source/target text is unchanged, including literal hexadecimal text.
 
+## Authorized delegation
+
+Follow the [main-agent default and permission rule](../SKILL.md#keep-one-agent-in-context). For approved work, hand over the full-source background, concepts/glossary, audience, style decisions, user constraints, relevant source text and neighboring passages, and unit boundaries/continuation relationships. The main agent integrates results and remains responsible for whole-document consistency during the required review.
+
+Approval does not change dispatch or concurrency rules: keep writes coordinated through the active group, current references and existing locks; never bypass these gates with parallel work or direct/legacy edits. Scripts validate workflow state, not agent identity or user authorization; `--reviewer` is only an attestation label.
+
 ## Task directory
 
 Run commands in one dedicated task directory, with `TRANSLATION_SKILL` set to the discovered installed skill path. Use `source.md`, `context.json`, optional `splits.json`, `source-read.json`, `master.jsonl`, and `output/` as a simple convention. Only the default master filename is enforced: master-consuming commands may omit their data argument and use the current directory's `master.jsonl`. An explicit data path still works. No parent-directory search, remembered last task, automatic context/split loading, or file relocation occurs. Keep the execution tool's working directory explicit when it does not persist between calls.

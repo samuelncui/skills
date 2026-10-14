@@ -21,7 +21,7 @@ Keep provenance in the working project and publish it only when authorized and a
 
 ## Translation and renderer handoffs
 
-Use supplied source/target pairs directly. When the task needs new translation, discover the installed `bilingual-translation` skill, read its workflow and complete its source-first translation and independent pair review. Keep the reviewed master unchanged as source evidence and retain its stable source/semantic IDs in the study source map where applicable. Record the tested skill revisions and input contract versions in the private working project.
+Use supplied source/target pairs directly. When the task needs new translation, discover the installed `bilingual-translation` skill and read its workflow; follow its main-agent default and explicit delegation-consent rule for source-first translation and a separate pair-review pass. Keep the reviewed master unchanged as source evidence and retain its stable source/semantic IDs in the study source map where applicable. Record the tested skill revisions and input contract versions in the private working project.
 
 Author the learning structure through this skill: native LaTeX for notes and lookup forms, or native declarations / graph-v1 for decision paths. Choose concepts, explanations, lookup identities and graph edges deliberately; label derived teaching content and review its language and coverage separately. Translation JSONL v2 and exchange-v1 JSON are not study-manuscript import formats, and their review status does not certify newly authored explanations or decision logic. Preserve supplied translations within the user's scope instead of silently rewriting the master to fit a study form.
 

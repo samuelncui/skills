@@ -56,9 +56,9 @@ Directly measured implementation SHA-256:
 | zh_en_structure | 3,763 → 670 | 8,285 → 1,417 | 11,485 → 2,378 | 21,597 → 4,560 | 109 + 82 |
 | shared_context | 1,286 → 465 | 2,699 → 640 | 4,090 → 1,682 | 7,649 → 2,381 | 37 + 50 |
 
-Final fixed loading: 4,216 → 3,415 tokens (19.00% reduction). Documentation was recounted after the final wording edits; protocol traffic did not change.
-- `SKILL.md`: 825 tokens; SHA-256 `bcdc3dbf3c2703615bafbd9b9f76e8df85f7b8c67cdcf063523aaed68154592d`.
-- `references/workflow-v2.md`: 2590 tokens; SHA-256 `816d20003f3e5d8090e07dbcf4b95d76bbf21810619be6361d8d8743759ceb9a`.
+Current fixed loading: 4,216 → 3,703 tokens (12.17% reduction). Only instruction text was recounted after the delegation-policy edit; the actual-CLI protocol measurements above are unchanged and were not rerun.
+- `SKILL.md`: 972 tokens; SHA-256 `f3f75d6ff30c7267990c7e801eaddcdf0620343fa1d05626289584b72675becd`.
+- `references/workflow-v2.md`: 2,731 tokens; SHA-256 `342b1c1941fe525d0d2bd12c165bc24e1da6be3924a80c59c7bd1fb4c55fe7eb`.
 
 ## Three-pass body exposure
 
@@ -95,6 +95,10 @@ The table uses an executed portable relative script path. It excludes the longer
 
 ## Context-shape instruction locality
 
-The final entry reference now includes the minimal context JSON and its field constraints. This adds 94 tokens to the two-file entry load (3,321 to 3,415). The separate legacy `contract-v1.md` is 2,506 tokens. For a cold reader that previously opened that whole legacy reference only to learn the context shape, this avoids a net 2,412 tokens of instruction text: 3,321 + 2,506 versus 3,415. This conditional comparison is not an actual account bill or a measurement of every reference a cold agent might read.
+At the context-shape-only revision, adding the minimal context JSON and field constraints added 94 tokens to the two-file entry load (3,321 to 3,415). The separate legacy `contract-v1.md` is 2,506 tokens. For a cold reader that previously opened that whole legacy reference only to learn the context shape, this avoids a net 2,412 tokens of instruction text: 3,321 + 2,506 versus 3,415. This conditional comparison is not an actual account bill or a measurement of every reference a cold agent might read.
 
 The main fixed-loading table has always counted only SKILL plus workflow-v2, excluding contract-v1. Do not add this conditional avoidance again to the main baseline reduction. Legacy consumers may still need contract-v1; the optimization removes that dependency only from the normal v2 context-authoring path. No code or protocol measurement was rerun for this documentation-only change.
+
+## Delegation instruction boundary
+
+The main-agent default, explicit delegation consent and context/state handoff guidance add 288 instruction tokens to the preceding 3,415-token revision. The current fixed-loading count above includes this addition; human README translations remain excluded. Scripts, schemas, fixtures and CLI protocol are unchanged, so their original executed evidence is retained. This documentation-only recount does not test fresh-agent compliance or translation quality.

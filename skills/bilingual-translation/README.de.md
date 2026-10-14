@@ -2,7 +2,9 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-Erstellen Sie ein einziges, quelltexttreues Übersetzungsmanuskript mit stabiler Zuordnung. Der Agent liest die gesamte Quelle, wählt semantische Trennstellen, speichert begrenzte Gruppen und prüft anschließend sämtliche Quell-/Zielpaare in einem getrennten Durchgang.
+Erstellen Sie ein einziges, quelltexttreues Übersetzungsmanuskript mit stabiler Zuordnung. Standardmäßig liest der aktuelle Hauptagent die gesamte Quelle, wählt semantische Trennstellen, speichert begrenzte Gruppen und prüft anschließend sämtliche Textpaare. Die unabhängige Prüfung ist ein eigener Lesedurchgang desselben Agenten.
+
+Unteragenten können Kontext verlieren und uneinheitliche Terminologie, Stil oder Details erzeugen. Eine Delegation erfordert die Erläuterung dieses Risikos und Ihre ausdrückliche Zustimmung zum Umfang; Dringlichkeit allein reicht nicht. Eine konkrete Zustimmung in der aktuellen Anfrage muss nicht erneut eingeholt werden.
 
 Installieren Sie das vollständige Skill-Verzeichnis. Das JSONL-Werkzeug benötigt Python 3.11+ und POSIX-Dateisperren, aber keine externen Pakete oder Netzwerkdienste. Für Inhalte außerhalb des Markdown-Importers bleibt natives zweisprachiges TeX ein gleichberechtigter Weg.
 

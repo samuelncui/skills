@@ -1,11 +1,17 @@
 ---
 name: bilingual-translation
-description: Translate source material into one source-first JSONL master. Read the complete source, choose semantic splits, save bounded groups, and independently review all source/target pairs. Use for new translations and revisions; supplied pairs can go directly to renderers.
+description: Translate source material into one source-first JSONL master. Read the complete source, choose semantic splits, save bounded groups, and review all source/target pairs in a separate pass. Use for new translations and revisions; supplied pairs can go directly to renderers.
 ---
 
 # Bilingual translation
 
 Preserve original source bytes and supplied translations within the user's scope. Keep language roles separate from physical display order. Discover installed skills through the host; use their actual paths. Use a separate working directory per task. Master-consuming commands default to its `master.jsonl`; explicit paths remain supported. Preparation inputs stay explicit.
+
+## Keep one agent in context
+
+By default, the current main agent completes preparation, translation and review without asking about delegation. Independent review means a separate reading/comparison pass by that same agent, not a second agent.
+
+Before using subagents, including for speed or work with little context dependence, explain that they may lose whole-source context and introduce inconsistent terminology, style or details; ask for and obtain explicit user permission for the proposed scope. Urgency or a general task request is not permission. Specific translation-delegation approval already in the current request suffices: disclose the risk without asking again. Delegate only that scope under the [context and state rules](references/workflow-v2.md#authorized-delegation).
 
 ## Prepare
 

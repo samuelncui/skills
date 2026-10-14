@@ -2,7 +2,9 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-Créez un manuscrit bilingue unique qui préserve la source et son alignement. L’agent lit la source entière, choisit les coupures sémantiques, enregistre des groupes bornés, puis compare toutes les paires source/cible dans une passe distincte.
+Créez un manuscrit bilingue unique qui préserve la source et son alignement. Par défaut, l’agent principal actuel lit toute la source, choisit les coupures sémantiques, enregistre des groupes bornés, puis compare toutes les paires. La relecture indépendante est une étape distincte menée par ce même agent.
+
+Les sous-agents peuvent perdre le contexte et créer des incohérences de terminologie, de style ou de détail. Toute délégation exige l’explication de ce risque et votre accord explicite sur son périmètre ; l’urgence seule ne suffit pas. Un accord précis déjà donné dans la demande actuelle n’est pas redemandé.
 
 Installez le répertoire complet. L’outil JSONL exige Python 3.11+ et le verrouillage POSIX, sans paquet externe ni service réseau. Le TeX natif apparié reste une voie équivalente pour les contenus riches que l’importeur Markdown ne représente pas.
 
