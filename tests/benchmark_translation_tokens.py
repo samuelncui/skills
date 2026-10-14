@@ -298,7 +298,7 @@ def main():
         cases = [case for case in cases if case["name"] in args.workload]
         assert len(cases) == len(set(args.workload)), "Unknown workload"
     (args.output / "fixtures.json").write_text(json.dumps(cases, ensure_ascii=False, indent=2))
-    docs = ["SKILL.md", "references/workflow-v2.md"]
+    docs = ["SKILL.md", "references/workflow.md"]
     summary = {"mode": args.mode, "python": sys.version, "tokenizer": "tiktoken",
                "tokenizer_version": tiktoken.__version__, "encoding": "o200k_base",
                "boundary": "Actual argv JSON + once-authored payload; actual stdout. Excludes MCP/file-write framing, reasoning, billing and rendering.",

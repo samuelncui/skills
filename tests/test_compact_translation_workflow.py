@@ -66,6 +66,120 @@ class CompactWorkflowTests(unittest.TestCase):
             return json.loads(result.stdout)
         return result
 
+    def test_cli_adjacent_units_group_within_structural_boundaries(self):
+        text = "# Heading\n\nOne.\n\nTwo.\n\n- First\n- Second\n\n| Key | Value |\n| --- | --- |\n| A | B |\n\n## Next\n\n" + "😀" * 1200 + "尾" * 1000 + "\n\nLast.\n"
+        self.source.write_text(text, encoding="utf-8")
+        page = self.cli("prepare", "read", self.source, "--receipt", self.receipt)
+        self.assertTrue(page["complete"])
+        splits = self.root / "splits.json"
+        splits.write_text(json.dumps({"u000011": [1200]}))
+        self.cli("prepare", "init", self.source, "--receipt", self.receipt,
+                 "--read-ref", page["ref"], "--output", self.master, "--splits", splits,
+                 "--source-lang", "en", "--target-lang", "fr")
+        original = C.load_jsonl(self.master)
+        expected = [["u000001"], ["u000002", "u000003"], ["u000004", "u000005"],
+                    ["u000006", "u000007", "u000008", "u000009"], ["u000010"],
+                    ["u000011.part0001"], ["u000011.part0002", "u000012"]]
+        payload = self.root / "targets.json"
+        # Real CLI fixture saves/review attestations test protocol, not semantics.
+        for phase in ("translate", "review"):
+            groups = []
+            block = self.cli(phase, "next", self.master)
+            while not block.get("complete"):
+                groups.append([u["id"] for u in block["units"]])
+                self.assertLessEqual(sum(len(u["source"]) for u in block["units"]), 2048)
+                if phase == "translate":
+                    payload.write_text(json.dumps(self.targets(block)))
+                    block = self.cli(phase, "save", self.master, "--payload", payload)["next"]
+                else:
+                    self.assertTrue(all(u["target"] == "Translated." for u in block["units"]))
+                    block = self.cli(phase, "accept", self.master, "--ref", block["ref"])["next"]
+            self.assertEqual(groups, expected)
+        self.cli("validate", self.master, "--ready")
+        final = C.load_jsonl(self.master, require_ready=True)
+        for key in ("source_layout", "parents", "blocks"):
+            self.assertEqual(final["document"][key], original["document"][key])
+        for before, after in zip(original["units"], final["units"]):
+            for key in ("id", "source", "source_hash", "parent_id", "part_index", "has_more", "heading_path", "order"):
+                self.assertEqual(after[key], before[key])
+        self.assertEqual(self.source.read_text(), text)
+
+    def test_small_document_progress_crosses_many_thresholds_once(self):
+        self.prepare()
+        block = W.next_block(self.master)
+        saved = W.mutate(self.master, "save", self.targets(block))
+        self.assertEqual(saved["progress"], {"phase": "translate", "completed": 2,
+            "total": 2, "unit": "units", "percent": 100})
+        self.assertNotIn("progress", saved["next"])
+        self.assertEqual(W.status(self.master)["reviewed"], 0)
+        review = W.next_block(self.master, "review")
+        accepted = self.accept(review)
+        self.assertEqual(accepted["progress"], {"phase": "review", "completed": 2,
+            "total": 2, "unit": "units", "percent": 100})
+        self.assertNotIn("progress", accepted["next"])
+
+    def test_progress_thresholds_floor_and_empty_total(self):
+        for before, after, total, percent in ((0, 1, 21, None), (1, 2, 21, 9),
+                (0, 14, 20, 70), (19, 20, 20, 100), (998, 999, 1000, None),
+                (949, 999, 1000, 99), (20, 19, 20, 95), (1, 1, 20, None), (0, 0, 0, None)):
+            with self.subTest(before=before, after=after, total=total):
+                result = W._progress("translate", before, after, total)
+                if percent is None:
+                    self.assertEqual(result, {})
+                else:
+                    self.assertEqual(result, {"progress": {"phase": "translate", "completed": after,
+                        "total": total, "unit": "units", "percent": percent}})
+
+    def test_progress_saved_reviewed_replay_and_revision_rollback(self):
+        self.prepare("\n\n".join("# Heading " + str(i) for i in range(21)))
+        block = W.next_block(self.master)
+        self.assertNotIn("progress", block)
+        first = W.mutate(self.master, "save", self.targets(block))
+        self.assertNotIn("progress", first)
+        payload = self.targets(first["next"])
+        second = W.mutate(self.master, "save", payload)
+        self.assertEqual(second["progress"], {"phase": "translate", "completed": 2,
+            "total": 21, "unit": "units", "percent": 9})
+        self.translate()
+        self.assertEqual(W.mutate(self.master, "save", payload), second)
+        with self.assertRaises(ValueError):
+            W.mutate(self.master, "save", dict(payload, targets={"u000002": "Different"}))
+        self.assertEqual(W.status(self.master)["saved"], 21)
+        self.assertEqual(W.status(self.master)["reviewed"], 0)
+        review = W.next_block(self.master, "review")
+        while not review.get("complete"):
+            accepted = self.accept(review)
+            review = accepted["next"]
+        self.assertEqual(accepted["progress"]["percent"], 100)
+        selected = W.next_block(self.master, "review", unit_id="u000001")
+        revised = W.mutate(self.master, "revise", self.targets(selected, "Correction."))
+        self.assertEqual(revised["progress"], {"phase": "review", "completed": 20,
+            "total": 21, "unit": "units", "percent": 95})
+        repeated = W.mutate(self.master, "revise", self.targets(selected, "Correction."))
+        self.assertEqual(repeated, revised)
+        restored = self.accept(revised["next"])
+        self.assertEqual(restored["progress"]["percent"], 100)
+        self.assertEqual(restored["progress"]["completed"], 21)
+
+    def test_prepare_progress_pages_replay_and_error_do_not_advance(self):
+        self.source.write_text("😀" * 211)
+        with patch.object(C, "READ_PAGE", 10):
+            page = W.read_source(self.source, self.receipt)
+            self.assertNotIn("progress", page)
+            before = self.receipt.read_bytes()
+            with self.assertRaises(ValueError):
+                W.read_source(self.source, self.receipt, "999-wrong")
+            self.assertEqual(self.receipt.read_bytes(), before)
+            continuation = page["ref"]
+            page = W.read_source(self.source, self.receipt, continuation)
+            self.assertEqual(page["progress"], {"phase": "prepare", "completed": 20,
+                "total": 211, "unit": "codepoints", "percent": 9})
+            self.assertEqual(W.read_source(self.source, self.receipt, continuation), page)
+            while not page["complete"]:
+                page = W.read_source(self.source, self.receipt, page["ref"])
+            self.assertEqual(page["progress"]["percent"], 100)
+            self.assertEqual(page["progress"]["completed"], 211)
+
     def test_full_read_final_ack_and_idempotent_init(self):
         self.source.write_text("A" * (C.READ_PAGE + 1))
         first = W.read_source(self.source, self.receipt)
@@ -472,7 +586,7 @@ w.mutate(sys.argv[2],'save',json.load(open(sys.argv[3])))
                 else:
                     self.assertFalse({"parent_id", "part_index", "has_more"} & unit.keys())
             response = save_payload(block, "save")
-            self.assertEqual(set(response), {"saved", "next"})
+            self.assertEqual(set(response), {"saved", "next", "progress"})
             block = response["next"]
         block = call("review", "next", self.master, "--context")
         block = save_payload(block, "revise", "Corrected.")["next"]

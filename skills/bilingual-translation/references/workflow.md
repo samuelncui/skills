@@ -1,10 +1,8 @@
-# Source-first JSONL workflow v2
+# Source-first translation workflow
 
 ## Agent entry point
 
-Use `scripts/workflow.py` in this installed skill. Python 3.11+ and POSIX locking are required; no external package or network service is used. This phase facade preserves the JSONL contract and internal locking, hashes, revisions and retry checks while exposing short confirmation codes in protocol metadata; full binding hashes remain internal. Source/target text is unchanged, including literal hexadecimal text.
-
-Returned `ref` and `continue` values are strings such as `17-maple`. The number advances with the task revision and may skip; initialization continues from the final reading number. Return the complete value unchanged, without predicting either part. The common word is a confirmation cue, not security authentication; codes are not globally unique across tasks. Keep each task's directory and returned work together.
+Use `scripts/workflow.py` in this installed skill with Python 3.11+ and POSIX locking. Return each tool-provided `ref` or `continue` value unchanged; never generate or modify it. Keep each task's directory and returned work together.
 
 ## Execution boundaries
 
@@ -16,13 +14,13 @@ Run each documented `python3 -B .../scripts/workflow.py ...` command directly in
 - Read-only calculations may count offsets in text already delivered to your context after you choose a semantic cut. They must not reopen source/master files, replace semantic decisions or advance the workflow.
 - On failure, use documented recovery or an identical retry. If unresolved, or a needed capability is missing, report the blocker and ask for direction; do not modify the tool or invent a bypass.
 
-These are agent-compliance rules, not an operating-system permission boundary. Normal documented steps need no extra confirmation.
+Normal documented steps need no extra confirmation.
 
 ## Authorized delegation
 
 Follow the [main-agent default and permission rule](../SKILL.md#keep-one-agent-in-context). For approved work, hand over the full-source background, concepts/glossary, audience, style decisions, user constraints, relevant source text and neighboring passages, and unit boundaries/continuation relationships. The main agent integrates results and remains responsible for whole-document consistency during the required review.
 
-Approval does not change dispatch or concurrency rules: keep writes coordinated through the active group, current references and existing locks; never bypass these gates with parallel work or direct/legacy edits. Scripts validate workflow state, not agent identity or user authorization; `--reviewer` is only an attestation label.
+Approval does not change dispatch or concurrency rules: keep writes coordinated through the active group, current references and existing locks; never bypass these gates with parallel work or direct/legacy edits.
 
 ## Task directory
 
@@ -85,7 +83,7 @@ python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" translate save --payload tar
 
 Save returns `saved` IDs and `next`. Continue from that envelope; call `next` separately only initially or to resume. Pending work is sticky until saved. A finished phase returns `complete: true` and `next_action`.
 
-The tool keeps full bindings for document, phase, revision, IDs and source/target hashes internally. Extra fields, wrong IDs, stale references and changed retries fail. Identical replay returns the original response even after later work advances. After resolving an old retry, recover current work with `next` rather than acting on its historical envelope. Preparation reads establish context and splits, not an alternative route to author future targets. Saves create drafts.
+Extra fields, wrong IDs, stale references and changed retries fail. Identical replay returns the original response even after later work advances. After resolving an old retry, recover current work with `next` rather than acting on its historical envelope. Preparation reads establish context and splits, not an alternative route to author future targets. Saves create drafts.
 
 ## Review all pairs separately
 
@@ -109,6 +107,20 @@ python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" review revise --payload corr
 ```
 
 For paginated targets, a correction contains the complete replacement target, not only the displayed slice. Revision preserves source and clears changed review to draft. Accept/revise returns affected IDs (`reviewed` or `revised`) and `next`. Review changed pairs again; unchanged accepted pairs remain reviewed. Revisit a specific saved/reviewed pair with `review next --unit ID`. Another whole-document semantic pass is unnecessary; rendering acceptance is separate.
+
+## Progress updates
+
+Preparation reads and successful save/accept/revise responses may include:
+
+```json
+{"progress":{"phase":"translate","completed":42,"total":800,"unit":"units","percent":5}}
+```
+
+After reading the complete preparation page or completing the successful mutation, report the phase, completed/total, counting unit and percentage to the user, for example: “Translation: 42/800 units (5%).” Preparation uses `phase: "prepare"` and `unit: "codepoints"`; translation and review use `translate` / `review` and `units`. Split children count separately.
+
+An update appears at roughly each 5% boundary, including 100%, or when correction lowers review completion. Several boundaries crossed by one group need only one report of the actual current count. Small documents may finish in one group. Percent is rounded down; 999/1000 is 99%. `next`, target pagination and errors do not advance completion. Report review decreases explicitly, for example: “Review: 799/800 units (99%). A correction needs review again.” Translation at 100% still needs the separate review pass and `validate --ready`.
+
+Identical retries return the original response, including historical progress. Suppress a repeated user report only for the same task, phase and submitted operation reference (the continuation reference for preparation; none on its first page). Do not deduplicate by completed count: a new correction/re-review can revisit that count. Do not report an old replay as current progress. For translation/review, recover current work with `next`; use `status` for saved/reviewed counts after losing reporting context. For preparation, continue `prepare read` from the current valid reference, not the older replayed page. Do not claim a user update was delivered merely because the tool emitted progress.
 
 ## Render or export
 
@@ -136,14 +148,8 @@ python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" export --output reviewed-v1.
 
 Export creates a new file and retains the master. Joined children lose child-level layout hints. Default export requires current reviews; explicit `--allow-draft` is only for a requested draft and still rejects empty targets. HTML consumes its own layout JSON or legacy v1 import, not direct JSONL.
 
-## Storage and compatibility
+## Data access
 
-The [schema](../schemas/translation-workflow.schema.json) describes aggregate `{document, units}`; JSONL stores the document header followed by unit records. The header retains languages/context, exact source metadata/layout, parents, preread acknowledgment and workflow state. Units retain source/target hashes, status, review and parent/continuation metadata. Concatenate children exactly, without separators. Unknown fields, duplicate keys, nonfinite values and inconsistent state fail validation.
+Keep the JSONL master and use the workflow commands to read or change it. Do not edit controlled source/master/state files directly. After an interrupted write, retry the identical payload, then use `next` to recover current work. Do not mix legacy mutable helpers with this workflow.
 
-Writes use stable POSIX advisory locks, current-state checks, fsynced temporary files, atomic replacement and directory fsync. The retained `.lock` sidecar unlocks on process exit. A killed writer leaves old pending or completed state; identical retries resolve uncertainty. Local filesystem atomicity and POSIX lock semantics are assumed. Direct edits and legacy mutable helpers are not concurrent authoring routes.
-
-Underlying `translation_workflow.py` owns storage and public loader APIs: `load_jsonl(path, require_ready=False)`, `validate(data, require_ready=False)`, and `to_legacy_document(data, require_ready=True)`. Its verbose CLI remains for compatibility/debugging. New agents use the phase facade instead of copying revision/hash maps.
-
-Legacy v1 JSON remains supported by unchanged `translation_contract.py`, the [v1 contract](contract-v1.md) and [worked example](example-guide.md). Its free-selection APIs do not provide JSONL dispatcher guarantees and must not mutate JSONL.
-
-Maintainers run the translation suites using the repository’s tests/README.md; installed skills need no repository checkout. They cannot establish semantic boundaries, translation quality or PDF appearance.
+Use `export` for consumers requiring legacy v1 JSON. Existing v1 inputs use the separate [v1 APIs](contract-v1.md) and [example](example-guide.md).

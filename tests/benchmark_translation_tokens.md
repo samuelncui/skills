@@ -34,9 +34,44 @@ Keep both output directories for inspection. They contain exact fixtures, copied
 - Body reference: source text and fixed target strings tokenized independently once. These are reference costs, not an additive decomposition of serialized protocol tokens; BPE boundaries and repeated text matter.
 - Both modes use the same fixture hashes, targets and review note. The first three fixtures have no optional context; a fourth independently tests a supplied summary, audience and glossary. The benchmark checks complete source delivery, translation/review ID coverage in order, source reconstruction, unchanged fixed translations, reviewed status and default export readiness. It does not merely trust a successful process exit.
 
+## Numbered confirmation-code snapshot (2026-10-14)
+
+This section measures candidate `f732d91d444c8e7383a58899de772883badd8dd4` against `1f9614361181a39b59cd5b6394d4874a66ef12e5`, using Python 3.13.5 and tiktoken 0.12.0 / o200k_base. The candidate was executed once with the unchanged benchmark runner; baseline raw traces were reused only after matching all implementation hashes and recounting their token totals. Both versions use the same fixed targets and fixtures. The first three omit optional shared context; the fourth includes summary, audience and glossary.
+
+This is a frozen snapshot, not evidence for subsequent protocol changes. In particular, the planned 5%-interval progress reporting is not measured here; its output and any call changes require a new affected-scope measurement before making current-revision cost claims.
+
+### Marginal protocol cost and long-document interpretation
+
+The optimization objective is repeated protocol cost and end-to-end work on long manuscripts, potentially hundreds of thousands of words: tokens per block or per stated source volume, CLI/host round trips, and time spent translating, reviewing and reworking errors. Initial instruction length is not a compression target. Detailed rules that prevent errors may be worth their fixed loading cost. Keep that cost visible separately; a short fixture's one-load-plus-protocol total does not establish whether a long-document optimization is useful.
+
+| Workload | Input tokens old → new | Output tokens old → new | Protocol tokens old → new | Tokens saved | Reduction | CLI calls old → new |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| guide_short | 480 → 452 | 1,277 → 1,249 | 1,757 → 1,701 | 56 | 3.19% | 8 → 8 |
+| long_semantic_split | 1,288 → 1,236 | 3,730 → 3,678 | 5,018 → 4,914 | 104 | 2.07% | 12 → 12 |
+| zh_en_structure | 670 → 592 | 1,417 → 1,339 | 2,087 → 1,931 | 156 | 7.47% | 14 → 14 |
+| shared_context | 465 → 424 | 640 → 599 | 1,105 → 1,023 | 82 | 7.42% | 10 → 10 |
+
+These observed protocol savings include a fixed amount of preparation/completion traffic, so they are not a measured steady-state per-block rate. Random confirmation references were not fixed or mocked. Source words, Unicode codepoints and tokenizer tokens are different units; do not extrapolate these small fixtures to a per-10,000-word rate without a defined language, word-count convention, block distribution and representative long-document measurement. The unchanged call counts provide no evidence of reduced round-trip latency. Actual model elapsed time, agent compliance, translation quality, error rate and correction/rework time were not measured; token savings alone do not prove an improvement in those outcomes.
+
+All four normal paths passed complete source delivery, ordered translation/review ID coverage, exact source reconstruction, unchanged fixed targets, reviewed state, readiness/export, and three-pass source / one-write-one-read target exposure checks. Exposure dictionaries match the baseline exactly. Raw trace recounts and implementation identities were checked. Retries, revisions and target pagination above 8,192 codepoints were not exercised by this run.
+
+### Fixed loading, reported separately
+
+`SKILL.md` increased from 972 to 1,127 tokens; `references/workflow-v2.md` increased from 2,731 to 3,006. Their combined load is 3,703 → 4,133 tokens, a net increase of 430 (11.61%). This is a fixed instruction-loading difference, not 430 extra tokens per workflow call.
+
+| Instruction change | Token delta | Purpose |
+| --- | ---: | --- |
+| Direct-tool execution boundaries in both documents | +442 | Read each complete response before proceeding; use one official command per host call, documented input authoring and permitted calculations; prevent automated semantic approval, replacement controlled-data access or tool modification from bypassing the workflow. |
+| Confirmation-reference explanation | +105 | Copy the entire numbered-word code unchanged; do not predict either part; distinguish task-local confirmation cues from authentication and retain full internal bindings. |
+| Remove legacy source-only checkpoint recovery instructions | −114 | Remove obsolete separate split/inspect recovery entry points. |
+| Initialization wording | −3 | Explicitly apply all chosen semantic splits during initialization. |
+| Net | +430 | 442 + 105 − 114 − 3. |
+
+Attribution was computed by applying exact category replacements to the old complete documents and retokenizing each complete file separately, then summing the two file counts. The reconstructed final texts match the Git snapshot exactly. Sequential full-document differences telescope to 430; isolated diff fragments are not generally additive under BPE. All 24 category application orders were checked and yielded the same four deltas in this case. Only 105 of the net-accounting components concerns confirmation-reference explanations; attributing the entire 430-token increase to short references would be incorrect.
+
 ## Historical measured result (2026-10-14)
 
-The measurements below identify earlier implementation and instruction snapshots, before the numbered confirmation codes and direct-tool execution rules. The new protocol and fixed-loading totals have not yet been measured; these historical percentages are not claims about the current revision.
+The measurements in this historical section identify earlier implementation and instruction snapshots, before the numbered confirmation codes and direct-tool execution rules. They remain measured baseline evidence, not current workflow instructions or claims about later revisions. The separately identified `f732d91` measurement above supersedes the previous absence of evidence for numbered confirmation codes.
 
 Python 3.13.5, tiktoken 0.12.0, o200k_base. Original baseline commit: `25fb7db96bc86be93e91abb3c3b6979596901a02`. Original three baseline workloads were reused unchanged; only the new shared-context fixture required an additional baseline run. No timing or statistical significance claim.
 

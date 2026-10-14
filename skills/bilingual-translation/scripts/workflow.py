@@ -316,6 +316,19 @@ def next_block(path, phase="translate", include_context=False, unit_id=None, con
         return result
 
 
+def _progress(phase, before, completed, total, unit="units"):
+    # Integer buckets avoid premature 100% and add no reporting state.
+    if total <= 0 or (completed >= before and 20 * completed // total <= 20 * before // total):
+        return {}
+    return {"progress": {"phase": phase, "completed": completed, "total": total,
+                         "unit": unit, "percent": 100 * completed // total}}
+
+
+def _completed(data, phase):
+    return sum(u["target"] is not None if phase == "translate" else u["status"] == "reviewed"
+               for u in data["units"])
+
+
 def mutate(path, action, payload):
     if action == "accept":
         core._keys(payload, {"ref", "reviewer", "note"}, "review acceptance")
@@ -339,6 +352,7 @@ def mutate(path, action, payload):
         envelope = _envelope(data)
         require("ref" in envelope, "read every review page before accepting or revising")
         units = [u for u in data["units"] if u["id"] in active["ids"]]
+        before = _completed(data, phase)
         if action != "accept":
             targets = payload["targets"]
             require(isinstance(targets, dict) and targets, "targets must be a nonempty object")
@@ -373,6 +387,7 @@ def mutate(path, action, payload):
             following = _dispatch(data, phase)
         result = {{"save": "saved", "accept": "reviewed", "revise": "revised"}[action]: changed,
                   "next": following}
+        result.update(_progress(phase, before, _completed(data, phase), len(data["units"])))
         _ops(data)[key] = {"request_hash": fingerprint, "receipt": copy.deepcopy(result)}
         core._save(path, data)
         return result
@@ -389,6 +404,7 @@ def read_source(source, receipt, continuation=None):
         "parents": [{"id": u["id"], "char_count": len(u["source"])} for u in units],
         "source_layout": layout}}
     result = {k: page[k] for k in ("start", "end", "text", "complete")} | {"ref": _reference(page["token"])}
+    result.update(_progress("prepare", page["start"], page["end"], len(text), "codepoints"))
     oversized = [u for u in _oversize(preparation)
                  if page["start"] <= u["source_span"][0] < page["end"]]
     if oversized:

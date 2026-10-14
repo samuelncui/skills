@@ -15,11 +15,12 @@ Read the relevant skill and its references before editing. Keep agent instructio
 
 ## Translation workflow maintenance
 
-Keep operational steps in [bilingual-translation](skills/bilingual-translation/SKILL.md) and its [command reference](skills/bilingual-translation/references/workflow-v2.md); preserve these maintenance boundaries:
+Keep operational steps in [bilingual-translation](skills/bilingual-translation/SKILL.md) and its [command reference](skills/bilingual-translation/references/workflow.md); preserve these maintenance boundaries:
 
 - Keep the normal source-body path to three passes: complete preparation reading, bounded translation, then a separate complete source/target review. Choose semantic splits during the first reading and apply them at initialization; each child and translation group must fit 2048 Unicode source codepoints. Explicit recovery and correction review remain available without adding routine rereads.
 - Isolate each task in its own working directory. The main agent retains whole-source context and performs translation and review by default; delegation requires explaining the context-loss risk and obtaining explicit user approval for its scope.
-- Keep the agent interface low-token and easy to follow. Expose short confirmation values that must be returned whole; retain full document/phase/revision/hash bindings and retry validation internally. The owned reference defines the current encoding; short codes are not authentication or globally unique task identities. Do not add compatibility paths for superseded in-flight workflow state.
+- Optimize long-document marginal tokens, calls, elapsed time and rework per block, including documents of hundreds of thousands of words. Sufficient initial rules may add fixed tokens when they reduce later errors and marginal work; short-fixture first-load totals are not the optimization target. Keep the agent interface easy to follow. Expose short confirmation values that must be returned whole; retain full document/phase/revision/hash bindings and retry validation internally. The owned reference defines the current encoding; short codes are not authentication or globally unique task identities. Do not add compatibility paths for superseded in-flight workflow state.
+- Report actual per-phase progress around each 5% boundary and at completion; preserve idempotent retries and surface review rollback after corrections. Translation completion is not review completion.
 - Preserve the command reference's direct-tool execution boundary for translation actors: one official workflow command per host call, complete returned text read before continuing, and no script/loop/wrapper-driven tool use, replacement data commands, direct controlled-data edits or tool modifications. Documented input authoring and calculations on already-delivered text remain allowed. This actor rule does not prohibit repository engineering tests or benchmark runners from automating the official CLI.
 - Validate material workflow and instruction changes through fresh-context review/fix cycles as well as applicable automated checks. Retain failed evidence, fix the owning implementation or explanation, and retest the affected path. Measure optimizations against a comparable baseline; remove or revert ineffective changes rather than retaining extra machinery or claiming unmeasured savings.
 
@@ -32,6 +33,9 @@ For bilingual-pdf articles, keep native LaTeX and structured content as equal en
 Keep defaults usable without setup. New visual behavior belongs in the canonical package's documented native configuration or standard package hooks, never in per-example hardcoded variants. Test meaningful sparse overrides, invalid inputs, both print parities and native/structured equivalence. Use skill-level references and licenses; do not add repeated per-example README/license files. Language-pair folders are useful project boundaries, while the single learning set stays directly under examples/.
 
 ## Documentation ownership
+
+Agent skill text and operational references contain only execution-relevant inputs, outputs, steps, constraints and recovery. Keep background, design rationale, history and performance arguments in developer documentation or tests, rather than making agents load them repeatedly.
+
 
 Every skill, including a new one, must ship its own LICENSE and human README.md, README.zh-CN.md, README.ja.md, README.fr.md and README.de.md. Root catalog entries must link the matching human guide, never fall back to SKILL.md. Keep guides brief and link owned references/examples rather than duplicating them. Repository-specific requirements take precedence over generic skill-authoring minimalism. Before delivery, check the changed files against these requirements and distinguish structural test evidence from human content/language review.
 

@@ -4,15 +4,17 @@
 
 Create one source-first, aligned translation master. By default, the current main agent reads the complete source, chooses semantic splits, saves bounded groups, then reviews all saved pairs in a separate pass. Independent review is a separate stage by the same agent.
 
+Progress updates report actual completed/total counts by phase about every 5%, including completion and review rollback after corrections.
+
 Subagents may lose context and introduce inconsistent terminology, style or details. Delegation requires explaining this risk and your explicit approval for its scope; urgency alone does not authorize it. Specific approval in your current request need not be repeated.
 
 Install this complete skill directory. The JSONL helper requires Python 3.11+ and POSIX file locking, with no external packages or network service. Native paired TeX remains an equal route for rich content outside the Markdown importer.
 
 Try: “Translate this guide into French with bilingual-translation, preserving paragraphs and table cells in one reviewed master.” Supply the source, target language, audience and terminology.
 
-Agent entry: scripts/workflow.py. prepare reads and initializes the source, translate dispatches groups totaling at most 2048 source codepoints, and review records an independent complete comparison. Save/accept returns the next group; complete confirmation codes such as 17-maple are copied back unchanged instead of hashes and are not security credentials. Revision/hash/retry checks stay inside the tool. Only changed pairs need review again.
+Agent entry: scripts/workflow.py. prepare reads and initializes the source, translate dispatches groups totaling at most 2048 source codepoints, and review records a separate complete comparison. Save/accept returns the next group. Return tool-provided references unchanged. Only changed pairs need review again.
 
-[Agent workflow](SKILL.md) · [Commands and boundaries](references/workflow-v2.md)
+[Agent workflow](SKILL.md) · [Commands and boundaries](references/workflow.md)
 
 Reviewed JSONL goes directly to the separately discovered bilingual-pdf skill. HTML uses its own layout JSON or a legacy v1 import; it does not directly consume JSONL. Existing supplied pairs need no new translation.
 

@@ -4,15 +4,17 @@
 
 Erstellen Sie ein einziges, quelltexttreues Übersetzungsmanuskript mit stabiler Zuordnung. Standardmäßig liest der aktuelle Hauptagent die gesamte Quelle, wählt semantische Trennstellen, speichert begrenzte Gruppen und prüft anschließend sämtliche Textpaare. Die unabhängige Prüfung ist ein eigener Lesedurchgang desselben Agenten.
 
+Fortschrittsmeldungen nennen etwa alle 5 % den erledigten Anteil und die Gesamtzahl je Phase, einschließlich Abschluss und Rückschritten bei der Prüfung nach Korrekturen.
+
 Unteragenten können Kontext verlieren und uneinheitliche Terminologie, Stil oder Details erzeugen. Eine Delegation erfordert die Erläuterung dieses Risikos und Ihre ausdrückliche Zustimmung zum Umfang; Dringlichkeit allein reicht nicht. Eine konkrete Zustimmung in der aktuellen Anfrage muss nicht erneut eingeholt werden.
 
 Installieren Sie das vollständige Skill-Verzeichnis. Das JSONL-Werkzeug benötigt Python 3.11+ und POSIX-Dateisperren, aber keine externen Pakete oder Netzwerkdienste. Für Inhalte außerhalb des Markdown-Importers bleibt natives zweisprachiges TeX ein gleichberechtigter Weg.
 
 Beispiel: „Übersetze diesen Leitfaden mit bilingual-translation ins Französische und erhalte Absätze und Tabellenzellen in einem einzigen geprüften Manuskript.“ Geben Sie Quelle, Zielsprache, Zielgruppe und Terminologie an.
 
-Der Agent-Einstieg ist scripts/workflow.py. prepare liest und initialisiert die Quelle; translate liefert Gruppen mit insgesamt höchstens 2048 Quell-Codepoints; review dokumentiert einen unabhängigen vollständigen Vergleich. Speichern und Bestätigen liefern die nächste Gruppe. Vollständige Bestätigungscodes wie 17-maple werden unverändert statt manuell kopierter Hashes zurückgegeben und dienen nicht der Sicherheitsauthentifizierung; Revisions-, Hash- und Wiederholungsprüfungen bleiben intern erhalten. Nur geänderte Paare werden erneut geprüft.
+Der Agent-Einstieg ist scripts/workflow.py. prepare liest und initialisiert die Quelle; translate liefert Gruppen mit insgesamt höchstens 2048 Quell-Codepoints; review prüft alle Paare in einem separaten Schritt. Speichern und Bestätigen liefern die nächste Gruppe. Geben Sie die vom Tool gelieferten Referenzen unverändert zurück. Nur geänderte Paare werden erneut geprüft.
 
-[Agent-Ablauf](SKILL.md) · [Befehle und Grenzen](references/workflow-v2.md)
+[Agent-Ablauf](SKILL.md) · [Befehle und Grenzen](references/workflow.md)
 
 Geprüftes JSONL geht direkt an den separat ermittelten Skill bilingual-pdf. HTML verwendet sein eigenes Layout-JSON oder den bisherigen v1-Import und liest JSONL nicht direkt. Vorhandene Textpaare müssen nicht erneut übersetzt werden.
 
