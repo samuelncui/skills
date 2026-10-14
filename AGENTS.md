@@ -2,7 +2,7 @@
 
 Read the relevant skill and its references before editing. Keep agent instructions and canonical technical references in English. Human README guides have English, Chinese, Japanese, French and German versions as requested; demonstrations use their declared languages.
 
-- `bilingual-translation` owns the source-first translation workflow and optional semantic exchange contract; renderers consume it through explicitly discovered installed skills. `bilingual-html` owns its independent HTML layout schema, renderer and presentation assets. Supplied pairs render without a translation dependency.
+- `bilingual-translation` owns the source-first translation workflow and optional semantic exchange contract; renderers consume it through explicitly discovered installed skills. PDF consumes reviewed JSONL directly; HTML uses its independent layout schema or the explicit translation-export adapter, not direct JSONL. `bilingual-html` owns its renderer and presentation assets. Supplied pairs render without a translation dependency.
 - Maintain one owner per implementation. `skills/bilingual-pdf` owns the renderer, templates, LaTeX package, reusable article assets and layout references. `study-notes` owns only its teaching workflow, native learning components and learning example; it requires the installed bilingual skill rather than carrying distribution copies.
 - Test clean installations without source-checkout access: bilingual-pdf alone, and the study skill with its explicitly installed bilingual dependency at a separately discovered path. Never hardcode a sibling installation, automatically download a dependency or call repository maintainer tools from an installed skill.
 - Preserve original user inputs. Do not overwrite or silently change supplied translations.
@@ -12,6 +12,16 @@ Read the relevant skill and its references before editing. Keep agent instructio
 - Report passes, failures and unrun checks separately. Never claim all languages or accessibility conformance based on a small sample matrix.
 - Run schema/security tests, package ownership checks, applicable render/visual tests, clean installation and privacy checks before publication. Keep generated review evidence in a private build directory; publish only sanitized test summaries and authorized examples.
 - Do not weaken a validation gate merely to make a test pass. Fix the canonical code and rerun affected outputs.
+
+## Translation workflow maintenance
+
+Keep operational steps in [bilingual-translation](skills/bilingual-translation/SKILL.md) and its [command reference](skills/bilingual-translation/references/workflow-v2.md); preserve these maintenance boundaries:
+
+- Keep the normal source-body path to three passes: complete preparation reading, bounded translation, then a separate complete source/target review. Choose semantic splits during the first reading and apply them at initialization; each child and translation group must fit 2048 Unicode source codepoints. Explicit recovery and correction review remain available without adding routine rereads.
+- Isolate each task in its own working directory. The main agent retains whole-source context and performs translation and review by default; delegation requires explaining the context-loss risk and obtaining explicit user approval for its scope.
+- Keep the agent interface low-token and easy to follow. Expose short confirmation values that must be returned whole; retain full document/phase/revision/hash bindings and retry validation internally. The owned reference defines the current encoding; short codes are not authentication or globally unique task identities. Do not add compatibility paths for superseded in-flight workflow state.
+- Preserve the command reference's direct-tool execution boundary for translation actors: one official workflow command per host call, complete returned text read before continuing, and no script/loop/wrapper-driven tool use, replacement data commands, direct controlled-data edits or tool modifications. Documented input authoring and calculations on already-delivered text remain allowed. This actor rule does not prohibit repository engineering tests or benchmark runners from automating the official CLI.
+- Validate material workflow and instruction changes through fresh-context review/fix cycles as well as applicable automated checks. Retain failed evidence, fix the owning implementation or explanation, and retest the affected path. Measure optimizations against a comparable baseline; remove or revert ineffective changes rather than retaining extra machinery or claiming unmeasured savings.
 
 ## Curated example artifacts
 
