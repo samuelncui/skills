@@ -41,19 +41,31 @@ class TranslationConsumerTests(unittest.TestCase):
         self.work.mkdir()
         self.master = self.work / "master.jsonl"
 
-    def run_cli(self, script, *args, check=True, json_output=True):
+    def run_cli(self, script, *args, check=True, json_output=True, input_text=None):
         env = {key: value for key, value in os.environ.items()
                if key not in {"PYTHONPATH", "PYTHONHOME"}}
         result = subprocess.run([sys.executable, "-B", str(script), *map(str, args)],
                                 cwd=self.work, env=env, capture_output=True,
-                                text=True, timeout=30)
+                                text=True, timeout=30, input=input_text)
         if not check:
             return result
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return json.loads(result.stdout) if json_output else result.stdout
 
-    def workflow(self, *args, **kwargs):
-        return self.run_cli(self.translation / "scripts/workflow.py", *args, **kwargs)
+    def workflow(self, op, *, check=True, **fields):
+        raw = self.run_cli(self.translation / "scripts/workflow.py",
+                           "--master", self.master, *op.split(), check=check,
+                           json_output=False,
+                           input_text=json.dumps({"op": op, **fields}, ensure_ascii=False))
+        if not check:
+            return raw
+        records = [json.loads(line) for line in raw.splitlines()]
+        self.assertEqual(records[-1]["record_type"], "receipt")
+        self.assertTrue(all(r["record_type"] == "unit" for r in records[:-1]))
+        result = {k: v for k, v in records[-1].items() if k != "record_type"}
+        result["units"] = [{k: v for k, v in r.items() if k != "record_type"}
+                           for r in records[:-1]]
+        return result
 
     def prepare_reviewed_master(self):
         fixture = json.loads((ROOT / "tests/fixtures/translation-chunks.json").read_text())
@@ -81,41 +93,31 @@ class TranslationConsumerTests(unittest.TestCase):
                   fixture["after"][0] + "\n")
         self.source = self.work / "source.md"
         self.source.write_bytes(source.encode("utf-8"))
-        receipt = self.work / "read.json"
-        page = self.workflow("prepare", "read", self.source, "--receipt", receipt)
-        delivered, oversize = page["text"], list(page.get("oversize", []))
-        while not page["complete"]:
-            page = self.workflow("prepare", "read", self.source, "--receipt", receipt,
-                                 "--continue", page["ref"])
-            delivered += page["text"]
-            oversize.extend(page.get("oversize", []))
-        self.assertEqual(delivered, source)
-        self.assertEqual(len(oversize), 1)
-        parent = oversize[0]
-        self.assertEqual(source[slice(*parent["source_span"])], self.parent_pairs[1][0])
-        plan = self.work / "splits.json"
-        plan.write_text(json.dumps({parent["id"]: [len(chunks[0][0]),
-                                                   len(chunks[0][0]) + len(chunks[1][0])]}))
-        context = self.work / "context.json"
-        context.write_text(json.dumps({
+        page = self.workflow("prepare init", source=str(self.source),
+                             source_lang="en", target_lang="zh-Hans", context={
             "summary": "Keep observations, tentative explanations and unresolved conditions distinct in a community repair log.",
             "audience": "community workshop volunteers",
-        }))
-        initialized = self.workflow("prepare", "init", self.source, "--receipt", receipt,
-                                    "--read-ref", page["ref"], "--output", self.master,
-                                    "--source-lang", "en", "--target-lang", "zh-Hans",
-                                    "--context", context, "--splits", plan)
-        self.assertEqual(initialized["oversize"], [])
+        })
+        self.assertEqual([u["source"] for u in page["units"]],
+                         [pair[0] for pair in self.parent_pairs])
+        self.assertEqual(len(page["oversize"]), 1)
+        parent = page["oversize"][0]
+        initialized = self.workflow("prepare split", ref=page["ref"], unit=parent["id"],
+                                    cuts=[{"left": chunks[i][0][-48:],
+                                           "right": chunks[i+1][0][:48]}
+                                          for i in range(len(chunks)-1)])
+        self.assertTrue(initialized["complete"])
+        self.assertEqual(initialized.get("pending", []), [])
         targets = dict(self.expected)
         seen = []
-        block = self.workflow("translate", "next", self.master)
+        block = self.workflow("translate next")
         while not block.get("complete"):
             self.assertLessEqual(sum(len(u["source"]) for u in block["units"]), 2048)
             seen.extend(u["source"] for u in block["units"])
-            payload = self.work / "targets.json"
-            payload.write_text(json.dumps({"ref": block["ref"], "targets": {
-                u["id"]: targets[u["source"]] for u in block["units"]}}, ensure_ascii=False))
-            block = self.workflow("translate", "save", self.master, "--payload", payload)["next"]
+            saved = self.workflow("translate save", ref=block["ref"], targets={
+                u["id"]: targets[u["source"]] for u in block["units"]})
+            self.assertNotIn("next", saved)
+            block = self.workflow("translate next")
         self.assertEqual(seen, [pair[0] for pair in self.expected])
 
         # Consumers must reject the very same manuscript before its review pass.
@@ -124,20 +126,21 @@ class TranslationConsumerTests(unittest.TestCase):
                                "--output", self.work / "unreviewed-pdf", check=False)
         self.assertNotEqual(pending.returncode, 0)
         self.assertFalse((self.work / "unreviewed-pdf").exists())
-        pending = self.workflow("export", self.master, "--output", self.work / "unreviewed.json",
-                                check=False)
+        pending = self.workflow("export", output=str(self.work / "unreviewed.json"), check=False)
         self.assertNotEqual(pending.returncode, 0)
         self.assertFalse((self.work / "unreviewed.json").exists())
 
         seen_review = []
-        block = self.workflow("review", "next", self.master)
+        block = self.workflow("review next")
         while not block.get("complete"):
             seen_review.extend((u["source"], u["target"]) for u in block["units"])
-            block = self.workflow("review", "accept", self.master, "--ref", block["ref"],
-                                  "--reviewer", "supplied-fixture",
-                                  "--note", "Protocol fixture: supplied original pairs, not automatic semantic certification.")["next"]
+            accepted = self.workflow("review accept", ref=block["ref"],
+                                     reviewer="supplied-fixture",
+                                     note="Protocol fixture: supplied original pairs, not automatic semantic certification.")
+            self.assertNotIn("next", accepted)
+            block = self.workflow("review next")
         self.assertEqual(seen_review, [tuple(pair) for pair in self.expected])
-        self.assertTrue(self.workflow("validate", self.master, "--ready")["valid"])
+        self.assertTrue(self.workflow("validate")["valid"])
         self.assertEqual(self.source.read_bytes(), source.encode("utf-8"))
 
     def test_compact_master_reaches_independently_installed_consumers(self):
@@ -160,7 +163,7 @@ class TranslationConsumerTests(unittest.TestCase):
         self.assertEqual((pdf_out / "content.tex").read_text().count("\\ParallelProseChunk"), 4)
 
         exchange = self.work / "reviewed-exchange.json"
-        self.workflow("export", self.master, "--output", exchange)
+        self.workflow("export", output=str(exchange))
         exchange_data = json.loads(exchange.read_text())
         self.assertEqual(exchange_data["blocks"], header["blocks"])
         self.assertEqual(exchange_data["languages"], header["languages"])

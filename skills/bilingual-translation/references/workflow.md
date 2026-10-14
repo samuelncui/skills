@@ -2,64 +2,95 @@
 
 ## Agent entry point
 
-Use `scripts/workflow.py` in this installed skill with Python 3.11+ and POSIX locking. Return each tool-provided `ref` or `continue` value unchanged; never generate or modify it. Keep each task's directory and returned work together.
+Use this installed skill's `scripts/workflow.py` with Python 3.11+ and POSIX locking. Set `TRANSLATION_SKILL` to its discovered installation and run in one dedicated task directory. Commands use `master.jsonl` there by default; select another master with the process-level `--master PATH` before the command. Actions cannot change the master inside a batch.
+
+Return tool-provided references unchanged. A reference belongs to its action and current work; do not invent one or substitute a reference from another task. The commands expose short references while validating their full state bindings internally.
+
+## Output defaults
+
+Output is JSONL: each body record has `record_type: "unit"`; each command ends with a `record_type: "receipt"` record. Omitted unit metadata means `parent_id` equals its `id`, `part_index` is `0`, and `has_more` is `false`. Real parent links, nonzero child indices and `has_more: true` remain explicit; `heading_path` is retained. Omitted receipt `context`, `pending` and `oversize` mean `{}`, `[]` and `[]` respectively. Nonempty context and all references and progress remain explicit. Save and accept receipts report `saved` or `accepted` as a count of the submitted/current group, without repeating its IDs. These output defaults do not alter the stored master or lossless continuation rules.
 
 ## Execution boundaries
 
-Run each documented `python3 -B .../scripts/workflow.py ...` command directly in its own host execution-tool call. Read the complete returned text yourself before the next step. Command blocks show a sequence, not a batch to paste or automate. Calling the supplied Python CLI directly is the intended tool use.
+Run one documented CLI invocation directly per host execution-tool call, then read its complete output. An invocation may be an independent command or the supplied `run` command. Use the execution tool's stdin field for JSONL, or a host-authored input file with ordinary stdin redirection. Read all returned unit records and the final receipt without tool truncation before choosing another action.
 
-- Do not drive workflow commands through helper scripts, loops, pipelines, subprocesses or wrappers, even when they call the official CLI in order. Do not change the installed tools or import their internals to operate the workflow.
-- Use workflow commands for controlled source, master, receipt, hash and review/state access. Scripts, other commands and direct file reads/edits must not replace them. Restore context through documented workflow options instead of scanning files.
-- Use host file-writing tools to prepare documented `context.json`, `splits.json` and active target/correction payloads. Author these inputs from the returned work; do not batch future translations or automatically approve review.
-- Read-only calculations may count offsets in text already delivered to your context after you choose a semantic cut. They must not reopen source/master files, replace semantic decisions or advance the workflow.
-- On failure, use documented recovery or an identical retry. If unresolved, or a needed capability is missing, report the blocker and ask for direction; do not modify the tool or invent a bypass.
+- The supplied CLI is the workflow driver. Do not replace it with helper scripts, loops, pipelines, subprocess drivers, wrappers or imports of its internals; leave installed tools unchanged.
+- Read and change controlled source, master, receipts, hashes and review/state through documented commands only. Restore context through the workflow rather than scanning controlled files.
+- Author documented context, action and translation inputs through host file-writing tools or stdin. Derive them from work already delivered to your context; do not prewrite future translations or automate semantic approval.
+- Choose semantic split locations yourself; the tool locates exact anchors and counts codepoints. It does not choose meaningful cuts for you.
+- On failure, follow the diagnostic or retry identical inputs when the outcome is uncertain. If the supported route remains blocked, report it and ask for direction; do not bypass it by editing controlled files.
 
-Normal documented steps need no extra confirmation.
+Normal documented steps need no extra confirmation. The actor boundary does not prohibit repository engineering tests from exercising the official CLI programmatically.
+
+## Independent commands and JSONL batches
+
+Each input line is one JSON object with `op` equal to the command name, including its space:
+
+```json
+{"op":"translate save","ref":"RETURNED_REF","targets":{"u000001":"Complete target."}}
+{"op":"translate next"}
+```
+
+Run those two lines with:
+
+```sh
+python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" run
+```
+
+Pass the JSONL through stdin. For an independent command, pass one matching object through stdin, for example `translate save` with only the first line. The stdin object includes the same matching `op`; choose either flags or one stdin object, not both. Independent flags are generated from the same command configuration; use that command's `--help` for their spelling. No-argument commands such as `translate next` do not require stdin.
+
+Each action carries its own `ref` when required. There is no batch-wide reference. Save and accept produce acknowledgments; neither implicitly retrieves another group. To save and advance in one invocation, explicitly include the two lines shown above.
+
+`run` applies one same-master transaction through the same handlers as independent commands. A failed action does not commit a partial batch. Plan the whole batch using information already read:
+
+- At most one action may return source/target body text; put it last.
+- Read the result before constructing another body-dependent action. Do not try to consume a reference that this same batch has not yet returned.
+- Never combine `review patch` and `review accept` in the same batch. After a patch, retrieve and read the changed source/target comparison before accepting in a later invocation.
+- `export` is standalone and cannot appear in `run`.
+
+The commands are `prepare init`, `prepare split`, `translate next`, `translate save`, `review next`, `review accept`, `review patch`, `review restart`, `todo add`, `todo resolve`, `status`, `validate` and `export`.
 
 ## Authorized delegation
 
-Follow the [main-agent default and permission rule](../SKILL.md#keep-one-agent-in-context). For approved work, hand over the full-source background, concepts/glossary, audience, style decisions, user constraints, relevant source text and neighboring passages, and unit boundaries/continuation relationships. The main agent integrates results and remains responsible for whole-document consistency during the required review.
+Follow the [main-agent default and permission rule](../SKILL.md#keep-one-agent-in-context). For approved work, provide full-source background, concepts/glossary, audience, style decisions, user constraints, relevant source and neighboring passages, and unit boundaries/continuation relationships. The main agent integrates results and remains responsible for whole-document consistency.
 
-Approval does not change dispatch or concurrency rules: keep writes coordinated through the active group, current references and existing locks; never bypass these gates with parallel work or direct edits.
-
-## Task directory
-
-Run commands in one dedicated task directory, with `TRANSLATION_SKILL` set to the discovered installed skill path. Use `source.md`, `context.json`, optional `splits.json`, `source-read.json`, `master.jsonl`, and `output/` as a simple convention. Only the default master filename is enforced: master-consuming commands may omit their data argument and use the current directory's `master.jsonl`. An explicit data path still works. No parent-directory search, remembered last task, automatic context/split loading, or file relocation occurs. Keep the execution tool's working directory explicit when it does not persist between calls.
+Approval does not bypass active-group references, locking or coordinated writes. Do not use parallel writes or direct edits to evade those gates.
 
 ## Prepare the complete source
 
-Preserve UTF-8 bytes and line endings. The importer supports ATX/setext headings, plain paragraphs, flat single-line lists and rectangular pipe tables with nonempty cells. It retains heading ancestry, syntax gaps, blank lines, BOM and CRLF. Inline markup remains literal text. Fenced code, blockquotes, HTML, images, nested/multiline lists and complex tables need an explicit lossless native route.
+Preserve UTF-8 bytes and line endings. The importer supports ATX/setext headings, plain paragraphs, flat single-line lists and rectangular pipe tables with nonempty cells. It preserves heading ancestry, syntax gaps, blank lines, BOM and CRLF; inline markup remains literal text. Fenced code, blockquotes, HTML, images, nested/multiline lists and complex tables require an explicit lossless native route.
 
-```sh
-python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" prepare read source.md --receipt source-read.json
-# When complete is false, continue with the previous ref:
-python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" prepare read source.md --receipt source-read.json --continue READ_REF
-# While reading, choose semantic splits; form summary/audience/glossary from that reading.
-# After the final page, initialize once with context and the split plan:
-python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" prepare init source.md --receipt source-read.json --read-ref FINAL_REF --output master.jsonl --source-lang en --target-lang fr --context context.json --splits splits.json
-```
-
-Uppercase values are placeholders. Read returns exact `text`, `start`, `end`, `complete` and `ref`. An oversized unit is identified on the page where it starts by `oversize` metadata: `id`, `characters`, and `source_span: [start,end]` in the complete original source (end exclusive). Its text may continue on later reading pages; do not treat page boundaries as semantic cuts. Ensure all pages reach you without truncation before initialization. Receipts record delivery and acknowledgment, not comprehension; changed sources need new receipts.
-
-### Choose splits during the first reading
-
-Write `splits.json` as an object mapping every oversized ID to increasing offsets relative to that unit, for example:
+Start preparation with an independent `prepare init` and a single input object:
 
 ```json
-{"u000004":[1450,2870]}
+{"op":"prepare init","source":"source.md","source_lang":"en","target_lang":"fr","source_dir":"ltr","target_dir":"ltr","context":{"audience":"Library volunteers"}}
 ```
 
-Choose actual semantic boundaries, not these example positions. Python string indices count Unicode codepoints, not bytes, UTF-16 units or graphemes. Keep complete sentences, combining sequences and qualifications together. Offsets must be strictly increasing and interior; every child must be nonblank and at most 2048 codepoints. Whitespace belongs to exact slices. If an indivisible semantic unit cannot fit, stop for a content decision. Omit `--splits` when no units are oversized.
+It returns complete source units, not slices at arbitrary character boundaries. Each nonfinal batch contains at least 8192 source codepoints; the final batch may be smaller. A long paragraph remains complete in the output. Ensure the execution tool can deliver all of it without truncation. Read the entire batch and final receipt, verify the extraction, and choose semantic cuts immediately for any unit exceeding 2048 codepoints.
 
-From the same initial reading, write substantive context in `context.json`:
+### Split by exact adjacent anchors
 
 ```json
-{"summary":"Community tool-lending procedures and their exceptions.","audience":"Library volunteers","glossary":[{"source":"loan","target":"prêt","note":"Temporary lending, not a financial loan."}]}
+{"op":"prepare split","ref":"PREPARATION_REF","unit":"u000004","cuts":[{"left":"The first complete sentence. ","right":"The next sentence begins"}]}
 ```
 
-`summary` and `audience` are optional nonempty strings. `glossary` is optional; each entry needs nonempty `source` and `target`, with optional nonempty `note`. Use the document's actual concepts and languages; supply context directly in this object. `--context` stores this guidance for translation and review. Language directions optionally use `--source-dir rtl` and `--target-dir rtl`.
+Replace these illustrative strings with exact adjacent fragments from the delivered unit. `left` ends exactly at the cut and `right` begins there. Their joint occurrence must identify one unique location. Keep spaces and punctuation exactly: a space included at the end of `left` belongs to the preceding child; one at the beginning of `right` belongs to the next child. Do not normalize or repeat boundary whitespace.
 
-Init acknowledges complete reading, validates exact split-plan coverage and lossless reconstruction, and creates the fully split source-only master in one atomic operation. Missing, extra or invalid plans leave no partial master. It never chooses semantic cuts or normalizes text. Children retain parent ID, order, part index and continuation fields as parts of one original paragraph. Init reports `initialized`, the final unit count and an empty `oversize` list. Identical retries replay the original response; changed plans or context cannot overwrite an existing master.
+Choose cuts between complete semantic units, preserving sentences, combining sequences and qualifications. The tool locates the anchors, computes offsets and lengths, and verifies exact reconstruction and children of at most 2048 source codepoints. You do not calculate offsets or count 2048 characters manually. Supply enough ordered cuts to make every child fit. Ambiguous anchors need longer exact neighboring fragments; an oversized result needs another meaningful cut. Diagnostics identify the problem without routinely repeating the complete paragraph. If no meaningful split can satisfy the limit, stop for a content decision.
+
+Finish splitting the current batch before continuing preparation. The current preparation reference remains valid for the units in that delivered batch; each split action still carries its own `ref`. Do not use it after advancing to another batch. Advance with:
+
+```json
+{"op":"prepare init","ref":"CURRENT_PREPARATION_REF"}
+```
+
+Continuation uses `ref`, without resupplying source/language initialization fields. It may include an updated `context` object. Preparation can report complete on the final read or its last required split; before translating, an extra `prepare init` with that current reference may update the final context without rereading source. From this same complete-source reading, form a concise final summary, audience and glossary, and supply the updated context on the appropriate continuation:
+
+```json
+{"op":"prepare init","ref":"CURRENT_PREPARATION_REF","context":{"summary":"Community tool-lending procedures and their exceptions.","audience":"Library volunteers","glossary":[{"source":"loan","target":"prêt","note":"Temporary lending, not a financial loan."}]}}
+```
+
+`summary` and `audience` are optional nonempty strings. Each glossary entry needs nonempty `source` and `target`, with optional nonempty `note`. Use the actual document's concepts and languages. Keep reading and splitting until preparation reports completion; then translate. Children retain their original parent and order and concatenate losslessly into that original unit.
 
 ## Translate bounded groups
 
@@ -67,60 +98,82 @@ Init acknowledges complete reading, validates exact split-plan coverage and loss
 python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" translate next
 ```
 
-The normal work envelope has `phase`, confirmation-code `ref` and `units`. Each unit includes `id`, `kind` and complete `source`. Split children also include `parent_id`, `part_index` and `has_more`; unsplit units imply parent=id, index=0 and no continuation. Heading levels and list/table positions are included where applicable. Group source totals at most 2048 codepoints. Source is never truncated. Initial phase dispatch includes languages and complete `shared` context. Routine groups do not repeat local headings/table headers; explicit `--context` restores shared guidance and, when available, a local excerpt capped at 1024 codepoints with a truncation flag.
+Read all dispatched units and the receipt. A group totals at most 2048 source codepoints. Preserve IDs, structural positions and split-child continuation boundaries. Use already-read whole-source context and supplied guidance. Keep the language/context metadata returned with the initial phase dispatch available for later groups. After context loss, use `translate next --context` or `review next --context` to return the stored languages and context explicitly with the current work.
 
-Translate the displayed units, then write a target-only payload:
+Submit translations only for the active IDs:
 
 ```json
-{"ref":"RETURNED_REF","targets":{"u000001":"First complete target.","u000002":"Second complete target."}}
+{"op":"translate save","ref":"TRANSLATION_REF","targets":{"u000001":"First complete target.","u000002":"Second complete target."}}
 ```
 
-Use the actual reference and all active IDs. Include needed boundary spaces because child strings concatenate without added separators.
+Run this with independent `translate save`, or as the first line of a `run` followed by `{"op":"translate next"}`. Include boundary spaces needed when child targets are concatenated; the renderer adds no separators. Saves are drafts and return an acknowledgment. Request another group explicitly.
 
-```sh
-python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" translate save --payload targets.json
-```
-
-Save returns `saved` IDs and `next`. Continue from that envelope; call `next` separately only initially or to resume. Pending work is sticky until saved. A finished phase returns `complete: true` and `next_action`.
-
-Extra fields, wrong IDs, stale references and changed retries fail. Identical replay returns the original response even after later work advances. After resolving an old retry, recover current work with `next` rather than acting on its historical envelope. Preparation reads establish context and splits, not an alternative route to author future targets. Saves create drafts.
+Wrong IDs, extra fields, stale references and changed retries fail. Retry an uncertain operation identically, then recover current work rather than treating a historical replay as a fresh dispatch. Preparation is for reading and semantic splitting, not a route to author future targets ahead of the active group.
 
 ## Review all pairs separately
 
+After all targets are saved:
+
 ```sh
 python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" review next
-python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" review accept --ref REVIEW_REF
 ```
 
-Start after all translation is saved. Compare every source/target pair independently from generation, including meaning, missing/duplicated content, qualifications, terminology and cross-unit continuity. Ordinary review groups contain complete pairs, at most 2048 source and 8192 target codepoints.
+Review uses at most 2048 source codepoints per group; target length does not reduce that budget. Complete targets are returned without target pagination. Read the entire response and compare meaning, omissions/duplication, qualifications, numbers, names, negation, conditions, terminology and cross-unit continuity independently from translation. A tool receipt proves delivery/state, not comprehension.
 
-An individual target above 8192 codepoints is paginated explicitly: `units[0].target` is the current slice; top-level `target_page` gives start/end/total/complete. The complete source appears on the first page; later pages retain unit identity and page metadata without repeating source or shared context. Explicit `review next --context` can recover source context. Follow `review next --continue TOKEN` using the returned `continue` until the final page supplies an actionable `ref`. Read and compare every page; earlier pages cannot be accepted. Pagination never silently drops target text. If an interrupted review loses earlier page context, use `review next --restart` to reread from page zero; it is mutually exclusive with `--continue` and unnecessary during normal sequential review.
+Within this comparison pass, match each source clause to its target proposition: who does what, to whom, under which condition, with what polarity and degree of certainty. For negation and modal expressions, identify exactly which proposition they modify and check that the target preserves that scope; a fluent sentence can still reverse or strengthen a claim. Resolve pronouns and implicit actors using the source and relevant surrounding passages. When the source remains ambiguous, retain that ambiguity or record a todo rather than inventing a more specific actor.
 
-Accept records your attestation against current hashes. Optional `--reviewer NAME` defaults to `translation-agent`; `--note TEXT` describes the review. For corrections use a nonempty subset of displayed IDs:
+After reading the comparison, acknowledge it with:
 
 ```json
-{"ref":"REVIEW_REF","targets":{"UNIT_ID":"Corrected target."}}
+{"op":"review accept","ref":"REVIEW_REF"}
 ```
 
-```sh
-python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" review revise --payload corrections.json
+Acceptance records your attestation against current content. It returns an acknowledgment, not another group. Request `review next` explicitly, or put that action last after acceptance in `run`.
+
+### Exact local corrections
+
+```json
+{"op":"review patch","ref":"REVIEW_REF","edits":[{"unit":"u000001","old":"an incorrect phrase","new":"the corrected phrase"}]}
 ```
 
-For paginated targets, a correction contains the complete replacement target, not only the displayed slice. Revision preserves source and clears changed review to draft. Accept/revise returns affected IDs (`reviewed` or `revised`) and `next`. Review changed pairs again; unchanged accepted pairs remain reviewed. Revisit a specific saved/reviewed pair with `review next --unit ID`. Another whole-document semantic pass is unnecessary; rendering acceptance is separate.
+Before proposing a patch, identify the specific defect and the source/context evidence that establishes the intended meaning or referent. Change only what that evidence supports. On the required post-patch read, compare the revised target back to the source proposition, negation/modal scope, conditions and actor/reference; improved fluency is not sufficient evidence of a correct repair. This is part of the existing local re-review, not an additional full-document pass.
+
+Use exact substrings from the displayed target. Each `old` must match exactly once; multiple edits are located against the same current target and must not overlap. Avoid repeating the unchanged whole target. The tool checks the old text against current content and leaves changed units requiring review. Retrieve and read their changed source/target comparison, then accept in a later invocation; patching is never itself approval.
+
+For a local issue, recheck the affected pairs and needed surrounding context. Unchanged accepted content need not be redundantly reviewed. For widespread errors, a global terminology/style change or loss of confidence in the complete review, use `review restart` and perform a new whole-document comparison. Restart requires the `ref` from a currently delivered review group. It can discard that active group without accepting it and marks every pair for a new review round; call `review next` afterward. It does not resolve open todos. Do not label a global problem as a local correction to keep an old completion count.
+
+To restart and explicitly retrieve the first group in one invocation, pass these two lines to `run`:
+
+```json
+{"op":"review restart","ref":"CURRENT_REVIEW_REF"}
+{"op":"review next"}
+```
+
+If the full review is already complete, first call `review next` with `{"op":"review next","units":["UNIT_ID"]}` for an existing unit, read that comparison and use its returned `ref` for restart. Retrying the identical restart-and-next packet replays its original receipt and reference without opening another review round. `status` does not supply a replacement reference.
+
+### Track unresolved issues
+
+```json
+{"op":"todo add","ref":"CURRENT_REF","text":"Verify the exception against the source.","units":["u000001"]}
+```
+
+Use the active read group’s `ref`. Optional `units` must name units in that group; omitting it records a global issue. Resolve a scoped issue only after reading all its units together and checking the outcome:
+
+```json
+{"op":"todo resolve","ref":"CURRENT_REF","id":"RETURNED_TODO_ID"}
+```
+
+To revisit a saved or reviewed pair, use `review next` with `{"op":"review next","units":["u000001"]}` when no other group is active. The returned group supplies the current review reference; use that reference to patch or resolve a todo. A scoped todo requires all its named units in the active group.
+
+Open todos block ready validation and export. They do not prevent accepting other pairs that you have actually read and checked. Resolving a todo does not replace required review of changed text.
 
 ## Progress updates
 
-Preparation reads and successful save/accept/revise responses may include:
+Read each JSONL receipt in the tool response. If its `progress` is nonempty, send that exact string to the user before making the next tool call. Forward each new progress string in receipt order; the tool has already selected the reporting point and computed the counts.
 
-```json
-{"progress":{"phase":"translate","completed":42,"total":800,"unit":"units","percent":5}}
-```
+For example, a receipt containing `"progress":"review 5/22 units (22%)"` means: send “review 5/22 units (22%)” to the user, then continue the workflow.
 
-After reading the complete preparation page or completing the successful mutation, report the phase, completed/total, counting unit and percentage to the user, for example: “Translation: 42/800 units (5%).” Preparation uses `phase: "prepare"` and `unit: "codepoints"`; translation and review use `translate` / `review` and `units`. Split children count separately.
-
-An update appears at roughly each 5% boundary, including 100%, or when correction lowers review completion. Several boundaries crossed by one group need only one report of the actual current count. Small documents may finish in one group. Percent is rounded down; 999/1000 is 99%. `next`, target pagination and errors do not advance completion. Report review decreases explicitly, for example: “Review: 799/800 units (99%). A correction needs review again.” Translation at 100% still needs the separate review pass and `validate --ready`.
-
-Identical retries return the original response, including historical progress. Suppress a repeated user report only for the same task, phase and submitted operation reference (the continuation reference for preparation; none on its first page). Do not deduplicate by completed count: a new correction/re-review can revisit that count. Do not report an old replay as current progress. For translation/review, recover current work with `next`; use `status` for saved/reviewed counts after losing reporting context. For preparation, continue `prepare read` from the current valid reference, not the older replayed page. Do not claim a user update was delivered merely because the tool emitted progress.
+An identical operation retry returns the same progress; suppress it only if that operation's update was already reported. A correction or restart can lower the count, for example `review 0/22 units (0%)`; this is a new update to forward. Preparation uses `codepoints`, and translation/review use `units`. Translation at 100% still requires the separate review and ready validation. After losing reporting context, use `status` for current totals rather than treating an old replay as new progress.
 
 ## Render or export
 
@@ -129,27 +182,21 @@ python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" status
 python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" validate --ready
 ```
 
-Status restores shared metadata with `--context`. Validation checks exact source reconstruction, IDs, order, hashes and state, not meaning.
+Validation checks exact source reconstruction, identities, ordering, hashes, current review and unresolved todos; it does not judge translation meaning. Keep the master as source evidence.
 
-For PDF, discover both installed skills and read the PDF workflow. Set PDF_SKILL and TRANSLATION_SKILL to their actual, potentially unrelated directories:
+For PDF, discover both installed skills and use their actual, potentially unrelated paths:
 
 ```sh
 python3 -B "$PDF_SKILL/scripts/bilingual_pdf.py" preflight master.jsonl --translation-skill "$TRANSLATION_SKILL"
 python3 -B "$PDF_SKILL/scripts/bilingual_pdf.py" render master.jsonl --translation-skill "$TRANSLATION_SKILL" --output new-pdf-project
 ```
 
-PDF directly consumes reviewed JSONL, retains full records and aligns children within their original paragraph. Inspect actual pages through PDF acceptance. Its `export` creates portable native source without compiling; `build` handles repeated managed builds. Follow its structure, language and font limits. Native paired TeX is equally supported.
+PDF directly consumes reviewed JSONL, preserves full records and aligns children within their original paragraph. Follow its language, structure and font limits and inspect actual pages. Its own `export` creates portable native source without compiling; `build` handles repeated managed builds. Native paired TeX remains equally supported.
 
-For consumers needing semantic exchange JSON:
+When another consumer needs semantic exchange JSON, use standalone:
 
 ```sh
 python3 -B "$TRANSLATION_SKILL/scripts/workflow.py" export --output reviewed-exchange.json
 ```
 
-Export creates a new file and retains the master. Joined children lose child-level layout hints. Default export requires current reviews; explicit `--allow-draft` is only for a requested draft and still rejects empty targets. HTML consumes its own layout JSON or semantic exchange import, not direct JSONL.
-
-## Data access
-
-Keep the JSONL master and use the workflow commands to read or change it. Do not edit controlled source/master/state files directly. After an interrupted write, retry the identical payload, then use `next` to recover current work.
-
-Use `export` for consumers requiring [semantic exchange JSON](semantic-exchange.md). Its read-only validation API serves renderer integrations; translation and review remain in `workflow.py`. See the [worked exchange example](example-guide.md).
+Export creates a new file and retains the JSONL master. It requires current complete review and resolved todos; no draft-export bypass exists. Joined children lose child-level layout hints. HTML consumes its own layout JSON or imports this [semantic exchange](semantic-exchange.md), not direct JSONL. See the [worked exchange example](example-guide.md).

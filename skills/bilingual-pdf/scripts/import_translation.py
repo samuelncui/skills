@@ -105,7 +105,7 @@ def load_workflow(skill_path):
 
 def convert_jsonl(data, workflow, contract, source_side="left"):
     """Retain the full master; paragraph children become one page-breakable group."""
-    exchange = workflow.to_exchange_document(data, require_ready=True)
+    exchange = workflow.to_exchange_document(data)
     result = convert_pairs(exchange, contract, source_side)
     roles = result["translation"]["column_roles"]
     mapping = result["translation"]["unit_mapping"]

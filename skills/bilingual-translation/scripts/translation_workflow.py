@@ -20,8 +20,6 @@ exchange = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(exchange)
 
 MAX_SOURCE = 2048
-MAX_CONTEXT = 1024
-READ_PAGE = 8192
 ID = re.compile(r"[A-Za-z][A-Za-z0-9_.:-]*\Z")
 HASH = re.compile(r"[a-f0-9]{64}\Z")
 BAD_TEXT = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f\u202a-\u202e\u2066-\u2069\ud800-\udfff]")
@@ -30,7 +28,7 @@ UNIT_KEYS = {"record_type", "id", "parent_id", "part_index", "has_more", "kind",
              "order", "heading_path", "review", "target_hash"}
 HEADER_KEYS = {"record_type", "document_id", "revision", "languages",
                "source", "blocks", "parents", "source_layout", "context", "workflow",
-               "preread"}
+               "preparation"}
 PARENT_KEYS = {"id", "kind", "source_hash", "char_count", "heading_path"}
 
 
@@ -59,61 +57,80 @@ def reference_number(value):
     return int(match[1])
 
 
-def compact_binding(data, phase, units):
-    """Full internal binding; the public word is only a low-cost confirmation cue."""
+def workflow_binding(data, phase, selected):
+    return digest(_canonical([data["document"]["document_id"], phase,
+        data["document"]["workflow"]["review_round"],
+        [[u["id"], u["source_hash"], u["target_hash"]] for u in selected]]))
+
+
+def _validate_workflow(data):
     h = data["document"]
-    return digest(_canonical([h["document_id"], h["revision"], phase,
-                              [[u["id"], u["source_hash"], u["target_hash"]] for u in units]]))
-
-
-def compact_reference(data, phase, units):
-    binding = compact_binding(data, phase, units)
-    return str(data["document"]["revision"]) + "-" + REF_WORDS[int(binding, 16) % len(REF_WORDS)]
-
-
-def _validate_operation_journal(data):
-    h, units = data["document"], data["units"]
-    operations = h["workflow"]["operations"]
-    for record in operations.values():
+    w = h["workflow"]
+    _keys(w, {"active", "operations", "review_round", "sequence", "todos", "seen"}, "workflow")
+    _require(type(w["review_round"]) is int and w["review_round"] >= 0
+             and type(w["sequence"]) is int and w["sequence"] >= 0, "invalid workflow counters")
+    _require(isinstance(w["seen"], list) and len(set(w["seen"])) == len(w["seen"])
+             and all(v in ("translate", "review") for v in w["seen"]), "invalid delivered phases")
+    _require(isinstance(w["operations"], dict), "invalid operation journal")
+    for key, record in w["operations"].items():
+        _require(_hash(key), "invalid operation key")
         _keys(record, {"request_hash", "receipt"}, "operation journal record")
-        _require(_hash(record["request_hash"]) and isinstance(record["receipt"], dict),
-                 "invalid operation journal record")
-    if "_compact_seen" in operations:
-        record = operations["_compact_seen"]
-        _keys(record["receipt"], {"phases"}, "compact phases")
-        phases = record["receipt"]["phases"]
-        _require(isinstance(phases, list) and all(p in ("translate", "review") for p in phases)
-                 and len(set(phases)) == len(phases) and record["request_hash"] == digest("phases"),
-                 "invalid compact phases")
-    if "_compact_active" not in operations:
-        return
-    record = operations["_compact_active"]
-    a = record["receipt"]
-    _keys(a, {"phase", "ids", "ref", "page", "last_continue", "initial", "binding"}, "compact active")
-    _require(record["request_hash"] == digest(_canonical(a)), "invalid compact journal checksum")
-    _require(a["phase"] in ("translate", "review") and isinstance(a["ids"], list)
-             and a["ids"] and all(_id(uid) for uid in a["ids"]), "invalid compact phase/IDs")
-    selected = [u for u in units if u["id"] in a["ids"]]
-    _require([u["id"] for u in selected] == a["ids"]
-             and all(b["order"] == a0["order"] + 1 for a0, b in zip(selected, selected[1:])),
-             "invalid compact selection order")
-    _require(a["ref"] == compact_reference(data, a["phase"], selected)
-             and a["binding"] == compact_binding(data, a["phase"], selected), "stale compact reference")
-    _require(type(a["page"]) is int and a["page"] >= 0 and type(a["initial"]) is bool
-             and (a["last_continue"] is None or isinstance(a["last_continue"], str)),
-             "invalid compact page metadata")
-    _require(sum(len(u["source"]) for u in selected) <= MAX_SOURCE,
-             "oversized active source")
-    if a["phase"] == "translate":
-        remaining = [u for u in units if u["target"] is None]
-        _require(a["ids"] == [u["id"] for u in remaining[:len(selected)]]
-                 and a["page"] == 0 and a["last_continue"] is None, "invalid compact translation block")
+        _require(record["request_hash"] == key and isinstance(record["receipt"], dict), "invalid operation receipt")
+    _require(isinstance(w["todos"], list), "invalid todos")
+    ids = {u["id"] for u in data["units"]}
+    for index, todo in enumerate(w["todos"], 1):
+        _keys(todo, {"id", "text", "units", "resolved"}, "todo")
+        _require(todo["id"] == "todo-" + str(index) and type(todo["resolved"]) is bool, "invalid todo identity/state")
+        _text(todo["text"], "todo text")
+        _require(isinstance(todo["units"], list) and all(isinstance(x, str) for x in todo["units"])
+                 and len(set(todo["units"])) == len(todo["units"]) and set(todo["units"]) <= ids, "invalid todo scope")
+    a = w["active"]
+    if a is not None:
+        _keys(a, {"phase", "ids", "sequence", "binding", "ref", "delivered"}, "active block")
+        _require(a["phase"] in ("translate", "review") and isinstance(a["ids"], list)
+                 and a["ids"] and all(isinstance(x, str) for x in a["ids"]), "invalid active phase/IDs")
+        selected = [u for u in data["units"] if u["id"] in a["ids"]]
+        _require([u["id"] for u in selected] == a["ids"] and sum(len(u["source"]) for u in selected) <= MAX_SOURCE,
+                 "invalid active selection")
+        _require(type(a["sequence"]) is int and 0 < a["sequence"] <= w["sequence"]
+                 and type(a["delivered"]) is bool, "invalid active counters")
+        binding = workflow_binding(data, a["phase"], selected)
+        expected = str(a["sequence"]) + "-" + REF_WORDS[int(binding, 16) % len(REF_WORDS)]
+        _require(a["binding"] == binding and a["ref"] == expected, "stale active binding")
+        _require(h["preparation"]["complete"], "active work before preparation completion")
+        if a["phase"] == "translate":
+            remaining = [u["id"] for u in data["units"] if u["target"] is None]
+            _require(a["ids"] == remaining[:len(selected)], "active translation is not next unsaved group")
+        else:
+            _require(all(u["target"] is not None for u in data["units"]), "review before translation completion")
+
+
+def _validate_preparation(data):
+    h = data["document"]
+    p, parents = h["preparation"], h["parents"]
+    _keys(p, {"cursor", "delivered", "pending", "complete", "ref"}, "preparation")
+    _require(type(p["cursor"]) is int and 0 <= p["cursor"] <= len(parents)
+             and type(p["complete"]) is bool, "invalid preparation cursor")
+    _require(isinstance(p["delivered"], list) and isinstance(p["pending"], list)
+             and all(isinstance(x, str) for x in p["delivered"] + p["pending"]), "invalid preparation IDs")
+    count = len(p["delivered"])
+    _require(count <= p["cursor"] and p["delivered"] == [v["id"] for v in parents[p["cursor"]-count:p["cursor"]]],
+             "preparation batch order differs")
+    expected_pending = [u["id"] for u in data["units"] if u["parent_id"] in p["delivered"] and len(u["source"]) > MAX_SOURCE]
+    _require(p["pending"] == expected_pending, "preparation pending split mismatch")
+    _require(p["complete"] == (p["cursor"] == len(parents) and not p["pending"]), "preparation completion mismatch")
+    if p["cursor"] == 0:
+        _require(not count and p["ref"] is None, "invalid initial preparation")
     else:
-        _require(all(u["target"] is not None for u in units), "review requires all saved targets")
-        # This budget is part of the compact protocol, independent of source cap.
-        target_chars = sum(len(u["target"]) for u in selected)
-        _require((len(selected) == 1 or target_chars <= 8192)
-                 and a["page"] <= (target_chars - 1) // 8192, "invalid compact review page/budget")
+        _require(count > 0, "missing delivered preparation batch")
+        batch = digest(_canonical([h["document_id"], h["source"]["sha256"], "prepare", p["cursor"],
+            [[v["id"], v["source_hash"]] for v in parents if v["id"] in p["delivered"]]]))
+        _require(p["ref"] == str(p["cursor"]) + "-" + REF_WORDS[int(batch, 16) % len(REF_WORDS)], "invalid preparation ref")
+    prior_ids = {v["id"] for v in parents[:p["cursor"]-count]}
+    _require(all(len(u["source"]) <= MAX_SOURCE for u in data["units"] if u["parent_id"] in prior_ids),
+             "unresolved split before current preparation batch")
+    if not p["complete"]:
+        _require(all(u["target"] is None for u in data["units"]), "translation before complete preparation")
 
 
 def _json(text):
@@ -197,50 +214,6 @@ def _atomic(path, text, new=False):
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
-
-
-def read_source(source, receipt, continuation=None):
-    """Emit sequential exact pages. Replaying the last continuation replays that page."""
-    text = _source(source)
-    sha = digest(text)
-    with _lock(receipt):
-        path = Path(receipt)
-        if not path.exists():
-            _require(continuation is None, "no receipt exists for this continuation")
-            state = {"source_hash": sha, "char_count": len(text), "end": 0,
-                     "token": None, "last_request": None, "page": None, "acknowledged": False}
-        else:
-            state = _json(path.read_text("utf-8"))
-            _require(state["source_hash"] == sha, "source changed; create a new preread receipt")
-            _require(reference_number(state["token"]) == (state["end"] + READ_PAGE - 1) // READ_PAGE,
-                     "invalid read receipt; create a new receipt and reread the source")
-            if continuation == state["last_request"] and state["page"] is not None:
-                return state["page"]
-            _require(continuation is not None and continuation == state["token"],
-                     "use the returned continue token; reread with a new receipt to start over")
-            _require(state["end"] < len(text), "all source pages delivered; acknowledge source")
-        start = state["end"]
-        end = min(start + READ_PAGE, len(text))
-        token = str(start // READ_PAGE + 1) + "-" + secrets.choice(REF_WORDS)
-        page = {"source_hash": sha, "start": start, "end": end, "char_count": len(text),
-                "text": text[start:end], "complete": end == len(text), "token": token,
-                "note": "Read this exact page. Acknowledge the version after the final page."}
-        state.update(end=end, token=token, last_request=continuation, page=page)
-        _atomic(path, _canonical(state) + "\n", new=not path.exists())
-        return page
-
-
-def ack_source(source, receipt, source_hash, token):
-    text = _source(source)
-    with _lock(receipt):
-        state = _json(Path(receipt).read_text("utf-8"))
-        _require(state["source_hash"] == source_hash == digest(text), "source version mismatch")
-        _require(state["end"] == len(text) and token == state["token"],
-                 "complete source delivery and its final token are required")
-        state["acknowledged"] = True
-        _atomic(receipt, _canonical(state) + "\n")
-    return {"acknowledged": source_hash,
-            "note": "Delivery and caller acknowledgment recorded; understanding is not established."}
 
 
 def _new_unit(uid, kind, source, heading_path):
@@ -363,48 +336,6 @@ def import_markdown(text):
     return units, blocks, layout
 
 
-def initialize(source, receipt, output, source_lang="en", target_lang="fr",
-               source_dir="ltr", target_dir="ltr", context=None, initial_operations=None, source_splits=None):
-    text = _source(source)
-    state = _json(Path(receipt).read_text("utf-8"))
-    _require(state.get("acknowledged") is True and state.get("source_hash") == digest(text)
-             and state.get("end") == len(text), "acknowledge complete current source before init")
-    units, blocks, layout = import_markdown(text)
-    parents = [{k: u[k] for k in ("id", "kind", "source_hash", "heading_path")} |
-               {"char_count": len(u["source"])} for u in units]
-    for i, u in enumerate(units):
-        u["order"] = i
-    document = {"record_type": "document",
-                "document_id": "d" + secrets.token_hex(12), "revision": 0,
-                "languages": {"source": {"tag": source_lang, "dir": source_dir},
-                              "target": {"tag": target_lang, "dir": target_dir}},
-                "source": {"sha256": digest(text), "char_count": len(text), "format": "markdown"},
-                "blocks": blocks, "parents": parents, "source_layout": layout,
-                "context": context or {}, "workflow": {
-                    "operations": {} if callable(initial_operations) else initial_operations or {}},
-                "preread": {"source_hash": digest(text), "acknowledged": True}}
-    data = {"document": document, "units": units}
-    if source_splits is not None:
-        _require(isinstance(source_splits, dict), "split plan must be an ID-to-offsets object")
-        _require(set(source_splits) == {u["id"] for u in units if len(u["source"]) > MAX_SOURCE},
-                 "split plan must cover exactly all oversized source units")
-        for unit in list(units):
-            if unit["id"] in source_splits:
-                _split_data(data, unit["id"], source_splits[unit["id"]],
-                            unit["source_hash"], document["revision"])
-    if callable(initial_operations):
-        # Build protocol receipts after stable document IDs exist, within the
-        # same initial transaction.
-        document["workflow"]["operations"] = initial_operations(data)
-    with _lock(output):
-        _save(output, data, new=True)
-    # Readback is part of init, before any target authoring.
-    checked = load_jsonl(output)
-    return {"initialized": True, "revision": document["revision"], "document_id": document["document_id"],
-            "source_hash": document["source"]["sha256"], "units": len(checked["units"]),
-            "oversize": oversized(checked), "preparation_readback": True}
-
-
 def _joined(data):
     h, units = data["document"], data["units"]
     result = []
@@ -453,10 +384,6 @@ def _validate(data, require_ready=False):
     _require(_hash(h["source"]["sha256"]) and type(h["source"]["char_count"]) is int
              and h["source"]["char_count"] > 0 and h["source"]["format"] == "markdown",
              "invalid source metadata")
-    _keys(h["preread"], {"source_hash", "acknowledged"}, "preread")
-    _require(h["preread"]["acknowledged"] is True and
-             h["preread"]["source_hash"] == h["source"]["sha256"],
-             "missing current preread acknowledgment")
     _require(isinstance(units, list) and units, "units must be a nonempty array")
     _require(isinstance(h["parents"], list) and h["parents"], "parents must be nonempty")
     parents, ids = {}, set()
@@ -547,12 +474,12 @@ def _validate(data, require_ready=False):
             _require(parents[pid]["heading_path"] == [v for _, v in headings], "heading ancestry mismatch")
             if block["type"] == "heading":
                 headings.append((block["level"], pid))
-    _keys(h["workflow"], {"operations"}, "workflow")
-    _require(isinstance(h["workflow"]["operations"], dict), "invalid operations")
-    _validate_operation_journal(data)
+    _validate_preparation(data)
+    _validate_workflow(data)
     if require_ready:
-        _require(not oversized(data)
-                 and h["workflow"]["operations"].get("_compact_active") is None, "master not ready")
+        _require(h["preparation"]["complete"] and not oversized(data)
+                 and h["workflow"]["active"] is None
+                 and all(t["resolved"] for t in h["workflow"]["todos"]), "master not ready")
     return data
 
 
@@ -574,8 +501,8 @@ def load_jsonl(path, require_ready=False):
         raise ValueError("malformed JSONL structure: " + str(exc)) from exc
 
 
-def to_exchange_document(data, require_ready=True):
-    validate(data, require_ready)
+def to_exchange_document(data):
+    validate(data, require_ready=True)
     return _joined(data)
 
 
@@ -593,7 +520,7 @@ def _split_data(data, unit_id, offsets, source_hash, revision):
     """Apply a checked source split inside the initialization transaction."""
     h = data["document"]
     _require(h["revision"] == revision, "stale revision")
-    _require(h["workflow"]["operations"].get("_compact_active") is None,
+    _require(h["workflow"]["active"] is None,
              "finish active work before changing segmentation")
     unit = next((u for u in data["units"] if u["id"] == unit_id), None)
     _require(unit is not None and unit["parent_id"] == unit_id, "split requires an unsplit parent ID")

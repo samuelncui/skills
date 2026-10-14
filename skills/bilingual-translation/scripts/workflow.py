@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Transactional agent protocol over canonical JSONL storage."""
+"""Standalone commands and atomic JSONL packets use one command registry."""
 from __future__ import annotations
-
 import argparse
 import copy
 import importlib.util
@@ -9,553 +8,231 @@ import json
 from pathlib import Path
 import sys
 
-_SPEC = importlib.util.spec_from_file_location(
-    "_translation_workflow_core", Path(__file__).with_name("translation_workflow.py"))
-core = importlib.util.module_from_spec(_SPEC)
-_SPEC.loader.exec_module(core)
+_SPEC = importlib.util.spec_from_file_location("_translation_actions", Path(__file__).with_name("actions.py"))
+actions = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(actions)
+core = actions.core
+COMMANDS = actions.COMMANDS
+ProtocolError = actions.ProtocolError
+require = actions.require
 
-MAX_TARGET = 8192
-ACTIVE = "_compact_active"
-SEEN = "_compact_seen"
-class ProtocolError(ValueError):
-    """A fixed, agent-facing message with no echoed user data or internal keys."""
+class ActionError(ValueError):
+    def __init__(self, line, op, error, committed=False):
+        self.line, self.op, self.error, self.committed = line, op, error, committed
+        super().__init__(str(error))
+
+def _safe_error(error):
+    if isinstance(error, ProtocolError):
+        return str(error)
+    if isinstance(error, OSError):
+        return "file operation failed; check storage and retry the identical packet"
+    if isinstance(error, (json.JSONDecodeError, UnicodeError)):
+        return "invalid JSON or Unicode input"
+    message = str(error)
+    safe = ("cut anchors", "cuts must", "each child", "split requires", "split all", "source reconstruction",
+            "source hash mismatch", "parent reconstruction", "use the current preparation ref",
+            "preparation is already complete", "source needs a lossless native route")
+    if message.startswith(safe):
+        return message
+    return "invalid action or saved state; check fields and current references"
+
+def _packet(incoming, batch):
+    normalized = []
+    for index, item in enumerate(incoming, 1):
+        try:
+            normalized.append(actions.normalize(item))
+        except (ValueError, TypeError, KeyError) as error:
+            op = item.get("op") if isinstance(item, dict) else None
+            raise ActionError(index, op if isinstance(op, str) and op in COMMANDS else None, error) from error
+    require(bool(normalized), "provide at least one action")
+    reads = [i for i, item in enumerate(normalized) if COMMANDS[item["op"]].reads]
+    if len(reads) > 1 or (reads and reads[0] != len(normalized)-1):
+        index = reads[0]
+        raise ActionError(index+1, normalized[index]["op"], ProtocolError(
+            "at most one body-reading action is allowed, and it must be last"))
+    if batch:
+        for index, item in enumerate(normalized, 1):
+            if COMMANDS[item["op"]].external:
+                raise ActionError(index, item["op"], ProtocolError("export is standalone, outside run"))
+    else:
+        require(len(normalized) == 1, "standalone commands accept exactly one action")
+    ops = [a["op"] for a in normalized]
+    if "review patch" in ops and "review accept" in ops:
+        index = ops.index("review accept")
+        raise ActionError(index+1, ops[index], ProtocolError("patch and accept cannot share a packet"))
+    return normalized
+
+def execute(master, packet, *, batch=False):
+    """Load once, dispatch registry handlers in memory, commit at most once."""
+    packet = _packet(packet, batch)
+    path = Path(master)
+    if packet[0]['op'] == 'export':
+        data = core.load_jsonl(path, require_ready=True)
+        result = COMMANDS['export'].handler(data, packet[0], {})
+        output = Path(result['output'])
+        with core._lock(output):
+            core._atomic(output, json.dumps(result['exchange'], ensure_ascii=False, indent=2)+'\n', new=True)
+        return [{'exported': True}]
+    with core._lock(path):
+        new = not path.exists()
+        source_text = None
+        if packet[0]['op'] == 'prepare init' and 'source' in packet[0]:
+            source_text = core._source(packet[0]['source'])
+        fingerprint = core.digest(core._canonical([packet, core.digest(source_text) if source_text is not None else None]))
+        cacheable = any('ref' in action for action in packet) or source_text is not None
+        if new:
+            require(packet[0]['op'] == 'prepare init' and source_text is not None,
+                    'start a new task with prepare init and source')
+            require('ref' not in packet[0], 'initial preparation does not take a prior ref')
+            preparation = actions.load_module('_translation_preparation', 'preparation.py')
+            kwargs = {k: packet[0][k] for k in ('source_lang','target_lang','source_dir','target_dir','context') if k in packet[0]}
+            data = preparation.create(source_text, **kwargs)
+        else:
+            data = core.load_jsonl(path)
+            cached = data['document']['workflow']['operations'].get(fingerprint) if cacheable else None
+            if cached is not None:
+                return copy.deepcopy(cached['receipt']['results'])
+        initial = core._canonical(data)
+        results = []
+        context = {'new': new, 'patched': False}
+        for index, action in enumerate(packet, 1):
+            context['before'] = {phase: actions.counts(data, phase) for phase in ('prepare', 'translate', 'review')}
+            try:
+                result = COMMANDS[action['op']].handler(data, action, context)
+            except (ValueError, TypeError, KeyError, IndexError) as error:
+                raise ActionError(index, action['op'], error) from error
+            results.append(result)
+        try:
+            core.validate(data)
+        except (ValueError, TypeError, KeyError) as error:
+            raise ActionError(len(packet), packet[-1]['op'], error) from error
+        changed = new or core._canonical(data) != initial
+        if changed:
+            data['document']['revision'] += 1
+            if cacheable:
+                data['document']['workflow']['operations'][fingerprint] = {
+                    'request_hash': fingerprint, 'receipt': {'results': copy.deepcopy(results)}}
+            try:
+                core._save(path, data, new=new)
+            except OSError as error:
+                try:
+                    persisted = core.load_jsonl(path)
+                    if core._canonical(persisted) == core._canonical(data):
+                        return results
+                except (OSError, ValueError):
+                    pass
+                raise ActionError(len(packet), packet[-1]['op'], error, committed='unknown') from error
+        return results
 
 
-def require(ok, message):
-    if not ok:
-        raise ProtocolError(message)
+def output_records(results):
+    for result in results:
+        receipt = dict(result)
+        body = receipt.pop('units', None)
+        if isinstance(body, list) and (not body or isinstance(body[0], dict)):
+            for unit in body:
+                emitted = dict(unit)
+                if emitted.get('parent_id') == emitted.get('id'):
+                    emitted.pop('parent_id', None)
+                if emitted.get('part_index') == 0:
+                    emitted.pop('part_index')
+                if emitted.get('has_more') is False:
+                    emitted.pop('has_more')
+                yield {'record_type': 'unit', **emitted}
+        elif body is not None:
+            receipt['units'] = body
+        for key, empty in (('context', {}), ('pending', []), ('oversize', [])):
+            if receipt.get(key) == empty:
+                receipt.pop(key)
+        for key in ('saved', 'accepted'):
+            if isinstance(receipt.get(key), list):
+                receipt[key] = len(receipt[key])
+        progress = receipt.get('progress')
+        if isinstance(progress, dict):
+            receipt['progress'] = (f"{progress['phase']} {progress['completed']}/{progress['total']} "
+                                   f"{progress['unit']} ({progress['percent']}%)")
+        yield {'record_type': 'receipt', **receipt}
 
 
 class ArgumentParser(argparse.ArgumentParser):
     def error(self, message):
-        raise ProtocolError("invalid arguments; use --help for syntax")
+        raise ProtocolError('invalid CLI arguments; use --help')
 
 
-def _public_error(error):
-    if isinstance(error, ProtocolError):
-        return str(error)
-    if isinstance(error, OSError):
-        return "file operation failed; check paths, permissions and storage, then retry"
-    if isinstance(error, UnicodeError):
-        return "invalid Unicode input; use valid UTF-8 without unsupported controls"
-    message = str(error)
-    if "wrong/missing fields" in message:
-        return "invalid fields; follow the command's payload schema"
-    if "split plan" in message:
-        return "provide a split plan covering exactly the oversized IDs returned by prepare read"
-    if "native route" in message:
-        return "source needs a lossless native route; this importer supports only its documented Markdown subset"
-    if "offset" in message or "2048" in message:
-        return "invalid split; use increasing codepoint offsets with nonempty children at most 2048 characters"
-    if any(term in message for term in ("source changed", "source version", "acknowledge", "complete source")):
-        return "current complete source delivery required; prepare read and use the final ref"
-    if "continue token" in message or "continuation" in message:
-        return "invalid read continuation; use the last returned ref"
-    if "target" in message and "reviewed" in message:
-        return "finish reviewing current targets before final export"
-    if "target" in message and "Unicode text" in message:
-        return "target must be nonempty valid Unicode text"
-    if "source" in message and any(term in message for term in ("mismatch", "reconstruction")):
-        return "source integrity check failed; restore the preserved source checkpoint"
-    if "duplicate JSON" in message or isinstance(error, json.JSONDecodeError):
-        return "invalid JSON; use documented fields without duplicate keys"
-    return "invalid input or saved state; check the command schema and preserved checkpoint"
-
-
-def _reference(value):
-    try:
-        core.reference_number(value)
-    except ValueError:
-        raise ProtocolError("use the complete returned ref: positive number, hyphen and word") from None
-    return value
-
-
-_ticket = core.compact_reference
-
-
-def _ops(data):
-    return data["document"]["workflow"]["operations"]
-
-
-def _active(data):
-    entry = _ops(data).get(ACTIVE)
-    return entry["receipt"] if entry is not None else None
-
-
-def _set_active(data, active):
-    units = [u for u in data["units"] if u["id"] in active["ids"]]
-    active["binding"] = core.compact_binding(data, active["phase"], units)
-    _ops(data)[ACTIVE] = {"request_hash": core.digest(core._canonical(active)), "receipt": active}
-
-
-def _unit_view(u, review=False, data=None):
-    result = {k: u[k] for k in ("id", "kind", "source")}
-    if u["id"] != u["parent_id"]:
-        result.update({k: u[k] for k in ("parent_id", "part_index", "has_more")})
-    if review:
-        result["target"] = u["target"]
-    if data is not None:
-        for index, block in enumerate(data["document"]["blocks"]):
-            if u["parent_id"] not in core._structural_order([block]):
-                continue
-            if block["type"] == "heading":
-                result["level"] = block["level"]
-            elif block["type"] == "table":
-                for row, cells in enumerate([block["headers"]] + block["rows"]):
-                    if u["parent_id"] in cells:
-                        result["table"] = {"block": index, "row": row,
-                                           "column": cells.index(u["parent_id"])}
-                        break
-            elif block["type"] == "list":
-                result["list"] = {"block": index, "item": block["items"].index(u["parent_id"]),
-                                  "ordered": block["ordered"]}
-            break
+def parser():
+    result = ArgumentParser(description=__doc__)
+    result.add_argument('--master', type=Path, default=Path('master.jsonl'))
+    groups = result.add_subparsers(dest='group', required=True)
+    parents = {}
+    for name, spec in COMMANDS.items():
+        parts = name.split()
+        if len(parts) == 2:
+            if parts[0] not in parents:
+                parents[parts[0]] = groups.add_parser(parts[0]).add_subparsers(dest='verb', required=True)
+            selected = parents[parts[0]].add_parser(parts[1])
+        else:
+            selected = groups.add_parser(name)
+        selected.set_defaults(selected_op=name)
+        for key, field in spec.fields.items():
+            flag = '--' + key.replace('_', '-')
+            if field.kind is bool:
+                selected.add_argument(flag, action='store_true', default=None)
+            else:
+                selected.add_argument(flag)
+    groups.add_parser('run').set_defaults(selected_op='run')
     return result
 
 
-def _shared(data):
-    # Shared guidance is sent once, or on explicit recovery. Never truncate the
-    # only available copy of a glossary; routine local context remains bounded.
-    return {"languages": copy.deepcopy(data["document"]["languages"]),
-            "shared": copy.deepcopy(data["document"]["context"])}
-
-
-def _local(data, unit):
-    # Do not repeatedly serialize the whole-document glossary into local context.
-    h = data["document"]
-    by_parent = {}
-    for u in data["units"]:
-        if u["kind"] == "heading" or u["kind"] == "table_cell":
-            by_parent[u["parent_id"]] = by_parent.get(u["parent_id"], "") + u["source"]
-    context = {"headings": [by_parent.get(pid, "") for pid in unit["heading_path"]]}
-    for block in h["blocks"]:
-        if block["type"] == "table" and unit["parent_id"] in core._structural_order([block]):
-            context["table_headers"] = [by_parent.get(pid, "") for pid in block["headers"]]
-            break
-    raw = core._canonical(context)
-    if not any(context.values()):
-        return None
-    return {"text": raw[:core.MAX_CONTEXT], "truncated": len(raw) > core.MAX_CONTEXT,
-            "character_limit": core.MAX_CONTEXT}
-
-
-def _oversize(data):
-    # Locate units in the already-delivered exact source, including syntax gaps,
-    # BOM and CRLF. No extra source text needs to be emitted to choose splits.
-    if not any(len(u["source"]) > core.MAX_SOURCE for u in data["units"]):
-        return []
-    parents = {p["id"]: p for p in data["document"]["parents"]}
-    starts, cursor = {}, 0
-    for piece in data["document"]["source_layout"]:
-        if "text" in piece:
-            cursor += len(piece["text"])
-        else:
-            starts[piece["parent"]] = cursor
-            cursor += parents[piece["parent"]]["char_count"]
+def input_actions(text):
     result = []
-    for unit in data["units"]:
-        start = starts[unit["parent_id"]]
-        end = start + len(unit["source"])
-        starts[unit["parent_id"]] = end
-        if len(unit["source"]) > core.MAX_SOURCE:
-            item = {"id": unit["id"], "characters": len(unit["source"]), "source_span": [start, end]}
-            result.append(item)
+    for number, line in enumerate(text.splitlines(), 1):
+        if not line.strip():
+            raise ActionError(number, None, ProtocolError('each JSONL line must contain one action'))
+        try:
+            result.append(core._json(line))
+        except (ValueError, TypeError) as error:
+            raise ActionError(number, None, error) from error
     return result
 
 
-def _recovery_context(data):
-    result = _shared(data)
-    active = _active(data)
-    if active:
-        unit = next(u for u in data["units"] if u["id"] == active["ids"][0])
-        local = _local(data, unit)
-        if local:
-            result["context"] = local
-    return result
-
-
-def _load(path):
-    # The canonical reader validates the current operation journal.
-    return core.load_jsonl(path)
-
-
-def _scope(data, unit):
-    # Do not cross headings, list containers or table containers in a batch.
-    if unit["kind"] in ("heading", "list_item", "table_cell"):
-        for index, block in enumerate(data["document"]["blocks"]):
-            if unit["parent_id"] in core._structural_order([block]):
-                return (unit["kind"], index, tuple(unit["heading_path"]))
-    return (unit["kind"], tuple(unit["heading_path"]))
-
-
-def _group(data, phase, unit_id=None):
-    units = data["units"]
-    if phase == "translate":
-        require(not _oversize(data), "prepare init with a complete split plan required for oversized source units")
-        candidates = [u for u in units if u["target"] is None]
-    else:
-        require(all(u["target"] is not None for u in units),
-                "finish translate before starting the separate review pass")
-        require(not _oversize(data), "prepare init with a complete split plan required for oversized source units")
-        if unit_id:
-            candidates = [u for u in units if u["id"] == unit_id]
-            require(candidates, "unknown review unit")
-        else:
-            candidates = [u for u in units if u["status"] != "reviewed"]
-    if not candidates:
-        return []
-    return _bounded_group(data, candidates, phase, unit_id)
-
-
-def _bounded_group(data, candidates, phase, unit_id=None):
-    first = candidates[0]
-    selected, source_count, target_count = [], 0, 0
-    for u in candidates:
-        if selected and (u["order"] != selected[-1]["order"] + 1
-                         or _scope(data, u) != _scope(data, first)):
-            break
-        src, tgt = len(u["source"]), len(u["target"] or "")
-        if selected and (source_count + src > core.MAX_SOURCE
-                         or phase == "review" and target_count + tgt > MAX_TARGET):
-            break
-        selected.append(u)
-        source_count += src
-        target_count += tgt
-        if unit_id or phase == "review" and target_count >= MAX_TARGET:
-            break
-    return selected
-
-
-def _envelope(data):
-    active = _active(data)
-    require(active is not None, "no active compact block")
-    units = [u for u in data["units"] if u["id"] in active["ids"]]
-    phase = active["phase"]
-    result = {"phase": phase, "ref": active["ref"],
-              "units": [_unit_view(u, phase == "review", data) for u in units]}
-    if active["initial"] and active["page"] == 0:
-        result.update(_shared(data))
-    # A rare huge target is delivered losslessly in explicit bounded pages.
-    # Only the final page provides the mutation reference.
-    if phase == "review" and len(units) == 1 and len(units[0]["target"]) > MAX_TARGET:
-        target = units[0]["target"]
-        start = active["page"] * MAX_TARGET
-        end = min(start + MAX_TARGET, len(target))
-        require(start < len(target), "invalid review page")
-        result["units"][0]["target"] = target[start:end]
-        if active["page"] > 0:
-            result["units"][0].pop("source")
-        result["target_page"] = {"start": start, "end": end, "total": len(target),
-                                 "complete": end == len(target)}
-        if end < len(target):
-            result.pop("ref")
-            result["continue"] = active["ref"]
-    return result
-
-
-def _dispatch(data, phase, unit_id=None):
-    active = _active(data)
-    if active is not None:
-        require(active["phase"] == phase, "finish the active " + active["phase"] + " block first")
-        require(unit_id is None or active["ids"] == [unit_id], "finish the active review group first")
-        return _envelope(data)
-    units = _group(data, phase, unit_id)
-    if not units:
-        return {"phase": phase, "complete": True,
-                "next_action": "review next" if phase == "translate" else "validate --ready"}
-    seen_entry = _ops(data).setdefault(SEEN, {"request_hash": core.digest("phases"),
-                                             "receipt": {"phases": []}})
-    seen = seen_entry["receipt"]["phases"]
-    initial = phase not in seen
-    if initial:
-        seen.append(phase)
-    data["document"]["revision"] += 1
-    _set_active(data, {"phase": phase, "ids": [u["id"] for u in units],
-                       "ref": _ticket(data, phase, units), "page": 0,
-                       "last_continue": None, "initial": initial})
-    return _envelope(data)
-
-
-def next_block(path, phase="translate", include_context=False, unit_id=None, continuation=None, restart=False):
-    if continuation is not None:
-        _reference(continuation)
-    with core._lock(path):
-        data = _load(path)
-        before = core._canonical(data)
-        result = _dispatch(data, phase, unit_id)
-        if restart:
-            require(phase == "review" and continuation is None and not result.get("complete"),
-                    "restart requires an active review and cannot be combined with continue")
-            active = _active(data)
-            data["document"]["revision"] += 1
-            units = [u for u in data["units"] if u["id"] in active["ids"]]
-            active.update(page=0, last_continue=None, ref=_ticket(data, phase, units))
-            _set_active(data, active)
-            result = _envelope(data)
-        if continuation is not None:
-            require(phase == "review" and not result.get("complete"), "no review page to continue")
-            active = _active(data)
-            if continuation != active["last_continue"]:
-                require(result.get("continue") == continuation, "stale/wrong review continuation")
-                active["last_continue"] = continuation
-                active["page"] += 1
-                data["document"]["revision"] += 1
-                units = [u for u in data["units"] if u["id"] in active["ids"]]
-                active["ref"] = _ticket(data, phase, units)
-                _set_active(data, active)
-            result = _envelope(data)
-        if include_context:
-            result.update(_recovery_context(data))
-            if result.get("target_page", {}).get("start", 0) > 0:
-                unit = next(u for u in data["units"] if u["id"] == result["units"][0]["id"])
-                result["units"][0]["source"] = unit["source"]
-        if core._canonical(data) != before:
-            core._save(path, data)
-        return result
-
-
-def _progress(phase, before, completed, total, unit="units"):
-    # Integer buckets avoid premature 100% and add no reporting state.
-    if total <= 0 or (completed >= before and 20 * completed // total <= 20 * before // total):
-        return {}
-    return {"progress": {"phase": phase, "completed": completed, "total": total,
-                         "unit": unit, "percent": 100 * completed // total}}
-
-
-def _completed(data, phase):
-    return sum(u["target"] is not None if phase == "translate" else u["status"] == "reviewed"
-               for u in data["units"])
-
-
-def mutate(path, action, payload):
-    if action == "accept":
-        core._keys(payload, {"ref", "reviewer", "note"}, "review acceptance")
-        core._text(payload["reviewer"], "reviewer")
-        core._text(payload["note"], "review note", empty=True)
-    else:
-        core._keys(payload, {"ref", "targets"}, "target-only payload")
-    _reference(payload["ref"])
-    fingerprint = core.digest(core._canonical([action, payload]))
-    key = "_compact_receipt:" + payload["ref"]
-    with core._lock(path):
-        data = _load(path)
-        old = _ops(data).get(key)
-        if old is not None:
-            require(old["request_hash"] == fingerprint, "reference reused with different content/action")
-            return copy.deepcopy(old["receipt"])
-        active = _active(data)
-        phase = "translate" if action == "save" else "review"
-        require(active is not None and active["phase"] == phase, "wrong phase or no active block")
-        require(payload["ref"] == active["ref"], "stale/wrong reference for this task")
-        envelope = _envelope(data)
-        require("ref" in envelope, "read every review page before accepting or revising")
-        units = [u for u in data["units"] if u["id"] in active["ids"]]
-        before = _completed(data, phase)
-        if action != "accept":
-            targets = payload["targets"]
-            require(isinstance(targets, dict) and targets, "targets must be a nonempty object")
-            ids = set(active["ids"])
-            require(set(targets) == ids if action == "save" else set(targets) <= ids,
-                    "targets must match exact active IDs (revise permits a nonempty subset)")
-            for value in targets.values():
-                core._text(value, "target")
-            changed = []
-            for u in units:
-                if u["id"] in targets:
-                    target = targets[u["id"]]
-                    u.update(target=target, target_hash=core.digest(target),
-                             target_source_hash=u["source_hash"], status="draft", review=None)
-                    changed.append(u["id"])
-        else:
-            changed = active["ids"][:]
-            for u in units:
-                u["review"] = {"source_hash": u["source_hash"], "target_hash": u["target_hash"],
-                               "reviewer": payload["reviewer"], "note": payload["note"]}
-                u["status"] = "reviewed"
-        _ops(data).pop(ACTIVE)
-        data["document"]["revision"] += 1
-        # Revise presents the same complete group again. No automatic approval.
-        if action == "revise":
-            units = _bounded_group(data, units, "review")
-            _set_active(data, dict(active, ids=[u["id"] for u in units],
-                                   ref=_ticket(data, phase, units),
-                                   page=0, last_continue=None, initial=False))
-            following = _envelope(data)
-        else:
-            following = _dispatch(data, phase)
-        result = {{"save": "saved", "accept": "reviewed", "revise": "revised"}[action]: changed,
-                  "next": following}
-        result.update(_progress(phase, before, _completed(data, phase), len(data["units"])))
-        _ops(data)[key] = {"request_hash": fingerprint, "receipt": copy.deepcopy(result)}
-        core._save(path, data)
-        return result
-
-
-def read_source(source, receipt, continuation=None):
-    if continuation is not None:
-        _reference(continuation)
-    page = core.read_source(source, receipt, continuation)
-    text = core._source(source)
-    require(core.digest(text) == page["source_hash"], "source changed; reread with a new receipt")
-    units, _, layout = core.import_markdown(text)
-    preparation = {"units": units, "document": {
-        "parents": [{"id": u["id"], "char_count": len(u["source"])} for u in units],
-        "source_layout": layout}}
-    result = {k: page[k] for k in ("start", "end", "text", "complete")} | {"ref": _reference(page["token"])}
-    result.update(_progress("prepare", page["start"], page["end"], len(text), "codepoints"))
-    oversized = [u for u in _oversize(preparation)
-                 if page["start"] <= u["source_span"][0] < page["end"]]
-    if oversized:
-        result["oversize"] = oversized
-    return result
-
-
-def initialize(source, receipt, output, read_ref, source_lang="en", target_lang="fr",
-               source_dir="ltr", target_dir="ltr", context=None, splits=None):
-    # The final delivery reference explicitly acknowledges the emitted source.
-    # The initial replay record is part of the same atomic creation as the master.
-    _reference(read_ref)
-    require(splits is None or isinstance(splits, dict), "split plan must be an ID-to-offsets object")
-    kwargs = dict(source_lang=source_lang, target_lang=target_lang,
-                  source_dir=source_dir, target_dir=target_dir, context=context,
-                  source_splits={} if splits is None else splits)
-    source_text = core._source(source)
-    fingerprint = core.digest(core._canonical([read_ref, core.digest(source_text), kwargs]))
-    def replay():
-        old = _ops(_load(output)).get("_compact_init")
-        require(old is not None and old["request_hash"] == fingerprint,
-                "output already exists with a different initialization")
-        return copy.deepcopy(old["receipt"])
-    if Path(output).exists():
-        return replay()
-    state = core._json(Path(receipt).read_text("utf-8"))
-    require(read_ref == state["token"], "use the final prepare read ref to initialize")
-    core.ack_source(source, receipt, state["source_hash"], state["token"])
-    def initial_operations(data):
-        data["document"]["revision"] = max(data["document"]["revision"], core.reference_number(read_ref))
-        result = {"initialized": True, "units": len(data["units"]), "oversize": _oversize(data)}
-        return {"_compact_init": {"request_hash": fingerprint, "receipt": result}}
+def main(argv=None, stdin=None):
     try:
-        core.initialize(source, receipt, output, initial_operations=initial_operations, **kwargs)
-    except (FileExistsError, ValueError):
-        if Path(output).exists():
-            return replay()
-        raise
-    return replay()
-
-
-def status(path, include_context=False):
-    data = _load(path)
-    units = data["units"]
-    saved = sum(u["target"] is not None for u in units)
-    reviewed = sum(u["status"] == "reviewed" for u in units)
-    blocked = _oversize(data)
-    active = _active(data)
-    if active:
-        action = active["phase"] + (" save" if active["phase"] == "translate" else " next")
-    elif blocked:
-        action = "prepare init"
-    elif saved != len(units):
-        action = "translate next"
-    elif reviewed != len(units):
-        action = "review next"
-    else:
-        action = "validate --ready"
-    result = {"units": len(units), "saved": saved, "reviewed": reviewed, "next_action": action}
-    if blocked:
-        result["oversize"] = blocked
-    if include_context:
-        result.update(_recovery_context(data))
-    return result
-
-
-def main(argv=None):
-    parser = ArgumentParser(description=__doc__)
-    commands = parser.add_subparsers(dest="phase", required=True)
-    prepare = commands.add_parser("prepare").add_subparsers(dest="action", required=True)
-    read = prepare.add_parser("read")
-    read.add_argument("source", type=Path)
-    read.add_argument("--receipt", type=Path, required=True)
-    read.add_argument("--continue", dest="continuation")
-    init = prepare.add_parser("init")
-    init.add_argument("source", type=Path)
-    init.add_argument("--receipt", type=Path, required=True)
-    init.add_argument("--read-ref", required=True)
-    init.add_argument("--output", type=Path, required=True)
-    init.add_argument("--source-lang", required=True)
-    init.add_argument("--target-lang", required=True)
-    init.add_argument("--source-dir", choices=["ltr", "rtl"], default="ltr")
-    init.add_argument("--target-dir", choices=["ltr", "rtl"], default="ltr")
-    init.add_argument("--context", type=Path)
-    init.add_argument("--splits", type=Path)
-    for phase, actions in (("translate", ("next", "save")), ("review", ("next", "accept", "revise"))):
-        sub = commands.add_parser(phase).add_subparsers(dest="action", required=True)
-        for action in actions:
-            cmd = sub.add_parser(action)
-            cmd.add_argument("data", type=Path, nargs="?", default=Path("master.jsonl"), help="JSONL master (default: ./master.jsonl)")
-            if action == "next":
-                cmd.add_argument("--context", action="store_true")
-                if phase == "review":
-                    cmd.add_argument("--unit")
-                    cmd.add_argument("--continue", dest="continuation")
-                    cmd.add_argument("--restart", action="store_true")
-            elif action == "accept":
-                cmd.add_argument("--ref", required=True)
-                cmd.add_argument("--reviewer", default="translation-agent")
-                cmd.add_argument("--note", default="")
-            else:
-                cmd.add_argument("--payload", type=Path, required=True)
-    stat = commands.add_parser("status")
-    stat.add_argument("data", type=Path, nargs="?", default=Path("master.jsonl"), help="JSONL master (default: ./master.jsonl)")
-    stat.add_argument("--context", action="store_true")
-    val = commands.add_parser("validate")
-    val.add_argument("data", type=Path, nargs="?", default=Path("master.jsonl"), help="JSONL master (default: ./master.jsonl)")
-    val.add_argument("--ready", action="store_true")
-    exp = commands.add_parser("export")
-    exp.add_argument("data", type=Path, nargs="?", default=Path("master.jsonl"), help="JSONL master (default: ./master.jsonl)")
-    exp.add_argument("--output", type=Path, required=True)
-    exp.add_argument("--allow-draft", action="store_true")
-    try:
-        args = parser.parse_args(argv)
-        if args.phase == "prepare":
-            if args.action == "read":
-                result = read_source(args.source, args.receipt, args.continuation)
-            elif args.action == "init":
-                context = core._json(args.context.read_text("utf-8")) if args.context else None
-                splits = core._json(args.splits.read_text("utf-8")) if args.splits else None
-                result = initialize(args.source, args.receipt, args.output, args.read_ref,
-                                    source_lang=args.source_lang, target_lang=args.target_lang,
-                                    source_dir=args.source_dir, target_dir=args.target_dir, context=context, splits=splits)
-        elif args.phase in ("translate", "review"):
-            if args.action == "next":
-                result = next_block(args.data, args.phase, args.context,
-                                    getattr(args, "unit", None), getattr(args, "continuation", None),
-                                    getattr(args, "restart", False))
-            else:
-                payload = ({"ref": args.ref, "reviewer": args.reviewer, "note": args.note}
-                           if args.action == "accept" else core._json(args.payload.read_text("utf-8")))
-                result = mutate(args.data, args.action, payload)
-        elif args.phase == "status":
-            result = status(args.data, args.context)
+        args = parser().parse_args(argv)
+        name = args.selected_op
+        raw = sys.stdin.read() if stdin is None and not sys.stdin.isatty() else (stdin or '')
+        incoming = input_actions(raw)
+        if name == 'run':
+            results = execute(args.master, incoming, batch=True)
         else:
-            data = _load(args.data)
-            if args.phase == "validate":
-                core.validate(data, args.ready)
-                require(not args.ready or _active(data) is None, "finish active review")
-                result = {"valid": True, "ready": args.ready}
-            else:
-                require(all(u["target"] is not None for u in data["units"]), "export requires all targets saved")
-                require(args.allow_draft or _active(data) is None, "finish active review")
-                exchange = core.to_exchange_document(data, not args.allow_draft)
-                with core._lock(args.output):
-                    core._atomic(args.output, json.dumps(exchange, ensure_ascii=False, indent=2) + "\n", new=True)
-                result = {"exported": str(args.output), "review_gate": not args.allow_draft}
-        print(json.dumps(result, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False))
+            spec = COMMANDS[name]
+            cli = {'op': name}
+            for key, field in spec.fields.items():
+                value = getattr(args, key, None)
+                if value is not None:
+                    if field.kind in (dict, list, int):
+                        value = core._json(value)
+                    cli[key] = value
+            if incoming:
+                require(len(incoming) == 1, 'standalone command accepts one JSONL action')
+                require(set(cli) == {'op'}, 'choose flags or one stdin object, not both')
+                require(isinstance(incoming[0], dict) and incoming[0].get('op') == name,
+                        'stdin op conflicts with selected command')
+                cli = incoming[0]
+            results = execute(args.master, [cli])
+        for record in output_records(results):
+            print(json.dumps(record, ensure_ascii=False, sort_keys=True, separators=(',', ':')))
         return 0
-    except (ValueError, OSError, TypeError, KeyError, UnicodeError) as error:
-        print(json.dumps({"error": _public_error(error)}, ensure_ascii=False, separators=(",", ":")), file=sys.stderr)
+    except ActionError as error:
+        print(json.dumps({'ok': False, 'line': error.line, 'op': error.op,
+                          'committed': error.committed, 'error': _safe_error(error.error),
+                          **getattr(error.error, 'details', {})},
+                         ensure_ascii=False, separators=(',', ':')), file=sys.stderr)
+        return 1
+    except (ValueError, TypeError, KeyError, OSError) as error:
+        print(json.dumps({'ok': False, 'committed': False, 'error': _safe_error(error)},
+                         ensure_ascii=False, separators=(',', ':')), file=sys.stderr)
         return 1
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     raise SystemExit(main())

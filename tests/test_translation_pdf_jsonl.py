@@ -35,15 +35,12 @@ def make_master(root, *, source_side="en", stress=False):
     source = root / "source.md"
     source.write_text("# " + fixture["title"][0] + "\n\n" +
                       "".join(pair[0] for pair in pairs) + "\n\n" + fixture["after"][0] + "\n")
-    receipt = root / "preread.json"
-    page = workflow.read_source(source, receipt)
-    while not page["complete"]:
-        page = workflow.read_source(source, receipt, page["token"])
-    workflow.ack_source(source, receipt, page["source_hash"], page["token"])
     master = root / "master.jsonl"
-    workflow.initialize(source, receipt, master, source_lang=source_side,
-                        target_lang="zh-Hans" if source_side == "en" else "en",
-                        context={"audience": "community volunteers"})
+    def action(op, **fields):
+        return protocol.execute(master, [{"op": op, **fields}])[0]
+    page = action("prepare init", source=str(source), source_lang=source_side,
+                  target_lang="zh-Hans" if source_side == "en" else "en",
+                  context={"audience": "community volunteers"})
     data = workflow.load_jsonl(master)
     parent = data["units"][1]
     offsets = []
@@ -52,19 +49,26 @@ def make_master(root, *, source_side="en", stress=False):
     # Layout fixtures intentionally split even short prose to exercise child
     # alignment in both language directions. Build only that fixture structure
     # with the core helper; use the public protocol for every save and review.
-    workflow._split_data(data, parent["id"], offsets, parent["source_hash"], data["document"]["revision"])
-    workflow._save(master, data)
+    if page["pending"]:
+        action("prepare split", ref=page["ref"], unit=parent["id"],
+               cuts=[{"left": parent["source"][:offset],
+                      "right": parent["source"][offset:]} for offset in offsets])
+        data = workflow.load_jsonl(master)
+    else:
+        workflow._split_data(data, parent["id"], offsets, parent["source_hash"], data["document"]["revision"])
+        workflow._save(master, data)
     targets = [fixture["title"][1]] + [pair[1] for pair in pairs] + [fixture["after"][1]]
     by_id = dict(zip((unit["id"] for unit in data["units"]), targets))
-    block = protocol.next_block(master)
+    block = action("translate next")
     while not block.get("complete"):
-        block = protocol.mutate(master, "save", {"ref": block["ref"],
-                    "targets": {unit["id"]: by_id[unit["id"]] for unit in block["units"]}})["next"]
-    block = protocol.next_block(master, "review")
+        action("translate save", ref=block["ref"],
+               targets={unit["id"]: by_id[unit["id"]] for unit in block["units"]})
+        block = action("translate next")
+    block = action("review next")
     while not block.get("complete"):
-        block = protocol.mutate(master, "accept", {"ref": block["ref"],
-                    "reviewer": "original-fixture-author",
-                    "note": "Supplied original fixture pair; stress repetition is layout-only."})["next"]
+        action("review accept", ref=block["ref"], reviewer="original-fixture-author",
+               note="Supplied original fixture pair; stress repetition is layout-only.")
+        block = action("review next")
     return master, workflow.load_jsonl(master, require_ready=True)
 
 

@@ -10,7 +10,7 @@ The example pairs were read against the full source for quantities, conditions, 
 
 This is a supplied semantic exchange example, not an alternate authoring command sequence. Read [source.txt](../examples/guide/source.txt) completely, then compare its exact inventory with [translation.json](../examples/guide/translation.json). The [exchange reference](semantic-exchange.md) defines fields, structural blocks and the read-only consumer validator.
 
-For a new translation supported by the Markdown importer, use [workflow.py](workflow.md): read the complete source, initialize the source-only JSONL master, translate the bounded active groups and review all pairs in a separate pass. Keep rich content that the importer cannot represent in an explicit lossless native route. Export the reviewed master only when a consumer needs semantic exchange JSON.
+For a new translation supported by the Markdown importer, use [workflow.py](workflow.md): read and initialize complete source units in preparation batches, split oversized units within their current batch, translate the bounded active groups and review all pairs in a separate pass. Save and next are explicit separate actions. Keep rich content that the importer cannot represent in an explicit lossless native route. Export the reviewed master only when a consumer needs semantic exchange JSON.
 
 ## Compare a complete paragraph
 

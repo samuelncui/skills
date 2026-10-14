@@ -1,6 +1,6 @@
 # Semantic translation exchange
 
-Use the [source-first JSONL workflow](workflow.md) for translation and review. Export the reviewed master when a consumer needs this plain-text semantic exchange. Keep the JSONL master as source evidence; the export is a renderer handoff, not a second mutable translation workflow.
+Use the [source-first JSONL workflow](workflow.md) for translation and review. Use standalone `workflow.py export` when a consumer needs this plain-text semantic exchange; all current pairs must be reviewed and open todos resolved. There is no draft-export bypass. Keep the JSONL master as source evidence; the export is a renderer handoff, not a second mutable translation workflow.
 
 Native paired TeX and other lossless native formats are equally valid and do not have to pass through JSON. This reference, the [JSON Schema](../schemas/translation.schema.json), and the runtime define the exchange structure.
 

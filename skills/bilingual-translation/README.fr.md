@@ -12,7 +12,9 @@ Installez le répertoire complet. L’outil JSONL exige Python 3.11+ et le verro
 
 Exemple : « Avec bilingual-translation, traduisez ce guide en français en conservant les paragraphes et les cellules dans un manuscrit unique et relu. » Précisez source, langue cible, public et terminologie.
 
-L’entrée agent est scripts/workflow.py. prepare lit et initialise la source ; translate distribue des groupes totalisant au plus 2048 points de code source ; review effectue une comparaison complète dans une étape distincte. Enregistrer ou accepter renvoie le groupe suivant. Renvoyez les références fournies par l’outil sans modification. Seules les paires modifiées sont relues à nouveau.
+L’entrée agent est scripts/workflow.py. La préparation renvoie des unités complètes totalisant au moins 8192 points de code source, sauf le dernier lot ; toute unité dépassant 2048 doit être découpée avant de poursuivre. Traduction et relecture utilisent chacune des groupes d’au plus 2048 points de code source, sans compter la longueur cible en relecture. Enregistrer et demander le groupe suivant sont deux opérations distinctes. Utilisez une commande indépendante ou transmettez à run du JSONL sur stdin : une opération et sa propre référence par ligne. Un lot contient au plus une opération renvoyant le texte, obligatoirement en dernier. Renvoyez les références sans modification. Pour les coupures, l’agent choisit des fragments source adjacents exacts ; l’outil localise la limite et vérifie les longueurs, sans calcul manuel des positions.
+
+Corrigez par des patchs old/new exacts, lisez la comparaison modifiée, puis acceptez séparément. Revérifiez localement un problème local ; recommencez la relecture complète pour des problèmes étendus ou globaux. Suivez les questions ouvertes avec les todos. L’export exige une relecture complète et actuelle et la résolution des todos, sans contournement pour brouillon.
 
 [Procédure agent](SKILL.md) · [Commandes et limites](references/workflow.md)
 

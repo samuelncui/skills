@@ -141,6 +141,53 @@
         "workflow": {
           "type": "object",
           "properties": {
+            "active": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "phase": {
+                      "enum": [
+                        "translate",
+                        "review"
+                      ]
+                    },
+                    "ids": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/id"
+                      },
+                      "minItems": 1
+                    },
+                    "sequence": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "binding": {
+                      "$ref": "#/$defs/hash"
+                    },
+                    "ref": {
+                      "type": "string"
+                    },
+                    "delivered": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "phase",
+                    "ids",
+                    "sequence",
+                    "binding",
+                    "ref",
+                    "delivered"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "operations": {
               "type": "object",
               "additionalProperties": {
@@ -159,26 +206,102 @@
                 ],
                 "additionalProperties": false
               }
+            },
+            "review_round": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "seen": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "translate",
+                  "review"
+                ]
+              },
+              "uniqueItems": true
+            },
+            "todos": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "text": {
+                    "$ref": "#/$defs/text"
+                  },
+                  "units": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/id"
+                    },
+                    "uniqueItems": true
+                  },
+                  "resolved": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "id",
+                  "text",
+                  "units",
+                  "resolved"
+                ],
+                "additionalProperties": false
+              }
             }
           },
           "required": [
-            "operations"
+            "active",
+            "operations",
+            "review_round",
+            "sequence",
+            "seen",
+            "todos"
           ],
           "additionalProperties": false
         },
-        "preread": {
+        "preparation": {
           "type": "object",
           "properties": {
-            "source_hash": {
-              "$ref": "#/$defs/hash"
+            "cursor": {
+              "type": "integer",
+              "minimum": 0
             },
-            "acknowledged": {
-              "const": true
+            "delivered": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/id"
+              }
+            },
+            "pending": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/id"
+              }
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "ref": {
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           "required": [
-            "source_hash",
-            "acknowledged"
+            "cursor",
+            "delivered",
+            "pending",
+            "complete",
+            "ref"
           ],
           "additionalProperties": false
         }
@@ -194,7 +317,7 @@
         "source_layout",
         "context",
         "workflow",
-        "preread"
+        "preparation"
       ],
       "additionalProperties": false
     },

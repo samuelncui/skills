@@ -12,7 +12,9 @@ Installieren Sie das vollständige Skill-Verzeichnis. Das JSONL-Werkzeug benöti
 
 Beispiel: „Übersetze diesen Leitfaden mit bilingual-translation ins Französische und erhalte Absätze und Tabellenzellen in einem einzigen geprüften Manuskript.“ Geben Sie Quelle, Zielsprache, Zielgruppe und Terminologie an.
 
-Der Agent-Einstieg ist scripts/workflow.py. prepare liest und initialisiert die Quelle; translate liefert Gruppen mit insgesamt höchstens 2048 Quell-Codepoints; review prüft alle Paare in einem separaten Schritt. Speichern und Bestätigen liefern die nächste Gruppe. Geben Sie die vom Tool gelieferten Referenzen unverändert zurück. Nur geänderte Paare werden erneut geprüft.
+Der Agent-Einstieg ist scripts/workflow.py. Die Vorbereitung liefert vollständige Einheiten mit insgesamt mindestens 8192 Quell-Codepoints; der letzte Stapel darf kleiner sein. Einheiten über 2048 müssen vor dem Weitergehen geteilt werden. Übersetzung und Prüfung verwenden jeweils Gruppen mit höchstens 2048 Quell-Codepoints; die Zieltextlänge zählt bei der Prüfung nicht mit. Speichern und Abrufen der nächsten Gruppe sind getrennte Aktionen. Nutzen Sie einzelne Befehle oder übergeben Sie run JSONL über stdin: eine Aktion mit eigener Referenz pro Zeile. Pro Stapel ist höchstens eine textliefernde Aktion erlaubt, und zwar zuletzt. Geben Sie Referenzen unverändert zurück. Für Trennstellen wählt der Agent exakte benachbarte Quelltextanker; das Werkzeug ermittelt die Position und prüft die Längen, ohne manuelle Offset-Berechnung.
+
+Korrigieren Sie mit exakten old/new-Patches, lesen Sie den geänderten Vergleich und bestätigen Sie ihn erst danach separat. Prüfen Sie lokale Probleme lokal nach; beginnen Sie bei weitreichenden oder globalen Problemen eine vollständige neue Prüfung. Offene Punkte werden als Todos erfasst. Der Export verlangt eine vollständige aktuelle Prüfung und erledigte Todos; es gibt keine Entwurfsumgehung.
 
 [Agent-Ablauf](SKILL.md) · [Befehle und Grenzen](references/workflow.md)
 

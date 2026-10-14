@@ -294,12 +294,10 @@ class WorkflowWriteSafetyTests(unittest.TestCase):
         self.master = self.root / "master.jsonl"
 
     def prepare(self, text):
-        source, receipt = self.root / "source.md", self.root / "read.json"
+        source = self.root / "source.md"
         source.write_bytes(text.encode("utf-8"))
-        page = self.workflow.read_source(source, receipt)
-        self.assertTrue(page["complete"])
-        self.workflow.initialize(source, receipt, self.master, page["ref"])
-        return self.workflow.next_block(self.master)
+        self.workflow.execute(self.master, [{"op": "prepare init", "source": str(source)}])
+        return self.workflow.execute(self.master, [{"op": "translate next"}])[0]
 
     def test_table_and_list_groups_use_one_atomic_save_without_source_changes(self):
         for text in ("| Crop | Count |\n| --- | --- |\n| Bean | 3 |\n",
@@ -314,7 +312,7 @@ class WorkflowWriteSafetyTests(unittest.TestCase):
                 before = core.load_jsonl(self.master)
                 targets = {u["id"]: "Translated " + u["source"] for u in block["units"]}
                 with patch.object(core.os, "replace", wraps=core.os.replace) as replace:
-                    saved = self.workflow.mutate(self.master, "save", {"ref": block["ref"], "targets": targets})
+                    saved = self.workflow.execute(self.master, [{"op": "translate save", "ref": block["ref"], "targets": targets}])[0]
                 self.assertEqual(replace.call_count, 1)
                 self.assertEqual(saved["saved"], list(targets))
                 after = core.load_jsonl(self.master)
@@ -340,7 +338,7 @@ class WorkflowWriteSafetyTests(unittest.TestCase):
         payload = {"ref": block["ref"], "targets": {u["id"]: "Translated" for u in block["units"]}}
         with patch.object(core.os, "replace", wraps=core.os.replace) as replace:
             with self.assertRaises(ValueError):
-                self.workflow.mutate(self.master, "save", payload)
+                self.workflow.execute(self.master, [{"op": "translate save", **payload}])
         self.assertEqual(replace.call_count, 0)
         self.assertEqual(self.master.read_bytes(), before)
         self.assertEqual(list(self.root.glob(".*.tmp")), [])
@@ -352,11 +350,11 @@ class WorkflowWriteSafetyTests(unittest.TestCase):
         invalid = dict(targets)
         invalid[block["units"][-1]["id"]] = ""
         with self.assertRaises(ValueError):
-            self.workflow.mutate(self.master, "save", {"ref": block["ref"], "targets": invalid})
+            self.workflow.execute(self.master, [{"op": "translate save", "ref": block["ref"], "targets": invalid}])
         alias = self.root / "alias.jsonl"
         alias.symlink_to(self.master)
         with self.assertRaisesRegex(ValueError, "symlink"):
-            self.workflow.mutate(alias, "save", {"ref": block["ref"], "targets": targets})
+            self.workflow.execute(alias, [{"op": "translate save", "ref": block["ref"], "targets": targets}])
         self.assertEqual(self.master.read_bytes(), before)
         self.assertTrue(alias.is_symlink())
         self.assertEqual(list(self.root.glob(".*.tmp")), [])

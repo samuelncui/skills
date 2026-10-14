@@ -12,7 +12,9 @@ Install this complete skill directory. The JSONL helper requires Python 3.11+ an
 
 Try: “Translate this guide into French with bilingual-translation, preserving paragraphs and table cells in one reviewed master.” Supply the source, target language, audience and terminology.
 
-Agent entry: scripts/workflow.py. prepare reads and initializes the source, translate dispatches groups totaling at most 2048 source codepoints, and review records a separate complete comparison. Save/accept returns the next group. Return tool-provided references unchanged. Only changed pairs need review again.
+Agent entry: scripts/workflow.py. Preparation returns complete units totaling at least 8192 source codepoints, except the final batch; split each unit over 2048 before advancing. Translation and review groups each fit 2048 source codepoints; review does not count target length. Save and next are separate actions. Run an independent command or submit stdin JSONL to run, with one action and its own reference per line. At most one body-reading action may appear in a batch, last. Return tool-provided references unchanged. For splits, the agent chooses exact adjacent source anchors; the tool locates the cut and checks lengths, without manual offset arithmetic.
+
+Apply corrections with exact old/new patches, read the changed comparison, then accept separately. Recheck local issues locally; restart the full review for widespread or global issues. Track unresolved issues as todos. Export requires current completed review and resolved todos; it has no draft bypass.
 
 [Agent workflow](SKILL.md) · [Commands and boundaries](references/workflow.md)
 
