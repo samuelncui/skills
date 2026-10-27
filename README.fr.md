@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-Sept compétences pour la traduction, la mise en page, les supports pédagogiques, la qualité logicielle et l’amélioration des compétences.
+Huit compétences pour la traduction, la mise en page, les supports pédagogiques, la qualité logicielle et l’amélioration des compétences.
 
 ## Traduction et documents
 
@@ -10,6 +10,7 @@ Sept compétences pour la traduction, la mise en page, les supports pédagogique
 - [bilingual-html](skills/bilingual-html/README.fr.md): Produit du HTML responsive et portable à partir de paires fournies, avec ordre logique, RTL, tableaux réels et images partagées.
 - [bilingual-pdf](skills/bilingual-pdf/README.fr.md): Met en page des articles, rapports et supports bilingues côte à côte à partir de textes appariés.
 - [study-notes](skills/study-notes/README.fr.md): Transforme des sources pédagogiques en notes explicatives, aide-mémoire, index de mots-clés ou arbres de décision.
+- [reader-doc-review](skills/reader-doc-review/README.fr.md): Relire et réviser un document pour ses vrais lecteurs, par des essais de tâches en contexte neuf et des tours de correction.
 ## Qualité du logiciel et des compétences
 
 - [testing-workflow](skills/testing-workflow/README.fr.md): Conçoit et exécute des tests automatisés et des benchmarks adaptés au coût et au risque des changements logiciels.
@@ -25,12 +26,13 @@ npx skills add samuelncui/skills --skill bilingual-translation
 npx skills add samuelncui/skills --skill bilingual-html
 npx skills add samuelncui/skills --skill bilingual-pdf
 npx skills add samuelncui/skills --skill study-notes
+npx skills add samuelncui/skills --skill reader-doc-review
 npx skills add samuelncui/skills --skill testing-workflow
 npx skills add samuelncui/skills --skill write-if-statements
 npx skills add samuelncui/skills --skill skill-optimization
 ```
 
-Installez les répertoires complets des compétences utiles. Des paires déjà fournies nécessitent seulement bilingual-pdf ou bilingual-html ; traduire une source nécessite bilingual-translation. PDF accepte directement le JSONL relu ; HTML utilise son propre JSON de mise en page ou l’importeur de données sémantiques. study-notes dépend de bilingual-pdf. Les trois guides de qualité n’ont pas de dépendance d’exécution propre : les projets testés fournissent leurs outils. Les dépendances sont découvertes via l’hôte, jamais installées automatiquement. Consultez chaque guide pour la configuration et les exemples.
+Installez les répertoires complets des compétences utiles. Des paires déjà fournies nécessitent seulement bilingual-pdf ou bilingual-html ; reader-doc-review requiert seulement Python 3 pour ses aides facultatives ; traduire une source nécessite bilingual-translation. PDF accepte directement le JSONL relu ; HTML utilise son propre JSON de mise en page ou l’importeur de données sémantiques. study-notes dépend de bilingual-pdf. Les trois guides de qualité n’ont pas de dépendance d’exécution propre : les projets testés fournissent leurs outils. Les dépendances sont découvertes via l’hôte, jamais installées automatiquement. Consultez chaque guide pour la configuration et les exemples.
 
 ## Conventions du dépôt
 

@@ -19,6 +19,7 @@ class CIScopeTests(unittest.TestCase):
                  'skills/bilingual-pdf/references/latex.md',
                  'skills/testing-workflow/examples/test_tags.py',
                  'skills/write-if-statements/examples/conditionals.py',
+                 'skills/reader-doc-review/scripts/sweep.py', 'tests/test_reader_doc_review.py',
                  'tests/test_conditionals.py', 'tests/test_package_tool.py',
                  'tests/test_documentation_boundaries.py', 'tools/check_package.py']
         self.assertFalse(ci_scope.needs_render(paths))

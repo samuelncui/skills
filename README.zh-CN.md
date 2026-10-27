@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-七个技能，涵盖翻译、文档排版、学习资料、软件质量和技能改进。
+八个技能，涵盖翻译、文档排版、学习资料、软件质量和技能改进。
 
 ## 翻译与文档
 
@@ -10,6 +10,7 @@
 - [bilingual-html](skills/bilingual-html/README.zh-CN.md): 将已有配对文本排为可移植的响应式 HTML，支持逻辑配对顺序、RTL、真实表格和共享图片。
 - [bilingual-pdf](skills/bilingual-pdf/README.zh-CN.md): 将配对文本排版为同页双栏的双语文章、报告或阅读材料。
 - [study-notes](skills/study-notes/README.zh-CN.md): 将学习来源整理为讲解型笔记、速查手册、关键词索引或决策树。
+- [reader-doc-review](skills/reader-doc-review/README.zh-CN.md): 通过全新上下文的读者任务试读和修改循环，针对实际读者审阅并修改一篇文档。
 ## 软件与技能质量
 
 - [testing-workflow](skills/testing-workflow/README.zh-CN.md): 针对软件变更，设计并执行兼顾成本与风险的自动化测试和基准测试。
@@ -25,12 +26,13 @@ npx skills add samuelncui/skills --skill bilingual-translation
 npx skills add samuelncui/skills --skill bilingual-html
 npx skills add samuelncui/skills --skill bilingual-pdf
 npx skills add samuelncui/skills --skill study-notes
+npx skills add samuelncui/skills --skill reader-doc-review
 npx skills add samuelncui/skills --skill testing-workflow
 npx skills add samuelncui/skills --skill write-if-statements
 npx skills add samuelncui/skills --skill skill-optimization
 ```
 
-按需安装完整技能目录。已有配对文本只需 bilingual-pdf 或 bilingual-html；从原文翻译需 bilingual-translation。PDF 可直接接收已审校 JSONL，HTML 使用自己的排版 JSON 或语义交换格式导入器。study-notes 依赖 bilingual-pdf。三个软件／技能质量指南本身不要求运行时，测试使用目标项目的工具链。通过宿主发现依赖，不自动安装；配置和示例见各技能指南。
+按需安装完整技能目录。已有配对文本只需 bilingual-pdf 或 bilingual-html；reader-doc-review 只有可选辅助脚本需要 Python 3。从原文翻译需 bilingual-translation。PDF 可直接接收已审校 JSONL，HTML 使用自己的排版 JSON 或语义交换格式导入器。study-notes 依赖 bilingual-pdf。三个软件／技能质量指南本身不要求运行时，测试使用目标项目的工具链。通过宿主发现依赖，不自动安装；配置和示例见各技能指南。
 
 ## 仓库约定
 

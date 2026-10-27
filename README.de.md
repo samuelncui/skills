@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-Sieben Skills für Übersetzung, Dokumentensatz, Lernmaterial, Softwarequalität und Skill-Verbesserung.
+Acht Skills für Übersetzung, Dokumentensatz, Lernmaterial, Softwarequalität und Skill-Verbesserung.
 
 ## Übersetzung und Dokumente
 
@@ -10,6 +10,7 @@ Sieben Skills für Übersetzung, Dokumentensatz, Lernmaterial, Softwarequalität
 - [bilingual-html](skills/bilingual-html/README.de.md): Erstellt portables responsives HTML aus Textpaaren mit logischer Lesereihenfolge, RTL, echten Tabellen und gemeinsamen Abbildungen.
 - [bilingual-pdf](skills/bilingual-pdf/README.de.md): Erstellt zweisprachige Artikel, Berichte und Handouts in parallelen Spalten aus zugeordneten Textpaaren.
 - [study-notes](skills/study-notes/README.de.md): Verwandelt Lernquellen in erklärende Notizen, Kurzreferenzen, Stichwortverzeichnisse oder Entscheidungsbäume.
+- [reader-doc-review](skills/reader-doc-review/README.de.md): Ein Dokument für seine tatsächlichen Leser prüfen und überarbeiten, mit Aufgabenversuchen in frischem Kontext und Korrekturrunden.
 ## Software- und Skill-Qualität
 
 - [testing-workflow](skills/testing-workflow/README.de.md): Entwirft und führt automatisierte Tests und Benchmarks passend zu Kosten und Risiken von Softwareänderungen aus.
@@ -25,12 +26,13 @@ npx skills add samuelncui/skills --skill bilingual-translation
 npx skills add samuelncui/skills --skill bilingual-html
 npx skills add samuelncui/skills --skill bilingual-pdf
 npx skills add samuelncui/skills --skill study-notes
+npx skills add samuelncui/skills --skill reader-doc-review
 npx skills add samuelncui/skills --skill testing-workflow
 npx skills add samuelncui/skills --skill write-if-statements
 npx skills add samuelncui/skills --skill skill-optimization
 ```
 
-Installieren Sie die benötigten Skill-Verzeichnisse vollständig. Vorhandene Textpaare benötigen nur bilingual-pdf oder bilingual-html; die Übersetzung einer Quelle benötigt bilingual-translation. PDF liest geprüftes JSONL direkt, HTML verwendet sein eigenes Layout-JSON oder den Importer für semantische Austauschdaten. study-notes benötigt bilingual-pdf. Die drei Qualitätsleitfäden haben keine eigene Laufzeitabhängigkeit; getestete Projekte stellen ihre Werkzeuge bereit. Abhängigkeiten werden über den Host ermittelt und nie automatisch installiert. Einrichtung und Beispiele stehen im jeweiligen Leitfaden.
+Installieren Sie die benötigten Skill-Verzeichnisse vollständig. Vorhandene Textpaare benötigen nur bilingual-pdf oder bilingual-html; reader-doc-review benötigt Python 3 nur für seine optionalen Hilfsskripte; die Übersetzung einer Quelle benötigt bilingual-translation. PDF liest geprüftes JSONL direkt, HTML verwendet sein eigenes Layout-JSON oder den Importer für semantische Austauschdaten. study-notes benötigt bilingual-pdf. Die drei Qualitätsleitfäden haben keine eigene Laufzeitabhängigkeit; getestete Projekte stellen ihre Werkzeuge bereit. Abhängigkeiten werden über den Host ermittelt und nie automatisch installiert. Einrichtung und Beispiele stehen im jeweiligen Leitfaden.
 
 ## Repository-Konventionen
 

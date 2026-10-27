@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-翻訳、文書組版、学習資料、ソフトウェア品質、スキル改善を支える七つのスキルです。
+翻訳、文書組版、学習資料、ソフトウェア品質、スキル改善を支える八つのスキルです。
 
 ## 翻訳と文書
 
@@ -10,6 +10,7 @@
 - [bilingual-html](skills/bilingual-html/README.ja.md): 対応する文章から、論理的な読み順、RTL、表、共有画像を備えたレスポンシブ HTML を生成します。
 - [bilingual-pdf](skills/bilingual-pdf/README.ja.md): 対応する文章から、左右対照の二言語記事・レポート・配布資料を作成します。
 - [study-notes](skills/study-notes/README.ja.md): 学習資料から解説ノート、クイックリファレンス、キーワード索引、決定木を作成します。
+- [reader-doc-review](skills/reader-doc-review/README.ja.md): 新しいコンテキストの読者によるタスク試読と修正の反復で、実際の読者に向けて一つの文書をレビュー・改訂します。
 ## ソフトウェアとスキルの品質
 
 - [testing-workflow](skills/testing-workflow/README.ja.md): ソフトウェアの変更に対し、コストとリスクを考慮した自動テストとベンチマークを設計・実行します。
@@ -25,12 +26,13 @@ npx skills add samuelncui/skills --skill bilingual-translation
 npx skills add samuelncui/skills --skill bilingual-html
 npx skills add samuelncui/skills --skill bilingual-pdf
 npx skills add samuelncui/skills --skill study-notes
+npx skills add samuelncui/skills --skill reader-doc-review
 npx skills add samuelncui/skills --skill testing-workflow
 npx skills add samuelncui/skills --skill write-if-statements
 npx skills add samuelncui/skills --skill skill-optimization
 ```
 
-必要なスキルのディレクトリ全体をインストールします。既存の対訳には bilingual-pdf または bilingual-html だけで十分です。原文の翻訳には bilingual-translation が必要です。PDF はレビュー済み JSONL を直接受け取り、HTML は独自の組版 JSON または意味情報の交換形式インポーターを使います。study-notes は bilingual-pdf に依存します。品質関連の三つのガイド自体にランタイム依存はなく、対象プロジェクトのツールを使います。依存先はホストで検出し、自動インストールしません。設定と例は各ガイドを参照してください。
+必要なスキルのディレクトリ全体をインストールします。既存の対訳には bilingual-pdf または bilingual-html だけで十分です。reader-doc-review は任意の補助スクリプトにのみ Python 3 を使います。原文の翻訳には bilingual-translation が必要です。PDF はレビュー済み JSONL を直接受け取り、HTML は独自の組版 JSON または意味情報の交換形式インポーターを使います。study-notes は bilingual-pdf に依存します。品質関連の三つのガイド自体にランタイム依存はなく、対象プロジェクトのツールを使います。依存先はホストで検出し、自動インストールしません。設定と例は各ガイドを参照してください。
 
 ## リポジトリの規約
 

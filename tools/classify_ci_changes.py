@@ -7,11 +7,12 @@ import subprocess
 
 
 GUIDES = {'README.md', 'README.zh-CN.md', 'README.ja.md', 'README.fr.md', 'README.de.md'}
-INDEPENDENT_SKILLS = {'testing-workflow', 'write-if-statements'}
+INDEPENDENT_SKILLS = {'reader-doc-review', 'testing-workflow', 'write-if-statements'}
 NON_RENDER_FILES = {
     'AGENTS.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md',
     'tests/README.md', 'tests/test_documentation_boundaries.py',
     'tests/test_package_tool.py', 'tests/test_conditionals.py',
+    'tests/test_reader_doc_review.py',
     'tools/check_package.py',
 }
 

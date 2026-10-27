@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-Seven skills for translation, document layout, learning material, software quality and skill improvement.
+Eight skills for translation, document layout, learning material, software quality and skill improvement.
 
 ## Translation and documents
 
@@ -10,6 +10,7 @@ Seven skills for translation, document layout, learning material, software quali
 - [bilingual-html](skills/bilingual-html/README.md): Render supplied pairs as portable responsive HTML, with logical pair order, RTL text, real tables and shared figures.
 - [bilingual-pdf](skills/bilingual-pdf/README.md): Render side-by-side bilingual articles, reports and handouts from paired text.
 - [study-notes](skills/study-notes/README.md): Turn learning sources into explanatory notes, quick references, keyword indexes or decision trees.
+- [reader-doc-review](skills/reader-doc-review/README.md): Review and revise one document for its real readers through fresh-context task trials and fix rounds.
 ## Software and skill quality
 
 - [testing-workflow](skills/testing-workflow/README.md): Design and run cost-aware automated tests and benchmarks for software changes.
@@ -25,12 +26,13 @@ npx skills add samuelncui/skills --skill bilingual-translation
 npx skills add samuelncui/skills --skill bilingual-html
 npx skills add samuelncui/skills --skill bilingual-pdf
 npx skills add samuelncui/skills --skill study-notes
+npx skills add samuelncui/skills --skill reader-doc-review
 npx skills add samuelncui/skills --skill testing-workflow
 npx skills add samuelncui/skills --skill write-if-statements
 npx skills add samuelncui/skills --skill skill-optimization
 ```
 
-Choose complete skill directories. Supplied pairs need only bilingual-pdf or bilingual-html. Raw-source translation needs bilingual-translation; direct reviewed JSONL input is supported by PDF, while HTML uses its own layout JSON or the semantic-exchange importer. study-notes requires bilingual-pdf. The three software/skill-quality guides have no runtime dependency of their own; tested projects supply their toolchains. Dependencies are discovered through the host and never installed automatically. Follow each linked guide for setup and examples.
+Choose complete skill directories. Supplied pairs need only bilingual-pdf or bilingual-html. reader-doc-review needs only Python 3 for its optional helpers. Raw-source translation needs bilingual-translation; direct reviewed JSONL input is supported by PDF, while HTML uses its own layout JSON or the semantic-exchange importer. study-notes requires bilingual-pdf. The three software/skill-quality guides have no runtime dependency of their own; tested projects supply their toolchains. Dependencies are discovered through the host and never installed automatically. Follow each linked guide for setup and examples.
 
 ## Repository conventions
 
